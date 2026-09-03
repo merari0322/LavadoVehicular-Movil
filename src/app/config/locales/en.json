@@ -1,0 +1,765 @@
+{
+  "CONFIG": {
+    "TITLE": "Settings",
+    "NOTIFICATIONS": "Notifications",
+    "PUSH": "Push Notifications",
+    "PUSH_DESC": "Receive alerts for bookings and promotions",
+    "EMAIL": "Email Reminders",
+    "EMAIL_DESC": "One day before your scheduled wash",
+    "PROMO": "Promotions and Offers",
+    "PROMO_DESC": "Receive exclusive discounts",
+    "APPEARANCE": "Appearance",
+    "THEME": "Choose theme",
+    "THEME_DESC": "Customize the app colors",
+    "LANGUAGE": "Languages",
+    "LANGUAGE_DESC": "Change language",
+    "LOCATION": "Location",
+    "LOCATION_SHARE": "Share Location",
+    "LOCATION_DESC": "Allow access to your current location",
+    "HELP": "Help",
+    "HELP_CENTER": "Help Center",
+    "OPEN": "Open"
+  },
+  "SIDEBAR": {
+    "PAYMENT": "Pay service",
+    "DASHBOARD": "Dashboard",
+    "TITLE": "Car Wash",
+    "PROFILE": "Profile",
+    "RESERVE": "Book Wash",
+    "NOTIFICATIONS": "Notifications",
+    "HISTORY": "History",
+    "CONFIG": "Settings",
+    "LOGOUT": "Log Out",
+    "ASSIGNED_SERVICES": "assigned services",
+    "RATINGS": "Ratings",
+    "VEHICLES": "My vehicles"
+  },
+  "HISTORY": {
+    "FILTERS": "Filters",
+    "ALL": "All",
+    "PAID": "Paid",
+    "PENDING": "Pending",
+    "DATE": "Date",
+    "FROM": "From",
+    "TO": "To",
+    "SEARCH_LABEL": "Search by address, service or operator",
+    "SEARCH_PLACEHOLDER": "Type to search...",
+    "EMPTY": "No services found"
+  },
+  "HISTORY_CARD": {
+    "ADDRESS": "Address",
+    "TYPE": "Service type",
+    "EXTRA": "Extra services",
+    "OPERATOR": "Operator assignment",
+    "STATUS": "Status",
+    "PAID": "Paid",
+    "PENDING": "Pending",
+    "RATE": "Rate Service"
+  },
+  "COMMON": {
+    "CLOSE": "Close",
+    "CANCEL": "Cancel",
+    "DELETE": "Delete",
+    "COMING_SOON": "This section will be available very soon."
+  },
+  "SERVICE": {
+    "BASIC": "Basic",
+    "FULL": "Complete",
+    "PREMIUM": "Premium",
+    "BASIC_DESC": "Exterior vehicle wash",
+    "FULL_DESC": "Exterior and interior wash",
+    "PREMIUM_DESC": "Complete wash with waxing",
+    "BASIC_PRICE": "$20",
+    "FULL_PRICE": "$50,000",
+    "PREMIUM_PRICE": "$35,000",
+    "BASIC_TIME": "45 minutes",
+    "FULL_TIME": "120 minutes",
+    "PREMIUM_TIME": "75 minutes",
+    "BASIC_ITEMS": [
+      "Full exterior wash",
+      "Basic vacuum",
+      "Window cleaning"
+    ],
+    "FULL_ITEMS": [
+      "Everything in Premium",
+      "Hand waxing",
+      "Interior detailing"
+    ],
+    "PREMIUM_ITEMS": [
+      "Everything in Basic",
+      "Engine wash",
+      "Protective liquid wax"
+    ]
+  },
+  "EXTRA": {
+    "WAX": "Wax",
+    "VACUUM": "Vacuum"
+  },
+  "STATUS": {
+    "COMPLETED": "Completed",
+    "PENDING": "Pending",
+    "CONFIRMED": "Confirmed",
+    "CANCELED": "Canceled",
+    "ON_THE_WAY": "On the way",
+    "PAID": "Paid",
+    "REFUNDED": "Refunded"
+  },
+  "ASSIGNMENT": {
+    "MANUAL": "Manual",
+    "AUTO": "Automatic",
+    "AUTO_DESC": "The system will automatically assign an available operator."
+  },
+  "DASHBOARD": {
+    "HELLO": "Hello, {{name}}!",
+    "WELCOME": "Welcome back to Car Wash",
+    "NEXT_RESERVATIONS": "Upcoming Reservations",
+    "RESUMEN": {
+      "ACTIVE": "Active bookings",
+      "VEHICLES": "Vehicles",
+      "NOTIFICATIONS": "Notifications"
+    },
+    "SUBTITLE": "This is your client information module for AquaWash",
+    "CLIENT_VIEW": "Client View",
+    "STATS": {
+      "ACTIVE_RESERVATIONS": "My active bookings",
+      "MY_VEHICLES": "My vehicles",
+      "WASHES_DONE": "Washes completed",
+      "MY_RATING": "My given rating"
+    },
+    "NEXT_SERVICE": {
+      "TITLE": "Your next service",
+      "VIEW_DETAIL": "View detail",
+      "OPERATOR_ASSIGNED": "Assigned operator",
+      "PROGRESS": "Service progress"
+    },
+    "QUICK_ACCESS": {
+      "TITLE": "Quick access",
+      "BOOK_WASH": "Book wash",
+      "PAY_SERVICE": "Pay service",
+      "MY_VEHICLES": "My vehicles",
+      "NOTIFICATIONS": "Notifications"
+    },
+    "VEHICLES": {
+      "TITLE": "My registered vehicles",
+      "LAST_WASH": "Last wash",
+      "PLATE": "Plate"
+    },
+    "BENEFITS": {
+      "TITLE": "Your benefits and promotions",
+      "LOYALTY_PROGRESS": "Loyalty progress"
+    },
+    "SERVICES_HISTORY": {
+      "TITLE": "My service history",
+      "PAY_SERVICE": "Pay service",
+      "VIEW_ALL": "View all",
+      "OPERATOR": "Operator"
+    }
+  },
+  "VEHICLE": {
+    "CAR": "Car",
+    "TRUCK": "Truck",
+    "SEDAN": "Sedan",
+    "SUV": "SUV",
+    "PICKUP": "Pickup",
+    "MOTO": "Motorcycle"
+  },
+  "NOTIFICATIONS": {
+    "TITLE": "Notifications",
+    "CLIENT_SUBTITLE": "Here you can view notifications related to your bookings, promotions and system updates.",
+    "OPERATOR_SUBTITLE": "Here you can view important notifications related to your assigned services, status updates and system communications.",
+    "NEW_SERVICE": "New service assigned",
+    "NEW_SERVICE_DESC": "SV-2034 has been assigned to you at 3:00 PM.",
+    "STATUS_UPDATE": "Status update",
+    "STATUS_UPDATE_DESC": "The client confirmed the address for service SV-1783.",
+    "CANCELLATION": "Cancellation",
+    "CANCELLATION_DESC": "The client cancelled service SV-1690.",
+    "CLIENT_MESSAGE": "Client message",
+    "CLIENT_MESSAGE_DESC": "\"I'll be 5 minutes late, please wait for me.\"",
+    "SYSTEM": "System",
+    "SYSTEM_DESC": "Your profile has been successfully updated.",
+    "RESERVATION_CONFIRMED": "Reservation confirmed",
+    "RESERVATION_DESC": "Your premium wash is scheduled for February 25 at 10:00 AM.",
+    "REMINDER": "Reminder",
+    "REMINDER_DESC": "Your wash is scheduled for tomorrow. Everything is ready!",
+    "PROMO": "Special promotion!",
+    "PROMO_DESC": "Get 20% off your next full wash. Use code: AQUA20",
+    "UPDATE": "Service update",
+    "UPDATE_DESC": "We have expanded our coverage to new areas of the city.",
+    "TIME_2H": "2 hours ago",
+    "TIME_1D": "1 day ago",
+    "TIME_2D": "2 days ago",
+    "TIME_3D": "3 days ago",
+    "READ": "Read",
+    "UNREAD": "Unread",
+    "BTN_DETAIL": "View detail",
+    "CENTER_TITLE": "Notification",
+    "UNREAD_PLURAL": "unread",
+    "MARK_ALL_READ": "Mark all as read",
+    "MARK_READ": "Mark as read",
+    "MARK_UNREAD": "Mark as unread",
+    "EMPTY": "No notifications match the current filters.",
+    "TABS": {
+      "ALL": "All",
+      "REMINDERS": "Reminders",
+      "PROMOS": "Promotions",
+      "CONFIRMATIONS": "Confirmations",
+      "OTHERS": "Others"
+    },
+    "FILTERS": {
+      "READ_STATE": "Read status"
+    },
+    "TYPE_LABEL": {
+      "RECORDATORIO": "Reminder",
+      "PROMOCION": "Promotion",
+      "CONFIRMACION": "Confirmation",
+      "CANCELACION": "Cancellation",
+      "MENSAJE": "Message",
+      "SISTEMA": "System"
+    },
+    "SERVICE_REMINDER_TITLE": "Service reminder",
+    "SERVICE_REMINDER_DESC": "Your Premium wash SV-2034 is today at 3:00 PM. The operator will arrive at your registered address.",
+    "PENDING_PAYMENT_TITLE": "Pending payment reminder",
+    "PENDING_PAYMENT_DESC": "Service SV-1998 has a pending balance of $18,000.",
+    "PROMO_FULL_WASH_TITLE": "20% OFF on Full Wash",
+    "PROMO_FULL_WASH_DESC": "Promotion valid until 03/20 for pickups and trucks.",
+    "REFER_FRIEND_TITLE": "Bring a friend",
+    "REFER_FRIEND_DESC": "Refer a friend and you both get a free Basic wash.",
+    "BOOKING_CONFIRMED_DESC": "Your booking SV-2041 was confirmed for 03/25 at 10:00 AM.",
+    "PAYMENT_APPROVED_TITLE": "Payment approved",
+    "PAYMENT_APPROVED_DESC": "We received your payment of $45,000 for service SV-1042.",
+    "CLIENT_CANCELLATION_DESC": "Service SV-1690 was cancelled by the client.",
+    "OPERATOR_MESSAGE_TITLE": "Message from operator",
+    "OPERATOR_MESSAGE_DESC": "\"I'll be 5 minutes late, please wait for me.\"",
+    "DELETE_TITLE": "Delete this notification?",
+    "DELETE_MESSAGE": "This action cannot be undone."
+  },
+  "PAYMENTS": {
+    "TITLE": "Payment Management",
+    "SUBTITLE": "Manage and verify received payments",
+    "LIST_TITLE": "Payments list",
+    "STATS": {
+      "TOTAL_COLLECTED": "Total collected",
+      "VERIFIED": "Verified payments",
+      "PENDING": "Pending"
+    },
+    "FILTERS": {
+      "FROM": "From",
+      "TO": "To",
+      "APPLY": "Apply",
+      "MANUAL_REGISTER": "Manual entry"
+    },
+    "TABLE": {
+      "PAYMENT_ID": "Payment ID",
+      "SERVICE": "Service",
+      "AMOUNT": "Amount",
+      "METHOD": "Payment method",
+      "DATE": "Date",
+      "CLIENT": "Client",
+      "ACTIONS": "Actions"
+    },
+    "STATUS": {
+      "VERIFY": "Verify",
+      "VERIFIED": "Verified"
+    },
+    "METHODS": {
+      "CREDIT_CARD": "Credit Card",
+      "BANK_TRANSFER": "Bank Transfer",
+      "PAYPAL": "PayPal",
+      "CASH": "Cash"
+    },
+    "MODAL": {
+      "TITLE": "Register manual payment",
+      "CLIENT": "Client",
+      "SERVICE": "Service",
+      "AMOUNT": "Amount",
+      "METHOD": "Method",
+      "CANCEL": "Cancel",
+      "SUBMIT": "Register payment"
+    }
+  },
+  "PROFILE": {
+    "TITLE": "My Profile",
+    "MEMBER_SINCE": "Member since {{date}}",
+    "NAME": "Name",
+    "EMAIL": "Email",
+    "PHONE": "Phone",
+    "ADDRESS": "Address",
+    "EDIT": "Edit profile",
+    "SAVE": "Save",
+    "PASSWORD": "Password",
+    "CHANGE_PASSWORD": "Change password",
+    "PASSWORD_DESC": "A strong password is recommended",
+    "CHANGE": "Change",
+    "ACCOUNT": "Account",
+    "DELETE": "Delete account",
+    "DELETE_DESC": "Permanently delete your account and all your data",
+    "SAVED_MODE": "View mode",
+    "EDIT_MODE": "Edit mode",
+    "VALIDATION": {
+      "NAME_REQUIRED": "Name is required",
+      "NAME_MIN": "Name must be at least 3 characters",
+      "NAME_INVALID": "Name can only contain letters",
+      "EMAIL_REQUIRED": "Email is required",
+      "EMAIL_INVALID": "Please enter a valid email address",
+      "PHONE_REQUIRED": "Phone number is required",
+      "PHONE_INVALID": "The number is not valid for the selected country",
+      "ADDRESS_REQUIRED": "Address is required",
+      "ADDRESS_MIN": "Address must be at least 5 characters"
+    }
+  },
+  "RATINGS": {
+    "TITLE": "Rate service",
+    "SUBTITLE": "Your feedback helps us improve",
+    "QUESTION": "How was your experience?",
+    "COMMENT": "Comments (optional)",
+    "PLACEHOLDER": "Tell us more about your experience...",
+    "SUBMIT": "Submit rating"
+  },
+  "RESERVE": {
+    "TITLE": "Book wash",
+    "SUBTITLE": "Schedule your next wash in a few steps",
+    "DATE": "Date",
+    "TIME": "Time",
+    "SELECT_TIME": "Select a time",
+    "ADDRESS": "Address",
+    "ADDRESS_PLACEHOLDER": "Street, number, city...",
+    "VEHICLE": "Vehicle type",
+    "SERVICE": "Service type",
+    "ASSIGNMENT": "Operator assignment",
+    "SELECT": "Select",
+    "SUBMIT": "Book now",
+    "STEP1": {
+      "TITLE": "Choose your vehicle",
+      "SUBTITLE": "Select one of your registered vehicles",
+      "NO_VEHICLE": "Vehicle not listed? Register it first in",
+      "NO_VEHICLE_LINK": "My Vehicles"
+    },
+    "STEP2": {
+      "TITLE": "Service type",
+      "SUBTITLE": "Choose the cleaning level you prefer",
+      "POPULAR": "Most popular"
+    },
+    "STEP3": {
+      "TITLE": "Date and location",
+      "SUBTITLE": "Tell us when and where to wash your vehicle"
+    },
+    "SUMMARY": {
+      "TITLE": "Your booking summary",
+      "VEHICLE": "Vehicle",
+      "PLATE": "Plate",
+      "SERVICE": "Service",
+      "DURATION": "Estimated duration",
+      "DATE": "Date",
+      "TIME": "Time",
+      "TOTAL": "Total",
+      "SUBMIT": "Book Now",
+      "NOTE": "We'll notify you when the washer is on the way. You can pay online or in cash."
+    }
+  },
+  "APP": {
+    "TITLE": "Car Wash Service"
+  },
+  "NAV": {
+    "LOGIN": "Login",
+    "REGISTER": "Register",
+    "HOME": "Home",
+    "ABOUT": "About",
+    "SERVICES": "Services"
+  },
+  "HERO": {
+    "BADGE": "Mobile car wash service #1",
+    "TITLE_1": "Your car spotless,",
+    "TITLE_2": "wherever you are",
+    "DESCRIPTION": "Book your wash in minutes. We work with a professional team so you can schedule without lines or waiting.",
+    "START": "Get started",
+    "ALREADY_ACCOUNT": "I already have an account"
+  },
+  "FEATURES": {
+    "TITLE": "Why choose us?",
+    "SUBTITLE": "We provide the best mobile car wash service with professional quality.",
+    "ITEMS": {
+      "ECO": {
+        "TITLE": "Eco-friendly wash",
+        "DESC": "We use biodegradable products"
+      },
+      "PROTECTION": {
+        "TITLE": "Full protection",
+        "DESC": "We take care of every detail of your car"
+      },
+      "RATING": {
+        "TITLE": "5 stars",
+        "DESC": "Guaranteed quality every time"
+      }
+    }
+  },
+  "LOGOUT": {
+    "TITLE": "Log out",
+    "MESSAGE": "Are you sure you want to log out?",
+    "CONFIRM": "Yes, log out",
+    "CANCEL": "Cancel"
+  },
+  "LOGIN": {
+    "TITLE": "Login",
+    "SUBTITLE": "Access your account to book a service",
+    "EMAIL": "Email Address",
+    "EMAIL_PLACEHOLDER": "user@gmail.com",
+    "PASSWORD": "Password",
+    "PASSWORD_PLACEHOLDER": "********",
+    "EMAIL_REQUIRED": "Email is required",
+    "EMAIL_INVALID": "Please enter a valid @gmail.com email",
+    "PASSWORD_REQUIRED": "Password is required",
+    "FORGOT_PASSWORD": "Forgot your password?",
+    "BUTTON": "Login",
+    "NO_ACCOUNT": "Don't have an account?",
+    "REGISTER": "Sign up",
+    "INVALID_CREDENTIALS": "Incorrect email or password"
+  },
+  "REGISTER": {
+    "TITLE": "Create Account",
+    "SUBTITLE": "Sign up to start booking",
+    "FULL_NAME": "Full Name",
+    "FULL_NAME_PLACEHOLDER": "John Doe",
+    "EMAIL": "Email Address",
+    "EMAIL_PLACEHOLDER": "user@gmail.com",
+    "PHONE": "Phone Number",
+    "PHONE_PLACEHOLDER": "3001234567",
+    "PASSWORD": "Password",
+    "PASSWORD_PLACEHOLDER": "Minimum 8 characters",
+    "CONFIRM_PASSWORD": "Confirm Password",
+    "CONFIRM_PASSWORD_PLACEHOLDER": "Repeat your password",
+    "NAME_REQUIRED": "Name is required",
+    "NAME_MIN": "Must contain at least 3 characters",
+    "EMAIL_REQUIRED": "Email is required",
+    "EMAIL_INVALID": "Only @gmail.com emails are allowed",
+    "PHONE_REQUIRED": "Phone number is required",
+    "PHONE_INVALID": "Must start with 3 (Colombian mobile number)",
+    "PHONE_MIN": "The number must contain 10 digits",
+    "PASSWORD_REQUIRED": "Password is required",
+    "CONFIRM_REQUIRED": "You must confirm the password",
+    "PASSWORDS_NOT_MATCH": "Passwords do not match",
+    "REQUIREMENTS": {
+      "MIN": "Minimum 8 characters",
+      "UPPERCASE": "At least one uppercase letter",
+      "NUMBER": "At least one number",
+      "SPECIAL": "At least one special character"
+    },
+    "BUTTON": "Register",
+    "BUTTON_LOADING": "Registering...",
+    "ALREADY_ACCOUNT": "Already have an account?",
+    "LOGIN": "Log in",
+    "INVALID_CREDENTIALS": "Incorrect email or password"
+  },
+  "FORGOT": {
+    "BACK_LOGIN": "Back to Login",
+    "EMAIL": {
+      "TITLE": "Recover Password",
+      "DESCRIPTION": "Enter your email to receive a verification code",
+      "LABEL": "Email Address",
+      "PLACEHOLDER": "user@gmail.com",
+      "INVALID": "Please enter a valid @gmail.com email",
+      "BUTTON": "Send Code"
+    },
+    "VERIFICATION": {
+      "TITLE": "Verification",
+      "DESCRIPTION": "Enter the 6-digit code sent to",
+      "RESEND": "Didn't receive the code? Resend",
+      "BUTTON": "Verify Code",
+      "INVALID_CODE": "The code you entered is not valid"
+    },
+    "NEW_PASSWORD": {
+      "TITLE": "New Password",
+      "DESCRIPTION": "Create your new secure password",
+      "LABEL": "New Password",
+      "PLACEHOLDER": "••••••••",
+      "CONFIRM": "Confirm Password",
+      "CONFIRM_PLACEHOLDER": "••••••••",
+      "BUTTON": "Update Password",
+      "REQUIREMENTS": {
+        "MIN": "Minimum 8 characters",
+        "UPPERCASE": "At least one uppercase letter",
+        "NUMBER": "At least one number",
+        "SPECIAL": "At least one special character"
+      }
+    }
+  },
+  "AUTH_PANEL": {
+    "TITLE": "Your vehicle deserves the best care",
+    "SUBTITLE": "Manage your car wash services, schedule appointments, and keep full control of your vehicle from a single platform.",
+    "BENEFIT1_TITLE": "Premium Service",
+    "BENEFIT1_DESC": "High-quality washes to keep your vehicle spotless.",
+    "BENEFIT2_TITLE": "Quick Bookings",
+    "BENEFIT2_DESC": "Schedule your appointments in seconds from any device.",
+    "BENEFIT3_TITLE": "Secure Information",
+    "BENEFIT3_DESC": "Your data and reservations are protected at all times."
+  },
+  "ASSIGNED_SERVICES": {
+    "TITLE": "Assigned Services",
+    "SUBTITLE": "Here you can see all the services assigned to you. Keep the progress information updated.",
+    "STATS": {
+      "TOTAL": "Total Services",
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED_TODAY": "Completed Today"
+    },
+    "FILTERS": {
+      "TITLE": "Search filters",
+      "BY_DATE": "Filter by date",
+      "BY_TYPE": "Filter by service type",
+      "BY_SERVICE": "Search by service",
+      "SEARCH_PLACEHOLDER": "Search...",
+      "ALL": "All",
+      "FILTER_BTN": "Filter"
+    },
+    "TABLE": {
+      "ID": "ID",
+      "SERVICE_TYPE": "SERVICE TYPE",
+      "LOCATION": "LOCATION",
+      "DATE_TIME": "DATE & TIME",
+      "VEHICLE": "VEHICLE",
+      "CLIENT": "CLIENT",
+      "STATUS": "STATUS"
+    },
+    "DETAIL": {
+      "TITLE": "Service information",
+      "CLIENT": "Client:",
+      "ADDRESS": "Address:",
+      "SERVICE_TYPE": "Service type:",
+      "SCHEDULED_TIME": "Scheduled time:",
+      "PAYMENT_METHOD": "Payment method:",
+      "MAP_LABEL": "Location on map",
+      "PROGRESS_TITLE": "Status and progress",
+      "START": "Start Service",
+      "REPORT": "Report progress",
+      "FINISH": "Finish Service",
+      "EXTRA_TITLE": "Additional options",
+      "CONTACT": "Contact client"
+    }
+  },
+  "OPERATOR_HOME": {
+    "TITLE": "Hello, {{name}}! 👋 Welcome!",
+    "SUBTITLE": "You have {{count}} pending services for today",
+    "BTN_SERVICES": "View assigned services",
+    "PROGRESS_LABEL": "Services completed today",
+    "IN_PROGRESS": "In Progress",
+    "PENDING": "Pending",
+    "RESERVATIONS_TITLE": "Pending Reservations",
+    "BTN_START": "Start",
+    "STATS": {
+      "ASSIGNED": "Assigned Bookings",
+      "VEHICLES": "Vehicles",
+      "NOTIFICATIONS": "Notifications",
+      "RATING": "Rating"
+    }
+  },
+  "SERVICE_HISTORY": {
+    "TITLE": "Service History",
+    "SUBTITLE": "Check all the services you have completed, organized by date, service type and final status.",
+    "FILTERS_TITLE": "Search filters",
+    "FILTER_DATE": "Filter by date",
+    "FILTER_TYPE": "Filter by service type",
+    "BTN_FILTER": "Filter",
+    "TYPE_ALL": "All",
+    "TYPE_BASIC": "Basic",
+    "TYPE_PREMIUM": "Premium",
+    "TYPE_FULL": "Complete",
+    "STATUS_ALL": "All",
+    "STATUS_FINISHED": "Completed",
+    "STATUS_CANCELED": "Canceled",
+    "STATUS_REASSIGNED": "Reassigned"
+  },
+  "HISTORY_STATS": {
+    "DONE": "Services completed this month",
+    "CANCELED": "Canceled / reassigned services"
+  },
+  "HISTORY_TABLE": {
+    "ID": "ID",
+    "DATE_COMPLETED": "DATE COMPLETED",
+    "SERVICE": "SERVICE",
+    "VEHICLE": "VEHICLE",
+    "DURATION": "DURATION",
+    "STATUS": "FINAL STATUS",
+    "EMPTY": "No services found"
+  },
+  "QUALIFICATIONS": {
+    "TITLE": "Ratings received",
+    "SUBTITLE": "Check the ratings your clients have left about your work.",
+    "FILTERS_TITLE": "Search filters",
+    "FILTER_DATE": "Filter by date",
+    "FILTER_TYPE": "Filter by service type",
+    "BTN_FILTER": "Filter",
+    "TYPE_ALL": "All",
+    "TYPE_BASIC": "Basic Wash",
+    "TYPE_PREMIUM": "Premium Wash",
+    "TYPE_FULL": "Complete Wash",
+    "STARS_ALL": "All",
+    "STARS_5": "5 stars",
+    "STARS_4": "4 stars",
+    "STARS_3": "3 stars",
+    "STARS_2": "2 stars",
+    "STARS_1": "1 star",
+    "EMPTY": "No ratings found"
+  },
+  "QUALIFICATION_CARD": {
+    "DURATION": "Duration",
+    "LOCATION": "Location",
+    "ID": "ID"
+  },
+  "QUALIFICATION_STATS": {
+    "AVG_RATING": "Average rating",
+    "SATISFACTION_LEVEL": "Satisfaction level",
+    "TOTAL": "Total ratings received",
+    "LAST_12_MONTHS": "In the last 12 months"
+  },
+  "PAYMENT": {
+    "TITLE": "Payment Gateway",
+    "SUBTITLE": "Pay for your service securely and check your history.",
+    "METHOD": {
+      "TITLE": "Payment method",
+      "CARD": "Card",
+      "CARD_DESC": "Debit / Credit",
+      "PAYPAL": "PayPal",
+      "PAYPAL_DESC": "Linked account",
+      "TRANSFER": "Transfer",
+      "TRANSFER_DESC": "PSE / Banks"
+    },
+    "FORM": {
+      "CARD_NAME": "Name on card",
+      "CARD_NAME_PLACEHOLDER": "Juan Díaz",
+      "CARD_NUMBER": "Card number",
+      "EXPIRY": "Expiry",
+      "CVV": "CVV",
+      "SECURE_NOTE": "Encrypted transaction. We do not store your card data."
+    },
+    "SUMMARY": {
+      "TITLE": "Service summary",
+      "SERVICE": "Service",
+      "VEHICLE": "Vehicle",
+      "BASE": "Base",
+      "DELIVERY": "Delivery",
+      "TOTAL": "Total to pay",
+      "PAY_BUTTON": "Pay",
+      "CANCEL_NOTE": "You can cancel at no cost up to 2 hours before."
+    },
+    "HISTORY": {
+      "TITLE": "Payment history",
+      "TOTAL_PAID": "Total paid"
+    }
+  },
+  "VEHICLES": {
+    "TITLE": "My Vehicles",
+    "SUBTITLE": "Check your registered vehicles and their last wash",
+    "REGISTER_BUTTON": "Register vehicle",
+    "STATS": {
+      "TOTAL": "Registered vehicles",
+      "WASHES": "Accumulated washes",
+      "LAST_WASH": "Last wash performed"
+    },
+    "CARD": {
+      "PLATE": "Plate",
+      "LAST_WASH": "Last wash",
+      "SERVICE": "Service",
+      "TOTAL_WASHES": "Total washes"
+    },
+    "MODAL": {
+      "TITLE": "Register new vehicle",
+      "SUBTITLE": "Add your vehicle details to book washes faster.",
+      "TYPE": "Vehicle type",
+      "TYPE_PLACEHOLDER": "Select the type",
+      "BRAND": "Brand",
+      "MODEL": "Model",
+      "PLATE": "Plate",
+      "COLOR": "Color",
+      "CANCEL": "Cancel",
+      "SAVE": "Save vehicle"
+    }
+  },
+  "REPORTS": {
+    "TITLE": "General Services and Revenue Reports",
+    "SUBTITLE": "View the business's performance",
+    "EXPORT_BUTTON": "Export report",
+    "DAYS": {
+      "MON": "Mon",
+      "TUE": "Tue",
+      "WED": "Wed",
+      "THU": "Thu",
+      "FRI": "Fri",
+      "SAT": "Sat",
+      "SUN": "Sun"
+    },
+    "FILTERS": {
+      "TITLE": "Filters",
+      "DATE": "Date",
+      "SERVICE": "Service",
+      "OPERATOR": "Operator",
+      "ALL": "All",
+      "APPLY": "Apply filters"
+    },
+    "CHART": {
+      "TITLE": "Charts",
+      "SERVICES": "Services",
+      "REVENUE": "Revenue ($)"
+    },
+    "SUMMARY": {
+      "DAY": "Today's Report",
+      "WEEK": "Week's Report",
+      "MONTH": "Month's Report",
+      "SERVICES_DONE": "Services completed",
+      "TOTAL_REVENUE": "Total revenue"
+    },
+    "YEAR_REVENUE": "Year's Total Revenue",
+    "TOP_SERVICES": {
+      "TITLE": "Best-Selling Services",
+      "SALES": "sales"
+    },
+    "MODAL": {
+      "TITLE": "Export report",
+      "SUBTITLE": "Preview the report before downloading it.",
+      "PERIOD": "Period",
+      "SERVICE": "Service",
+      "SERVICES_LABEL": "services",
+      "EXPORT_EXCEL": "Export Excel",
+      "EXPORT_PDF": "Export PDF"
+    }
+  },
+  "FOOTER": {
+    "DESCRIPTION": "Professional mobile car wash service bringing the best clean straight to your vehicle.",
+    "COMPANY": {
+      "TITLE": "Company",
+      "ABOUT": "About us",
+      "CONTACT": "Contact",
+      "CAREERS": "Careers"
+    },
+    "SERVICES_TITLE": "Services",
+    "SUPPORT": {
+      "TITLE": "Support",
+      "FAQ": "FAQ"
+    },
+    "LEGAL": {
+      "TITLE": "Legal",
+      "TERMS": "Terms of Service",
+      "PRIVACY": "Privacy Policy"
+    },
+    "COPYRIGHT": "© {{year}} AquaWash. All rights reserved."
+  },
+  "ABOUT": {
+    "EYEBROW": "Who we are",
+    "TITLE": "We take care of your vehicle as if it were our own",
+    "DESCRIPTION": "We are a team of certified professional washers, committed to excellence and environmental care. We bring the service to your doorstep or office, no lines or waiting.",
+    "STATS": {
+      "VEHICLES": "Vehicles washed",
+      "CLIENTS": "Happy clients",
+      "CITIES": "Cities",
+      "YEARS": "Years of experience"
+    }
+  },
+  "CONTACT": {
+    "EYEBROW": "Contact",
+    "TITLE": "Let's talk",
+    "SUBTITLE": "Write to us and we'll get back to you within 24 hours",
+    "EMAIL_LABEL": "Email",
+    "PHONE_LABEL": "Phone",
+    "COVERAGE_LABEL": "Coverage",
+    "COVERAGE_VALUE": "Major cities across Colombia",
+    "CTA": "Book your first wash"
+  }
+}
