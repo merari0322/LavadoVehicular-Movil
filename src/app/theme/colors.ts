@@ -15,7 +15,22 @@ export interface ThemeColors {
   overlayDark: string;
   overlayLight: string;
   onPrimary: string;
+  success: string;
+  successSoft: string;
+  warning: string;
+  warningSoft: string;
+  error: string;
+  errorSoft: string;
 }
+
+const statusColors = {
+  success: '#22c55e',
+  successSoft: 'rgba(34, 197, 94, 0.15)',
+  warning: '#f59e0b',
+  warningSoft: 'rgba(245, 158, 11, 0.15)',
+  error: '#ef4444',
+  errorSoft: 'rgba(239, 68, 68, 0.15)',
+};
 
 // valores tomados 1:1 de las variables CSS en styles.scss del proyecto web
 export const themes: Record<ThemeName, ThemeColors> = {
@@ -34,6 +49,7 @@ export const themes: Record<ThemeName, ThemeColors> = {
     overlayDark: 'rgba(19, 28, 32, 0.80)',
     overlayLight: 'rgba(0, 0, 0, 0.55)',
     onPrimary: '#ffffff',
+    ...statusColors,
   },
   greenDark: {
     primary: '#2ec4b6',
@@ -50,6 +66,7 @@ export const themes: Record<ThemeName, ThemeColors> = {
     overlayDark: 'rgba(0, 0, 0, 0.85)',
     overlayLight: 'rgba(0, 0, 0, 0.65)',
     onPrimary: '#ffffff',
+    ...statusColors,
   },
   pink: {
     primary: '#ff4fa3',
@@ -66,6 +83,7 @@ export const themes: Record<ThemeName, ThemeColors> = {
     overlayDark: 'rgba(255, 0, 120, 0.45)',
     overlayLight: 'rgba(0, 0, 0, 0.45)',
     onPrimary: '#ffffff',
+    ...statusColors,
   },
   pinkDark: {
     primary: '#ff4fa3',
@@ -82,5 +100,6 @@ export const themes: Record<ThemeName, ThemeColors> = {
     overlayDark: 'rgba(0, 0, 0, 0.85)',
     overlayLight: 'rgba(255, 0, 120, 0.35)',
     onPrimary: '#ffffff',
+    ...statusColors,
   },
 };

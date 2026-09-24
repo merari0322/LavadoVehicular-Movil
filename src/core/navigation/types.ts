@@ -3,4 +3,5 @@ export type RootStackParamList = {
   Register: undefined;
   ForgotPassword: undefined;
   ClientHome: { userName: string };
+  AdminDashboard: undefined;
 };
