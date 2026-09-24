@@ -14,13 +14,8 @@ export interface ThemeColors {
   itemHover: string;
   overlayDark: string;
   overlayLight: string;
-  heroImage: number;
   onPrimary: string;
 }
-
-// misma imagen de fondo del hero que usa la web para cada familia de tema
-const heroImageGreen = require('../../../assets/landing/hero.png');
-const heroImagePink = require('../../../assets/landing/car.png');
 
 // valores tomados 1:1 de las variables CSS en styles.scss del proyecto web
 export const themes: Record<ThemeName, ThemeColors> = {
@@ -38,7 +33,6 @@ export const themes: Record<ThemeName, ThemeColors> = {
     itemHover: 'rgba(0, 0, 0, 0.07)',
     overlayDark: 'rgba(19, 28, 32, 0.80)',
     overlayLight: 'rgba(0, 0, 0, 0.55)',
-    heroImage: heroImageGreen,
     onPrimary: '#ffffff',
   },
   greenDark: {
@@ -55,7 +49,6 @@ export const themes: Record<ThemeName, ThemeColors> = {
     itemHover: 'rgba(255, 255, 255, 0.08)',
     overlayDark: 'rgba(0, 0, 0, 0.85)',
     overlayLight: 'rgba(0, 0, 0, 0.65)',
-    heroImage: heroImageGreen,
     onPrimary: '#ffffff',
   },
   pink: {
@@ -72,7 +65,6 @@ export const themes: Record<ThemeName, ThemeColors> = {
     itemHover: 'rgba(0, 0, 0, 0.07)',
     overlayDark: 'rgba(255, 0, 120, 0.45)',
     overlayLight: 'rgba(0, 0, 0, 0.45)',
-    heroImage: heroImagePink,
     onPrimary: '#ffffff',
   },
   pinkDark: {
@@ -89,7 +81,6 @@ export const themes: Record<ThemeName, ThemeColors> = {
     itemHover: 'rgba(255, 255, 255, 0.08)',
     overlayDark: 'rgba(0, 0, 0, 0.85)',
     overlayLight: 'rgba(255, 0, 120, 0.35)',
-    heroImage: heroImagePink,
     onPrimary: '#ffffff',
   },
 };
