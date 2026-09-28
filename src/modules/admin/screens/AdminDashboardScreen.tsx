@@ -30,7 +30,7 @@ export function AdminDashboardScreen() {
             </View>
           </View>
           <TouchableOpacity style={[styles.headerBtn, { backgroundColor: colors.primary }]}>
-            <MaterialIcons name="calendar_today" size={16} color={colors.onPrimary} />
+            <MaterialIcons name="calendar-today" size={16} color={colors.onPrimary} />
             <Text style={[styles.headerBtnText, { color: colors.onPrimary }]}>Ver reservas de hoy</Text>
           </TouchableOpacity>
         </View>
@@ -38,7 +38,7 @@ export function AdminDashboardScreen() {
         <View style={styles.statsGrid}>
           <StatCard icon="event" badgeText={`↗ +${vm.stats.vsYesterday} vs ayer`} value={vm.stats.bookingsToday} label="Reservas de hoy" />
           <StatCard icon="autorenew" badgeText={`${vm.stats.activeBays} bahías activas`} value={vm.stats.servicesInProgress} label="En progreso" />
-          <StatCard icon="fact_check" iconTone="warning" badgeTone="warning" badgeText="Por revisar" value={vm.stats.pendingPayments} label="Pagos por verificar" />
+          <StatCard icon="fact-check" iconTone="warning" badgeTone="warning" badgeText="Por revisar" value={vm.stats.pendingPayments} label="Pagos por verificar" />
           <StatCard icon="payments" badgeText="COP" value={formatCOP(vm.stats.revenueToday)} label="Ingresos del día" />
         </View>
 

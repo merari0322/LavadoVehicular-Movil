@@ -19,7 +19,7 @@ export function RevenueChart({ data, weekTotal, barHeightPct }: RevenueChartProp
   return (
     <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.titleRow}>
-        <MaterialIcons name="bar_chart" size={18} color={colors.primary} />
+        <MaterialIcons name="bar-chart" size={18} color={colors.primary} />
         <Text style={[styles.title, { color: colors.text }]}>Ingresos de los últimos 7 días</Text>
       </View>
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>

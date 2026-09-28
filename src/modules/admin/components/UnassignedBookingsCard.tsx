@@ -16,7 +16,7 @@ export function UnassignedBookingsCard({ bookings }: UnassignedBookingsCardProps
       <View style={styles.head}>
         <View style={{ flex: 1 }}>
           <View style={styles.titleRow}>
-            <MaterialIcons name="assignment_ind" size={18} color={colors.primary} />
+            <MaterialIcons name="assignment-ind" size={18} color={colors.primary} />
             <Text style={[styles.title, { color: colors.text }]}>Reservas sin operario</Text>
           </View>
           <Text style={[styles.muted, { color: colors.textSecondary }]}>Servicios en espera de asignación</Text>
@@ -46,7 +46,7 @@ export function UnassignedBookingsCard({ bookings }: UnassignedBookingsCardProps
             </View>
           </View>
           <TouchableOpacity style={[styles.assignBtn, { backgroundColor: colors.primary }]}>
-            <MaterialIcons name="person_add" size={14} color={colors.onPrimary} />
+            <MaterialIcons name="person-add" size={14} color={colors.onPrimary} />
             <Text style={[styles.assignText, { color: colors.onPrimary }]}>Asignar</Text>
           </TouchableOpacity>
         </View>
