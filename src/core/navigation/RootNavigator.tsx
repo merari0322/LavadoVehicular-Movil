@@ -5,6 +5,7 @@ import { ForgotPasswordScreen, LoginScreen, RegisterScreen } from '../../modules
 import { ClientHomeScreen } from '../../modules/client/screens/ClientHomeScreen';
 import { AdminDashboardScreen } from '../../modules/admin';
 import { AdminScheduleScreen } from '../../modules/admin/screens/AdminScheduleScreen';
+import { AdminReportsScreen } from '../../modules/admin/screens/AdminReportsScreen';
 import { AdminManagementScreen } from '../../modules/admin/screens/AdminManagementScreen';
 import { AdminPaymentsScreen } from '../../modules/admin/screens/AdminPaymentsScreen';
 import { AdminProfileScreen } from '../../modules/admin/screens/AdminProfileScreen';
@@ -18,6 +19,7 @@ export function RootNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
       <Stack.Screen name="AdminSchedule" component={AdminScheduleScreen} />
+      <Stack.Screen name="AdminReports" component={AdminReportsScreen} />
       <Stack.Screen name="AdminManagement" component={AdminManagementScreen} />
       <Stack.Screen name="AdminPayments" component={AdminPaymentsScreen} />
       <Stack.Screen name="AdminProfile" component={AdminProfileScreen} />

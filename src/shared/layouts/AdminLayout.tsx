@@ -44,7 +44,7 @@ export function AdminLayout({ activeKey, children }: AdminLayoutProps) {
     { key: 'profile', label: 'Perfil', icon: 'person', onPress: () => navigation.navigate('AdminProfile') },
     { key: 'management', label: 'Gestión', icon: 'admin-panel-settings', onPress: () => navigation.navigate('AdminManagement') },
     { key: 'schedule', label: 'Horarios y bahías', icon: 'schedule', onPress: () => navigation.navigate('AdminSchedule') },
-    { key: 'reports', label: 'Reportes', icon: 'bar-chart', onPress: () => notImplemented('Reportes') },
+    { key: 'reports', label: 'Reportes', icon: 'bar-chart', onPress: () => navigation.navigate('AdminReports') },
     { key: 'settings', label: 'Configuración', icon: 'settings', onPress: () => notImplemented('Configuración') },
     {
       key: 'logout',
