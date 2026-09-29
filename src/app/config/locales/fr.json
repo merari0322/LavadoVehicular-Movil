@@ -761,5 +761,35 @@
     "COVERAGE_LABEL": "Couverture",
     "COVERAGE_VALUE": "Principales villes de Colombie",
     "CTA": "Réservez votre premier lavage"
+  },
+  "profile": {
+    "title": "Mon profil",
+    "memberSince": "Client depuis {{date}}",
+    "editMode": "Mode édition",
+    "savedMode": "Mode affichage",
+    "name": "Nom",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "edit": "Modifier le profil",
+    "save": "Enregistrer",
+    "password": "Mot de passe",
+    "changePassword": "Changer le mot de passe",
+    "passwordDesc": "Un mot de passe sécurisé est recommandé",
+    "change": "Changer",
+    "account": "Compte",
+    "delete": "Supprimer le compte",
+    "deleteDesc": "Supprimer définitivement votre compte et toutes vos données",
+    "validation": {
+      "nameRequired": "Le nom est obligatoire",
+      "nameMin": "Le nom doit contenir au moins 3 caractères",
+      "nameInvalid": "Le nom ne peut contenir que des lettres",
+      "emailRequired": "L'e-mail est obligatoire",
+      "emailInvalid": "L'e-mail n'est pas valide",
+      "phoneRequired": "Le téléphone est obligatoire",
+      "phoneInvalid": "Le téléphone n'est pas valide pour ce pays",
+      "addressRequired": "L'adresse est obligatoire",
+      "addressMin": "L'adresse doit contenir au moins 5 caractères"
+    }
   }
 }

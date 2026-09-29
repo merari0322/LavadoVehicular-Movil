@@ -761,5 +761,35 @@
     "COVERAGE_LABEL": "Cobertura",
     "COVERAGE_VALUE": "Principais cidades da Colômbia",
     "CTA": "Agende sua primeira lavagem"
+  },
+  "profile": {
+    "title": "Meu Perfil",
+    "memberSince": "Cliente desde {{date}}",
+    "editMode": "Modo de edição",
+    "savedMode": "Modo de visualização",
+    "name": "Nome",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "address": "Endereço",
+    "edit": "Editar perfil",
+    "save": "Salvar alterações",
+    "password": "Senha",
+    "changePassword": "Alterar senha",
+    "passwordDesc": "Recomenda-se uma senha segura",
+    "change": "Alterar",
+    "account": "Conta",
+    "delete": "Excluir conta",
+    "deleteDesc": "Excluir permanentemente sua conta e todos os seus dados",
+    "validation": {
+      "nameRequired": "O nome é obrigatório",
+      "nameMin": "O nome deve ter no mínimo 3 caracteres",
+      "nameInvalid": "O nome só pode conter letras",
+      "emailRequired": "O e-mail é obrigatório",
+      "emailInvalid": "O e-mail não é válido",
+      "phoneRequired": "O telefone é obrigatório",
+      "phoneInvalid": "O telefone não é válido para este país",
+      "addressRequired": "O endereço é obrigatório",
+      "addressMin": "O endereço deve ter no mínimo 5 caracteres"
+    }
   }
 }

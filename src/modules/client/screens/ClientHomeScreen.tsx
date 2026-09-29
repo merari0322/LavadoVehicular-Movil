@@ -23,7 +23,7 @@ export function ClientHomeScreen({ route, navigation }: Props) {
       </Text>
       <PrimaryButton
         label="Cerrar sesión"
-        onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Landing' }] })}
+        onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Login' }] })}
       />
     </View>
   );

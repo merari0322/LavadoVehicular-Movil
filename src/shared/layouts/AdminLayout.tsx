@@ -28,8 +28,8 @@ export function AdminLayout({ activeKey, children }: AdminLayoutProps) {
   const [moreVisible, setMoreVisible] = useState(false);
 
   const navItems: BottomNavItem[] = [
-    { key: 'dashboard', icon: 'dashboard', onPress: () => setMoreVisible(false) },
-    { key: 'reservations', icon: 'event', onPress: () => notImplemented('Reservas') },
+    { key: 'dashboard', icon: 'dashboard', onPress: () => { setMoreVisible(false); navigation.navigate('AdminDashboard'); } },
+    { key: 'reservations', icon: 'event', onPress: () => navigation.navigate('AdminReservations') },
     { key: 'payments', icon: 'payments', onPress: () => notImplemented('Pagos') },
     { key: 'operators', icon: 'groups', onPress: () => notImplemented('Operarios') },
   ];
@@ -41,7 +41,7 @@ export function AdminLayout({ activeKey, children }: AdminLayoutProps) {
   };
 
   const moreItems: MoreMenuItem[] = [
-    { key: 'profile', label: 'Perfil', icon: 'person', onPress: () => notImplemented('Perfil') },
+    { key: 'profile', label: 'Perfil', icon: 'person', onPress: () => navigation.navigate('AdminProfile') },
     { key: 'management', label: 'Gestión', icon: 'admin-panel-settings', onPress: () => notImplemented('Gestión') },
     { key: 'schedule', label: 'Horarios y bahías', icon: 'schedule', onPress: () => notImplemented('Horarios y bahías') },
     { key: 'reports', label: 'Reportes', icon: 'bar-chart', onPress: () => notImplemented('Reportes') },

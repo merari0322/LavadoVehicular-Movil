@@ -761,5 +761,35 @@
     "COVERAGE_LABEL": "Cobertura",
     "COVERAGE_VALUE": "Principales ciudades de Colombia",
     "CTA": "Agenda tu primer lavado"
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "memberSince": "Cliente desde {{date}}",
+    "editMode": "Modo edición",
+    "savedMode": "Modo visualización",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "address": "Dirección",
+    "edit": "Editar perfil",
+    "save": "Guardar cambios",
+    "password": "Contraseña",
+    "changePassword": "Cambiar contraseña",
+    "passwordDesc": "Se recomienda una contraseña segura",
+    "change": "Cambiar",
+    "account": "Cuenta",
+    "delete": "Eliminar cuenta",
+    "deleteDesc": "Eliminar permanentemente tu cuenta y todos tus datos",
+    "validation": {
+      "nameRequired": "El nombre es obligatorio",
+      "nameMin": "El nombre debe tener mínimo 3 caracteres",
+      "nameInvalid": "El nombre solo puede contener letras",
+      "emailRequired": "El correo es obligatorio",
+      "emailInvalid": "El correo no es válido",
+      "phoneRequired": "El teléfono es obligatorio",
+      "phoneInvalid": "El teléfono no es válido para este país",
+      "addressRequired": "La dirección es obligatoria",
+      "addressMin": "La dirección debe tener mínimo 5 caracteres"
+    }
   }
 }

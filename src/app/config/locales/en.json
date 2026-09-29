@@ -761,5 +761,35 @@
     "COVERAGE_LABEL": "Coverage",
     "COVERAGE_VALUE": "Major cities across Colombia",
     "CTA": "Book your first wash"
+  },
+  "profile": {
+    "title": "My Profile",
+    "memberSince": "Customer since {{date}}",
+    "editMode": "Edit mode",
+    "savedMode": "View mode",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "edit": "Edit profile",
+    "save": "Save changes",
+    "password": "Password",
+    "changePassword": "Change password",
+    "passwordDesc": "A strong password is recommended",
+    "change": "Change",
+    "account": "Account",
+    "delete": "Delete account",
+    "deleteDesc": "Permanently delete your account and all your data",
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameMin": "Name must be at least 3 characters",
+      "nameInvalid": "Name can only contain letters",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Email is not valid",
+      "phoneRequired": "Phone is required",
+      "phoneInvalid": "Phone is not valid for this country",
+      "addressRequired": "Address is required",
+      "addressMin": "Address must be at least 5 characters"
+    }
   }
 }

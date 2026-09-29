@@ -108,7 +108,7 @@ export function MoreMenuPanel({ visible, onClose, items, user }: MoreMenuPanelPr
 }
 
 const styles = StyleSheet.create({
-  root: { ...StyleSheet.absoluteFillObject, zIndex: 10 },
+  root: { ...StyleSheet.absoluteFill, zIndex: 10 },
   panelWrapper: { position: 'absolute', left: 16, right: 16, bottom: 92 },
   panelContent: { padding: 18 },
   userRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingBottom: 14, marginBottom: 16, borderBottomWidth: 1 },
