@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '../../../app/theme';
-import { PrimaryButton } from '../../../shared/components/PrimaryButton';
+import { PrimaryButton } from '../../../shared/components/ui/PrimaryButton';
 import { RootStackParamList } from '../../../core/navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientHome'>;

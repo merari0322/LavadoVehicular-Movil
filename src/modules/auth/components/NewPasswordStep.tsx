@@ -3,10 +3,10 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { PasswordField } from '../../../shared/components/PasswordField';
-import { PasswordRequirements } from '../../../shared/components/PasswordRequirements';
-import { PrimaryButton } from '../../../shared/components/PrimaryButton';
-import { StepIcon } from '../../../shared/components/StepIcon';
+import { PasswordField } from '../../../shared/components/forms/PasswordField';
+import { PasswordRequirements } from '../../../shared/components/forms/PasswordRequirements';
+import { PrimaryButton } from '../../../shared/components/ui/PrimaryButton';
+import { StepIcon } from '../../../shared/components/ui/StepIcon';
 import { useTheme } from '../../../app/theme';
 import { getPasswordStrength, isPasswordStrong } from '../../../shared/validators/authValidators';
 

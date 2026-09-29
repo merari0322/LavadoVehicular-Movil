@@ -3,11 +3,11 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../app/theme';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
-import { StatCard } from '../components/StatCard';
-import { RevenueChart } from '../components/RevenueChart';
-import { OperatorsStatusCard } from '../components/OperatorsStatusCard';
-import { PendingPaymentsCard } from '../components/PendingPaymentsCard';
-import { UnassignedBookingsCard } from '../components/UnassignedBookingsCard';
+import { StatCard } from '../components/dashboard/StatCard';
+import { RevenueChart } from '../components/dashboard/RevenueChart';
+import { OperatorsStatusCard } from '../components/dashboard/OperatorsStatusCard';
+import { PendingPaymentsCard } from '../components/dashboard/PendingPaymentsCard';
+import { UnassignedBookingsCard } from '../components/dashboard/UnassignedBookingsCard';
 import { formatCOP, useAdminDashboardViewModel } from '../viewmodels/useAdminDashboardViewModel';
 
 export function AdminDashboardScreen() {

@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { FormField } from '../../../shared/components/FormField';
-import { PrimaryButton } from '../../../shared/components/PrimaryButton';
-import { StepIcon } from '../../../shared/components/StepIcon';
+import { FormField } from '../../../shared/components/forms/FormField';
+import { PrimaryButton } from '../../../shared/components/ui/PrimaryButton';
+import { StepIcon } from '../../../shared/components/ui/StepIcon';
 import { useTheme } from '../../../app/theme';
 import { isGmailEmail, isRequired, stripSpaces } from '../../../shared/validators/authValidators';
 

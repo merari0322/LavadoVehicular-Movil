@@ -3,8 +3,8 @@ import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NativeSyntheticEvent, Pressable, StyleSheet, Text, TextInput, TextInputKeyPressEventData, View } from 'react-native';
 
-import { PrimaryButton } from '../../../shared/components/PrimaryButton';
-import { StepIcon } from '../../../shared/components/StepIcon';
+import { PrimaryButton } from '../../../shared/components/ui/PrimaryButton';
+import { StepIcon } from '../../../shared/components/ui/StepIcon';
 import { useTheme } from '../../../app/theme';
 
 const CODE_LENGTH = 6;

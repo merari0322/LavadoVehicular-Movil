@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { RootStackParamList } from '../../../core/navigation/types';
-import { AuthScreenLayout } from '../../../shared/components/AuthScreenLayout';
-import { FormField } from '../../../shared/components/FormField';
-import { PasswordField } from '../../../shared/components/PasswordField';
-import { PasswordRequirements } from '../../../shared/components/PasswordRequirements';
-import { PrimaryButton } from '../../../shared/components/PrimaryButton';
+import { AuthScreenLayout } from '../components/AuthScreenLayout';
+import { FormField } from '../../../shared/components/forms/FormField';
+import { PasswordField } from '../../../shared/components/forms/PasswordField';
+import { PasswordRequirements } from '../../../shared/components/forms/PasswordRequirements';
+import { PrimaryButton } from '../../../shared/components/ui/PrimaryButton';
 import { useTheme } from '../../../app/theme';
 import { useRegisterViewModel } from '../viewmodels/useRegisterViewModel';
 

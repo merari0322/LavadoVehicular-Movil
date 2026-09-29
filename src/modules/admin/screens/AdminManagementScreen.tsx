@@ -2,17 +2,17 @@ import React, { useMemo, useState } from 'react';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../../app/theme';
-import { ConfirmDialog } from '../../../shared/components/ConfirmDialog';
+import { ConfirmDialog } from '../../../shared/components/feedback/ConfirmDialog';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
-import { ManagementTabs } from '../components/ManagementTabs';
-import { PromotionFormModal } from '../components/PromotionFormModal';
-import { PromotionsTab } from '../components/PromotionsTab';
-import { RoleFormModal } from '../components/RoleFormModal';
-import { RolesTab } from '../components/RolesTab';
-import { ServiceFormModal } from '../components/ServiceFormModal';
-import { ServicesTab } from '../components/ServicesTab';
-import { UserFormModal } from '../components/UserFormModal';
-import { UsersTab } from '../components/UsersTab';
+import { ManagementTabs } from '../components/management/ManagementTabs';
+import { PromotionFormModal } from '../components/management/PromotionFormModal';
+import { PromotionsTab } from '../components/management/PromotionsTab';
+import { RoleFormModal } from '../components/management/RoleFormModal';
+import { RolesTab } from '../components/management/RolesTab';
+import { ServiceFormModal } from '../components/management/ServiceFormModal';
+import { ServicesTab } from '../components/management/ServicesTab';
+import { UserFormModal } from '../components/management/UserFormModal';
+import { UsersTab } from '../components/management/UsersTab';
 import { MANAGEMENT_TEXTS } from '../constants/managementTexts';
 import {
   ManagedService,

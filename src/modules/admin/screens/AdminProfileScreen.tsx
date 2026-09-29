@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
-import { ProfileCard, ProfileUser } from '../../../shared/components/ProfileCard';
+import { ProfileCard, ProfileUser } from '../../../shared/components/ui/ProfileCard';
 
 // TODO: reemplazar por los datos reales del usuario (API / auth service)
 const MOCK_USER: ProfileUser = {

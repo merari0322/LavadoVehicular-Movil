@@ -4,8 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../app/theme';
 import { RootStackParamList } from '../../core/navigation/types';
-import { AdminBottomNav, BottomNavItem } from '../components/AdminBottomNav';
-import { MoreMenuItem, MoreMenuPanel, MoreMenuUser } from '../components/MoreMenuPanel';
+import { AdminBottomNav, BottomNavItem } from './AdminBottomNav';
+import { MoreMenuItem, MoreMenuPanel, MoreMenuUser } from './MoreMenuPanel';
 
 interface AdminLayoutProps {
   activeKey: string;
