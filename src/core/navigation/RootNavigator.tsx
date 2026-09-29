@@ -4,6 +4,7 @@ import React from 'react';
 import { ForgotPasswordScreen, LoginScreen, RegisterScreen } from '../../modules/auth';
 import { ClientHomeScreen } from '../../modules/client/screens/ClientHomeScreen';
 import { AdminDashboardScreen } from '../../modules/admin';
+import { AdminManagementScreen } from '../../modules/admin/screens/AdminManagementScreen';
 import { AdminPaymentsScreen } from '../../modules/admin/screens/AdminPaymentsScreen';
 import { AdminProfileScreen } from '../../modules/admin/screens/AdminProfileScreen';
 import { AdminReservationsScreen } from '../../modules/admin/screens/AdminReservationsScreen';
@@ -15,6 +16,7 @@ export function RootNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+      <Stack.Screen name="AdminManagement" component={AdminManagementScreen} />
       <Stack.Screen name="AdminPayments" component={AdminPaymentsScreen} />
       <Stack.Screen name="AdminProfile" component={AdminProfileScreen} />
       <Stack.Screen name="AdminReservations" component={AdminReservationsScreen} />

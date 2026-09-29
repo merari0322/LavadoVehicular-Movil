@@ -1,0 +1,213 @@
+import {
+  ManagementTab,
+  Permission,
+  PromotionIcon,
+  PromotionStatus,
+  ServiceCategory,
+  UserFilter,
+} from '../models/management';
+
+// Textos de la pantalla de gestión (centralizados para migrarlos fácil a i18n)
+export const MANAGEMENT_TEXTS = {
+  online: 'Sistema en línea · Sucursal Central',
+
+  tabs: {
+    users: 'Usuarios',
+    roles: 'Roles',
+    services: 'Servicios',
+    promotions: 'Promociones',
+  } as Record<ManagementTab, string>,
+
+  common: {
+    cancel: 'Cancelar',
+    delete: 'Eliminar',
+    yes: 'Sí',
+    no: 'No',
+  },
+
+  // ---------------- Usuarios ----------------
+  users: {
+    title: 'Gestión',
+    subtitle: 'Supervisa los accesos del personal, roles asignados y estados de cuenta.',
+    create: 'Crear usuario',
+    search: 'Buscar por nombre, correo o rol...',
+    filters: {
+      enabled: 'Habilitados',
+      registered: 'Registrados',
+      disabled: 'Inhabilitados',
+    } as Record<UserFilter, string>,
+    empty: 'No se encontraron usuarios',
+    emptyHint: 'Prueba cambiando la búsqueda o el filtro',
+    noRole: 'Sin rol',
+    createdAt: 'Fecha de alta',
+    invited: 'Invitado',
+    active: 'Activo',
+    inactive: 'Inactivo',
+    deleteTitle: 'Eliminar usuario',
+    deleteMessage: (name: string) =>
+      `¿Seguro que quieres eliminar a ${name}? Esta acción no se puede deshacer.`,
+    form: {
+      createTitle: 'Crear Usuario',
+      createSubtitle: 'Invita a una persona a administrar la plataforma',
+      editTitle: 'Editar Usuario',
+      editSubtitle: 'Actualiza los datos y el rol de la persona',
+      name: 'Nombre completo',
+      namePlaceholder: 'Ej. María Fernanda López',
+      email: 'Correo electrónico',
+      emailPlaceholder: 'correo@ejemplo.com',
+      role: 'Rol asignado',
+      invite: 'Enviar invitación por correo',
+      create: 'Crear Usuario',
+      save: 'Guardar cambios',
+      errors: {
+        name: 'Ingresa el nombre completo',
+        email: 'El correo no es válido',
+        emailTaken: 'Este correo ya está registrado',
+        role: 'Selecciona un rol',
+      },
+    },
+  },
+
+  // ---------------- Roles ----------------
+  roles: {
+    title: 'Roles',
+    subtitle: 'Define qué puede ver y hacer cada tipo de usuario dentro del panel.',
+    create: 'Crear rol',
+    users: (total: number) => (total === 1 ? '1 usuario' : `${total} usuarios`),
+    empty: 'No hay roles creados',
+    emptyHint: 'Crea el primero con el botón de arriba',
+    permissions: {
+      view_panels: 'Ver paneles',
+      create_records: 'Crear registros',
+      edit_data: 'Editar datos',
+      delete: 'Eliminar',
+    } as Record<Permission, string>,
+    deleteTitle: 'Eliminar rol',
+    deleteMessage: (name: string) =>
+      `¿Seguro que quieres eliminar el rol ${name}? Esta acción no se puede deshacer.`,
+    blockedTitle: 'No se puede eliminar',
+    blockedMessage: (name: string, total: number) =>
+      `El rol ${name} tiene ${total} ${total === 1 ? 'usuario asignado' : 'usuarios asignados'}. Reasígnalos a otro rol antes de eliminarlo.`,
+    form: {
+      createTitle: 'Crear Rol de Usuario',
+      createSubtitle: 'Crea un rol con los permisos que necesitará.',
+      editTitle: 'Editar Rol',
+      editSubtitle: 'Actualiza la descripción y los permisos del rol.',
+      name: 'Nombre del Rol',
+      namePlaceholder: 'Ej. Supervisor de Bahía',
+      description: 'Descripción',
+      descriptionPlaceholder: 'Funciones principales del rol...',
+      permissions: 'Permisos Habilitados',
+      create: 'Crear Rol',
+      save: 'Guardar cambios',
+      errors: {
+        name: 'Ingresa el nombre del rol (mínimo 3 caracteres)',
+      },
+    },
+  },
+
+  // ---------------- Servicios ----------------
+  services: {
+    title: 'Servicios',
+    subtitle: 'Administra el catálogo de servicios que se ofrecen a los clientes.',
+    create: 'Agregar servicio',
+    active: 'Activo',
+    inactive: 'Inactivo',
+    duration: (minutes: number) => `${minutes} min`,
+    empty: 'No hay servicios en el catálogo',
+    emptyHint: 'Agrega el primero con el botón de arriba',
+    categories: {
+      wash: 'Lavado',
+      shine: 'Brillado',
+      detail: 'Detallado',
+      interior: 'Interior',
+    } as Record<ServiceCategory, string>,
+    deleteTitle: 'Eliminar servicio',
+    deleteMessage: (name: string) =>
+      `¿Seguro que quieres eliminar el servicio ${name}? Esta acción no se puede deshacer.`,
+    form: {
+      createTitle: 'Agregar Nuevo Servicio',
+      createSubtitle: 'Configura tarifa y tiempo para asignación de bahía',
+      editTitle: 'Editar Servicio',
+      editSubtitle: 'Actualiza la tarifa y el tiempo del servicio',
+      name: 'Nombre del Servicio',
+      namePlaceholder: 'Ej. Desinfección con Ozono',
+      price: 'Precio (COP)',
+      pricePlaceholder: '45.000',
+      description: 'Descripción',
+      descriptionPlaceholder: 'Describe los detalles del servicio...',
+      duration: 'Duración estimada',
+      category: 'Categoría',
+      create: 'Guardar Servicio',
+      save: 'Guardar cambios',
+    },
+  },
+
+  // ---------------- Promociones ----------------
+  promotions: {
+    title: 'Promociones',
+    subtitle: 'Administra los paquetes promocionales y cupones de descuento.',
+    create: 'Crear promoción',
+    coupon: 'Cupón',
+    redemptions: (total: number) => `${total} canjes`,
+    featured: 'Destacada',
+    duration: (minutes: number) => `${minutes} min`,
+    editCard: 'Editar tarjeta',
+    empty: 'No hay promociones creadas',
+    emptyHint: 'Crea la primera con el botón de arriba',
+    status: {
+      active: 'Activa',
+      paused: 'Pausada',
+      scheduled: 'Programada',
+    } as Record<PromotionStatus, string>,
+    action: {
+      active: 'Pausar',
+      paused: 'Reanudar',
+      scheduled: 'Comenzar ahora',
+    } as Record<PromotionStatus, string>,
+    icons: {
+      'directions-car': 'Auto',
+      'water-drop': 'Gota',
+      'auto-awesome': 'Brillo',
+    } as Record<PromotionIcon, string>,
+    metrics: {
+      redemptions: 'Total canjes',
+      savings: 'Ahorro a clientes',
+      conversion: 'Conversión de cupones',
+    },
+    deleteTitle: 'Eliminar promoción',
+    deleteMessage: (name: string) =>
+      `¿Seguro que quieres eliminar la promoción ${name}? Esta acción no se puede deshacer.`,
+    form: {
+      createTitle: 'Nueva promoción',
+      createSubtitle: 'Crea una oferta para atraer más clientes al lavadero.',
+      editTitle: 'Editar promoción',
+      editSubtitle: 'Actualiza los datos de la oferta.',
+      name: 'Nombre',
+      namePlaceholder: 'Ej. Lavado premium 2x1',
+      coupon: 'Cupón',
+      couponPlaceholder: 'Ej. PREMIUM20',
+      description: 'Descripción',
+      descriptionPlaceholder: 'Escribe los beneficios de la promoción',
+      price: 'Precio promocional',
+      duration: 'Duración (min)',
+      icon: 'Icono',
+      status: 'Estado',
+      startDate: 'Fecha de inicio',
+      featured: 'Destacar en la app',
+      benefits: 'Beneficios',
+      addBenefit: 'Agregar beneficio',
+      noBenefits: 'Aún no hay beneficios.',
+      benefitPlaceholder: 'Describe el beneficio',
+      save: 'Guardar',
+      errors: {
+        name: 'Ingresa el nombre',
+        coupon: 'Ingresa un cupón (mínimo 4 caracteres)',
+        description: 'Escribe la descripción',
+        price: 'Ingresa un precio válido',
+        duration: 'Duración inválida',
+        startDate: 'Fecha inválida (dd/mm/aaaa)',
+      },
+    },
+  },
+};

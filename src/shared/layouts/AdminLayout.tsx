@@ -42,7 +42,7 @@ export function AdminLayout({ activeKey, children }: AdminLayoutProps) {
 
   const moreItems: MoreMenuItem[] = [
     { key: 'profile', label: 'Perfil', icon: 'person', onPress: () => navigation.navigate('AdminProfile') },
-    { key: 'management', label: 'Gestión', icon: 'admin-panel-settings', onPress: () => notImplemented('Gestión') },
+    { key: 'management', label: 'Gestión', icon: 'admin-panel-settings', onPress: () => navigation.navigate('AdminManagement') },
     { key: 'schedule', label: 'Horarios y bahías', icon: 'schedule', onPress: () => notImplemented('Horarios y bahías') },
     { key: 'reports', label: 'Reportes', icon: 'bar-chart', onPress: () => notImplemented('Reportes') },
     { key: 'settings', label: 'Configuración', icon: 'settings', onPress: () => notImplemented('Configuración') },
