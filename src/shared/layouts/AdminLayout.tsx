@@ -30,7 +30,7 @@ export function AdminLayout({ activeKey, children }: AdminLayoutProps) {
   const navItems: BottomNavItem[] = [
     { key: 'dashboard', icon: 'dashboard', onPress: () => { setMoreVisible(false); navigation.navigate('AdminDashboard'); } },
     { key: 'reservations', icon: 'event', onPress: () => navigation.navigate('AdminReservations') },
-    { key: 'payments', icon: 'payments', onPress: () => notImplemented('Pagos') },
+    { key: 'payments', icon: 'payments', onPress: () => navigation.navigate('AdminPayments') },
     { key: 'operators', icon: 'groups', onPress: () => notImplemented('Operarios') },
   ];
 
