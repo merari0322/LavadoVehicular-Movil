@@ -7,7 +7,7 @@ import { SelectField, SelectOption } from '../../../../shared/components/forms/S
 import { withAlpha } from '../../../../shared/utils/color';
 import { SCHEDULE_TEXTS } from '../../constants/scheduleTexts';
 import { BAY_STATUSES, Bay, BayStatus } from '../../models/schedule';
-import { IconButton, Pill, PillTone } from './SchedulePills';
+import { IconButton, Pill, PillTone } from '../common/Pills';
 
 type IconName = keyof typeof MaterialIcons.glyphMap;
 

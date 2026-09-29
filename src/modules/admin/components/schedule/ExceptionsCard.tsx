@@ -7,7 +7,7 @@ import { withAlpha } from '../../../../shared/utils/color';
 import { SCHEDULE_TEXTS } from '../../constants/scheduleTexts';
 import { ExceptionType, ScheduleException } from '../../models/schedule';
 import { isoToDisplay } from '../../utils/reservationUtils';
-import { IconButton, Pill, PillTone } from './SchedulePills';
+import { IconButton, Pill, PillTone } from '../common/Pills';
 
 interface ExceptionsCardProps {
   exceptions: ScheduleException[];

@@ -6,8 +6,8 @@ import { SelectField, SelectOption } from '../../../../shared/components/forms/S
 import { withAlpha } from '../../../../shared/utils/color';
 import { SCHEDULE_TEXTS } from '../../constants/scheduleTexts';
 import { BREAK_OPTIONS, DaySchedule } from '../../models/schedule';
-import { Pill } from './SchedulePills';
-import { TimeField } from './TimeField';
+import { Pill } from '../common/Pills';
+import { TimeField } from '../common/TimeField';
 
 interface DayScheduleRowProps {
   schedule: DaySchedule;

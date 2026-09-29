@@ -4,6 +4,7 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   ClientHome: { userName: string };
   AdminDashboard: undefined;
+  AdminOperators: undefined;
   AdminSchedule: undefined;
   AdminReports: undefined;
   AdminManagement: undefined;

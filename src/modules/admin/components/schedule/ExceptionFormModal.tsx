@@ -14,7 +14,7 @@ import {
   ScheduleException,
 } from '../../models/schedule';
 import { displayToISO, getTodayISO, isValidTime, isoToDisplay, maskDate } from '../../utils/reservationUtils';
-import { TimeField } from './TimeField';
+import { TimeField } from '../common/TimeField';
 
 interface ExceptionFormModalProps {
   visible: boolean;
