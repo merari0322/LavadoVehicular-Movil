@@ -8,6 +8,7 @@ export type RootStackParamList = {
   AdminSchedule: undefined;
   AdminReports: undefined;
   AdminNotifications: undefined;
+  AdminSettings: undefined;
   AdminManagement: undefined;
   AdminPayments: undefined;
   AdminProfile: undefined;
