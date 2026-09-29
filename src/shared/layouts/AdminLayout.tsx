@@ -37,7 +37,7 @@ export function AdminLayout({ activeKey, children }: AdminLayoutProps) {
   const actionItem: BottomNavItem = {
     key: 'notifications',
     icon: 'notifications',
-    onPress: () => notImplemented('Notificaciones'),
+    onPress: () => navigation.navigate('AdminNotifications'),
   };
 
   const moreItems: MoreMenuItem[] = [

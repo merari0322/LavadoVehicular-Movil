@@ -7,6 +7,7 @@ import { AdminDashboardScreen } from '../../modules/admin';
 import { AdminOperatorsScreen } from '../../modules/admin/screens/AdminOperatorsScreen';
 import { AdminScheduleScreen } from '../../modules/admin/screens/AdminScheduleScreen';
 import { AdminReportsScreen } from '../../modules/admin/screens/AdminReportsScreen';
+import { AdminNotificationsScreen } from '../../modules/admin/screens/AdminNotificationsScreen';
 import { AdminManagementScreen } from '../../modules/admin/screens/AdminManagementScreen';
 import { AdminPaymentsScreen } from '../../modules/admin/screens/AdminPaymentsScreen';
 import { AdminProfileScreen } from '../../modules/admin/screens/AdminProfileScreen';
@@ -22,6 +23,7 @@ export function RootNavigator() {
       <Stack.Screen name="AdminOperators" component={AdminOperatorsScreen} />
       <Stack.Screen name="AdminSchedule" component={AdminScheduleScreen} />
       <Stack.Screen name="AdminReports" component={AdminReportsScreen} />
+      <Stack.Screen name="AdminNotifications" component={AdminNotificationsScreen} />
       <Stack.Screen name="AdminManagement" component={AdminManagementScreen} />
       <Stack.Screen name="AdminPayments" component={AdminPaymentsScreen} />
       <Stack.Screen name="AdminProfile" component={AdminProfileScreen} />
