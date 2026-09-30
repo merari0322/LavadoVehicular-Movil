@@ -9,6 +9,7 @@ import {
 import { CURRENT_AUDITOR, buildMockPayments } from '../services/paymentMock';
 import { getCurrentTime } from '../utils/paymentUtils';
 import { getTodayISO } from '../utils/reservationUtils';
+import { useSharedState } from '../../../shared/hooks/useSharedState';
 
 // Filtros sin ningún valor aplicado
 export const EMPTY_PAYMENT_FILTERS: PaymentFilters = { search: '', method: '', status: '' };
@@ -26,7 +27,8 @@ const normalize = (text: string): string => text.toLowerCase().replace(/[^a-z0-9
 
 // Hook con el estado y la lógica de la pantalla de pagos
 export function usePayments() {
-  const [payments, setPayments] = useState<Payment[]>(() => buildMockPayments());
+  // compartido con el inicio del admin (revisar pagos desde el dashboard)
+  const [payments, setPayments] = useSharedState<Payment[]>('admin.payments', buildMockPayments);
   const [filters, setFilters] = useState<PaymentFilters>(EMPTY_PAYMENT_FILTERS);
   const nextNumber = useRef(4903); // Consecutivo para los códigos nuevos
 
@@ -129,6 +131,7 @@ export function usePayments() {
   };
 
   return {
+    payments,
     filteredPayments,
     filters,
     stats,

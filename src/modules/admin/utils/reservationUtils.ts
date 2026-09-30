@@ -1,3 +1,5 @@
+import { TEXTS } from '../constants/reservationTexts';
+
 // Funciones de ayuda para fechas, horas y textos de reservas
 
 const pad = (value: number): string => String(value).padStart(2, '0');
@@ -63,7 +65,7 @@ export const addMinutes = (time: string, minutes: number): string => {
 
 // Muestra "Hoy" si la fecha es la de hoy, si no dd/mm/aaaa
 export const formatDateLabel = (iso: string): string =>
-  iso === getTodayISO() ? 'Hoy' : isoToDisplay(iso);
+  iso === getTodayISO() ? TEXTS.filters.today : isoToDisplay(iso);
 
 // Iniciales de un nombre: 'Carlos Ruiz' -> 'CR'
 export const getInitials = (name: string): string =>

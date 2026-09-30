@@ -13,15 +13,20 @@ interface VerificationStepProps {
   email: string;
   submitting: boolean;
   onVerify: (code: string) => Promise<boolean>;
+  // pide un código nuevo al servidor
+  onResend?: () => Promise<boolean>;
+  // mensaje exacto del servidor (código vencido, bloqueado, sin conexión...)
+  serverError?: string | null;
 }
 
-export function VerificationStep({ email, submitting, onVerify }: VerificationStepProps) {
+export function VerificationStep({ email, submitting, onVerify, onResend, serverError }: VerificationStepProps) {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation();
 
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
   const [error, setError] = useState<string | null>(null);
+  const [resent, setResent] = useState(false);
   const inputs = useRef<Array<TextInput | null>>([]);
 
   const handleChange = (index: number, value: string) => {
@@ -50,7 +55,20 @@ export function VerificationStep({ email, submitting, onVerify }: VerificationSt
 
     const success = await onVerify(code);
     if (!success) {
-      setError(t('FORGOT.VERIFICATION.INVALID_CODE'));
+      setError(serverError ?? t('FORGOT.VERIFICATION.INVALID_CODE'));
+    }
+  };
+
+  // el código anterior deja de servir; se limpian las casillas para escribir el nuevo
+  const handleResend = async () => {
+    if (!onResend) return;
+    setError(null);
+    setResent(false);
+    const success = await onResend();
+    setResent(success);
+    if (success) {
+      setDigits(Array(CODE_LENGTH).fill(''));
+      inputs.current[0]?.focus();
     }
   };
 
@@ -83,9 +101,13 @@ export function VerificationStep({ email, submitting, onVerify }: VerificationSt
         ))}
       </View>
 
-      {error && <Text style={styles.error}>{error}</Text>}
+      {(error || serverError) && <Text style={styles.error}>{error ?? serverError}</Text>}
 
-      <Pressable style={styles.resendLink}>
+      {resent && !error && (
+        <Text style={[styles.description, { color: colors.textSecondary }]}>{t('FORGOT.VERIFICATION.RESENT')}</Text>
+      )}
+
+      <Pressable style={styles.resendLink} onPress={handleResend}>
         <Text style={[styles.resendText, { color: colors.primary }]}>{t('FORGOT.VERIFICATION.RESEND')}</Text>
       </Pressable>
 

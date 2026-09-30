@@ -1,11 +1,13 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Alert, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../../app/theme';
 import { ThemeColors } from '../../../app/theme/colors';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
 import { withAlpha } from '../../../shared/utils/color';
+import { AssignOperatorModal } from '../components/reservations/AssignOperatorModal';
 import { ReservationCard } from '../components/reservations/ReservationCard';
 import { ReservationDetailModal } from '../components/reservations/ReservationDetailModal';
 import { ReservationFilters } from '../components/reservations/ReservationFilters';
@@ -14,12 +16,16 @@ import { ReservationStats } from '../components/reservations/ReservationStats';
 import { TEXTS } from '../constants/reservationTexts';
 import { Reservation, ReservationFormValues } from '../models/reservation';
 import { getOperatorById, getServiceById } from '../services/reservationMock';
+import { useOperators } from '../viewmodels/useOperators';
 import { useReservations } from '../viewmodels/useReservations';
+import { useServicesByOperator } from '../viewmodels/useServicesByOperator';
 
 // Escapa un valor para CSV (comillas dobles)
 const csvValue = (value: string): string => `"${value.replace(/"/g, '""')}"`;
 
 export const AdminReservationsScreen = () => {
+  // vuelve a pintar la pantalla cuando cambia el idioma
+  useTranslation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -31,7 +37,21 @@ export const AdminReservationsScreen = () => {
     clearFilters,
     createReservation,
     updateReservation,
+    reservations,
+    assignOperator,
   } = useReservations();
+  const { operators } = useOperators();
+
+  // Modal "Asignar operario" (reserva sin operario)
+  const [assigning, setAssigning] = useState<Reservation | null>(null);
+  const servicesByOperator = useServicesByOperator(reservations, assigning?.date);
+
+  const handleAssign = (reservation: Reservation, operatorId: string) => {
+    assignOperator(reservation.id, operatorId);
+    setAssigning(null);
+    const name = operators.find((item) => item.id === operatorId)?.name ?? '';
+    setTimeout(() => Alert.alert(TEXTS.assign.successTitle, TEXTS.assign.successMessage(name, reservation.code)), 300);
+  };
 
   // Modal de crear/editar
   const [formVisible, setFormVisible] = useState(false);
@@ -68,7 +88,7 @@ export const AdminReservationsScreen = () => {
 
   // Exporta las reservas filtradas en CSV usando el menú de compartir
   const handleExport = async () => {
-    const header = ['Código', 'Cliente', 'Teléfono', 'Vehículo', 'Placa', 'Servicio', 'Fecha', 'Hora', 'Operario', 'Estado'];
+    const header = [...TEXTS.csvHeaders];
     const rows = filteredReservations.map((item) =>
       [
         item.code,
@@ -133,7 +153,7 @@ export const AdminReservationsScreen = () => {
             </View>
           ) : (
             filteredReservations.map((item) => (
-              <ReservationCard key={item.id} reservation={item} onView={setSelectedReservation} />
+              <ReservationCard key={item.id} reservation={item} onView={setSelectedReservation} onAssign={setAssigning} />
             ))
           )}
         </ScrollView>
@@ -145,6 +165,13 @@ export const AdminReservationsScreen = () => {
         reservation={editingReservation}
         onClose={() => setFormVisible(false)}
         onSubmit={handleSubmit}
+      />
+      <AssignOperatorModal
+        reservation={assigning}
+        operators={operators}
+        servicesByOperator={servicesByOperator}
+        onClose={() => setAssigning(null)}
+        onAssign={handleAssign}
       />
       <ReservationDetailModal
         reservation={selectedReservation}

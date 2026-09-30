@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ConfirmDialog } from '../../../shared/components/feedback/ConfirmDialog';
@@ -20,6 +21,8 @@ interface ConfirmState {
 }
 
 export const AdminNotificationsScreen = () => {
+  // vuelve a pintar la pantalla cuando cambia el idioma
+  useTranslation();
   const inbox = useNotifications();
 
   // Notificación que se muestra en el modal de detalle (null = cerrado)

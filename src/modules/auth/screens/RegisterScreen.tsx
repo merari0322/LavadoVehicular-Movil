@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { RootStackParamList } from '../../../core/navigation/types';
 import { AuthScreenLayout } from '../components/AuthScreenLayout';
@@ -19,10 +19,13 @@ export function RegisterScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const vm = useRegisterViewModel();
 
+  // la cuenta se crea en el backend; al aceptar el aviso vuelve al login
   const handleSubmit = async () => {
     const success = await vm.submit();
     if (success) {
-      navigation.replace('Login');
+      Alert.alert(t('REGISTER.SUCCESS_TITLE'), t('REGISTER.SUCCESS_MESSAGE'), [
+        { text: t('REGISTER.SUCCESS_BUTTON'), onPress: () => navigation.replace('Login') },
+      ]);
     }
   };
 
@@ -31,14 +34,38 @@ export function RegisterScreen({ navigation }: Props) {
       <Text style={[styles.title, { color: colors.text }]}>{t('REGISTER.TITLE')}</Text>
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('REGISTER.SUBTITLE')}</Text>
 
+      {/* cédula: la tabla security.person la exige y no se puede repetir */}
       <FormField
-        label={t('REGISTER.FULL_NAME')}
+        label={t('REGISTER.DOCUMENT')}
+        icon="badge"
+        value={vm.documentNumber}
+        onChangeText={vm.handleDocumentChange}
+        onBlur={() => vm.markTouched('documentNumber')}
+        placeholder={t('REGISTER.DOCUMENT_PLACEHOLDER')}
+        error={vm.documentError}
+        keyboardType="number-pad"
+        maxLength={20}
+      />
+
+      <FormField
+        label={t('REGISTER.FIRST_NAMES')}
         icon="person"
-        value={vm.fullName}
-        onChangeText={vm.setFullName}
-        onBlur={() => vm.markTouched('fullName')}
-        placeholder={t('REGISTER.FULL_NAME_PLACEHOLDER')}
-        error={vm.fullNameError}
+        value={vm.firstName}
+        onChangeText={vm.setFirstName}
+        onBlur={() => vm.markTouched('firstName')}
+        placeholder={t('REGISTER.FIRST_NAMES_PLACEHOLDER')}
+        error={vm.firstNameError}
+        autoCapitalize="words"
+      />
+
+      <FormField
+        label={t('REGISTER.LAST_NAMES')}
+        icon="person"
+        value={vm.lastName}
+        onChangeText={vm.setLastName}
+        onBlur={() => vm.markTouched('lastName')}
+        placeholder={t('REGISTER.LAST_NAMES_PLACEHOLDER')}
+        error={vm.lastNameError}
         autoCapitalize="words"
       />
 
@@ -84,6 +111,9 @@ export function RegisterScreen({ navigation }: Props) {
         error={vm.confirmPasswordError}
       />
 
+      {/* error devuelto por el servidor (correo o cédula ya registrados, sin conexión...) */}
+      {vm.formError && <Text style={styles.formError}>{vm.formError}</Text>}
+
       <PrimaryButton
         label={vm.submitting ? t('REGISTER.BUTTON_LOADING') : t('REGISTER.BUTTON')}
         onPress={handleSubmit}
@@ -112,6 +142,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 4,
     lineHeight: 19,
+  },
+  formError: {
+    marginTop: 14,
+    color: '#ef5350',
+    fontSize: 13,
+    textAlign: 'center',
   },
   loginRow: {
     flexDirection: 'row',

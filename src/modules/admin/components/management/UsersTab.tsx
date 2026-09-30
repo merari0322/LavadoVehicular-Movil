@@ -14,15 +14,30 @@ interface UsersTabProps {
   roles: Role[];
   counts: Record<UserFilter, number>;
   onCreate: () => void;
-  onEdit: (user: ManagedUser) => void;
+  // editar/eliminar son opcionales: con cuentas reales se reemplazan por desactivar (ADR-010)
+  onEdit?: (user: ManagedUser) => void;
   onToggle: (id: string) => void;
-  onDelete: (user: ManagedUser) => void;
+  onDelete?: (user: ManagedUser) => void;
+  loading?: boolean;
+  loadError?: string | null;
+  onRetry?: () => void;
 }
 
 const texts = MANAGEMENT_TEXTS.users;
 
 // Pestaña de usuarios: filtros, buscador y lista
-export function UsersTab({ users, roles, counts, onCreate, onEdit, onToggle, onDelete }: UsersTabProps) {
+export function UsersTab({
+  users,
+  roles,
+  counts,
+  onCreate,
+  onEdit,
+  onToggle,
+  onDelete,
+  loading = false,
+  loadError = null,
+  onRetry,
+}: UsersTabProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -89,7 +104,18 @@ export function UsersTab({ users, roles, counts, onCreate, onEdit, onToggle, onD
       </View>
 
       {/* Lista */}
-      {visibleUsers.length === 0 ? (
+      {loading ? (
+        <Text style={styles.stateText}>{texts.loading}</Text>
+      ) : loadError ? (
+        <View style={styles.stateBox}>
+          <EmptyState title={texts.loadError} hint={loadError} />
+          {onRetry ? (
+            <Pressable style={styles.retryButton} onPress={onRetry}>
+              <Text style={styles.retryText}>{texts.retry}</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : visibleUsers.length === 0 ? (
         <EmptyState title={texts.empty} hint={texts.emptyHint} />
       ) : (
         visibleUsers.map((user) => (
@@ -123,12 +149,13 @@ export function UsersTab({ users, roles, counts, onCreate, onEdit, onToggle, onD
             </View>
 
             <View style={styles.actions}>
-              <ActionIconButton icon="edit" onPress={() => onEdit(user)} />
+              {onEdit ? <ActionIconButton icon="edit" onPress={() => onEdit(user)} /> : null}
               <ActionIconButton
                 icon={user.active ? 'block' : 'check-circle'}
+                danger={user.active && !onDelete}
                 onPress={() => onToggle(user.id)}
               />
-              <ActionIconButton icon="delete" danger onPress={() => onDelete(user)} />
+              {onDelete ? <ActionIconButton icon="delete" danger onPress={() => onDelete(user)} /> : null}
             </View>
           </ManagementCard>
         ))
@@ -141,6 +168,16 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     flex: { flex: 1 },
     container: { gap: 14 },
+    stateText: { textAlign: 'center', color: colors.textSecondary, paddingVertical: 24 },
+    stateBox: { gap: 10, alignItems: 'center' },
+    retryButton: {
+      paddingVertical: 10,
+      paddingHorizontal: 18,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.primary,
+    },
+    retryText: { color: colors.primary, fontWeight: '700' },
     filters: { gap: 8 },
     chip: {
       flexDirection: 'row',

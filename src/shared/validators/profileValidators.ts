@@ -9,7 +9,9 @@ export interface PhoneCountry {
 }
 
 export interface ProfileFormValues {
-  name: string;
+  // nombres y apellidos por separado: así los guarda security.person
+  firstName: string;
+  lastName: string;
   email: string;
   phoneCountry: string;
   phoneNumber: string;
@@ -40,7 +42,7 @@ export const getCountryByCode = (code: string): PhoneCountry =>
 
 const validateName = (value: string): string | undefined => {
   if (!value.trim()) return 'profile.validation.nameRequired';
-  if (value.length < 3) return 'profile.validation.nameMin';
+  if (value.trim().length < 2) return 'profile.validation.nameMin';
   if (!NAME_PATTERN.test(value)) return 'profile.validation.nameInvalid';
   return undefined;
 };
@@ -59,15 +61,17 @@ const validatePhone = (number: string, countryCode: string): string | undefined 
   return undefined;
 };
 
+// la dirección es opcional: el servicio es en la sede del lavadero
 const validateAddress = (value: string): string | undefined => {
-  if (!value.trim()) return 'profile.validation.addressRequired';
-  if (value.length < 5) return 'profile.validation.addressMin';
+  if (!value.trim()) return undefined;
+  if (value.trim().length < 5) return 'profile.validation.addressMin';
   return undefined;
 };
 
 // Valida todo el formulario y devuelve los errores por campo
 export const validateProfile = (values: ProfileFormValues): ProfileErrors => ({
-  name: validateName(values.name),
+  firstName: validateName(values.firstName),
+  lastName: validateName(values.lastName),
   email: validateEmail(values.email),
   phoneNumber: validatePhone(values.phoneNumber, values.phoneCountry),
   address: validateAddress(values.address),

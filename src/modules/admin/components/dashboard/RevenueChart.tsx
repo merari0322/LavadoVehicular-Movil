@@ -2,41 +2,42 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../../app/theme';
+import { DASHBOARD_TEXTS } from '../../constants/dashboardTexts';
 import { RevenueDay } from '../../types/dashboard.types';
 import { formatCOP } from '../../viewmodels/useAdminDashboardViewModel';
+import { CardLink } from './CardLink';
 
 interface RevenueChartProps {
   data: RevenueDay[];
   weekTotal: number;
+  busiestDay: string;
   barHeightPct: (amount: number) => number;
+  onViewReport: () => void;
 }
 
 const CHART_HEIGHT = 160;
 
-export function RevenueChart({ data, weekTotal, barHeightPct }: RevenueChartProps) {
+export function RevenueChart({ data, weekTotal, busiestDay, barHeightPct, onViewReport }: RevenueChartProps) {
   const { colors } = useTheme();
+  const texts = DASHBOARD_TEXTS.revenue;
 
   return (
     <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.titleRow}>
         <MaterialIcons name="bar-chart" size={18} color={colors.primary} />
-        <Text style={[styles.title, { color: colors.text }]}>Ingresos de los últimos 7 días</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{texts.title}</Text>
       </View>
-      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-        Consolidado semanal de cobros realizados y verificados
-      </Text>
+      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{texts.subtitle}</Text>
 
       <View style={styles.totalRow}>
-        <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>Total semana</Text>
+        <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>{texts.total}</Text>
         <Text style={[styles.totalValue, { color: colors.primary }]}>{formatCOP(weekTotal)} COP</Text>
       </View>
 
       <View style={[styles.bars, { height: CHART_HEIGHT }]}>
         {data.map((d) => (
           <View key={d.day} style={styles.barCol}>
-            <Text style={[styles.barTag, { color: d.isToday ? colors.primary : colors.textSecondary }]}>
-              {d.label}
-            </Text>
+            <Text style={[styles.barTag, { color: d.isToday ? colors.primary : colors.textSecondary }]}>{d.label}</Text>
             <View style={styles.barTrack}>
               <View
                 style={[
@@ -57,9 +58,8 @@ export function RevenueChart({ data, weekTotal, barHeightPct }: RevenueChartProp
         ))}
       </View>
 
-      <View style={[styles.footer, { borderTopColor: colors.border }]}>
-        <Text style={[styles.footerText, { color: colors.textSecondary }]}>Mayor afluencia: Sábado</Text>
-      </View>
+      <Text style={[styles.footerText, { color: colors.textSecondary }]}>{texts.busiest(busiestDay)}</Text>
+      <CardLink label={texts.viewReport} onPress={onViewReport} />
     </View>
   );
 }
@@ -78,6 +78,5 @@ const styles = StyleSheet.create({
   barTrack: { width: '100%', flex: 1, justifyContent: 'flex-end', alignItems: 'center' },
   bar: { width: '70%', borderRadius: 6, minHeight: 4 },
   barDay: { fontSize: 10, marginTop: 4 },
-  footer: { borderTopWidth: 1, marginTop: 14, paddingTop: 10 },
-  footerText: { fontSize: 11 },
+  footerText: { fontSize: 11, marginTop: 12 },
 });

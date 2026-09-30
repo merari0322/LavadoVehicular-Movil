@@ -20,6 +20,8 @@ import {
 
 export interface ProfileUser {
   name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   address: string;
@@ -29,7 +31,13 @@ export interface ProfileUser {
 
 interface ProfileCardProps {
   user: ProfileUser;
-  onSave?: (values: ProfileFormValues) => void; // Se ejecuta al guardar cambios
+  // se ejecuta al guardar; si devuelve false (el servidor no guardó) sigue en modo edición
+  onSave?: (values: ProfileFormValues) => Promise<boolean> | boolean | void;
+  // texto debajo del nombre (ej. el rol real); si no llega se usa "Cliente desde..."
+  subtitle?: string;
+  // error devuelto por el servidor al guardar
+  errorMessage?: string | null;
+  saving?: boolean;
   onChangePassword?: () => void;
   onDeleteAccount?: () => void;
 }
@@ -47,6 +55,8 @@ const DEFAULT_TEXTS: Record<string, string> = {
   'profile.editMode': 'Modo edición',
   'profile.savedMode': 'Modo visualización',
   'profile.name': 'Nombre',
+  'profile.firstName': 'Nombres',
+  'profile.lastName': 'Apellidos',
   'profile.email': 'Correo electrónico',
   'profile.phone': 'Teléfono',
   'profile.address': 'Dirección',
@@ -58,7 +68,7 @@ const DEFAULT_TEXTS: Record<string, string> = {
   'profile.change': 'Cambiar',
   'profile.account': 'Cuenta',
   'profile.delete': 'Eliminar cuenta',
-  'profile.deleteDesc': 'Eliminar permanentemente tu cuenta y todos tus datos',
+  'profile.deleteDesc': 'Tu cuenta se desactiva y ya no podrás iniciar sesión; tu historial se conserva',
   'profile.validation.nameRequired': 'El nombre es obligatorio',
   'profile.validation.nameMin': 'El nombre debe tener mínimo 3 caracteres',
   'profile.validation.nameInvalid': 'El nombre solo puede contener letras',
@@ -196,7 +206,8 @@ const ActionCard = ({
 
 // Crea los valores iniciales del formulario a partir del usuario
 const buildInitialValues = (user: ProfileUser): ProfileFormValues => ({
-  name: user.name,
+  firstName: user.firstName,
+  lastName: user.lastName,
   email: user.email,
   phoneCountry: PHONE_COUNTRIES[0].code,
   phoneNumber: cleanPhoneNumber(user.phone),
@@ -206,6 +217,9 @@ const buildInitialValues = (user: ProfileUser): ProfileFormValues => ({
 export const ProfileCard = ({
   user,
   onSave,
+  subtitle,
+  errorMessage,
+  saving = false,
   onChangePassword,
   onDeleteAccount,
 }: ProfileCardProps) => {
@@ -254,7 +268,7 @@ export const ProfileCard = ({
   };
 
   // Alterna entre modo visualización y modo edición
-  const handleToggleEdit = () => {
+  const handleToggleEdit = async () => {
     // Pasar a modo edición
     if (!editing) {
       setEditing(true);
@@ -263,12 +277,15 @@ export const ProfileCard = ({
 
     // Si hay errores, se marcan todos los campos como tocados y no se guarda
     if (hasProfileErrors(errors)) {
-      setTouched({ name: true, email: true, phoneNumber: true, address: true });
+      setTouched({ firstName: true, lastName: true, email: true, phoneNumber: true, address: true });
       return;
     }
 
-    // Guardar cambios y volver a modo visualización
-    onSave?.(values);
+    if (saving) return;
+
+    // Guardar cambios; solo vuelve a modo visualización si el servidor guardó
+    const saved = await onSave?.(values);
+    if (saved === false) return;
     setEditing(false);
     setCountryOpen(false);
     setTouched({});
@@ -293,7 +310,7 @@ export const ProfileCard = ({
 
         <View style={styles.summaryInfo}>
           <Text style={styles.userName}>{user.name}</Text>
-          <Text style={styles.subtitle}>{tr('profile.memberSince', { date: user.memberSince })}</Text>
+          <Text style={styles.subtitle}>{subtitle ?? tr('profile.memberSince', { date: user.memberSince })}</Text>
         </View>
 
         <View style={[styles.statusBadge, editing && styles.statusBadgeEditing]}>
@@ -308,15 +325,28 @@ export const ProfileCard = ({
         </View>
       </View>
 
-      {/* Nombre */}
-      <FieldCard icon="person" label={tr('profile.name')} error={getError('name')}>
+      {/* Nombres y apellidos (por separado, como los guarda el backend) */}
+      <FieldCard icon="person" label={tr('profile.firstName')} error={getError('firstName')}>
         <TextInput
           style={inputStyle}
-          value={values.name}
+          value={values.firstName}
           editable={editing}
-          onChangeText={(text) => handleChange('name', text)}
-          onBlur={() => handleBlur('name')}
+          onChangeText={(text) => handleChange('firstName', text)}
+          onBlur={() => handleBlur('firstName')}
           autoCapitalize="words"
+          maxLength={60}
+        />
+      </FieldCard>
+
+      <FieldCard icon="person-outline" label={tr('profile.lastName')} error={getError('lastName')}>
+        <TextInput
+          style={inputStyle}
+          value={values.lastName}
+          editable={editing}
+          onChangeText={(text) => handleChange('lastName', text)}
+          onBlur={() => handleBlur('lastName')}
+          autoCapitalize="words"
+          maxLength={60}
         />
       </FieldCard>
 
@@ -390,9 +420,13 @@ export const ProfileCard = ({
         />
       </FieldCard>
 
+      {/* error devuelto por el servidor al guardar */}
+      {Boolean(errorMessage) && <Text style={styles.serverError}>{errorMessage}</Text>}
+
       {/* Botón editar / guardar */}
       <Pressable
         onPress={handleToggleEdit}
+        disabled={saving}
         style={({ pressed }) => [
           styles.editButton,
           !editing && styles.editButtonSaved,
@@ -526,6 +560,7 @@ const createStyles = (COLORS: Palette) => StyleSheet.create({
     color: COLORS.textSecondary,
   },
   errorText: { marginTop: 6, fontSize: 12, fontWeight: '600', color: COLORS.error },
+  serverError: { fontSize: 13, fontWeight: '600', color: COLORS.error, textAlign: 'center' },
 
   // Inputs
   input: {

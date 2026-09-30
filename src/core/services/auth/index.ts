@@ -1,3 +1,3 @@
 export * from './auth.types';
 export * from './AuthServiceContext';
-export { MockAuthService } from './MockAuthService';
+export { HttpAuthService } from './HttpAuthService';

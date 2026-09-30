@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,6 +21,8 @@ import { usePayments } from '../viewmodels/usePayments';
 const csvValue = (value: string): string => `"${value.replace(/"/g, '""')}"`;
 
 export const AdminPaymentsScreen = () => {
+  // vuelve a pintar la pantalla cuando cambia el idioma
+  useTranslation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -60,7 +63,7 @@ export const AdminPaymentsScreen = () => {
 
   // Exporta los pagos filtrados en CSV usando el menú de compartir
   const handleExport = async () => {
-    const header = ['Código', 'Cliente', 'Documento', 'Teléfono', 'Referencia', 'Método', 'Monto', 'Monto declarado', 'Fecha', 'Hora', 'Servicio', 'Estado'];
+    const header = [...PAYMENT_TEXTS.csvHeaders];
     const rows = filteredPayments.map((item) =>
       [
         item.code,

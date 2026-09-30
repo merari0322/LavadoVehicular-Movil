@@ -128,3 +128,20 @@ export interface OperatorsSummary {
   averageRating: number;
   totalReviews: number;
 }
+
+// ---------------------------------------------------------------
+// Calendario del operario (operator-calendar de la web)
+// ---------------------------------------------------------------
+
+export type CalendarView = 'week' | 'day' | 'month';
+export type CalendarBlockType = 'available' | 'service' | 'leave' | 'lunch';
+
+// Bloque de tiempo de un día del calendario (horas HH:mm de 24 h)
+export interface CalendarBlock {
+  day: number; // 0 = lunes ... 5 = sábado
+  start: string;
+  end: string;
+  type: CalendarBlockType;
+  label: string;
+  bay?: string;
+}
