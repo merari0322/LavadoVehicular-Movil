@@ -18,11 +18,9 @@ export function LoginScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const vm = useLoginViewModel();
 
+  // al iniciar sesión, RootNavigator muestra solo las pantallas del rol: no hay que navegar a mano
   const handleSubmit = async () => {
-    const result = await vm.submit();
-    if (result.success) {
-      navigation.replace('ClientHome', { userName: result.userName ?? '' });
-    }
+    await vm.submit();
   };
 
   return (
@@ -48,6 +46,10 @@ export function LoginScreen({ navigation }: Props) {
         placeholder={t('LOGIN.PASSWORD_PLACEHOLDER')}
         error={vm.passwordError}
       />
+
+      {vm.sessionExpired && !vm.formError && (
+        <Text style={styles.formError}>{t('LOGIN.SESSION_EXPIRED')}</Text>
+      )}
 
       {vm.formError && <Text style={styles.formError}>{vm.formError}</Text>}
 
