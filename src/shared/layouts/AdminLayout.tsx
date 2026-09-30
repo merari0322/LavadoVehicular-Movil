@@ -1,80 +1,33 @@
-import React, { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useTheme } from '../../app/theme';
-import { RootStackParamList } from '../../core/navigation/types';
-import { AdminBottomNav, BottomNavItem } from './AdminBottomNav';
-import { MoreMenuItem, MoreMenuPanel, MoreMenuUser } from './MoreMenuPanel';
+import React from 'react';
+import { RoleLayout, RoleMenu } from './RoleLayout';
+
+// menú del administrador (mismo orden que el sidebar de la web)
+const ADMIN_MENU: RoleMenu = {
+  bar: [
+    { key: 'dashboard', icon: 'dashboard', route: 'AdminDashboard' },
+    { key: 'reservations', icon: 'event', route: 'AdminReservations' },
+    { key: 'payments', icon: 'payments', route: 'AdminPayments' },
+    { key: 'operators', icon: 'groups', route: 'AdminOperators' },
+  ],
+  action: { key: 'notifications', icon: 'notifications', route: 'AdminNotifications' },
+  more: [
+    { key: 'profile', icon: 'person', route: 'AdminProfile', labelKey: 'SIDEBAR.PROFILE' },
+    { key: 'management', icon: 'admin-panel-settings', route: 'AdminManagement', labelKey: 'SIDEBAR.MANAGEMENT' },
+    { key: 'schedule', icon: 'schedule', route: 'AdminSchedule', labelKey: 'SIDEBAR.SCHEDULE_BAYS' },
+    { key: 'reports', icon: 'bar-chart', route: 'AdminReports', labelKey: 'SIDEBAR.REPORTS' },
+    { key: 'settings', icon: 'settings', route: 'AdminSettings', labelKey: 'SIDEBAR.CONFIG' },
+  ],
+};
 
 interface AdminLayoutProps {
   activeKey: string;
   children: React.ReactNode;
 }
 
-const ADMIN_USER: MoreMenuUser = {
-  initials: 'JD',
-  name: 'Juan Díaz',
-  email: 'juan@email.com',
-};
-
-function notImplemented(label: string) {
-  Alert.alert('Próximamente', `${label} está en construcción.`);
-}
-
 export function AdminLayout({ activeKey, children }: AdminLayoutProps) {
-  const { colors } = useTheme();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const [moreVisible, setMoreVisible] = useState(false);
-
-  const navItems: BottomNavItem[] = [
-    { key: 'dashboard', icon: 'dashboard', onPress: () => { setMoreVisible(false); navigation.navigate('AdminDashboard'); } },
-    { key: 'reservations', icon: 'event', onPress: () => navigation.navigate('AdminReservations') },
-    { key: 'payments', icon: 'payments', onPress: () => navigation.navigate('AdminPayments') },
-    { key: 'operators', icon: 'groups', onPress: () => navigation.navigate('AdminOperators') },
-  ];
-
-  const actionItem: BottomNavItem = {
-    key: 'notifications',
-    icon: 'notifications',
-    onPress: () => navigation.navigate('AdminNotifications'),
-  };
-
-  const moreItems: MoreMenuItem[] = [
-    { key: 'profile', label: 'Perfil', icon: 'person', onPress: () => navigation.navigate('AdminProfile') },
-    { key: 'management', label: 'Gestión', icon: 'admin-panel-settings', onPress: () => navigation.navigate('AdminManagement') },
-    { key: 'schedule', label: 'Horarios y bahías', icon: 'schedule', onPress: () => navigation.navigate('AdminSchedule') },
-    { key: 'reports', label: 'Reportes', icon: 'bar-chart', onPress: () => navigation.navigate('AdminReports') },
-    { key: 'settings', label: 'Configuración', icon: 'settings', onPress: () => navigation.navigate('AdminSettings') },
-    {
-      key: 'logout',
-      label: 'Cerrar sesión',
-      icon: 'logout',
-      tone: 'danger',
-      onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Login' }] }),
-    },
-  ];
-
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+    <RoleLayout menu={ADMIN_MENU} activeKey={activeKey}>
       {children}
-      <MoreMenuPanel
-        visible={moreVisible}
-        onClose={() => setMoreVisible(false)}
-        items={moreItems}
-        user={ADMIN_USER}
-      />
-      <AdminBottomNav
-        items={navItems}
-        actionItem={actionItem}
-        activeKey={activeKey}
-        isMoreOpen={moreVisible}
-        onToggleMore={() => setMoreVisible((prev) => !prev)}
-      />
-    </View>
+    </RoleLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-});
