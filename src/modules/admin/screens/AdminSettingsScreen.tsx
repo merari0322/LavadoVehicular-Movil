@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ConfirmDialog } from '../../../shared/components/feedback/ConfirmDialog';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
 import { BusinessTab } from '../components/settings/BusinessTab';
 import { GeneralTab } from '../components/settings/GeneralTab';
-import { HelpDocumentModal } from '../components/settings/HelpDocumentModal';
+import { LegalDocumentModal, LegalDocumentType } from '../../../shared/components/feedback/LegalDocumentModal';
+import { BUSINESS_CONTACT, BUSINESS_LOCATION } from '../../../shared/constants/business';
+import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { PaymentMethodFormModal } from '../components/settings/PaymentMethodFormModal';
 import { PaymentsTab } from '../components/settings/PaymentsTab';
 import { SettingsTabs } from '../components/settings/SettingsTabs';
@@ -32,7 +35,32 @@ export const AdminSettingsScreen = () => {
   const settings = useSettings();
 
   // Tema de ayuda abierto en el modal de lectura (null = cerrado)
-  const [helpTopic, setHelpTopic] = useState<HelpTopic | null>(null);
+  // Términos / Política abiertos en el documento legal (igual que la web)
+  const [legal, setLegal] = useState<LegalDocumentType | null>(null);
+  const feedback = useFeedback();
+  const { t } = useTranslation();
+
+  // Centro de ayuda: canales de atención; Términos y Política: documento legal completo
+  const openHelp = (topic: HelpTopic) => {
+    if (topic === 'terms' || topic === 'privacy') {
+      setLegal(topic);
+      return;
+    }
+    feedback.showStatus({
+      type: 'info',
+      icon: 'support-agent',
+      title: t('CONFIG.HELP_CENTER'),
+      message: t('CONFIG.HELP_MODAL.MESSAGE'),
+      buttonText: t('COMMON.CLOSE'),
+      details: [
+        { label: t('CONFIG.HELP_MODAL.WHATSAPP'), value: BUSINESS_CONTACT.whatsapp },
+        { label: t('CONFIG.HELP_MODAL.SUPPORT_LINE'), value: BUSINESS_CONTACT.supportLine },
+        { label: t('CONFIG.HELP_MODAL.EMAIL'), value: BUSINESS_CONTACT.email },
+        { label: t('CONFIG.HELP_MODAL.HOURS'), value: t('CONFIG.HELP_MODAL.HOURS_VALUE') },
+        { label: t('CONFIG.HELP_MODAL.ADDRESS'), value: BUSINESS_LOCATION.address },
+      ],
+    });
+  };
 
   // Modal de formulario de métodos de pago
   const [paymentForm, setPaymentForm] = useState<FormState<PaymentMethod>>(CLOSED);
@@ -97,7 +125,7 @@ export const AdminSettingsScreen = () => {
               onTogglePreference={settings.togglePreference}
               onChangeTheme={settings.setTheme}
               onChangeLanguage={settings.setLanguage}
-              onOpenHelp={setHelpTopic}
+              onOpenHelp={openHelp}
             />
           ) : null}
 
@@ -130,7 +158,8 @@ export const AdminSettingsScreen = () => {
       </SafeAreaView>
 
       {/* Modales */}
-      <HelpDocumentModal topic={helpTopic} onClose={() => setHelpTopic(null)} />
+      <LegalDocumentModal type={legal} onClose={() => setLegal(null)} />
+      {feedback.modals}
       <PaymentMethodFormModal
         visible={paymentForm.visible}
         method={paymentForm.item}

@@ -9,6 +9,7 @@ import { LabeledInput } from '../../../../shared/components/forms/LabeledInput';
 import { SelectField, SelectOption } from '../../../../shared/components/forms/SelectField';
 import { withAlpha } from '../../../../shared/utils/color';
 import { MANAGEMENT_TEXTS } from '../../constants/managementTexts';
+import { TEXTS as RESERVATION_TEXTS } from '../../constants/reservationTexts';
 import {
   PROMOTION_ICONS,
   PROMOTION_STATUSES,
@@ -228,7 +229,7 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
           setStartDate(maskDate(text));
           clearError('startDate');
         }}
-        placeholder="dd/mm/aaaa"
+        placeholder={RESERVATION_TEXTS.filters.datePlaceholder}
         error={errors.startDate}
         keyboardType="number-pad"
         maxLength={10}

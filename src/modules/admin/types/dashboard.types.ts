@@ -7,31 +7,14 @@ export interface RevenueDay {
 
 export type OperatorStatusValue = 'busy' | 'available' | 'leave';
 
+// operario resumido para la tarjeta "Estado de operarios"
 export interface OperatorStatus {
+  id: string;
   initials: string;
   name: string;
   role: string;
   status: OperatorStatusValue;
   bay: string;
-}
-
-export interface PendingPayment {
-  client: string;
-  bank: string;
-  bankClass: 'bancolombia' | 'nequi' | 'daviplata';
-  service: string;
-  reference: string;
-  amount: number;
-}
-
-export interface UnassignedBooking {
-  time: string;
-  bay: string;
-  client: string;
-  vehicle: string;
-  service: string;
-  isUpcoming?: boolean;
-  icon: string;
 }
 
 export interface DashboardStats {

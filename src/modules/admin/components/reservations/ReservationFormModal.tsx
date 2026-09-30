@@ -289,7 +289,7 @@ export function ReservationFormModal({ visible, reservation, onClose, onSubmit }
                   style={inputStyle('date')}
                   value={state.date}
                   onChangeText={(text) => setField('date', maskDate(text))}
-                  placeholder="dd/mm/aaaa"
+                  placeholder={TEXTS.filters.datePlaceholder}
                   placeholderTextColor={colors.textMuted}
                   keyboardType="number-pad"
                   maxLength={10}

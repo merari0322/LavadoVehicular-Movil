@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../../app/theme';
@@ -23,9 +24,11 @@ import {
   Role,
   RoleFormValues,
   ServiceFormValues,
-  UserFormValues,
 } from '../models/management';
 import { useManagement } from '../viewmodels/useManagement';
+// la pestaña "Usuarios" usa las cuentas reales del security-service
+import { useSystemRoles, useUserAccounts } from '../viewmodels/useUserAccounts';
+import { CreateAccountPayload } from '../../../core/services/users/UserAdminService';
 
 // Estado de un modal de formulario: abierto/cerrado y el registro que se edita (null = crear)
 interface FormState<T> {
@@ -40,17 +43,24 @@ interface ConfirmState {
   title: string;
   message: string;
   onConfirm: () => void;
+  // texto del botón; por defecto "Eliminar"
+  confirmLabel?: string;
+  danger?: boolean;
 }
 
 export const AdminManagementScreen = () => {
+  // vuelve a pintar la pantalla cuando cambia el idioma
+  useTranslation();
+  const systemRoles = useSystemRoles();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(), []);
   const management = useManagement();
+  const accounts = useUserAccounts();
 
   const [tab, setTab] = useState<ManagementTab>('users');
 
   // Modales de formulario (uno por pestaña)
-  const [userForm, setUserForm] = useState<FormState<ManagedUser>>(CLOSED);
+  const [userFormVisible, setUserFormVisible] = useState(false);
   const [roleForm, setRoleForm] = useState<FormState<Role>>(CLOSED);
   const [serviceForm, setServiceForm] = useState<FormState<ManagedService>>(CLOSED);
   const [promotionForm, setPromotionForm] = useState<FormState<Promotion>>(CLOSED);
@@ -73,18 +83,33 @@ export const AdminManagementScreen = () => {
   // Usuarios
   // ---------------------------------------------------------------
 
-  const handleUserSubmit = (values: UserFormValues) => {
-    if (userForm.item) management.updateUser(userForm.item.id, values);
-    else management.createUser(values);
-    setUserForm(CLOSED);
+  // el modal crea la cuenta en el backend; si falla, el error se muestra dentro del modal
+  const handleUserSubmit = async (values: CreateAccountPayload): Promise<string | null> => {
+    const failure = await accounts.createAccount(values);
+    if (!failure) {
+      setUserFormVisible(false);
+      Alert.alert(MANAGEMENT_TEXTS.users.form.createdTitle, MANAGEMENT_TEXTS.users.form.createdMessage(`${values.firstName} ${values.lastName}`));
+    }
+    return failure;
   };
 
-  const handleUserDelete = (user: ManagedUser) =>
-    askDelete(
-      MANAGEMENT_TEXTS.users.deleteTitle,
-      MANAGEMENT_TEXTS.users.deleteMessage(user.name),
-      () => management.deleteUser(user.id),
-    );
+  // desactivar reemplaza a eliminar: la cuenta no se borra, solo deja de poder entrar
+  const handleUserToggle = (id: string) => {
+    const user = accounts.users.find((item) => item.id === id);
+    if (!user) return;
+    const texts = MANAGEMENT_TEXTS.users;
+    setConfirm({
+      title: user.active ? texts.disableTitle : texts.enableTitle,
+      message: user.active ? texts.disableMessage(user.name) : texts.enableMessage(user.name),
+      confirmLabel: texts.confirm,
+      danger: user.active,
+      onConfirm: async () => {
+        setConfirm(null);
+        const failure = await accounts.toggleActive(id);
+        if (failure) Alert.alert(texts.statusError, failure);
+      },
+    });
+  };
 
   // ---------------------------------------------------------------
   // Roles
@@ -162,13 +187,14 @@ export const AdminManagementScreen = () => {
 
           {tab === 'users' ? (
             <UsersTab
-              users={management.users}
-              roles={management.roles}
-              counts={management.userCounts}
-              onCreate={() => setUserForm({ visible: true, item: null })}
-              onEdit={(user) => setUserForm({ visible: true, item: user })}
-              onToggle={management.toggleUserActive}
-              onDelete={handleUserDelete}
+              users={accounts.users}
+              roles={systemRoles}
+              counts={accounts.counts}
+              loading={accounts.loading}
+              loadError={accounts.loadError}
+              onRetry={accounts.reload}
+              onCreate={() => setUserFormVisible(true)}
+              onToggle={handleUserToggle}
             />
           ) : null}
 
@@ -207,11 +233,9 @@ export const AdminManagementScreen = () => {
 
       {/* Modales de formulario */}
       <UserFormModal
-        visible={userForm.visible}
-        user={userForm.item}
-        roles={management.roles}
-        isEmailTaken={management.isEmailTaken}
-        onClose={() => setUserForm(CLOSED)}
+        visible={userFormVisible}
+        roles={systemRoles}
+        onClose={() => setUserFormVisible(false)}
         onSubmit={handleUserSubmit}
       />
       <RoleFormModal
@@ -238,7 +262,8 @@ export const AdminManagementScreen = () => {
         visible={confirm !== null}
         title={confirm?.title ?? ''}
         message={confirm?.message ?? ''}
-        confirmLabel={MANAGEMENT_TEXTS.common.delete}
+        confirmLabel={confirm?.confirmLabel ?? MANAGEMENT_TEXTS.common.delete}
+        danger={confirm?.danger ?? true}
         cancelLabel={MANAGEMENT_TEXTS.common.cancel}
         onConfirm={() => confirm?.onConfirm()}
         onCancel={() => setConfirm(null)}

@@ -1,95 +1,146 @@
 import { useMemo } from 'react';
-import {
-  DashboardStats,
-  OperatorStatus,
-  OperatorStatusValue,
-  PendingPayment,
-  RevenueDay,
-  UnassignedBooking,
-} from '../types/dashboard.types';
+import { useTranslation } from 'react-i18next';
+import { useSession } from '../../../core/services/auth';
+import { DASHBOARD_TEXTS } from '../constants/dashboardTexts';
+import { OperatorStatus, OperatorStatusValue, RevenueDay } from '../types/dashboard.types';
+import { getTodayISO } from '../utils/reservationUtils';
+import { usePayments } from './usePayments';
+import { useOperators } from './useOperators';
+import { useReservations } from './useReservations';
 
-const ADMIN_NAME = 'Laura';
-
-const STATS: DashboardStats = {
-  bookingsToday: 18,
-  vsYesterday: 3,
-  servicesInProgress: 4,
-  activeBays: 4,
-  pendingPayments: 5,
-  revenueToday: 680000,
-};
-
-const WEEKLY_REVENUE: RevenueDay[] = [
-  { day: 'Lun', amount: 520000, label: '$520k' },
-  { day: 'Mar', amount: 610000, label: '$610k' },
-  { day: 'Mié', amount: 450000, label: '$450k' },
-  { day: 'Jue', amount: 680000, label: '$680k', isToday: true },
-  { day: 'Vie', amount: 790000, label: '$790k' },
-  { day: 'Sáb', amount: 1100000, label: '$1.1M' },
-  { day: 'Dom', amount: 670000, label: '$670k' },
-];
-
-const OPERATORS: OperatorStatus[] = [
-  { initials: 'JD', name: 'Juan Díaz', role: 'Lavador Especialista', status: 'busy', bay: 'Bahía 2' },
-  { initials: 'CR', name: 'Carlos Ruiz', role: 'Técnico Detailing', status: 'available', bay: '' },
-  { initials: 'MG', name: 'Mateo Gómez', role: 'Tapicería e Interiores', status: 'leave', bay: '' },
-];
-
-const PENDING_PAYMENTS: PendingPayment[] = [
-  { client: 'Andrés Morales', bank: 'Bancolombia', bankClass: 'bancolombia', service: 'Lavado Detallado + Encerado', reference: '#BC-98402', amount: 85000 },
-  { client: 'Carolina Vega', bank: 'Nequi', bankClass: 'nequi', service: 'Combo Completo SUV', reference: '#NQ-44129', amount: 120000 },
-  { client: 'Felipe Montoya', bank: 'Daviplata', bankClass: 'daviplata', service: 'Lavado Básico Sedán', reference: '#DV-11208', amount: 45000 },
-];
-
-const UNASSIGNED_BOOKINGS: UnassignedBooking[] = [
-  { time: '15:00', bay: 'Bahía 3', client: 'Sofía Castro', vehicle: 'Mazda CX-30', service: 'Premium Especial', isUpcoming: true, icon: 'workspace-premium' },
-  { time: '15:30', bay: 'Bahía 1', client: 'Diego Herrera', vehicle: 'Toyota Hilux', service: 'Desinfección + Tapicería', icon: 'sanitizer' },
-  { time: '16:15', bay: 'Bahía 2', client: 'Mariana Gómez', vehicle: 'Renault Duster', service: 'Lavado General + Polichado', icon: 'auto-awesome' },
-];
-
-const STATUS_LABEL: Record<OperatorStatusValue, string> = {
-  busy: 'Ocupado',
-  available: 'Disponible',
-  leave: 'Incapacidad',
-};
+// ingresos de la semana (lunes a domingo): vendrán de commercial-service
+// TODO: calcularlos con los pagos aprobados cuando exista el backend de pagos
+const WEEKLY_AMOUNTS = [520000, 610000, 450000, 680000, 790000, 1100000, 670000];
+// comparación con ayer (dato del reporte diario)
+const VS_YESTERDAY = 3;
 
 export function formatCOP(amount: number): string {
   return '$' + Math.round(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
+// etiqueta corta de la barra: 520000 -> $520k, 1100000 -> $1.1M
+function shortAmount(amount: number): string {
+  if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+  return `$${Math.round(amount / 1000)}k`;
+}
+
+const STATUS_BY_OPERATOR: Record<string, OperatorStatusValue> = {
+  available: 'available',
+  in_service: 'busy',
+  absent: 'leave',
+};
+
+// inicio del administrador: usa los mismos datos que Reservas, Pagos y Operarios
+// (useSharedState), así lo que se haga aquí se ve en esas pantallas y al revés
 export function useAdminDashboardViewModel() {
+  const { t, i18n } = useTranslation();
+  const { user } = useSession();
+  const { reservations, assignOperator } = useReservations();
+  const { payments, stats: paymentStats, approvePayment, rejectPayment } = usePayments();
+  const { operators, getBayName } = useOperators();
+
+  const todayISO = getTodayISO();
+  const texts = DASHBOARD_TEXTS;
+
   const today = useMemo(
     () =>
-      new Date().toLocaleDateString('es-CO', {
+      new Date().toLocaleDateString(texts.dateLocale, {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
         year: 'numeric',
       }),
-    []
+    // cambia con el idioma
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [i18n.language],
   );
 
-  const maxRevenue = useMemo(() => Math.max(...WEEKLY_REVENUE.map((d) => d.amount)), []);
-  const weekTotal = useMemo(() => WEEKLY_REVENUE.reduce((sum, d) => sum + d.amount, 0), []);
+  const todays = useMemo(() => reservations.filter((item) => item.date === todayISO), [reservations, todayISO]);
 
+  // reservas de hoy que todavía no tienen operario, en orden de hora
+  const unassignedBookings = useMemo(
+    () =>
+      todays
+        .filter((item) => !item.operatorId && item.status !== 'cancelled' && item.status !== 'completed')
+        .sort((a, b) => a.time.localeCompare(b.time)),
+    [todays],
+  );
+
+  const pendingPayments = useMemo(
+    () =>
+      payments
+        .filter((item) => item.status === 'pending')
+        .sort((a, b) => `${b.date}${b.time}`.localeCompare(`${a.date}${a.time}`)),
+    [payments],
+  );
+
+  const operatorRows = useMemo<OperatorStatus[]>(
+    () =>
+      operators.map((item) => ({
+        id: item.id,
+        initials: item.name
+          .split(' ')
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((part) => part.charAt(0).toUpperCase())
+          .join(''),
+        name: item.name,
+        role: item.specialty,
+        status: STATUS_BY_OPERATOR[item.status] ?? 'available',
+        bay: getBayName(item.bayId),
+      })),
+    // getBayName solo lee la lista fija de bahías
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [operators],
+  );
+
+  // barras de la semana con los nombres cortos de los días en el idioma actual
+  const weeklyRevenue = useMemo<RevenueDay[]>(() => {
+    const days = t('CALENDAR.DAYS_SHORT', { returnObjects: true }) as string[];
+    const todayIndex = (new Date().getDay() + 6) % 7;
+    return WEEKLY_AMOUNTS.map((amount, index) => ({
+      day: Array.isArray(days) ? days[index] : String(index + 1),
+      amount,
+      label: shortAmount(amount),
+      isToday: index === todayIndex,
+    }));
+  }, [t]);
+
+  const maxRevenue = Math.max(...WEEKLY_AMOUNTS);
+  const weekTotal = WEEKLY_AMOUNTS.reduce((sum, amount) => sum + amount, 0);
+  const busiestDay = weeklyRevenue[WEEKLY_AMOUNTS.indexOf(maxRevenue)]?.day ?? '';
   const barHeightPct = (amount: number) => Math.round((amount / maxRevenue) * 100);
 
-  const countByStatus = (status: OperatorStatusValue) =>
-    OPERATORS.filter((o) => o.status === status).length;
+  const countByStatus = (status: OperatorStatusValue) => operatorRows.filter((o) => o.status === status).length;
+  const statusLabel = (status: OperatorStatusValue) => texts.operators.status[status];
 
-  const statusLabel = (status: OperatorStatusValue) => STATUS_LABEL[status];
+  // bahías ocupadas por los operarios en servicio
+  const activeBays = new Set(operators.filter((item) => item.bayId && item.status !== 'absent').map((item) => item.bayId)).size;
 
   return {
-    adminName: ADMIN_NAME,
+    adminName: user?.firstName ?? '',
     today,
-    stats: STATS,
-    weeklyRevenue: WEEKLY_REVENUE,
-    operators: OPERATORS,
-    pendingPayments: PENDING_PAYMENTS,
-    unassignedBookings: UNASSIGNED_BOOKINGS,
+    stats: {
+      bookingsToday: todays.length,
+      vsYesterday: VS_YESTERDAY,
+      servicesInProgress: todays.filter((item) => item.status === 'in_progress').length,
+      activeBays,
+      pendingPayments: pendingPayments.length,
+      revenueToday: paymentStats.collected,
+    },
+    weeklyRevenue,
     weekTotal,
+    busiestDay,
     barHeightPct,
+    operators: operatorRows,
+    operatorsFull: operators,
     countByStatus,
     statusLabel,
+    pendingPayments,
+    unassignedBookings,
+    reservations,
+    approvePayment,
+    rejectPayment,
+    assignOperator,
   };
 }

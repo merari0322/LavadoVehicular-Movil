@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { useSharedState } from '../../../shared/hooks/useSharedState';
 import {
   Reservation,
   ReservationFilters,
@@ -21,7 +22,8 @@ const normalize = (text: string): string => text.toLowerCase().replace(/[^a-z0-9
 
 // Hook con el estado y la lógica de la pantalla de reservas
 export function useReservations() {
-  const [reservations, setReservations] = useState<Reservation[]>(() => buildMockReservations());
+  // compartido con el inicio del admin (asignar operario desde el dashboard)
+  const [reservations, setReservations] = useSharedState<Reservation[]>('admin.reservations', buildMockReservations);
   const [filters, setFilters] = useState<ReservationFilters>(EMPTY_FILTERS);
   const nextNumber = useRef(8920); // Consecutivo para los códigos nuevos
 
@@ -87,7 +89,12 @@ export function useReservations() {
   const updateReservation = (id: string, values: ReservationFormValues) =>
     setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, ...values } : item)));
 
+  // Asigna (o cambia) el operario de una reserva: modal "Asignar operario"
+  const assignOperator = (id: string, operatorId: string) =>
+    setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, operatorId } : item)));
+
   return {
+    reservations,
     filteredReservations,
     filters,
     stats,
@@ -95,5 +102,6 @@ export function useReservations() {
     clearFilters,
     createReservation,
     updateReservation,
+    assignOperator,
   };
 }

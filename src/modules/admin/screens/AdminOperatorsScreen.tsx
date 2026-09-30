@@ -11,6 +11,10 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
+import { RootStackParamList } from '../../../core/navigation/types';
 import { useTheme } from '../../../app/theme';
 import { ConfirmDialog } from '../../../shared/components/feedback/ConfirmDialog';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
@@ -48,6 +52,9 @@ const CLOSED = { visible: false, item: null };
 
 export const AdminOperatorsScreen = () => {
   const { colors } = useTheme();
+  // vuelve a pintar la pantalla cuando cambia el idioma
+  useTranslation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const operators = useOperators();
   const scrollRef = useRef<ScrollView>(null);
 
@@ -223,6 +230,15 @@ export const AdminOperatorsScreen = () => {
           skills={operators.getSkills(operator.id)}
           onExport={handleExportSheet}
         />
+
+        {/* Calendario de turnos del operario (operators/:id/calendar en la web) */}
+        <Pressable
+          style={[styles.calendarLink, { borderColor: colors.primary }]}
+          onPress={() => navigation.navigate('AdminOperatorCalendar', { operatorId: operator.id })}
+        >
+          <MaterialIcons name="calendar-month" size={20} color={colors.primary} />
+          <Text style={[styles.calendarLinkText, { color: colors.primary }]}>{OPERATOR_TEXTS.calendar.open}</Text>
+        </Pressable>
       </>
     );
   };
@@ -290,4 +306,14 @@ const styles = StyleSheet.create({
   detailTitle: { fontSize: 20, fontWeight: '800' },
   empty: { alignItems: 'center', gap: 6, paddingVertical: 32 },
   emptyTitle: { fontSize: 16, fontWeight: '700' },
+  calendarLink: {
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderRadius: 12,
+    borderWidth: 1.5,
+  },
+  calendarLinkText: { fontSize: 14, fontWeight: '700' },
 });

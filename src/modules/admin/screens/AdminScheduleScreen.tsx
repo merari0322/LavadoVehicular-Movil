@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ConfirmDialog } from '../../../shared/components/feedback/ConfirmDialog';
@@ -38,6 +39,8 @@ interface ConfirmState {
 }
 
 export const AdminScheduleScreen = () => {
+  // vuelve a pintar la pantalla cuando cambia el idioma
+  useTranslation();
   const schedule = useSchedule();
 
   const [tab, setTab] = useState<ScheduleTab>('hours');

@@ -13,10 +13,12 @@ import { StatusBadge } from '../common/StatusBadge';
 interface ReservationCardProps {
   reservation: Reservation;
   onView: (reservation: Reservation) => void; // Se ejecuta al tocar el ojito
+  // abre el modal "Asignar operario" (solo se muestra si la reserva no tiene operario)
+  onAssign?: (reservation: Reservation) => void;
 }
 
 // Tarjeta de una reserva (en móvil reemplaza a la fila de la tabla)
-export function ReservationCard({ reservation, onView }: ReservationCardProps) {
+export function ReservationCard({ reservation, onView, onAssign }: ReservationCardProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -68,6 +70,11 @@ export function ReservationCard({ reservation, onView }: ReservationCardProps) {
             </View>
             <Text style={styles.operatorName}>{operator.name}</Text>
           </View>
+        ) : onAssign && reservation.status !== 'cancelled' && reservation.status !== 'completed' ? (
+          <Pressable style={styles.assignButton} onPress={() => onAssign(reservation)} hitSlop={6}>
+            <MaterialIcons name="person-add" size={16} color={colors.onPrimary} />
+            <Text style={styles.assignText}>{TEXTS.list.assign}</Text>
+          </Pressable>
         ) : (
           <View style={[styles.unassigned, { backgroundColor: colors.warningSoft }]}>
             <Text style={[styles.unassignedText, { color: colors.warning }]}>
@@ -136,4 +143,14 @@ const createStyles = (colors: ThemeColors) =>
     operatorName: { fontSize: 13, fontWeight: '600', color: colors.text },
     unassigned: { paddingVertical: 4, paddingHorizontal: 12, borderRadius: 999 },
     unassignedText: { fontSize: 12, fontWeight: '700' },
+    assignButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      borderRadius: 999,
+      backgroundColor: colors.primary,
+    },
+    assignText: { fontSize: 12, fontWeight: '700', color: colors.onPrimary },
   });

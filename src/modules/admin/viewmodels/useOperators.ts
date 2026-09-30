@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { useSharedState } from '../../../shared/hooks/useSharedState';
 import {
   AbsenceFormValues,
   AssignShiftValues,
@@ -36,7 +37,8 @@ const withStatus = (operator: Operator, status: OperatorStatus, bayId: string): 
 
 // Hook con el estado y la lógica de la pantalla de operarios
 export function useOperators() {
-  const [operators, setOperators] = useState<Operator[]>(INITIAL_OPERATORS);
+  // compartido con el inicio del admin, el calendario y el modal "Asignar operario"
+  const [operators, setOperators] = useSharedState<Operator[]>('admin.operators', INITIAL_OPERATORS);
   const [filter, setFilter] = useState<OperatorFilter>('all');
   const [search, setSearch] = useState('');
   const nextCode = useRef(8498); // Consecutivo para los códigos nuevos

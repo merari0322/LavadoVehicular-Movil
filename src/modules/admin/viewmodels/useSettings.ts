@@ -1,4 +1,7 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { setAppLanguage } from '../../../app/config/i18n';
+import { ThemeName, useTheme } from '../../../app/theme';
 import { SETTINGS_TEXTS } from '../constants/settingsTexts';
 import {
   AppLanguage,
@@ -47,6 +50,17 @@ const validateBusiness = (data: BusinessData): BusinessErrors => {
   return errors;
 };
 
+// ids de las miniaturas de tema <-> temas reales del ThemeProvider
+const THEME_BY_ID: Record<ThemeId, ThemeName> = {
+  'teal-light': 'green',
+  'teal-dark': 'greenDark',
+  'pink-light': 'pink',
+  'pink-dark': 'pinkDark',
+};
+const ID_BY_THEME = Object.fromEntries(
+  Object.entries(THEME_BY_ID).map(([id, name]) => [name, id]),
+) as Record<ThemeName, ThemeId>;
+
 // Hook con el estado y la lógica de la pantalla de configuración
 export function useSettings() {
   const [tab, setTab] = useState<SettingsTab>('general');
@@ -55,9 +69,13 @@ export function useSettings() {
   const [preferences, setPreferences] = useState<NotificationPreferences>(
     INITIAL_NOTIFICATION_PREFERENCES,
   );
-  // TODO: conectar el tema y el idioma con el ThemeProvider y el sistema de i18n
-  const [theme, setTheme] = useState<ThemeId>('teal-light');
-  const [language, setLanguage] = useState<AppLanguage>('es');
+  // tema e idioma reales: se aplican a toda la app y quedan guardados en el celular
+  const { themeName, setThemeName } = useTheme();
+  const { i18n } = useTranslation();
+  const theme = ID_BY_THEME[themeName];
+  const setTheme = (id: ThemeId) => setThemeName(THEME_BY_ID[id]);
+  const language = i18n.language as AppLanguage;
+  const setLanguage = (code: AppLanguage) => void setAppLanguage(code);
 
   // Datos del negocio: guardado y borrador que se está editando
   const [savedBusiness, setSavedBusiness] = useState<BusinessData>(INITIAL_BUSINESS);

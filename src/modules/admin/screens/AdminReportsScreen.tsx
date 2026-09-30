@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
@@ -13,6 +14,8 @@ import { ExportFormat } from '../models/reports';
 import { useReports } from '../viewmodels/useReports';
 
 export const AdminReportsScreen = () => {
+  // vuelve a pintar la pantalla cuando cambia el idioma
+  useTranslation();
   const reports = useReports();
 
   const [exportVisible, setExportVisible] = useState(false);

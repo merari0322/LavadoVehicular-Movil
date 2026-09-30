@@ -1,5 +1,6 @@
 import {
   AvailabilityDay,
+  CalendarBlock,
   Operator,
   Skill,
   TodayService,
@@ -171,3 +172,38 @@ export const INITIAL_SKILLS: Skill[] = [
   { id: 'skl-6', operatorId: 'op-5', name: 'Encerado con cera Carnauba', level: 'certified' },
   { id: 'skl-7', operatorId: 'op-5', name: 'Limpieza de vidrios', level: 'advanced' },
 ];
+
+// Bloques del calendario de cada operario: los mismos datos de prueba de la web
+// (operators-store). El móvil solo los muestra; los calculará el backend.
+// TODO: traerlos de booking-service cuando exista
+export const CALENDAR_BLOCKS: Record<string, CalendarBlock[]> = {
+  'op-1': [
+    { day: 0, start: '08:00', end: '10:30', type: 'service', label: '#8910 · Mazda CX-30 · Lavado Premium', bay: 'Bahía 1' },
+    { day: 0, start: '10:30', end: '13:00', type: 'available', label: 'Disponible' },
+    { day: 0, start: '13:00', end: '14:00', type: 'lunch', label: 'Almuerzo' },
+    { day: 0, start: '14:00', end: '16:30', type: 'available', label: 'Disponible' },
+    { day: 1, start: '08:00', end: '11:30', type: 'service', label: '#8935 · BMW X3 · Detailing Cerámico', bay: 'Bahía 1 (Doble)' },
+    { day: 1, start: '11:30', end: '13:00', type: 'available', label: 'Disponible' },
+    { day: 1, start: '13:00', end: '14:00', type: 'lunch', label: 'Almuerzo' },
+    { day: 1, start: '14:00', end: '17:00', type: 'service', label: '#8948 · Kia Sportage · Encerado Orbital', bay: 'Bahía 2' },
+    { day: 2, start: '08:00', end: '13:00', type: 'leave', label: 'Permiso médico · Control oftalmológico' },
+    { day: 2, start: '13:00', end: '14:00', type: 'lunch', label: 'Almuerzo' },
+    { day: 2, start: '14:00', end: '18:00', type: 'available', label: 'Reincorpora tras cita médica' },
+    { day: 3, start: '08:00', end: '11:00', type: 'service', label: '#8955 · Renault Duster · Lavado Express', bay: 'Bahía 1' },
+    { day: 3, start: '11:00', end: '13:00', type: 'available', label: 'Disponible' },
+    { day: 3, start: '13:00', end: '14:00', type: 'lunch', label: 'Almuerzo' },
+    { day: 3, start: '14:00', end: '16:30', type: 'service', label: '#8921 · Sofía Castro · Mazda CX-30', bay: 'Bahía 1 (Doble)' },
+    { day: 3, start: '16:30', end: '18:00', type: 'available', label: 'Disponible' },
+    { day: 4, start: '08:00', end: '12:00', type: 'available', label: 'Mañana libre' },
+    { day: 4, start: '12:00', end: '13:00', type: 'service', label: '#8960 · Chevrolet Spark', bay: 'Bahía 1' },
+    { day: 4, start: '13:00', end: '14:00', type: 'lunch', label: 'Almuerzo' },
+    { day: 4, start: '14:00', end: '17:30', type: 'service', label: '#8962 · Ford Explorer · Detailing Interior', bay: 'Bahía 1' },
+    { day: 5, start: '08:00', end: '11:00', type: 'service', label: '#8970 · Mercedes G', bay: 'Bahía 2' },
+    { day: 5, start: '11:00', end: '14:00', type: 'available', label: 'Disponible fin de semana' },
+  ],
+  'op-3': [{ day: 0, start: '08:00', end: '18:00', type: 'service', label: 'Turno completo · Bahía 2', bay: 'Bahía 2' }],
+  'op-5': [{ day: 0, start: '08:00', end: '18:00', type: 'available', label: 'Disponible' }],
+  'op-2': [{ day: 0, start: '08:00', end: '18:00', type: 'leave', label: 'Incapacidad médica' }],
+  'op-4': [{ day: 0, start: '08:00', end: '18:00', type: 'available', label: 'Disponible' }],
+  'op-6': [{ day: 0, start: '08:00', end: '18:00', type: 'service', label: 'Turno completo · Bahía 3', bay: 'Bahía 3' }],
+};
