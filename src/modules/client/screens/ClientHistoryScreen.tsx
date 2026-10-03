@@ -6,6 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 import { fontSize, fontWeight, spacing, useTheme } from '../../../app/theme';
 import { RootStackParamList } from '../../../core/navigation/types';
+import { isActiveStatus } from '../../../core/services/booking/bookingDisplay';
 import { Pill } from '../../../shared/components/ui/Pill';
 import { ActionButton } from '../../../shared/components/screen/ActionButton';
 import { ChipTabs } from '../../../shared/components/screen/ChipTabs';
@@ -19,57 +20,73 @@ import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { ClientLayout } from '../../../shared/layouts/ClientLayout';
 import { displayToISO, formatCOP } from '../../../shared/utils/format';
 import { RatingModal, RatingResult } from '../components/RatingModal';
-import { ClientHistoryItem } from '../models/client';
-import { CLIENT_HISTORY } from '../services/clientMock';
+import { ClientBookingItem } from '../models/booking-view';
+import { useClientBookings } from '../viewmodels/useClientBookings';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientHistory'>;
-type PaidFilter = 'all' | 'paid' | 'pending';
+type HistoryFilter = 'all' | 'active' | 'completed' | 'cancelled';
 
-// historial de servicios del cliente con filtros, pagar pendientes y calificar
+// historial de reservas reales del cliente (booking-service), con filtros, pagar e ir a calificar
 export function ClientHistoryScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const feedback = useFeedback();
+  const vm = useClientBookings();
 
-  const [services, setServices] = useState<ClientHistoryItem[]>(CLIENT_HISTORY);
-  const [filter, setFilter] = useState<PaidFilter>('all');
+  const [filter, setFilter] = useState<HistoryFilter>('all');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [search, setSearch] = useState('');
-  const [rating, setRating] = useState<ClientHistoryItem | null>(null);
+  const [rating, setRating] = useState<ClientBookingItem | null>(null);
 
   const visible = useMemo(() => {
     const from = displayToISO(dateFrom);
     const to = displayToISO(dateTo);
     const text = search.trim().toLowerCase();
 
-    return services.filter((service) => {
-      if (filter === 'paid' && !service.paid) return false;
-      if (filter === 'pending' && service.paid) return false;
+    return vm.bookings.filter((booking) => {
+      if (filter === 'active' && !isActiveStatus(booking.status)) return false;
+      if (filter === 'completed' && booking.status !== 'COMPLETED') return false;
+      if (filter === 'cancelled' && booking.status !== 'CANCELLED' && booking.status !== 'NO_SHOW') return false;
 
-      // las fechas del historial vienen como dd/mm/aaaa
-      const serviceDate = displayToISO(service.date) ?? '';
-      if (from && serviceDate < from) return false;
-      if (to && serviceDate > to) return false;
+      // booking.date ya viene en aaaa-mm-dd, igual que los inputs de fecha
+      if (from && booking.date < from) return false;
+      if (to && booking.date > to) return false;
 
       if (text) {
-        return (
-          t(`SERVICE.${service.serviceType}`).toLowerCase().includes(text) ||
-          t(`ASSIGNMENT.${service.assignmentType}`).toLowerCase().includes(text) ||
-          service.operator.toLowerCase().includes(text)
-        );
+        const haystack = [booking.code, booking.plate, booking.vehicle, ...booking.services, t(`STATUS.${booking.status}`)]
+          .join(' ')
+          .toLowerCase();
+        return haystack.includes(text);
       }
       return true;
     });
-  }, [services, filter, dateFrom, dateTo, search, t]);
+  }, [vm.bookings, filter, dateFrom, dateTo, search, t]);
+
+  const requestCancel = (booking: ClientBookingItem) =>
+    feedback.askConfirm({
+      title: t('HISTORY.CANCEL_CONFIRM.TITLE'),
+      message: t('HISTORY.CANCEL_CONFIRM.MESSAGE', { code: booking.code }),
+      confirmLabel: t('HISTORY.CANCEL_CONFIRM.CONFIRM'),
+      cancelLabel: t('HISTORY.CANCEL_CONFIRM.BACK'),
+      danger: true,
+      onConfirm: async () => {
+        const failure = await vm.cancel(booking.id);
+        if (failure) {
+          feedback.showError(failure);
+          return;
+        }
+        feedback.showStatusAfterClose({
+          title: t('HISTORY.CANCEL_SUCCESS.TITLE'),
+          message: t('HISTORY.CANCEL_SUCCESS.MESSAGE', { code: booking.code }),
+        });
+      },
+    });
 
   const saveRating = (result: RatingResult) => {
     if (!rating) return;
     const isEdit = Boolean(rating.rating);
-    // TODO: guardar la calificación en booking-service cuando exista
-    setServices((prev) =>
-      prev.map((item) => (item.id === rating.id ? { ...item, rating: result.rating, ratingComment: result.comment } : item)),
-    );
+    vm.rate(rating.id, result.rating, result.comment);
     setRating(null);
     feedback.showStatusAfterClose({
       title: t(isEdit ? 'RATINGS.UPDATED_TITLE' : 'RATINGS.SUCCESS_TITLE'),
@@ -79,18 +96,19 @@ export function ClientHistoryScreen({ navigation }: Props) {
 
   return (
     <ClientLayout activeKey="history">
-      <ScreenScroll>
+      <ScreenScroll onRefresh={vm.reload} refreshing={vm.loading && vm.bookings.length > 0}>
         <PageHeader title={t('SIDEBAR.HISTORY')} icon="history" />
 
         {/* Filtros */}
         <SectionCard title={t('HISTORY.FILTERS')} icon="filter-list">
-          <ChipTabs<PaidFilter>
+          <ChipTabs<HistoryFilter>
             value={filter}
             onChange={setFilter}
             options={[
               { value: 'all', label: t('HISTORY.ALL') },
-              { value: 'paid', label: t('HISTORY.PAID') },
-              { value: 'pending', label: t('HISTORY.PENDING') },
+              { value: 'active', label: t('HISTORY.ACTIVE') },
+              { value: 'completed', label: t('HISTORY.COMPLETED') },
+              { value: 'cancelled', label: t('HISTORY.CANCELLED') },
             ]}
           />
           <Text style={[styles.label, { color: colors.textSecondary }]}>{t('HISTORY.DATE')}</Text>
@@ -103,55 +121,61 @@ export function ClientHistoryScreen({ navigation }: Props) {
           <SearchInput value={search} onChange={setSearch} placeholder={t('HISTORY.SEARCH_PLACEHOLDER')} />
         </SectionCard>
 
-        {visible.length === 0 ? (
+        {vm.loading && vm.bookings.length === 0 ? (
+          <EmptyState loading title={t('MOBILE_NAV.LOADING')} />
+        ) : vm.loadError ? (
+          <EmptyState
+            icon="cloud-off"
+            title={t('HISTORY.LOAD_ERROR')}
+            subtitle={vm.loadError}
+            actionLabel={t('MOBILE_NAV.RETRY')}
+            onAction={vm.reload}
+          />
+        ) : visible.length === 0 ? (
           <EmptyState icon="search-off" title={t('HISTORY.EMPTY')} />
         ) : (
-          visible.map((service) => (
-            <SectionCard key={service.id}>
+          visible.map((booking) => (
+            <SectionCard key={booking.id}>
               <View style={styles.header}>
-                <MaterialIcons name="check-circle" size={26} color={service.paid ? colors.success : colors.warning} />
+                <MaterialIcons name="receipt-long" size={26} color={colors.primary} />
                 <View style={styles.flex}>
-                  <Text style={[styles.title, { color: colors.text }]}>{t(`SERVICE.${service.serviceType}`)}</Text>
-                  <Text style={[styles.date, { color: colors.textMuted }]}>{service.date}</Text>
+                  <Text style={[styles.title, { color: colors.text }]}>{booking.code}</Text>
+                  <Text style={[styles.date, { color: colors.textMuted }]}>
+                    {booking.displayDate} · {booking.timeRange}
+                  </Text>
                 </View>
-                <Text style={[styles.price, { color: colors.text }]}>{formatCOP(service.price)}</Text>
+                <Text style={[styles.price, { color: colors.text }]}>{formatCOP(booking.total)}</Text>
               </View>
 
-              <InfoRow label={t('HISTORY_CARD.TYPE')} value={t(`SERVICE.${service.serviceType}`)} />
-              <InfoRow label={t('HISTORY_CARD.EXTRA')} value={service.extras.map((extra) => t(`EXTRA.${extra}`)).join(' / ')} />
-              <InfoRow
-                label={t('HISTORY_CARD.OPERATOR')}
-                value={`${t(`ASSIGNMENT.${service.assignmentType}`)}${service.operator ? ` (${service.operator})` : ''}`}
-              />
-              <InfoRow label={t('HISTORY_CARD.STATUS')} value={t(`STATUS.${service.status}`)} />
+              <InfoRow label={t('HISTORY_CARD.TYPE')} value={booking.services.join(' / ')} />
+              <InfoRow label={t('HISTORY_CARD.VEHICLE')} value={`${booking.vehicle || '—'}${booking.plate ? ` · ${booking.plate}` : ''}`} />
+              <InfoRow label={t('HISTORY_CARD.STATUS')} value={t(`STATUS.${booking.status}`)} />
 
               <View style={styles.actions}>
-                {service.paid ? (
-                  <Pill label={t('HISTORY_CARD.PAID')} tone="success" icon="check" />
-                ) : (
-                  <>
-                    <Pill label={t('HISTORY_CARD.PENDING')} tone="warning" icon="schedule" />
-                    <ActionButton
-                      small
-                      label={t('HISTORY_CARD.PAY_NOW')}
-                      icon="arrow-forward"
-                      iconRight
-                      onPress={() => navigation.navigate('ClientPayment')}
-                    />
-                  </>
-                )}
-                {service.paid && !service.rating ? (
-                  <ActionButton small variant="outline" label={t('HISTORY_CARD.RATE')} icon="star-outline" onPress={() => setRating(service)} />
+                {booking.canPay ? (
+                  <ActionButton
+                    small
+                    label={t('HISTORY_CARD.PAY_NOW')}
+                    icon="arrow-forward"
+                    iconRight
+                    onPress={() => navigation.navigate('ClientPayment', { bookingId: booking.id })}
+                  />
                 ) : null}
-                {service.rating ? (
+                {booking.canCancel ? (
+                  <ActionButton small variant="outline" label={t('HISTORY_CARD.CANCEL')} icon="cancel" onPress={() => requestCancel(booking)} />
+                ) : null}
+                {booking.canRate && !booking.rating ? (
+                  <ActionButton small variant="outline" label={t('HISTORY_CARD.RATE')} icon="star-outline" onPress={() => setRating(booking)} />
+                ) : null}
+                {booking.rating ? (
                   // ya calificado: al tocarlo se puede editar
                   <ActionButton
                     small
                     variant="soft"
-                    label={`${t('HISTORY_CARD.RATED')} ★ ${service.rating}`}
+                    label={`${t('HISTORY_CARD.RATED')} ★ ${booking.rating}`}
                     icon="edit"
                     iconRight
-                    onPress={() => setRating(service)}
+                    onPress={() => setRating(booking)}
                   />
                 ) : null}
               </View>
@@ -162,7 +186,7 @@ export function ClientHistoryScreen({ navigation }: Props) {
 
       <RatingModal
         visible={rating !== null}
-        initial={rating?.rating ? { rating: rating.rating, comment: rating.ratingComment } : null}
+        initial={rating?.rating ? { rating: rating.rating, comment: rating.ratingComment ?? '' } : null}
         onClose={() => setRating(null)}
         onSubmit={saveRating}
       />
