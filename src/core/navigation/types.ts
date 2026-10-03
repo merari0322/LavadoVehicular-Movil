@@ -8,7 +8,8 @@ export type RootStackParamList = {
   ClientProfile: undefined;
   ClientVehicles: undefined;
   ClientReserve: undefined;
-  ClientPayment: undefined;
+  // sin bookingId paga la primera reserva activa (o la más reciente)
+  ClientPayment: { bookingId?: number } | undefined;
   ClientHistory: undefined;
   ClientNotifications: undefined;
   ClientSettings: undefined;

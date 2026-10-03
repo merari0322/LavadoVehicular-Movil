@@ -1,16 +1,19 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as DocumentPicker from 'expo-document-picker';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { fontSize, fontWeight, radius, spacing, useTheme } from '../../../app/theme';
 import { RootStackParamList } from '../../../core/navigation/types';
+import { bookingService } from '../../../core/services/booking/BookingService';
+import { isActiveStatus } from '../../../core/services/booking/bookingDisplay';
 import { LabeledInput } from '../../../shared/components/forms/LabeledInput';
 import { Pill } from '../../../shared/components/ui/Pill';
 import { ActionButton } from '../../../shared/components/screen/ActionButton';
+import { EmptyState } from '../../../shared/components/screen/EmptyState';
 import { InfoRow } from '../../../shared/components/screen/InfoRow';
 import { PageHeader } from '../../../shared/components/screen/PageHeader';
 import { ScreenScroll } from '../../../shared/components/screen/ScreenScroll';
@@ -19,7 +22,8 @@ import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { ClientLayout } from '../../../shared/layouts/ClientLayout';
 import { withAlpha } from '../../../shared/utils/color';
 import { formatCOP } from '../../../shared/utils/format';
-import { PAYEE, PAYMENT_RESERVATION } from '../services/clientMock';
+import { ClientBookingItem } from '../models/booking-view';
+import { useClientBookings } from '../viewmodels/useClientBookings';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientPayment'>;
 type MethodId = 'NEQUI' | 'DAVIPLATA' | 'TRANSFER' | 'CASH';
@@ -39,6 +43,10 @@ const QR_DURATION_MS = 15 * 60 * 1000;
 const REFERENCE_REGEX = /^[A-Za-z0-9]{8,12}$/;
 const MAX_RECEIPT_BYTES = 10 * 1024 * 1024;
 
+// datos de la cuenta que recibe el pago. La llave todavía no existe en el backend:
+// queda como constante hasta que el "Datos del negocio" del admin la exponga (igual que la web).
+const PAYEE_KEY = '318 450 9988';
+
 // lo que se guarda del pago para que no se pierda al salir de la pantalla
 interface SavedPayment {
   qrExpiresAt: number;
@@ -49,12 +57,25 @@ interface SavedPayment {
 // TODO: reemplazar el guardado local por el estado real de la reserva (commercial-service)
 const storageKey = (code: string) => `@lavado_vehicular/payment/${code}`;
 
-// pago de la reserva: método, QR con temporizador, comprobante y referencia
-export function ClientPaymentScreen({ navigation }: Props) {
+// con bookingId en la ruta se paga esa reserva; sin id, la primera activa (o la más reciente)
+function pickBooking(bookings: ClientBookingItem[], bookingId?: number): ClientBookingItem | null {
+  if (bookingId) {
+    return bookings.find((booking) => booking.id === bookingId) ?? null;
+  }
+  const bySchedule = (a: ClientBookingItem, b: ClientBookingItem) => `${a.date} ${a.timeRange}`.localeCompare(`${b.date} ${b.timeRange}`);
+  const active = [...bookings].filter((booking) => isActiveStatus(booking.status)).sort(bySchedule);
+  return active[0] ?? [...bookings].sort(bySchedule).reverse()[0] ?? null;
+}
+
+// pago de la reserva real (booking-service): método, QR con temporizador, comprobante y referencia
+export function ClientPaymentScreen({ navigation, route }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const feedback = useFeedback();
-  const reservation = PAYMENT_RESERVATION;
+  const vm = useClientBookings();
+  const [payeeName, setPayeeName] = useState('Lavado Vehicular S.A.S.');
+
+  const booking = useMemo(() => pickBooking(vm.bookings, route.params?.bookingId), [vm.bookings, route.params?.bookingId]);
 
   const [method, setMethod] = useState<MethodId>('NEQUI');
   const [flowStep, setFlowStep] = useState<FlowStep>('PENDING');
@@ -63,20 +84,27 @@ export function ClientPaymentScreen({ navigation }: Props) {
   const [receipt, setReceipt] = useState<{ name: string; size: number } | null>(null);
   const [reference, setReference] = useState('');
 
-  const discount = Math.round((reservation.subtotal * reservation.discountPercent) / 100);
-  const total = reservation.subtotal - discount;
+  const total = Math.max(0, (booking?.total ?? 0));
   const isVerifying = flowStep === 'VERIFYING';
   const isReferenceValid = REFERENCE_REGEX.test(reference);
   const canConfirm = !isVerifying && (method === 'CASH' || (receipt !== null && isReferenceValid));
 
+  // nombre del negocio para la cuenta que recibe el pago
+  useEffect(() => {
+    bookingService
+      .establishment()
+      .then((establishment) => setPayeeName(establishment.tradeName))
+      .catch(() => undefined);
+  }, []);
+
   // recupera el pago guardado o empieza uno nuevo con el QR de 15 minutos
   useEffect(() => {
-    AsyncStorage.getItem(storageKey(reservation.code))
+    if (!booking) return;
+    AsyncStorage.getItem(storageKey(booking.code))
       .then((raw) => {
         if (!raw) {
-          // pago nuevo: se guarda la hora en que vence el QR para que siga contando al volver
           const fresh: SavedPayment = { qrExpiresAt, flowStep: 'PENDING', method: 'NEQUI' };
-          return AsyncStorage.setItem(storageKey(reservation.code), JSON.stringify(fresh));
+          return AsyncStorage.setItem(storageKey(booking.code), JSON.stringify(fresh));
         }
         const saved = JSON.parse(raw) as SavedPayment;
         setQrExpiresAt(saved.qrExpiresAt);
@@ -84,13 +112,14 @@ export function ClientPaymentScreen({ navigation }: Props) {
         setMethod(saved.method);
       })
       .catch(() => undefined);
-    // solo al abrir la pantalla
+    // solo al cargar la reserva a pagar
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reservation.code]);
+  }, [booking?.code]);
 
   const save = (next: Partial<SavedPayment>) => {
+    if (!booking) return;
     const state: SavedPayment = { qrExpiresAt, flowStep, method, ...next };
-    AsyncStorage.setItem(storageKey(reservation.code), JSON.stringify(state)).catch(() => undefined);
+    AsyncStorage.setItem(storageKey(booking.code), JSON.stringify(state)).catch(() => undefined);
   };
 
   // temporizador del QR
@@ -104,7 +133,6 @@ export function ClientPaymentScreen({ navigation }: Props) {
   const timeLeft = `${String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:${String(secondsLeft % 60).padStart(2, '0')}`;
 
   const selectMethod = (id: MethodId) => {
-    // con el pago en revisión ya no se puede cambiar el método
     if (isVerifying) return;
     setMethod(id);
     save({ method: id });
@@ -126,36 +154,66 @@ export function ClientPaymentScreen({ navigation }: Props) {
 
   const confirmPayment = () => {
     if (!canConfirm) return;
-    // TODO: enviar el pago a commercial-service (la web tampoco lo guarda aún)
+    // TODO: integrar con el backend de pagos (Commercial service), igual que la web
     setFlowStep('VERIFYING');
     save({ flowStep: 'VERIFYING' });
     feedback.showStatus({ title: t('PAYMENT.SUCCESS_TITLE'), message: t('PAYMENT.SUCCESS_MESSAGE') });
   };
 
-  const cancelReservation = () =>
+  const cancelReservation = () => {
+    if (!booking) return;
+    const code = booking.code;
     feedback.askConfirm({
       title: t('PAYMENT.CANCEL_CONFIRM.TITLE'),
-      message: t('PAYMENT.CANCEL_CONFIRM.MESSAGE', { code: reservation.code }),
+      message: t('PAYMENT.CANCEL_CONFIRM.MESSAGE', { code }),
       confirmLabel: t('PAYMENT.CANCEL_CONFIRM.CONFIRM'),
-      // "Volver" en vez de "Cancelar" para no confundir con "cancelar reserva"
       cancelLabel: t('PAYMENT.CANCEL_CONFIRM.BACK'),
       danger: true,
-      onConfirm: () => {
-        AsyncStorage.removeItem(storageKey(reservation.code)).catch(() => undefined);
-        feedback.showStatus(
-          {
-            title: t('PAYMENT.CANCEL_CONFIRM.SUCCESS_TITLE'),
-            message: t('PAYMENT.CANCEL_CONFIRM.SUCCESS_MESSAGE', { code: reservation.code }),
-          },
+      onConfirm: async () => {
+        const failure = await vm.cancel(booking.id);
+        if (failure) {
+          feedback.showError(failure);
+          return;
+        }
+        await AsyncStorage.removeItem(storageKey(code)).catch(() => undefined);
+        feedback.showStatusAfterClose(
+          { title: t('PAYMENT.CANCEL_CONFIRM.SUCCESS_TITLE'), message: t('PAYMENT.CANCEL_CONFIRM.SUCCESS_MESSAGE', { code }) },
           () => navigation.navigate('ClientHome'),
         );
       },
     });
+  };
+
+  if (vm.loading) {
+    return (
+      <ClientLayout activeKey="payment">
+        <ScreenScroll>
+          <EmptyState loading title={t('MOBILE_NAV.LOADING')} />
+        </ScreenScroll>
+      </ClientLayout>
+    );
+  }
+
+  if (vm.loadError || !booking) {
+    return (
+      <ClientLayout activeKey="payment">
+        <ScreenScroll>
+          <EmptyState
+            icon="cloud-off"
+            title={t(vm.loadError ? 'HISTORY.LOAD_ERROR' : 'PAYMENT.EMPTY')}
+            subtitle={vm.loadError ?? undefined}
+            actionLabel={t('MOBILE_NAV.RETRY')}
+            onAction={vm.reload}
+          />
+        </ScreenScroll>
+      </ClientLayout>
+    );
+  }
 
   return (
     <ClientLayout activeKey="payment">
       <ScreenScroll>
-        <Pill label={`${t('PAYMENT.STEP')} · #${reservation.code}`} tone="primary" icon="check-circle" />
+        <Pill label={`${t('PAYMENT.STEP')} · #${booking.code}`} tone="primary" icon="check-circle" />
         <PageHeader title={t('PAYMENT.TITLE')} subtitle={t('PAYMENT.SUBTITLE')} />
 
         {/* Método de pago */}
@@ -205,10 +263,10 @@ export function ClientPaymentScreen({ navigation }: Props) {
                 <Text style={[styles.muted, { color: colors.textMuted }]}>{t('PAYMENT.QR.SCAN_HINT')}</Text>
               </View>
               <View style={styles.row}>
-                <Text style={[styles.strong, { color: colors.text }]}>{PAYEE.name}</Text>
+                <Text style={[styles.strong, { color: colors.text }]}>{payeeName}</Text>
                 <Pill label={t('PAYMENT.QR.VERIFIED')} tone="success" icon="verified" />
               </View>
-              <InfoRow label={t('PAYMENT.QR.KEY')} value={PAYEE.key} />
+              <InfoRow label={t('PAYMENT.QR.KEY')} value={PAYEE_KEY} />
               <InfoRow label={t('PAYMENT.QR.ACCOUNT_TYPE')} value={t('PAYMENT.QR.ACCOUNT_TYPE_VALUE')} />
               <InfoRow label={t('PAYMENT.QR.AMOUNT')} value={`${formatCOP(total)} COP`} strong />
               <View style={[styles.hint, { backgroundColor: withAlpha(colors.primary, 0.08) }]}>
@@ -257,22 +315,19 @@ export function ClientPaymentScreen({ navigation }: Props) {
         )}
 
         {/* Resumen de la reserva */}
-        <SectionCard title={t('PAYMENT.SUMMARY.TITLE')} icon="receipt" right={<Pill label={reservation.code} />}>
+        <SectionCard title={t('PAYMENT.SUMMARY.TITLE')} icon="receipt" right={<Pill label={booking.code} />}>
           <View style={[styles.serviceBox, { backgroundColor: withAlpha(colors.primary, 0.08) }]}>
             <MaterialIcons name="local-car-wash" size={24} color={colors.primary} />
             <View style={styles.flex}>
-              <Text style={[styles.strong, { color: colors.text }]}>{reservation.serviceName}</Text>
-              <Text style={[styles.muted, { color: colors.textSecondary }]}>{t('PAYMENT.SUMMARY.PREMIUM_DESC')}</Text>
+              <Text style={[styles.strong, { color: colors.text }]}>{booking.services.join(', ')}</Text>
             </View>
           </View>
-          <InfoRow label={t('PAYMENT.SUMMARY.VEHICLE')} value={`${reservation.vehicleModel} · ${reservation.plate}`} />
-          <InfoRow label={t('RESERVE.SUMMARY.DATE')} value={reservation.schedule} icon="event" />
-          <InfoRow label={t('PAYMENT.SUMMARY.SUBTOTAL')} value={`${formatCOP(reservation.subtotal)} COP`} />
-          <InfoRow
-            label={`${t('PAYMENT.SUMMARY.DISCOUNT')} (-${reservation.discountPercent}%)`}
-            value={`-${formatCOP(discount)} COP`}
-          />
-          <InfoRow label={`${t('PAYMENT.SUMMARY.COUPON')}: ${reservation.coupon}`} value={t('PAYMENT.SUMMARY.COUPON_OK')} />
+          <InfoRow label={t('PAYMENT.SUMMARY.VEHICLE')} value={`${booking.vehicle} · ${booking.plate}`} />
+          <InfoRow label={t('RESERVE.SUMMARY.DATE')} value={`${booking.displayDate} · ${booking.timeRange}`} icon="event" />
+          <InfoRow label={t('PAYMENT.SUMMARY.SUBTOTAL')} value={`${formatCOP(booking.subtotal)} COP`} />
+          {booking.pointsDiscount > 0 ? (
+            <InfoRow label={t('PAYMENT.SUMMARY.DISCOUNT')} value={`-${formatCOP(booking.pointsDiscount)} COP`} />
+          ) : null}
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <InfoRow label={t('PAYMENT.SUMMARY.TOTAL')} value={`${formatCOP(total)} COP`} strong />
           <Text style={[styles.muted, { color: colors.textMuted }]}>{t('PAYMENT.SUMMARY.TAX')}</Text>
