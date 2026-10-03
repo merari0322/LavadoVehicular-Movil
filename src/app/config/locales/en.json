@@ -56,25 +56,34 @@
   "HISTORY": {
     "FILTERS": "Filters",
     "ALL": "All",
-    "PAID": "Paid",
-    "PENDING": "Pending",
+    "ACTIVE": "Active",
+    "COMPLETED": "Completed",
+    "CANCELLED": "Cancelled",
     "DATE": "Date",
     "FROM": "From",
     "TO": "To",
-    "SEARCH_LABEL": "Search by address, service or operator",
+    "SEARCH_LABEL": "Search by service, vehicle or code",
     "SEARCH_PLACEHOLDER": "Type to search...",
-    "EMPTY": "No services found"
+    "EMPTY": "No services found",
+    "LOAD_ERROR": "Your bookings could not be loaded.",
+    "CANCEL_CONFIRM": {
+      "TITLE": "Cancel booking?",
+      "MESSAGE": "Booking {{code}} will be cancelled and the slot released. This action cannot be undone.",
+      "CONFIRM": "Yes, cancel",
+      "BACK": "Back"
+    },
+    "CANCEL_SUCCESS": {
+      "TITLE": "Booking cancelled",
+      "MESSAGE": "Booking {{code}} was cancelled successfully."
+    }
   },
   "HISTORY_CARD": {
-    "ADDRESS": "Address",
     "TYPE": "Service type",
-    "EXTRA": "Extra services",
-    "OPERATOR": "Operator assignment",
+    "VEHICLE": "Vehicle",
     "STATUS": "Status",
-    "PAID": "Paid",
-    "PENDING": "Pending",
-    "RATE": "Rate Service",
     "PAY_NOW": "Pay now",
+    "CANCEL": "Cancel booking",
+    "RATE": "Rate Service",
     "RATED": "Rated",
     "EDIT_RATING": "Edit rating"
   },
@@ -132,7 +141,11 @@
     "PAID": "Paid",
     "REFUNDED": "Refunded",
     "IN_WASH": "Washing",
-    "READY": "Ready for pickup"
+    "READY": "Ready for pickup",
+    "CANCELLED": "Canceled",
+    "SCHEDULED": "Scheduled",
+    "IN_PROGRESS": "In progress",
+    "NO_SHOW": "No show"
   },
   "ASSIGNMENT": {
     "MANUAL": "Manual",
@@ -753,10 +766,6 @@
     "SUBTITLE": "Pay for your service securely and check your history.",
     "METHOD": {
       "TITLE": "Payment method",
-      "CARD": "Card",
-      "CARD_DESC": "Debit / Credit",
-      "PAYPAL": "PayPal",
-      "PAYPAL_DESC": "Linked account",
       "TRANSFER": "Transfer",
       "TRANSFER_DESC": "PSE / Banks",
       "NO_FEES": "No additional fees",
@@ -767,37 +776,20 @@
       "CASH": "Cash",
       "CASH_DESC": "Pay at the shop when you receive the service"
     },
-    "FORM": {
-      "CARD_NAME": "Name on card",
-      "CARD_NAME_PLACEHOLDER": "Juan Díaz",
-      "CARD_NUMBER": "Card number",
-      "EXPIRY": "Expiry",
-      "CVV": "CVV",
-      "SECURE_NOTE": "Encrypted transaction. We do not store your card data."
-    },
     "SUMMARY": {
       "TITLE": "Service summary",
       "SERVICE": "Service",
       "VEHICLE": "Vehicle",
-      "BASE": "Base",
-      "DELIVERY": "Delivery",
       "TOTAL": "Total to pay",
       "PAY_BUTTON": "Pay",
-      "CANCEL_NOTE": "You can cancel at no cost up to 2 hours before.",
       "PREMIUM_DESC": "Detailed exterior, ceramic waxing and deep interior vacuum",
       "SUBTOTAL": "Subtotal",
       "DISCOUNT": "Discount applied",
-      "COUPON": "Coupon",
-      "COUPON_OK": "Applied successfully",
       "TAX": "VAT (19%) included",
       "CASH_BUTTON": "Confirm booking",
       "VERIFYING_BUTTON": "Payment under review",
       "CANCEL": "Cancel booking",
       "SECURE": "100% secure payment · Immediate verification by the bay team"
-    },
-    "HISTORY": {
-      "TITLE": "Payment history",
-      "TOTAL_PAID": "Total paid"
     },
     "CANCEL_CONFIRM": {
       "TITLE": "Cancel booking?",
@@ -845,7 +837,8 @@
       "DESC": "Customer service hotline:"
     },
     "RECEIPT_PICK": "Attach receipt",
-    "RECEIPT_CHANGE": "Change receipt"
+    "RECEIPT_CHANGE": "Change receipt",
+    "EMPTY": "No pending payments"
   },
   "VEHICLES": {
     "TITLE": "My Vehicles",

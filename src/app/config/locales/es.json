@@ -56,25 +56,34 @@
   "HISTORY": {
     "FILTERS": "Filtros",
     "ALL": "Todos",
-    "PAID": "Pagados",
-    "PENDING": "Pendientes de pagar",
+    "ACTIVE": "Activas",
+    "COMPLETED": "Completadas",
+    "CANCELLED": "Canceladas",
     "DATE": "Fecha",
     "FROM": "Desde",
     "TO": "Hasta",
-    "SEARCH_LABEL": "Buscar por dirección, servicio u operario",
+    "SEARCH_LABEL": "Buscar por servicio, vehículo o código",
     "SEARCH_PLACEHOLDER": "Escribe para buscar...",
-    "EMPTY": "No se encontraron servicios"
+    "EMPTY": "No se encontraron servicios",
+    "LOAD_ERROR": "No se pudieron cargar tus reservas.",
+    "CANCEL_CONFIRM": {
+      "TITLE": "¿Cancelar reserva?",
+      "MESSAGE": "Se cancelará la reserva {{code}} y se liberará el horario. Esta acción no se puede deshacer.",
+      "CONFIRM": "Sí, cancelar",
+      "BACK": "Volver"
+    },
+    "CANCEL_SUCCESS": {
+      "TITLE": "Reserva cancelada",
+      "MESSAGE": "La reserva {{code}} fue cancelada correctamente."
+    }
   },
   "HISTORY_CARD": {
-    "ADDRESS": "Dirección",
     "TYPE": "Tipo de servicio",
-    "EXTRA": "Servicios extra",
-    "OPERATOR": "Asignación de operario",
+    "VEHICLE": "Vehículo",
     "STATUS": "Estado",
-    "PAID": "Pagado",
-    "PENDING": "Pendiente",
-    "RATE": "Calificar Servicio",
     "PAY_NOW": "Pagar ahora",
+    "CANCEL": "Cancelar reserva",
+    "RATE": "Calificar Servicio",
     "RATED": "Calificado",
     "EDIT_RATING": "Editar calificación"
   },
@@ -132,7 +141,11 @@
     "PAID": "Pagado",
     "REFUNDED": "Reembolsado",
     "IN_WASH": "En lavado",
-    "READY": "Listo para recoger"
+    "READY": "Listo para recoger",
+    "CANCELLED": "Cancelado",
+    "SCHEDULED": "Programado",
+    "IN_PROGRESS": "En progreso",
+    "NO_SHOW": "No asistió"
   },
   "ASSIGNMENT": {
     "MANUAL": "Manual",
@@ -753,10 +766,6 @@
     "SUBTITLE": "Paga tu servicio de forma segura y consulta tu historial.",
     "METHOD": {
       "TITLE": "Método de pago",
-      "CARD": "Tarjeta",
-      "CARD_DESC": "Débito / Crédito",
-      "PAYPAL": "PayPal",
-      "PAYPAL_DESC": "Cuenta vinculada",
       "TRANSFER": "Transferencia",
       "TRANSFER_DESC": "PSE / Bancos",
       "NO_FEES": "Sin comisiones adicionales",
@@ -767,37 +776,20 @@
       "CASH": "Efectivo",
       "CASH_DESC": "Paga en el local al recibir el servicio"
     },
-    "FORM": {
-      "CARD_NAME": "Nombre en la tarjeta",
-      "CARD_NAME_PLACEHOLDER": "Juan Díaz",
-      "CARD_NUMBER": "Número de tarjeta",
-      "EXPIRY": "Vencimiento",
-      "CVV": "CVV",
-      "SECURE_NOTE": "Transacción cifrada. No almacenamos los datos de tu tarjeta."
-    },
     "SUMMARY": {
       "TITLE": "Resumen del servicio",
       "SERVICE": "Servicio",
       "VEHICLE": "Vehículo",
-      "BASE": "Base",
-      "DELIVERY": "Domicilio",
       "TOTAL": "Total a pagar",
       "PAY_BUTTON": "Pagar",
-      "CANCEL_NOTE": "Puedes cancelar sin costo hasta 2 horas antes.",
       "PREMIUM_DESC": "Exterior detallado, encerado cerámico y aspirado interior profundo",
       "SUBTOTAL": "Subtotal",
       "DISCOUNT": "Descuento aplicado",
-      "COUPON": "Cupón",
-      "COUPON_OK": "Aplicado con éxito",
       "TAX": "IVA (19%) incluido",
       "CASH_BUTTON": "Confirmar reserva",
       "VERIFYING_BUTTON": "Pago en verificación",
       "CANCEL": "Cancelar reserva",
       "SECURE": "Pago 100% seguro · Verificación inmediata por el equipo de bahía"
-    },
-    "HISTORY": {
-      "TITLE": "Historial de pagos",
-      "TOTAL_PAID": "Total pagado"
     },
     "CANCEL_CONFIRM": {
       "TITLE": "¿Cancelar reserva?",
@@ -845,7 +837,8 @@
       "DESC": "Línea directa de atención al cliente:"
     },
     "RECEIPT_PICK": "Adjuntar comprobante",
-    "RECEIPT_CHANGE": "Cambiar comprobante"
+    "RECEIPT_CHANGE": "Cambiar comprobante",
+    "EMPTY": "No tienes reservas pendientes de pago"
   },
   "VEHICLES": {
     "TITLE": "Mis Vehículos",
