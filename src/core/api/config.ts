@@ -18,5 +18,11 @@ export const CUSTOMER_API_URL = (
   process.env.EXPO_PUBLIC_CUSTOMER_API_URL ?? API_BASE_URL.replace(/:3001(?=\/|$)/, ':3002')
 ).replace(/\/+$/, '');
 
+// booking-service (catálogo, horario, bahías y reservas) corre en el puerto 3003.
+// Igual que los demás: se configura en .env o se deriva de la misma IP.
+export const BOOKING_API_URL = (
+  process.env.EXPO_PUBLIC_BOOKING_API_URL ?? API_BASE_URL.replace(/:3001(?=\/|$)/, ':3003')
+).replace(/\/+$/, '');
+
 // tiempo máximo de espera de una petición antes de dar "sin conexión"
 export const REQUEST_TIMEOUT_MS = 15000;

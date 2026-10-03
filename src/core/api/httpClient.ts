@@ -72,7 +72,7 @@ export async function request<T>(method: HttpMethod, path: string, options: Requ
       authHooks.onUnauthorized();
     }
     const problem = (payload ?? {}) as { code?: string; violations?: string[] };
-    throw new ApiError(problem.code ?? `HTTP_${response.status}`, response.status, problem.violations ?? []);
+    throw new ApiError(problem.code ?? `HTTP_${response.status}`, response.status, problem.violations ?? [], payload ?? undefined);
   }
 
   return payload as T;

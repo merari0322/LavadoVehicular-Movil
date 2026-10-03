@@ -27,6 +27,13 @@ const TRANSLATED_CODES = new Set([
   'VEHICLE_NOT_FOUND',
   'INVALID_PLATE',
   'INVALID_VEHICLE_TYPE',
+  // booking-service
+  'SLOT_UNAVAILABLE',
+  'VEHICLE_ALREADY_BOOKED',
+  'SERVICE_NOT_AVAILABLE_FOR_VEHICLE',
+  'INVALID_DATE',
+  'CUSTOMER_SERVICE_UNAVAILABLE',
+  'BOOKING_NOT_CHANGEABLE',
   'NETWORK_ERROR',
 ]);
 
@@ -35,6 +42,9 @@ export class ApiError extends Error {
     public readonly code: string,
     public readonly status: number,
     public readonly violations: string[] = [],
+    // el cuerpo completo del problema (RFC 9457) por si un código necesita más datos,
+    // ej. las "alternatives" del 409 SLOT_UNAVAILABLE del booking-service
+    public readonly data?: unknown,
   ) {
     super(code);
     this.name = 'ApiError';
@@ -49,4 +59,13 @@ export class ApiError extends Error {
 // convierte cualquier error en su llave de traducción
 export function apiErrorKey(error: unknown): string {
   return error instanceof ApiError ? error.messageKey : 'API_ERRORS.UNEXPECTED';
+}
+
+// horas libres que el booking-service propone en el 409 SLOT_UNAVAILABLE (RF-006):
+// devuelve hasta 5 "HH:mm" del mismo día, o null si el error no es ese
+export function slotAlternatives(error: unknown): string[] | null {
+  if (!(error instanceof ApiError) || error.status !== 409 || error.code !== 'SLOT_UNAVAILABLE') return null;
+  const problem = error.data as { alternatives?: unknown } | null;
+  if (!Array.isArray(problem?.alternatives)) return null;
+  return problem.alternatives.filter((value): value is string => typeof value === 'string');
 }
