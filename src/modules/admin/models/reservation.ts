@@ -1,18 +1,24 @@
 // Modelos y tipos del módulo de reservas
 
+// Estados reales del booking-service (SCHEDULED, NO_SHOW...) más el "rescheduled" que
+// usaban las pantallas de ejemplo; las reservas reales solo traen los primeros seis.
 export type ReservationStatus =
+  | 'scheduled'
   | 'confirmed'
   | 'in_progress'
   | 'completed'
   | 'cancelled'
+  | 'no_show'
   | 'rescheduled';
 
 // Orden en el que aparecen los estados en los selectores
 export const RESERVATION_STATUSES: ReservationStatus[] = [
+  'scheduled',
   'confirmed',
   'in_progress',
   'completed',
   'cancelled',
+  'no_show',
   'rescheduled',
 ];
 

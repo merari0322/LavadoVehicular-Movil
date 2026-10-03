@@ -15,7 +15,9 @@ import { ReservationFormModal } from '../components/reservations/ReservationForm
 import { ReservationStats } from '../components/reservations/ReservationStats';
 import { TEXTS } from '../constants/reservationTexts';
 import { Reservation, ReservationFormValues } from '../models/reservation';
-import { getOperatorById, getServiceById } from '../services/reservationMock';
+import { apiErrorKey } from '../../../core/api/apiError';
+import { getOperatorById } from '../services/reservationMock';
+import { getServiceById } from '../services/reservationCatalog';
 import { useOperators } from '../viewmodels/useOperators';
 import { useReservations } from '../viewmodels/useReservations';
 import { useServicesByOperator } from '../viewmodels/useServicesByOperator';
@@ -25,7 +27,7 @@ const csvValue = (value: string): string => `"${value.replace(/"/g, '""')}"`;
 
 export const AdminReservationsScreen = () => {
   // vuelve a pintar la pantalla cuando cambia el idioma
-  useTranslation();
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -39,6 +41,8 @@ export const AdminReservationsScreen = () => {
     updateReservation,
     reservations,
     assignOperator,
+    serviceOptions,
+    bayOptions,
   } = useReservations();
   const { operators } = useOperators();
 
@@ -77,13 +81,18 @@ export const AdminReservationsScreen = () => {
   };
 
   // Guarda: si hay una reserva en edición la actualiza, si no crea una nueva
-  const handleSubmit = (values: ReservationFormValues) => {
-    if (editingReservation) {
-      updateReservation(editingReservation.id, values);
-    } else {
-      createReservation(values);
+  const handleSubmit = async (values: ReservationFormValues) => {
+    try {
+      if (editingReservation) {
+        await updateReservation(editingReservation.id, values);
+      } else {
+        await createReservation(values);
+      }
+      setFormVisible(false);
+    } catch (error) {
+      // si el backend rechaza (p. ej. placa sin vehículo registrado) se avisa sin cerrar
+      Alert.alert(TEXTS.form.createTitle, t(apiErrorKey(error)));
     }
-    setFormVisible(false);
   };
 
   // Exporta las reservas filtradas en CSV usando el menú de compartir
@@ -163,6 +172,8 @@ export const AdminReservationsScreen = () => {
       <ReservationFormModal
         visible={formVisible}
         reservation={editingReservation}
+        serviceOptions={serviceOptions}
+        bayOptions={bayOptions}
         onClose={() => setFormVisible(false)}
         onSubmit={handleSubmit}
       />

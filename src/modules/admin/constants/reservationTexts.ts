@@ -36,10 +36,12 @@ const es = {
   },
 
   status: {
+    scheduled: 'Programada',
     confirmed: 'Confirmada',
     in_progress: 'En progreso',
     completed: 'Completada',
     cancelled: 'Cancelada',
+    no_show: 'No asistió',
     rescheduled: 'Reprogramada',
   } as Record<ReservationStatus, string>,
 
@@ -155,10 +157,12 @@ const en: typeof es = {
     assign: 'Assign',
   },
   status: {
+    scheduled: 'Scheduled',
     confirmed: 'Confirmed',
     in_progress: 'In progress',
     completed: 'Completed',
     cancelled: 'Cancelled',
+    no_show: 'No-show',
     rescheduled: 'Rescheduled',
   },
   form: {
@@ -270,10 +274,12 @@ const fr: typeof es = {
     assign: 'Assigner',
   },
   status: {
+    scheduled: 'Programmée',
     confirmed: 'Confirmée',
     in_progress: 'En cours',
     completed: 'Terminée',
     cancelled: 'Annulée',
+    no_show: 'Absent',
     rescheduled: 'Reprogrammée',
   },
   form: {
@@ -385,10 +391,12 @@ const pt: typeof es = {
     assign: 'Atribuir',
   },
   status: {
+    scheduled: 'Agendada',
     confirmed: 'Confirmada',
     in_progress: 'Em andamento',
     completed: 'Concluída',
     cancelled: 'Cancelada',
+    no_show: 'Não compareceu',
     rescheduled: 'Reagendada',
   },
   form: {

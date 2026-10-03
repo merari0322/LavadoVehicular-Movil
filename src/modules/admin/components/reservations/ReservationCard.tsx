@@ -6,7 +6,8 @@ import { ThemeColors } from '../../../../app/theme/colors';
 import { withAlpha } from '../../../../shared/utils/color';
 import { TEXTS } from '../../constants/reservationTexts';
 import { Reservation } from '../../models/reservation';
-import { getOperatorById, getServiceById } from '../../services/reservationMock';
+import { getOperatorById } from '../../services/reservationMock';
+import { getServiceById, useReservationCatalog } from '../../services/reservationCatalog';
 import { addMinutes, formatDateLabel, getInitials } from '../../utils/reservationUtils';
 import { StatusBadge } from '../common/StatusBadge';
 
@@ -21,6 +22,9 @@ interface ReservationCardProps {
 export function ReservationCard({ reservation, onView, onAssign }: ReservationCardProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+
+  // repinta la tarjeta cuando llega el catálogo (nombres de servicios y bahías)
+  useReservationCatalog();
 
   const service = getServiceById(reservation.serviceId);
   const operator = getOperatorById(reservation.operatorId);

@@ -17,12 +17,14 @@ import { SelectField, SelectOption } from '../../../../shared/components/forms/S
 import { withAlpha } from '../../../../shared/utils/color';
 import { TEXTS } from '../../constants/reservationTexts';
 import {
+  BayOption,
   RESERVATION_STATUSES,
   Reservation,
   ReservationFormValues,
   ReservationStatus,
+  ServiceOption,
 } from '../../models/reservation';
-import { BAYS, OPERATORS, SERVICES, getServiceById } from '../../services/reservationMock';
+import { OPERATORS } from '../../services/reservationMock';
 import {
   displayToISO,
   getTodayISO,
@@ -38,6 +40,9 @@ interface ReservationFormModalProps {
   reservation: Reservation | null; // null = crear, con valor = editar
   onClose: () => void;
   onSubmit: (values: ReservationFormValues) => void;
+  // opciones reales del catálogo del booking-service (servicios y bahías)
+  serviceOptions?: ServiceOption[];
+  bayOptions?: BayOption[];
 }
 
 // Estado del formulario: todo como texto para poder escribirlo en los inputs
@@ -62,11 +67,6 @@ type FormErrors = Partial<Record<keyof FormState, string>>;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Opciones de los selectores
-const SERVICE_OPTIONS: SelectOption[] = SERVICES.map((item) => ({ value: item.id, label: item.name }));
-const BAY_OPTIONS: SelectOption[] = [
-  { value: '', label: TEXTS.form.noBay },
-  ...BAYS.map((item) => ({ value: item.id, label: item.name })),
-];
 const OPERATOR_OPTIONS: SelectOption[] = [
   { value: '', label: TEXTS.form.noOperator },
   ...OPERATORS.map((item) => ({ value: item.id, label: item.name })),
@@ -77,7 +77,10 @@ const STATUS_OPTIONS: SelectOption[] = RESERVATION_STATUSES.map((status) => ({
 }));
 
 // Valores iniciales: los de la reserva (editar) o unos por defecto (crear)
-const buildInitialState = (reservation: Reservation | null): FormState => {
+const buildInitialState = (
+  reservation: Reservation | null,
+  serviceOptions: ServiceOption[],
+): FormState => {
   if (reservation) {
     return {
       customerName: reservation.customerName,
@@ -96,19 +99,21 @@ const buildInitialState = (reservation: Reservation | null): FormState => {
     };
   }
 
+  const firstService = serviceOptions[0];
+
   return {
     customerName: '',
     phone: '',
     email: '',
     vehicle: '',
     plate: '',
-    serviceId: SERVICES[0].id,
+    serviceId: firstService ? firstService.id : '',
     date: isoToDisplay(getTodayISO()),
     time: '09:00',
-    duration: String(SERVICES[0].duration),
+    duration: firstService ? String(firstService.duration) : '',
     bayId: '',
     operatorId: '',
-    status: 'confirmed',
+    status: 'scheduled',
     notes: '',
   };
 };
@@ -133,21 +138,41 @@ const validate = (state: FormState): FormErrors => {
   return errors;
 };
 
-export function ReservationFormModal({ visible, reservation, onClose, onSubmit }: ReservationFormModalProps) {
+export function ReservationFormModal({
+  visible,
+  reservation,
+  onClose,
+  onSubmit,
+  serviceOptions = [],
+  bayOptions = [],
+}: ReservationFormModalProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const isEditing = reservation !== null;
-  const [state, setState] = useState<FormState>(() => buildInitialState(reservation));
+  const [state, setState] = useState<FormState>(() => buildInitialState(reservation, serviceOptions));
   const [errors, setErrors] = useState<FormErrors>({});
+
+  // Opciones de los selectores desde el catálogo real (servicios y bahías)
+  const serviceSelectOptions = useMemo<SelectOption[]>(
+    () => serviceOptions.map((item) => ({ value: item.id, label: item.name })),
+    [serviceOptions],
+  );
+  const baySelectOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: '', label: TEXTS.form.noBay },
+      ...bayOptions.map((item) => ({ value: item.id, label: item.name })),
+    ],
+    [bayOptions],
+  );
 
   // Cada vez que se abre el modal se reinicia el formulario
   useEffect(() => {
     if (visible) {
-      setState(buildInitialState(reservation));
+      setState(buildInitialState(reservation, serviceOptions));
       setErrors({});
     }
-  }, [visible, reservation]);
+  }, [visible, reservation, serviceOptions]);
 
   // Cambia un campo y limpia su error
   const setField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
@@ -157,7 +182,7 @@ export function ReservationFormModal({ visible, reservation, onClose, onSubmit }
 
   // Al cambiar el servicio se sugiere su duración por defecto
   const handleServiceChange = (serviceId: string) => {
-    const service = getServiceById(serviceId);
+    const service = serviceOptions.find((item) => item.id === serviceId);
     setState((prev) => ({
       ...prev,
       serviceId,
@@ -277,7 +302,7 @@ export function ReservationFormModal({ visible, reservation, onClose, onSubmit }
             <ReservationField label={TEXTS.form.service} required error={errors.serviceId}>
               <SelectField
                 value={state.serviceId}
-                options={SERVICE_OPTIONS}
+                options={serviceSelectOptions}
                 onChange={handleServiceChange}
                 hasError={Boolean(errors.serviceId)}
               />
@@ -321,7 +346,7 @@ export function ReservationFormModal({ visible, reservation, onClose, onSubmit }
               <ReservationField label={TEXTS.form.bay} style={styles.flex}>
                 <SelectField
                   value={state.bayId}
-                  options={BAY_OPTIONS}
+                  options={baySelectOptions}
                   onChange={(value) => setField('bayId', value)}
                 />
               </ReservationField>

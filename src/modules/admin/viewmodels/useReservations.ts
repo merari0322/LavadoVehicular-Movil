@@ -1,13 +1,34 @@
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ApiError, apiErrorKey } from '../../../core/api/apiError';
+import { bookingService } from '../../../core/services/booking/BookingService';
+import { BookingResponse, BookingStatusCode } from '../../../core/services/booking/booking.types';
+import { userAdminService } from '../../../core/services/users/UserAdminService';
+import { vehicleService } from '../../../core/services/vehicles/VehicleService';
 import { useSharedState } from '../../../shared/hooks/useSharedState';
 import {
+  BayOption,
   Reservation,
   ReservationFilters,
   ReservationFormValues,
   ReservationStatsData,
+  ServiceOption,
 } from '../models/reservation';
-import { buildMockReservations } from '../services/reservationMock';
-import { displayToISO, getTodayISO } from '../utils/reservationUtils';
+import { loadReservationCatalog, useReservationCatalog } from '../services/reservationCatalog';
+import { addDays, displayToISO, getTodayISO } from '../utils/reservationUtils';
+
+// estados del booking-service -> estados de la pantalla
+const STATUS_TO_LOCAL: Record<BookingStatusCode, Reservation['status']> = {
+  SCHEDULED: 'scheduled',
+  CONFIRMED: 'confirmed',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+  NO_SHOW: 'no_show',
+};
+
+// operarios asignados localmente (no hay backend de operarios): sobreviven a las recargas
+const operatorAssignments = new Map<string, string>();
 
 // Filtros sin ningún valor aplicado
 export const EMPTY_FILTERS: ReservationFilters = {
@@ -20,12 +41,78 @@ export const EMPTY_FILTERS: ReservationFilters = {
 // Deja solo letras y números en minúscula (así "wqx115" encuentra "WQX-115")
 const normalize = (text: string): string => text.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-// Hook con el estado y la lógica de la pantalla de reservas
+// Arma la reserva de la pantalla desde la respuesta del booking-service; el nombre,
+// teléfono y correo del cliente se resuelven con las cuentas reales del security-service.
+function toReservation(
+  booking: BookingResponse,
+  accountById: Map<string, { fullName: string; email: string; phone: string }>,
+): Reservation {
+  const account = booking.ownerUserId != null ? accountById.get(String(booking.ownerUserId)) : undefined;
+  const hasVehicleName =
+    booking.vehicle && (booking.vehicle.brand || booking.vehicle.model);
+  const vehicleLabel = hasVehicleName
+    ? `${booking.vehicle?.brand ?? ''} ${booking.vehicle?.model ?? ''}`.trim()
+    : (booking.vehicle?.vehicleTypeName ?? '—');
+  const firstService = booking.services[0];
+
+  return {
+    id: String(booking.id),
+    code: booking.code,
+    customerName: account?.fullName ?? (booking.ownerUserId != null ? 'Cliente' : '—'),
+    phone: account?.phone ?? '',
+    email: account?.email ?? '',
+    vehicle: vehicleLabel,
+    plate: booking.vehicle?.licensePlateFormatted ?? '—',
+    serviceId: firstService ? String(firstService.serviceId) : '',
+    date: booking.date,
+    time: booking.startTime,
+    duration: booking.durationMinutes,
+    bayId: booking.bay ? String(booking.bay.id) : '',
+    operatorId: operatorAssignments.get(String(booking.id)) ?? '',
+    status: STATUS_TO_LOCAL[booking.status] ?? 'scheduled',
+    notes: booking.notes ?? '',
+  };
+}
+
+// Hook con el estado y la lógica de la pantalla de reservas (datos reales del booking-service)
 export function useReservations() {
+  const { t } = useTranslation();
   // compartido con el inicio del admin (asignar operario desde el dashboard)
-  const [reservations, setReservations] = useSharedState<Reservation[]>('admin.reservations', buildMockReservations);
+  const [reservations, setReservations] = useSharedState<Reservation[]>('admin.reservations', []);
   const [filters, setFilters] = useState<ReservationFilters>(EMPTY_FILTERS);
-  const nextNumber = useRef(8920); // Consecutivo para los códigos nuevos
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const { services, bays } = useReservationCatalog();
+
+  // Carga las reservas de los últimos 30 días junto con las cuentas (nombres de clientes)
+  const reload = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const [bookings, accounts] = await Promise.all([
+        bookingService.adminBookings(addDays(-29), addDays(1)),
+        userAdminService.listAccounts(0, 200).catch(() => []),
+      ]);
+      // los nombres de servicios y bahías casi no cambian: se piden una vez por sesión
+      await loadReservationCatalog().catch(() => undefined);
+
+      const accountById = new Map(
+        accounts.map((account) => [
+          String(account.id),
+          { fullName: account.fullName, email: account.email, phone: account.phone ?? '' },
+        ]),
+      );
+      setReservations(bookings.map((booking) => toReservation(booking, accountById)));
+    } catch (error) {
+      setLoadError(t(apiErrorKey(error)));
+    } finally {
+      setLoading(false);
+    }
+  }, [setReservations, t]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
 
   // Reservas que cumplen los filtros, ordenadas por fecha y hora
   const filteredReservations = useMemo(() => {
@@ -36,9 +123,7 @@ export function useReservations() {
       .filter((item) => {
         // Búsqueda por cliente, placa, código o teléfono
         if (query) {
-          const haystack = normalize(
-            [item.customerName, item.plate, item.code, item.phone].join(' '),
-          );
+          const haystack = normalize([item.customerName, item.plate, item.code, item.phone].join(' '));
           if (!haystack.includes(query)) return false;
         }
 
@@ -65,9 +150,9 @@ export function useReservations() {
       total: todays.length,
       active: todays.filter((i) => i.status === 'confirmed' || i.status === 'in_progress').length,
       unassigned: todays.filter(
-        (i) => !i.operatorId && i.status !== 'cancelled' && i.status !== 'completed',
+        (i) => !i.operatorId && i.status !== 'cancelled' && i.status !== 'completed' && i.status !== 'no_show',
       ).length,
-      cancelled: todays.filter((i) => i.status === 'cancelled' || i.status === 'rescheduled')
+      cancelled: todays.filter((i) => i.status === 'cancelled' || i.status === 'rescheduled' || i.status === 'no_show')
         .length,
     };
   }, [reservations]);
@@ -78,30 +163,67 @@ export function useReservations() {
 
   const clearFilters = () => setFilters(EMPTY_FILTERS);
 
-  // Crea una reserva nueva con su código consecutivo
-  const createReservation = (values: ReservationFormValues) => {
-    const code = `#RES-${nextNumber.current}`;
-    nextNumber.current += 1;
-    setReservations((prev) => [...prev, { ...values, id: `res-${Date.now()}`, code }]);
+  // Crea la reserva en el booking-service: busca el vehículo por placa y guarda de verdad
+  const createReservation = async (values: ReservationFormValues) => {
+    const found = await vehicleService.adminFindByPlate(values.plate.replace(/[^A-Z0-9]/g, ''));
+    const owned = found[0];
+    if (!owned) throw new ApiError('VEHICLE_NOT_FOUND', 404);
+
+    await bookingService.adminCreateBooking({
+      vehicleId: owned.vehicle.id,
+      serviceIds: [Number(values.serviceId)],
+      date: values.date,
+      time: values.time,
+      notes: values.notes.trim() || null,
+    });
+    await reload();
   };
 
-  // Actualiza una reserva existente
-  const updateReservation = (id: string, values: ReservationFormValues) =>
-    setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, ...values } : item)));
+  // El backend solo reprograma fecha/hora y notas; los demás campos son de la pantalla
+  const updateReservation = async (id: string, values: ReservationFormValues) => {
+    await bookingService.adminReschedule(Number(id), {
+      date: values.date,
+      time: values.time,
+      notes: values.notes.trim() || null,
+    });
+    await reload();
+  };
 
-  // Asigna (o cambia) el operario de una reserva: modal "Asignar operario"
-  const assignOperator = (id: string, operatorId: string) =>
+  // Asigna (o cambia) el operario de una reserva: no hay backend de operarios, se guarda local
+  const assignOperator = (id: string, operatorId: string) => {
+    operatorAssignments.set(id, operatorId);
     setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, operatorId } : item)));
+  };
+
+  // opciones reales para el formulario de crear/editar
+  const serviceOptions = useMemo<ServiceOption[]>(
+    () =>
+      services.map((item) => ({
+        id: String(item.id),
+        name: item.name,
+        duration: item.prices[0]?.estimatedMinutes ?? 0,
+      })),
+    [services],
+  );
+  const bayOptions = useMemo<BayOption[]>(
+    () => bays.map((item) => ({ id: String(item.id), name: item.name })),
+    [bays],
+  );
 
   return {
     reservations,
     filteredReservations,
     filters,
     stats,
+    loading,
+    loadError,
+    reload,
     updateFilters,
     clearFilters,
     createReservation,
     updateReservation,
     assignOperator,
+    serviceOptions,
+    bayOptions,
   };
 }

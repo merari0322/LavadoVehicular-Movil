@@ -6,7 +6,8 @@ import { ThemeColors } from '../../../../app/theme/colors';
 import { withAlpha } from '../../../../shared/utils/color';
 import { TEXTS } from '../../constants/reservationTexts';
 import { Reservation } from '../../models/reservation';
-import { getBayById, getOperatorById, getServiceById } from '../../services/reservationMock';
+import { getOperatorById } from '../../services/reservationMock';
+import { getBayById, getServiceById, useReservationCatalog } from '../../services/reservationCatalog';
 import { addMinutes, formatDateLabel } from '../../utils/reservationUtils';
 import { StatusBadge } from '../common/StatusBadge';
 
@@ -46,6 +47,9 @@ function DetailRow({ icon, label, value }: DetailRowProps) {
 export function ReservationDetailModal({ reservation, onClose, onEdit }: ReservationDetailModalProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+
+  // repinta el modal cuando llega el catálogo (nombres de servicios y bahías)
+  useReservationCatalog();
 
   if (!reservation) return null;
 

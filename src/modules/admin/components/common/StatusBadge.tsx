@@ -10,10 +10,12 @@ export function StatusBadge({ status }: { status: ReservationStatus }) {
   const { colors } = useTheme();
 
   const palette: Record<ReservationStatus, { background: string; text: string }> = {
+    scheduled: { background: colors.warningSoft, text: colors.warning },
     confirmed: { background: withAlpha(colors.primary, 0.15), text: colors.primary },
     in_progress: { background: colors.successSoft, text: colors.success },
     completed: { background: withAlpha(colors.textMuted, 0.18), text: colors.textSecondary },
     cancelled: { background: colors.errorSoft, text: colors.error },
+    no_show: { background: colors.errorSoft, text: colors.error },
     rescheduled: { background: colors.warningSoft, text: colors.warning },
   };
 

@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../../app/theme';
 import { DASHBOARD_TEXTS } from '../../constants/dashboardTexts';
 import { Reservation } from '../../models/reservation';
-import { getBayById, getServiceById } from '../../services/reservationMock';
+import { getBayById, getServiceById, useReservationCatalog } from '../../services/reservationCatalog';
 import { CardLink } from './CardLink';
 
 // cuántas reservas se muestran en el inicio (el resto está en la pantalla de reservas)
@@ -27,6 +27,9 @@ interface UnassignedBookingsCardProps {
 export function UnassignedBookingsCard({ bookings, onAssign, onViewAll }: UnassignedBookingsCardProps) {
   const { colors } = useTheme();
   const texts = DASHBOARD_TEXTS.unassigned;
+
+  // repinta la tarjeta cuando llega el catálogo (nombres de servicios y bahías)
+  useReservationCatalog();
 
   return (
     <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
