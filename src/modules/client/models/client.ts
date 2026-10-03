@@ -8,34 +8,13 @@ export const PROGRESS_BY_STATUS: Record<string, number> = {
   COMPLETED: 100,
 };
 
-export interface NextService {
-  type: string;
-  vehicle: string;
-  plate: string;
-  date: string;
-  operator: string;
-  status: string;
-}
-
-// servicio del historial del cliente
-export interface ClientHistoryItem {
-  id: number;
-  serviceType: string;
-  date: string; // dd/mm/aaaa
-  extras: string[];
-  assignmentType: 'MANUAL' | 'AUTO';
-  operator: string;
-  status: string;
-  price: number;
-  paid: boolean;
-  rating: number | null;
-  ratingComment: string;
-}
-
 // vehículo como lo muestra la tarjeta (armado desde la respuesta del customer-service)
 export interface VehicleCard {
   id: number;
   type: string;
+  // id del tipo de vehículo en el customer-service: el booking-service lo usa para
+  // calcular precios y disponibilidad (availability recibe vehicleTypeId)
+  typeId: number;
   brand: string;
   model: string;
   plate: string; // con guion para mostrar (ABC-123)

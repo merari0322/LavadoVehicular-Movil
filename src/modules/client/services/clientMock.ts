@@ -1,20 +1,8 @@
-// datos de prueba del cliente, los mismos que muestra la web mientras no existan
-// booking-service (reservas, historial) ni commercial-service (pagos, promociones).
-// Los vehículos NO están aquí: esos ya vienen del customer-service real.
+// datos de prueba del cliente que todavía no tienen de dónde salir de un backend real:
+// comercial (beneficios, fidelidad) y notificaciones (ver NotificationsService, Brayan).
+// Reservas, historial, dashboard y pago ya salen del booking-service real.
 
 import { RoleNotification } from '../../../shared/models/notification';
-import { ClientHistoryItem, NextService } from '../models/client';
-
-export const NEXT_SERVICE: NextService = {
-  type: 'PREMIUM',
-  vehicle: 'CAR',
-  plate: 'ABC-123',
-  date: '25/02/2026 10:00 AM',
-  operator: 'Laura Gómez',
-  status: 'CONFIRMED',
-};
-
-export const CLIENT_STATS = { activeReservations: 2, washesDone: 14 };
 
 // beneficios y promociones (contenido comercial, vendrá del backend)
 export const BENEFITS = [
@@ -23,53 +11,6 @@ export const BENEFITS = [
 ];
 
 export const LOYALTY = { current: 4, goal: 5 };
-
-export const CLIENT_HISTORY: ClientHistoryItem[] = [
-  {
-    id: 1,
-    serviceType: 'PREMIUM',
-    date: '28/03/2026',
-    extras: ['WAX', 'VACUUM'],
-    assignmentType: 'MANUAL',
-    operator: 'Juan',
-    status: 'COMPLETED',
-    price: 35000,
-    paid: true,
-    rating: null,
-    ratingComment: '',
-  },
-  {
-    id: 2,
-    serviceType: 'BASIC',
-    date: '16/12/2025',
-    extras: ['WAX'],
-    assignmentType: 'AUTO',
-    operator: '',
-    status: 'PENDING',
-    price: 20000,
-    paid: false,
-    rating: null,
-    ratingComment: '',
-  },
-];
-
-// reserva que se está pagando en la pantalla de pagos
-export const PAYMENT_RESERVATION = {
-  code: 'RES-9420',
-  serviceName: 'Lavado Premium Automóvil',
-  vehicleModel: 'Mazda CX-30',
-  plate: 'KLL-302',
-  schedule: 'Hoy, 24 Octubre 2024 · 14:00 - 15:15',
-  subtotal: 60000,
-  discountPercent: 15,
-  coupon: 'BIENVENIDO15',
-};
-
-// cuenta que recibe los pagos digitales
-export const PAYEE = {
-  name: 'Lavado Vehicular S.A.S.',
-  key: '318 450 9988',
-};
 
 // notificaciones de prueba del cliente (mismas de la web; los textos son llaves de traducción)
 export const CLIENT_NOTIFICATIONS: RoleNotification[] = [
