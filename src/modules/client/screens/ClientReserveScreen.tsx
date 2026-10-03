@@ -1,31 +1,45 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { fontSize, fontWeight, radius, spacing, useTheme } from '../../../app/theme';
+import { apiErrorKey, slotAlternatives } from '../../../core/api/apiError';
 import { RootStackParamList } from '../../../core/navigation/types';
+import { bookingService } from '../../../core/services/booking/BookingService';
+import { AvailabilityResponse, CatalogServiceResponse } from '../../../core/services/booking/booking.types';
 import { ActionButton } from '../../../shared/components/screen/ActionButton';
 import { EmptyState } from '../../../shared/components/screen/EmptyState';
 import { InfoRow } from '../../../shared/components/screen/InfoRow';
 import { PageHeader } from '../../../shared/components/screen/PageHeader';
 import { ScreenScroll } from '../../../shared/components/screen/ScreenScroll';
 import { SectionCard } from '../../../shared/components/screen/SectionCard';
-import { BUSINESS_LOCATION, SERVICE_PRICES, SERVICE_TYPES, vehicleIcon } from '../../../shared/constants/business';
+import { BUSINESS_LOCATION, vehicleIcon } from '../../../shared/constants/business';
 import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { ClientLayout } from '../../../shared/layouts/ClientLayout';
 import { withAlpha } from '../../../shared/utils/color';
 import { formatCOP, isoToDisplay, toISODate } from '../../../shared/utils/format';
+import { VehicleCard } from '../models/client';
 import { useClientVehicles } from '../viewmodels/useClientVehicles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientReserve'>;
 
-const MOST_POPULAR = 'PREMIUM';
 // se puede reservar desde hoy hasta 60 días; en el celular se muestran las próximas 2 semanas
 const DAYS_AHEAD = 14;
-// horario de atención: 8:00 a 18:00
-const TIMES = Array.from({ length: 11 }, (_, index) => `${String(8 + index).padStart(2, '0')}:00`);
+
+// el precio y la duración dependen del tipo de vehículo: tarifas que trae el booking-service
+function priceFor(service: CatalogServiceResponse, vehicleTypeId: number): number {
+  return service.prices.find((price) => price.vehicleTypeId === vehicleTypeId)?.price ?? service.prices[0]?.price ?? 0;
+}
+
+function minutesFor(service: CatalogServiceResponse, vehicleTypeId: number): number {
+  return (
+    service.prices.find((price) => price.vehicleTypeId === vehicleTypeId)?.estimatedMinutes ??
+    service.prices[0]?.estimatedMinutes ??
+    0
+  );
+}
 
 // número de paso con su título (".step-title" de la web)
 function StepTitle({ number, title, subtitle }: { number: number; title: string; subtitle: string }) {
@@ -43,7 +57,8 @@ function StepTitle({ number, title, subtitle }: { number: number; title: string;
   );
 }
 
-// reservar lavado en 3 pasos: vehículo (reales del cliente), servicio y fecha/hora
+// reservar lavado en 3 pasos: vehículo (reales del cliente), servicio (catálogo real) y
+// fecha/hora (disponibilidad real del booking-service, RF-006). La reserva se crea de verdad.
 export function ClientReserveScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const { t, i18n } = useTranslation();
@@ -51,13 +66,26 @@ export function ClientReserveScreen({ navigation }: Props) {
   const feedback = useFeedback();
 
   const [vehicleId, setVehicleId] = useState<number | null>(null);
-  const [service, setService] = useState('');
+  const [serviceId, setServiceId] = useState<number | null>(null);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
 
+  // catálogo real: con el vehicleTypeId solo vienen las tarifas de ese tipo de vehículo
+  const [services, setServices] = useState<CatalogServiceResponse[]>([]);
+  const [servicesLoading, setServicesLoading] = useState(false);
+  const [servicesError, setServicesError] = useState<string | null>(null);
+
+  // disponibilidad real del día: horario, excepciones y solapamientos (RF-006)
+  const [availability, setAvailability] = useState<AvailabilityResponse | null>(null);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [slotsError, setSlotsError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
   const vehicle = vehicles.find((v) => v.id === vehicleId) ?? null;
-  const total = SERVICE_PRICES[service] ?? 0;
-  const isValid = Boolean(vehicle && service && date && time);
+  const selectedService = services.find((s) => s.id === serviceId) ?? null;
+  const total = vehicle && selectedService ? priceFor(selectedService, vehicle.typeId) : 0;
+  const duration = vehicle && selectedService ? minutesFor(selectedService, vehicle.typeId) : 0;
+  const isValid = Boolean(vehicle && selectedService && date && time);
 
   // próximos días con el nombre corto del día en el idioma actual
   const days = useMemo(() => {
@@ -75,28 +103,108 @@ export function ClientReserveScreen({ navigation }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t, i18n.language]);
 
-  const submit = () => {
-    if (!vehicle || !isValid) return;
+  // al elegir un vehículo se cargan los servicios con la tarifa de su tipo de vehículo
+  useEffect(() => {
+    setServiceId(null);
+    setTime('');
+    setAvailability(null);
+    if (!vehicle) {
+      setServices([]);
+      setServicesError(null);
+      return;
+    }
+    let cancelled = false;
+    setServicesLoading(true);
+    setServicesError(null);
+    bookingService
+      .services(vehicle.typeId)
+      .then((list) => {
+        if (!cancelled) setServices(list);
+      })
+      .catch((error) => {
+        if (!cancelled) setServicesError(t(apiErrorKey(error)));
+      })
+      .finally(() => {
+        if (!cancelled) setServicesLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [vehicle, t]);
 
-    // TODO: enviar la reserva a booking-service cuando exista (la web tampoco la guarda aún)
-    feedback.showStatus(
-      {
-        title: t('RESERVE.SUCCESS_TITLE'),
-        message: t('RESERVE.SUCCESS_MESSAGE'),
-        buttonText: t('RESERVE.SUCCESS_BUTTON'),
-        details: [
-          { label: t('RESERVE.SUMMARY.VEHICLE'), value: `${vehicle.brand} ${vehicle.model}` },
-          { label: t('RESERVE.SUMMARY.PLATE'), value: vehicle.plate },
-          { label: t('RESERVE.SUMMARY.SERVICE'), value: t(`SERVICE.${service}`) },
-          { label: t('RESERVE.SUMMARY.DATE'), value: isoToDisplay(date) },
-          { label: t('RESERVE.SUMMARY.TIME'), value: time },
-          { label: t('RESERVE.SUMMARY.LOCATION'), value: BUSINESS_LOCATION.address },
-          { label: t('RESERVE.SUMMARY.TOTAL'), value: formatCOP(total) },
-        ],
-      },
-      // el siguiente paso del flujo es pagar la reserva
-      () => navigation.navigate('ClientPayment'),
-    );
+  const fetchSlots = useCallback(
+    async (chosenVehicle: VehicleCard, chosenService: CatalogServiceResponse, chosenDate: string) => {
+      setSlotsLoading(true);
+      setSlotsError(null);
+      try {
+        const data = await bookingService.availability(chosenDate, chosenVehicle.typeId, [chosenService.id]);
+        setAvailability(data);
+        // si la hora elegida dejó de estar disponible (p. ej. tras un 409), se limpia
+        setTime((current) => (data.slots.some((slot) => slot.time === current && slot.available) ? current : ''));
+      } catch (error) {
+        setAvailability(null);
+        setSlotsError(t(apiErrorKey(error)));
+      } finally {
+        setSlotsLoading(false);
+      }
+    },
+    [t],
+  );
+
+  // cada vez que cambia vehículo, servicio o fecha se consulta la disponibilidad real
+  useEffect(() => {
+    setTime('');
+    if (!vehicle || !selectedService || !date) {
+      setAvailability(null);
+      return;
+    }
+    void fetchSlots(vehicle, selectedService, date);
+  }, [vehicle, selectedService, date, fetchSlots]);
+
+  const availableSlots = availability?.slots.filter((slot) => slot.available) ?? [];
+  const closedDay = availability !== null && !availability.open;
+
+  const submit = async () => {
+    if (!vehicle || !selectedService || !date || !time) return;
+    setSubmitting(true);
+    try {
+      // la reserva se crea de verdad en el booking-service: el cliente sale del token
+      const booking = await bookingService.createBooking({
+        vehicleId: vehicle.id,
+        serviceIds: [selectedService.id],
+        date,
+        time,
+        notes: null,
+      });
+      feedback.showStatus(
+        {
+          title: t('RESERVE.SUCCESS_TITLE'),
+          message: t('RESERVE.SUCCESS_MESSAGE'),
+          buttonText: t('RESERVE.SUCCESS_BUTTON'),
+          details: [
+            { label: t('RESERVE.SUMMARY.VEHICLE'), value: `${vehicle.brand} ${vehicle.model}` },
+            { label: t('RESERVE.SUMMARY.PLATE'), value: vehicle.plate },
+            { label: t('RESERVE.SUMMARY.SERVICE'), value: selectedService.name },
+            { label: t('RESERVE.SUMMARY.DATE'), value: isoToDisplay(booking.date) },
+            { label: t('RESERVE.SUMMARY.TIME'), value: booking.startTime },
+            { label: t('RESERVE.SUMMARY.LOCATION'), value: BUSINESS_LOCATION.address },
+            { label: t('RESERVE.SUMMARY.TOTAL'), value: formatCOP(booking.total) },
+          ],
+        },
+        // el siguiente paso del flujo es pagar la reserva
+        () => navigation.navigate('ClientPayment'),
+      );
+    } catch (error) {
+      // 409 SLOT_UNAVAILABLE: el backend propone hasta 5 horas libres del mismo día (RF-006)
+      const alternatives = slotAlternatives(error);
+      if (alternatives && vehicle && selectedService) {
+        setTime('');
+        void fetchSlots(vehicle, selectedService, date);
+      }
+      feedback.showError(t(apiErrorKey(error)));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const chip = (active: boolean) => [
@@ -154,49 +262,52 @@ export function ClientReserveScreen({ navigation }: Props) {
           </Text>
         </SectionCard>
 
-        {/* Paso 2: servicio */}
+        {/* Paso 2: servicio (catálogo real con el precio de ese tipo de vehículo) */}
         <SectionCard>
           <StepTitle number={2} title={t('RESERVE.STEP2.TITLE')} subtitle={t('RESERVE.STEP2.SUBTITLE')} />
-          {SERVICE_TYPES.map((type) => {
-            const active = type === service;
-            const items = t(`SERVICE.${type}_ITEMS`, { returnObjects: true }) as string[];
-            return (
-              <Pressable
-                key={type}
-                onPress={() => setService(type)}
-                style={[
-                  styles.service,
-                  { borderColor: active ? colors.primary : colors.border },
-                  active && { backgroundColor: withAlpha(colors.primary, 0.08) },
-                ]}
-              >
-                <View style={styles.serviceTop}>
-                  <Text style={[styles.optionTitle, { color: colors.text }]}>{t(`SERVICE.${type}`)}</Text>
-                  {type === MOST_POPULAR ? (
-                    <View style={[styles.popular, { backgroundColor: colors.primary }]}>
-                      <Text style={[styles.popularText, { color: colors.onPrimary }]}>{t('RESERVE.STEP2.POPULAR')}</Text>
-                    </View>
+          {!vehicle ? (
+            <EmptyState icon="directions-car" title={t('RESERVE.STEP2.NO_VEHICLE')} />
+          ) : servicesLoading ? (
+            <EmptyState loading title={t('MOBILE_NAV.LOADING')} />
+          ) : servicesError ? (
+            <EmptyState icon="error-outline" title={servicesError} />
+          ) : services.length === 0 ? (
+            <EmptyState icon="miscellaneous-services" title={t('RESERVE.STEP2.EMPTY')} />
+          ) : (
+            services.map((item) => {
+              const active = item.id === serviceId;
+              const price = priceFor(item, vehicle.typeId);
+              const minutes = minutesFor(item, vehicle.typeId);
+              return (
+                <Pressable
+                  key={item.id}
+                  onPress={() => setServiceId(item.id)}
+                  style={[
+                    styles.service,
+                    { borderColor: active ? colors.primary : colors.border },
+                    active && { backgroundColor: withAlpha(colors.primary, 0.08) },
+                  ]}
+                >
+                  <View style={styles.serviceTop}>
+                    <Text style={[styles.optionTitle, { color: colors.text }]}>{item.name}</Text>
+                  </View>
+                  <Text style={[styles.price, { color: colors.primary }]}>{formatCOP(price)}</Text>
+                  <View style={styles.row}>
+                    <MaterialIcons name="schedule" size={15} color={colors.textMuted} />
+                    <Text style={[styles.optionSubtitle, { color: colors.textSecondary }]}>
+                      {t('RESERVE.SUMMARY.DURATION')}: {minutes} min
+                    </Text>
+                  </View>
+                  {item.description ? (
+                    <Text style={[styles.optionSubtitle, { color: colors.text }]}>{item.description}</Text>
                   ) : null}
-                </View>
-                <Text style={[styles.price, { color: colors.primary }]}>{formatCOP(SERVICE_PRICES[type])}</Text>
-                <View style={styles.row}>
-                  <MaterialIcons name="schedule" size={15} color={colors.textMuted} />
-                  <Text style={[styles.optionSubtitle, { color: colors.textSecondary }]}>{t(`SERVICE.${type}_TIME`)}</Text>
-                </View>
-                {Array.isArray(items)
-                  ? items.map((item) => (
-                      <View key={item} style={styles.row}>
-                        <MaterialIcons name="check-circle" size={15} color={colors.success} />
-                        <Text style={[styles.optionSubtitle, { color: colors.text }]}>{item}</Text>
-                      </View>
-                    ))
-                  : null}
-              </Pressable>
-            );
-          })}
+                </Pressable>
+              );
+            })
+          )}
         </SectionCard>
 
-        {/* Paso 3: fecha, hora y lugar */}
+        {/* Paso 3: fecha, hora (real) y lugar */}
         <SectionCard>
           <StepTitle number={3} title={t('RESERVE.STEP3.TITLE')} subtitle={t('RESERVE.STEP3.SUBTITLE')} />
           <Text style={[styles.label, { color: colors.textSecondary }]}>{t('RESERVE.DATE')}</Text>
@@ -213,16 +324,26 @@ export function ClientReserveScreen({ navigation }: Props) {
           </ScrollView>
 
           <Text style={[styles.label, { color: colors.textSecondary }]}>{t('RESERVE.TIME')}</Text>
-          <View style={styles.timeGrid}>
-            {TIMES.map((hour) => {
-              const active = hour === time;
-              return (
-                <Pressable key={hour} onPress={() => setTime(hour)} style={[chip(active), styles.timeChip]}>
-                  <Text style={[styles.timeText, { color: active ? colors.onPrimary : colors.text }]}>{hour}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
+          {slotsLoading ? (
+            <EmptyState loading title={t('MOBILE_NAV.LOADING')} />
+          ) : slotsError ? (
+            <EmptyState icon="error-outline" title={slotsError} />
+          ) : closedDay ? (
+            <Text style={[styles.note, { color: colors.textSecondary }]}>{t('RESERVE.STEP3.CLOSED')}</Text>
+          ) : availableSlots.length === 0 ? (
+            <Text style={[styles.note, { color: colors.textSecondary }]}>{t('RESERVE.STEP3.NO_SLOTS')}</Text>
+          ) : (
+            <View style={styles.timeGrid}>
+              {availableSlots.map((slot) => {
+                const active = slot.time === time;
+                return (
+                  <Pressable key={slot.time} onPress={() => setTime(slot.time)} style={[chip(active), styles.timeChip]}>
+                    <Text style={[styles.timeText, { color: active ? colors.onPrimary : colors.text }]}>{slot.time}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
 
           {/* el cliente lleva su vehículo a la sede (no es a domicilio) */}
           <View style={[styles.location, { backgroundColor: withAlpha(colors.primary, 0.08) }]}>
@@ -239,8 +360,8 @@ export function ClientReserveScreen({ navigation }: Props) {
         <SectionCard title={t('RESERVE.SUMMARY.TITLE')} icon="receipt-long">
           <InfoRow label={t('RESERVE.SUMMARY.VEHICLE')} value={vehicle ? `${vehicle.brand} ${vehicle.model}` : '—'} />
           <InfoRow label={t('RESERVE.SUMMARY.PLATE')} value={vehicle?.plate ?? '—'} />
-          <InfoRow label={t('RESERVE.SUMMARY.SERVICE')} value={service ? t(`SERVICE.${service}`) : '—'} />
-          <InfoRow label={t('RESERVE.SUMMARY.DURATION')} value={service ? t(`SERVICE.${service}_TIME`) : '—'} />
+          <InfoRow label={t('RESERVE.SUMMARY.SERVICE')} value={selectedService?.name ?? '—'} />
+          <InfoRow label={t('RESERVE.SUMMARY.DURATION')} value={selectedService ? `${duration} min` : '—'} />
           <InfoRow label={t('RESERVE.SUMMARY.DATE')} value={date ? isoToDisplay(date) : '—'} />
           <InfoRow label={t('RESERVE.SUMMARY.TIME')} value={time || '—'} />
           <InfoRow label={t('RESERVE.SUMMARY.LOCATION')} value={BUSINESS_LOCATION.name} />
@@ -250,7 +371,7 @@ export function ClientReserveScreen({ navigation }: Props) {
             label={t('RESERVE.SUMMARY.SUBMIT')}
             icon="arrow-forward"
             iconRight
-            disabled={!isValid}
+            disabled={!isValid || submitting}
             onPress={submit}
           />
           <Text style={[styles.note, { color: colors.textMuted }]}>{t('RESERVE.SUMMARY.NOTE')}</Text>
@@ -276,8 +397,6 @@ const styles = StyleSheet.create({
   note: { fontSize: fontSize.small, lineHeight: 19 },
   service: { gap: 6, padding: spacing.md, borderRadius: radius.md, borderWidth: 1.5 },
   serviceTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  popular: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: radius.pill },
-  popularText: { fontSize: fontSize.tiny, fontWeight: fontWeight.bold },
   price: { fontSize: fontSize.pageTitle - 2, fontWeight: fontWeight.extrabold },
   label: { fontSize: fontSize.small, fontWeight: fontWeight.medium },
   chips: { gap: 8 },

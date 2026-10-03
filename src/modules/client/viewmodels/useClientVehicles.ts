@@ -9,6 +9,7 @@ function toCard(vehicle: VehicleResponse): VehicleCard {
   return {
     id: vehicle.id,
     type: vehicle.vehicleType,
+    typeId: vehicle.vehicleTypeId,
     brand: vehicle.brand,
     model: vehicle.model,
     plate: vehicle.licensePlateFormatted,
