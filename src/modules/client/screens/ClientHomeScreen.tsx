@@ -7,6 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { fontSize, fontWeight, radius, spacing, useTheme } from '../../../app/theme';
 import { RootStackParamList } from '../../../core/navigation/types';
 import { useSession } from '../../../core/services/auth';
+import { isActiveStatus, isFinishedStatus } from '../../../core/services/booking/bookingDisplay';
 import { Pill } from '../../../shared/components/ui/Pill';
 import { ActionButton } from '../../../shared/components/screen/ActionButton';
 import { PageHeader } from '../../../shared/components/screen/PageHeader';
@@ -19,7 +20,8 @@ import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { ClientLayout } from '../../../shared/layouts/ClientLayout';
 import { withAlpha } from '../../../shared/utils/color';
 import { PROGRESS_BY_STATUS } from '../models/client';
-import { BENEFITS, CLIENT_STATS, LOYALTY, NEXT_SERVICE } from '../services/clientMock';
+import { BENEFITS, LOYALTY } from '../services/clientMock';
+import { useClientBookings } from '../viewmodels/useClientBookings';
 import { useClientVehicles } from '../viewmodels/useClientVehicles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientHome'>;
@@ -33,19 +35,36 @@ const QUICK_ACCESS: { icon: IconName; label: string; route: keyof RootStackParam
   { icon: 'notifications', label: 'DASHBOARD.QUICK_ACCESS.NOTIFICATIONS', route: 'ClientNotifications' },
 ];
 
+// isoDate() de hoy, para comparar contra booking.date (aaaa-mm-dd)
+function todayISO(): string {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
 // dashboard del cliente: resumen, próximo servicio, accesos rápidos y beneficios
 export function ClientHomeScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const { user } = useSession();
   const { vehicles, loading } = useClientVehicles();
+  const { bookings } = useClientBookings();
   const feedback = useFeedback();
 
-  const service = NEXT_SERVICE;
-  const progress = PROGRESS_BY_STATUS[service.status] ?? 0;
+  const activeReservations = bookings.filter((booking) => isActiveStatus(booking.status));
+  const washesDone = bookings.filter((booking) => isFinishedStatus(booking.status)).length;
+
+  // la próxima: la reserva activa con fecha y hora más cercanas desde hoy
+  const today = todayISO();
+  const upcoming = activeReservations
+    .filter((booking) => booking.date >= today)
+    .sort((a, b) => `${a.date} ${a.timeRange}`.localeCompare(`${b.date} ${b.timeRange}`));
+  const service = upcoming[0] ?? null;
+  const progress = service ? PROGRESS_BY_STATUS[service.status] ?? 0 : 0;
   const loyaltyPercentage = Math.round((LOYALTY.current / LOYALTY.goal) * 100);
 
-  const viewNextServiceDetail = () =>
+  const viewNextServiceDetail = () => {
+    if (!service) return;
     feedback.showStatus({
       type: 'info',
       icon: 'event',
@@ -53,15 +72,17 @@ export function ClientHomeScreen({ navigation }: Props) {
       message: t('DASHBOARD.NEXT_SERVICE.DETAIL_MESSAGE'),
       buttonText: t('COMMON.CLOSE'),
       details: [
-        { label: t('RESERVE.SUMMARY.SERVICE'), value: t(`SERVICE.${service.type}`) },
-        { label: t('RESERVE.SUMMARY.VEHICLE'), value: `${t(`VEHICLE.${service.vehicle}`)} · ${service.plate}` },
-        { label: t('RESERVE.SUMMARY.DATE'), value: service.date },
+        { label: t('RESERVE.SUMMARY.SERVICE'), value: service.services.join(', ') },
+        { label: t('RESERVE.SUMMARY.VEHICLE'), value: `${service.vehicle} · ${service.plate}`.trim() },
+        { label: t('RESERVE.SUMMARY.DATE'), value: `${service.displayDate} · ${service.timeRange}` },
         { label: t('RESERVE.SUMMARY.LOCATION'), value: BUSINESS_LOCATION.address },
-        { label: t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED'), value: service.operator },
+        // el booking-service todavía no asigna operario a la reserva
+        { label: t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED'), value: '—' },
         { label: t('DASHBOARD.NEXT_SERVICE.STATUS'), value: t(`STATUS.${service.status}`) },
         { label: t('DASHBOARD.NEXT_SERVICE.PROGRESS'), value: `${progress}%` },
       ],
     });
+  };
 
   return (
     <ClientLayout activeKey="dashboard">
@@ -74,7 +95,7 @@ export function ClientHomeScreen({ navigation }: Props) {
         <StatGrid>
           <StatTile
             icon="calendar-today"
-            value={CLIENT_STATS.activeReservations}
+            value={activeReservations.length}
             label={t('DASHBOARD.STATS.ACTIVE_RESERVATIONS')}
             onPress={() => navigation.navigate('ClientHistory')}
           />
@@ -84,7 +105,7 @@ export function ClientHomeScreen({ navigation }: Props) {
             label={t('DASHBOARD.STATS.MY_VEHICLES')}
             onPress={() => navigation.navigate('ClientVehicles')}
           />
-          <StatTile icon="water-drop" value={CLIENT_STATS.washesDone} label={t('DASHBOARD.STATS.WASHES_DONE')} />
+          <StatTile icon="water-drop" value={washesDone} label={t('DASHBOARD.STATS.WASHES_DONE')} />
           <StatTile
             icon="notifications"
             value={t('COMMON.VIEW')}
@@ -93,31 +114,36 @@ export function ClientHomeScreen({ navigation }: Props) {
           />
         </StatGrid>
 
-        {/* Próximo servicio */}
-        <SectionCard
-          title={t('DASHBOARD.NEXT_SERVICE.TITLE')}
-          icon="schedule"
-          right={<Pill label={t(`STATUS.${service.status}`)} tone="primary" />}
-        >
-          <Text style={[styles.strong, { color: colors.text }]}>
-            {t(`SERVICE.${service.type}`)} — {t(`VEHICLE.${service.vehicle}`)} · {service.plate}
-          </Text>
-          <Text style={[styles.muted, { color: colors.textSecondary }]}>{service.date}</Text>
-          <View style={styles.meta}>
-            <MaterialIcons name="storefront" size={16} color={colors.textMuted} />
-            <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-              {BUSINESS_LOCATION.name} · {BUSINESS_LOCATION.address}
+        {/* Próximo servicio: la reserva activa más próxima (booking-service) */}
+        {service ? (
+          <SectionCard
+            title={t('DASHBOARD.NEXT_SERVICE.TITLE')}
+            icon="schedule"
+            right={<Pill label={t(`STATUS.${service.status}`)} tone="primary" />}
+          >
+            <Text style={[styles.strong, { color: colors.text }]}>
+              {service.services.join(', ')} — {service.vehicle} · {service.plate}
             </Text>
-          </View>
-          <View style={styles.meta}>
-            <MaterialIcons name="person" size={16} color={colors.textMuted} />
-            <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-              {t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED')}: {service.operator}
+            <Text style={[styles.muted, { color: colors.textSecondary }]}>
+              {service.displayDate} · {service.timeRange}
             </Text>
-          </View>
-          <ProgressBar percentage={progress} label={t('DASHBOARD.NEXT_SERVICE.PROGRESS')} />
-          <ActionButton label={t('DASHBOARD.NEXT_SERVICE.VIEW_DETAIL')} variant="outline" onPress={viewNextServiceDetail} />
-        </SectionCard>
+            <View style={styles.meta}>
+              <MaterialIcons name="storefront" size={16} color={colors.textMuted} />
+              <Text style={[styles.metaText, { color: colors.textSecondary }]}>
+                {BUSINESS_LOCATION.name} · {BUSINESS_LOCATION.address}
+              </Text>
+            </View>
+            <View style={styles.meta}>
+              <MaterialIcons name="person" size={16} color={colors.textMuted} />
+              <Text style={[styles.metaText, { color: colors.textSecondary }]}>
+                {/* el booking-service todavía no asigna operario a la reserva */}
+                {t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED')}: —
+              </Text>
+            </View>
+            <ProgressBar percentage={progress} label={t('DASHBOARD.NEXT_SERVICE.PROGRESS')} />
+            <ActionButton label={t('DASHBOARD.NEXT_SERVICE.VIEW_DETAIL')} variant="outline" onPress={viewNextServiceDetail} />
+          </SectionCard>
+        ) : null}
 
         {/* Accesos rápidos */}
         <SectionCard title={t('DASHBOARD.QUICK_ACCESS.TITLE')}>
