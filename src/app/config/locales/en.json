@@ -395,11 +395,15 @@
     "STEP2": {
       "TITLE": "Service type",
       "SUBTITLE": "Choose the cleaning level you prefer",
-      "POPULAR": "Most popular"
+      "POPULAR": "Most popular",
+      "NO_VEHICLE": "First choose your vehicle in step 1",
+      "EMPTY": "There are no services available for this vehicle type"
     },
     "STEP3": {
       "TITLE": "Date and location",
-      "SUBTITLE": "Tell us when and where to wash your vehicle"
+      "SUBTITLE": "Tell us when and where to wash your vehicle",
+      "CLOSED": "Closed: this day cannot be booked",
+      "NO_SLOTS": "No times available that day. Try another date."
     },
     "SUMMARY": {
       "TITLE": "Your booking summary",
@@ -1046,6 +1050,12 @@
     "VEHICLE_NOT_FOUND": "The vehicle does not exist or was already removed",
     "INVALID_PLATE": "The plate format does not match the vehicle type",
     "INVALID_VEHICLE_TYPE": "The vehicle type is not valid",
+    "SLOT_UNAVAILABLE": "That time is no longer available.",
+    "VEHICLE_ALREADY_BOOKED": "That vehicle already has a booking at that time.",
+    "SERVICE_NOT_AVAILABLE_FOR_VEHICLE": "That service is not available for your vehicle type.",
+    "INVALID_DATE": "That date cannot be booked.",
+    "CUSTOMER_SERVICE_UNAVAILABLE": "We could not validate your vehicle. Try again in a moment.",
+    "BOOKING_NOT_CHANGEABLE": "This booking can no longer be changed.",
     "NETWORK_ERROR": "Cannot reach the server. Please try again in a moment.",
     "UNEXPECTED": "An unexpected error occurred. Please try again.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "You cannot disable your own account"

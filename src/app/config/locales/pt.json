@@ -395,11 +395,15 @@
     "STEP2": {
       "TITLE": "Tipo de serviço",
       "SUBTITLE": "Escolha o nível de limpeza que prefere",
-      "POPULAR": "Mais popular"
+      "POPULAR": "Mais popular",
+      "NO_VEHICLE": "Primeiro escolha seu veículo na etapa 1",
+      "EMPTY": "Não há serviços disponíveis para este tipo de veículo"
     },
     "STEP3": {
       "TITLE": "Data e localização",
-      "SUBTITLE": "Diga-nos quando e onde lavar seu veículo"
+      "SUBTITLE": "Diga-nos quando e onde lavar seu veículo",
+      "CLOSED": "Fechado: este dia não pode ser reservado",
+      "NO_SLOTS": "Não há horários disponíveis nesse dia. Tente outra data."
     },
     "SUMMARY": {
       "TITLE": "Resumo da sua reserva",
@@ -1046,6 +1050,12 @@
     "VEHICLE_NOT_FOUND": "O veículo não existe ou já foi removido",
     "INVALID_PLATE": "O formato da placa não corresponde ao tipo de veículo",
     "INVALID_VEHICLE_TYPE": "O tipo de veículo não é válido",
+    "SLOT_UNAVAILABLE": "Esse horário não está mais disponível.",
+    "VEHICLE_ALREADY_BOOKED": "Esse veículo já tem uma reserva nesse horário.",
+    "SERVICE_NOT_AVAILABLE_FOR_VEHICLE": "Esse serviço não está disponível para seu tipo de veículo.",
+    "INVALID_DATE": "Essa data não pode ser reservada.",
+    "CUSTOMER_SERVICE_UNAVAILABLE": "Não conseguimos validar seu veículo. Tente novamente em instantes.",
+    "BOOKING_NOT_CHANGEABLE": "Esta reserva não pode mais ser alterada.",
     "NETWORK_ERROR": "Não foi possível conectar ao servidor. Tente novamente em instantes.",
     "UNEXPECTED": "Ocorreu um erro inesperado. Tente novamente.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "Você não pode desativar sua própria conta"

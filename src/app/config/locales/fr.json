@@ -395,11 +395,15 @@
     "STEP2": {
       "TITLE": "Type de service",
       "SUBTITLE": "Choisissez le niveau de nettoyage souhaité",
-      "POPULAR": "Le plus populaire"
+      "POPULAR": "Le plus populaire",
+      "NO_VEHICLE": "Choisissez d'abord votre véhicule à l'étape 1",
+      "EMPTY": "Aucun service disponible pour ce type de véhicule"
     },
     "STEP3": {
       "TITLE": "Date et lieu",
-      "SUBTITLE": "Dites-nous quand et où laver votre véhicule"
+      "SUBTITLE": "Dites-nous quand et où laver votre véhicule",
+      "CLOSED": "Fermé : cette journée ne peut pas être réservée",
+      "NO_SLOTS": "Aucun créneau disponible ce jour-là. Essayez une autre date."
     },
     "SUMMARY": {
       "TITLE": "Résumé de votre réservation",
@@ -1046,6 +1050,12 @@
     "VEHICLE_NOT_FOUND": "Le véhicule n'existe pas ou a déjà été supprimé",
     "INVALID_PLATE": "Le format de la plaque ne correspond pas au type de véhicule",
     "INVALID_VEHICLE_TYPE": "Le type de véhicule n'est pas valide",
+    "SLOT_UNAVAILABLE": "Cet horaire n'est plus disponible.",
+    "VEHICLE_ALREADY_BOOKED": "Ce véhicule a déjà une réservation à cette heure.",
+    "SERVICE_NOT_AVAILABLE_FOR_VEHICLE": "Ce service n'est pas disponible pour votre type de véhicule.",
+    "INVALID_DATE": "Cette date ne peut pas être réservée.",
+    "CUSTOMER_SERVICE_UNAVAILABLE": "Nous n'avons pas pu valider votre véhicule. Réessayez dans un instant.",
+    "BOOKING_NOT_CHANGEABLE": "Cette réservation ne peut plus être modifiée.",
     "NETWORK_ERROR": "Impossible de joindre le serveur. Réessayez dans un instant.",
     "UNEXPECTED": "Une erreur inattendue est survenue. Réessayez.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "Vous ne pouvez pas désactiver votre propre compte"
