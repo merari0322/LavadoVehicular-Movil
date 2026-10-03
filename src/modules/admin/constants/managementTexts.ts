@@ -24,6 +24,7 @@ const es = {
     delete: 'Eliminar',
     yes: 'Sí',
     no: 'No',
+    saveError: 'No se pudo guardar',
   },
 
   // ---------------- Usuarios ----------------
@@ -239,7 +240,7 @@ const es = {
 const en: typeof es = {
   online: 'System online · Main branch',
   tabs: { users: 'Users', roles: 'Roles', services: 'Services', promotions: 'Promotions' },
-  common: { cancel: 'Cancel', delete: 'Delete', yes: 'Yes', no: 'No' },
+  common: { cancel: 'Cancel', delete: 'Delete', yes: 'Yes', no: 'No', saveError: "Couldn't save changes" },
   users: {
     title: 'Management',
     subtitle: 'Oversee staff access, assigned roles and account status.',
@@ -409,7 +410,7 @@ const en: typeof es = {
 const fr: typeof es = {
   online: 'Système en ligne · Agence centrale',
   tabs: { users: 'Utilisateurs', roles: 'Rôles', services: 'Services', promotions: 'Promotions' },
-  common: { cancel: 'Annuler', delete: 'Supprimer', yes: 'Oui', no: 'Non' },
+  common: { cancel: 'Annuler', delete: 'Supprimer', yes: 'Oui', no: 'Non', saveError: "Impossible d'enregistrer" },
   users: {
     title: 'Gestion',
     subtitle: 'Supervisez les accès du personnel, les rôles assignés et le statut des comptes.',
@@ -579,7 +580,7 @@ const fr: typeof es = {
 const pt: typeof es = {
   online: 'Sistema on-line · Filial Central',
   tabs: { users: 'Usuários', roles: 'Funções', services: 'Serviços', promotions: 'Promoções' },
-  common: { cancel: 'Cancelar', delete: 'Excluir', yes: 'Sim', no: 'Não' },
+  common: { cancel: 'Cancelar', delete: 'Excluir', yes: 'Sim', no: 'Não', saveError: 'Não foi possível salvar' },
   users: {
     title: 'Gestão',
     subtitle: 'Supervisione os acessos da equipe, as funções atribuídas e o status das contas.',

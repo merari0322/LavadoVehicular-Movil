@@ -1,4 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { bookingService } from '../../../core/services/booking/BookingService';
+import {
+  CatalogServiceRequest,
+  CatalogServiceResponse,
+  ServiceCategoryResponse,
+} from '../../../core/services/booking/booking.types';
+import { VehicleTypeResponse, vehicleService } from '../../../core/services/vehicles/VehicleService';
 import {
   ManagedService,
   ManagedUser,
@@ -8,6 +15,7 @@ import {
   PromotionStatus,
   Role,
   RoleFormValues,
+  ServiceCategory,
   ServiceFormValues,
   UserFilter,
   UserFormValues,
@@ -15,22 +23,102 @@ import {
 import {
   INITIAL_PROMOTIONS,
   INITIAL_ROLES,
-  INITIAL_SERVICES,
   INITIAL_USERS,
   PROMOTION_METRICS,
 } from '../services/managementMock';
 import { getTodayISO } from '../utils/reservationUtils';
 
-// Genera un id único para los registros nuevos
+// Genera un id único para los registros nuevos (solo los datos que siguen siendo mock)
 const newId = (prefix: string): string =>
   `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+// Códigos de categoría del booking-service (seed 103: LAVADO, POLICHADO, DETALLADO, INTERIOR)
+// y su equivalente en las pantallas de la app
+const CATEGORY_BY_CODE: Record<string, ServiceCategory> = {
+  LAVADO: 'wash',
+  POLICHADO: 'shine',
+  DETALLADO: 'detail',
+  INTERIOR: 'interior',
+};
+const CODE_BY_CATEGORY: Record<ServiceCategory, string> = {
+  wash: 'LAVADO',
+  shine: 'POLICHADO',
+  detail: 'DETALLADO',
+  interior: 'INTERIOR',
+};
+
+// Servicio del booking-service -> servicio de la pantalla. Se muestra el precio y la
+// duración mínimos entre los tipos de vehículo (el formulario de la app usa uno solo).
+function toManagedService(service: CatalogServiceResponse): ManagedService {
+  const prices = service.prices ?? [];
+  return {
+    id: String(service.id),
+    name: service.name,
+    price: prices.length ? Math.round(Math.min(...prices.map((item) => item.price))) : 0,
+    description: service.description ?? '',
+    duration: prices.length ? Math.min(...prices.map((item) => item.estimatedMinutes)) : 30,
+    category: CATEGORY_BY_CODE[service.category?.code ?? ''] ?? 'wash',
+    active: service.active,
+  };
+}
+
+// El formulario de la app pide un precio y una duración únicos; al guardar se replican
+// a todos los tipos de vehículo del catálogo (customer-service).
+function buildServiceRequest(
+  values: ServiceFormValues,
+  categories: ServiceCategoryResponse[],
+  vehicleTypes: VehicleTypeResponse[],
+): CatalogServiceRequest {
+  const category = categories.find((item) => item.code === CODE_BY_CATEGORY[values.category]);
+  return {
+    name: values.name,
+    description: values.description.trim() || null,
+    categoryId: category?.id ?? 0,
+    prices: vehicleTypes.map((vehicleType) => ({
+      vehicleTypeId: vehicleType.id,
+      price: values.price,
+      estimatedMinutes: values.duration,
+    })),
+  };
+}
 
 // Hook con el estado y la lógica de la pantalla de gestión
 export function useManagement() {
   const [roles, setRoles] = useState<Role[]>(INITIAL_ROLES);
   const [users, setUsers] = useState<ManagedUser[]>(INITIAL_USERS);
-  const [services, setServices] = useState<ManagedService[]>(INITIAL_SERVICES);
   const [promotions, setPromotions] = useState<Promotion[]>(INITIAL_PROMOTIONS);
+
+  // Servicios reales del booking-service. Categorías y tipos de vehículo se cargan junto
+  // con el catálogo para poder armar las tarifas al crear/editar.
+  const [services, setServices] = useState<ManagedService[]>([]);
+  const [serviceCategories, setServiceCategories] = useState<ServiceCategoryResponse[]>([]);
+  const [vehicleTypes, setVehicleTypes] = useState<VehicleTypeResponse[]>([]);
+  const [servicesLoading, setServicesLoading] = useState(false);
+  const [servicesError, setServicesError] = useState<string | null>(null);
+
+  // Carga el catálogo de servicios más las categorías y los tipos de vehículo
+  const reloadServices = useCallback(async () => {
+    setServicesLoading(true);
+    setServicesError(null);
+    try {
+      const [serviceList, categoryList, typeList] = await Promise.all([
+        bookingService.adminServices(),
+        bookingService.categories(),
+        vehicleService.listVehicleTypes(),
+      ]);
+      setServices(serviceList.map(toManagedService));
+      setServiceCategories(categoryList);
+      setVehicleTypes(typeList);
+    } catch (error) {
+      setServicesError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setServicesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void reloadServices();
+  }, [reloadServices]);
 
   // ---------------------------------------------------------------
   // Datos calculados
@@ -122,23 +210,40 @@ export function useManagement() {
   };
 
   // ---------------------------------------------------------------
-  // Servicios
+  // Servicios (catálogo real del booking-service)
   // ---------------------------------------------------------------
 
-  const createService = (values: ServiceFormValues) =>
-    setServices((prev) => [...prev, { id: newId('srv'), active: true, ...values }]);
+  const createService = async (values: ServiceFormValues) => {
+    const created = await bookingService.createService(
+      buildServiceRequest(values, serviceCategories, vehicleTypes),
+    );
+    setServices((prev) => [...prev, toManagedService(created)]);
+  };
 
-  const updateService = (id: string, values: ServiceFormValues) =>
-    setServices((prev) => prev.map((item) => (item.id === id ? { ...item, ...values } : item)));
+  const updateService = async (id: string, values: ServiceFormValues) => {
+    const updated = await bookingService.updateService(
+      Number(id),
+      buildServiceRequest(values, serviceCategories, vehicleTypes),
+    );
+    setServices((prev) =>
+      prev.map((item) => (item.id === String(updated.id) ? toManagedService(updated) : item)),
+    );
+  };
 
   // Activa o pausa el servicio
-  const toggleServiceActive = (id: string) =>
+  const toggleServiceActive = async (id: string) => {
+    const target = services.find((item) => item.id === id);
+    if (!target) return;
+    const updated = await bookingService.setServiceActive(Number(id), !target.active);
     setServices((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, active: !item.active } : item)),
+      prev.map((item) => (item.id === String(updated.id) ? toManagedService(updated) : item)),
     );
+  };
 
-  const deleteService = (id: string) =>
+  const deleteService = async (id: string) => {
+    await bookingService.deleteService(Number(id));
     setServices((prev) => prev.filter((item) => item.id !== id));
+  };
 
   // ---------------------------------------------------------------
   // Promociones
@@ -176,6 +281,9 @@ export function useManagement() {
     updateRole,
     deleteRole,
     // Servicios
+    servicesLoading,
+    servicesError,
+    reloadServices,
     createService,
     updateService,
     toggleServiceActive,

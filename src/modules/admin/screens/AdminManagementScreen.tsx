@@ -29,6 +29,7 @@ import { useManagement } from '../viewmodels/useManagement';
 // la pestaña "Usuarios" usa las cuentas reales del security-service
 import { useSystemRoles, useUserAccounts } from '../viewmodels/useUserAccounts';
 import { CreateAccountPayload } from '../../../core/services/users/UserAdminService';
+import { apiErrorKey } from '../../../core/api/apiError';
 
 // Estado de un modal de formulario: abierto/cerrado y el registro que se edita (null = crear)
 interface FormState<T> {
@@ -50,7 +51,7 @@ interface ConfirmState {
 
 export const AdminManagementScreen = () => {
   // vuelve a pintar la pantalla cuando cambia el idioma
-  useTranslation();
+  const { t } = useTranslation();
   const systemRoles = useSystemRoles();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(), []);
@@ -144,17 +145,25 @@ export const AdminManagementScreen = () => {
   // Servicios
   // ---------------------------------------------------------------
 
-  const handleServiceSubmit = (values: ServiceFormValues) => {
-    if (serviceForm.item) management.updateService(serviceForm.item.id, values);
-    else management.createService(values);
-    setServiceForm(CLOSED);
+  const handleServiceSubmit = async (values: ServiceFormValues) => {
+    try {
+      if (serviceForm.item) await management.updateService(serviceForm.item.id, values);
+      else await management.createService(values);
+      setServiceForm(CLOSED);
+    } catch (error) {
+      // si el backend rechaza (p. ej. nombre repetido) se avisa sin cerrar el modal
+      Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)));
+    }
   };
 
   const handleServiceDelete = (service: ManagedService) =>
     askDelete(
       MANAGEMENT_TEXTS.services.deleteTitle,
       MANAGEMENT_TEXTS.services.deleteMessage(service.name),
-      () => management.deleteService(service.id),
+      () =>
+        management.deleteService(service.id).catch((error) =>
+          Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error))),
+        ),
     );
 
   // ---------------------------------------------------------------
@@ -213,7 +222,11 @@ export const AdminManagementScreen = () => {
               services={management.services}
               onCreate={() => setServiceForm({ visible: true, item: null })}
               onEdit={(service) => setServiceForm({ visible: true, item: service })}
-              onToggle={management.toggleServiceActive}
+              onToggle={(id) => {
+                void management.toggleServiceActive(id).catch((error) =>
+                  Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error))),
+                );
+              }}
               onDelete={handleServiceDelete}
             />
           ) : null}
