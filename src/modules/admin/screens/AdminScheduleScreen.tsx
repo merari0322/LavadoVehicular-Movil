@@ -22,6 +22,7 @@ import {
 } from '../models/schedule';
 import { isoToDisplay } from '../utils/reservationUtils';
 import { useSchedule } from '../viewmodels/useSchedule';
+import { apiErrorKey } from '../../../core/api/apiError';
 
 // Estado de un modal de formulario: abierto/cerrado y el registro que se edita (null = crear)
 interface FormState<T> {
@@ -40,7 +41,7 @@ interface ConfirmState {
 
 export const AdminScheduleScreen = () => {
   // vuelve a pintar la pantalla cuando cambia el idioma
-  useTranslation();
+  const { t } = useTranslation();
   const schedule = useSchedule();
 
   const [tab, setTab] = useState<ScheduleTab>('hours');
@@ -68,47 +69,64 @@ export const AdminScheduleScreen = () => {
   // Horario semanal
   // ---------------------------------------------------------------
 
-  // Guarda el horario y avisa si salió bien o si hay errores
-  const handleSaveWeek = () => {
-    const saved = schedule.saveWeek();
+  // Guarda el horario y avisa si salió bien o si hay errores de validación o del backend
+  const handleSaveWeek = async () => {
     const texts = SCHEDULE_TEXTS.week;
-
-    if (saved) Alert.alert(texts.savedTitle, texts.savedMessage);
-    else Alert.alert(texts.invalidTitle, texts.invalidMessage);
+    try {
+      const saved = await schedule.saveWeek();
+      if (saved) Alert.alert(texts.savedTitle, texts.savedMessage);
+      else Alert.alert(texts.invalidTitle, texts.invalidMessage);
+    } catch (error) {
+      Alert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error)));
+    }
   };
 
   // ---------------------------------------------------------------
   // Excepciones
   // ---------------------------------------------------------------
 
-  const handleExceptionSubmit = (values: ExceptionFormValues) => {
-    if (exceptionForm.item) schedule.updateException(exceptionForm.item.id, values);
-    else schedule.createException(values);
-    setExceptionForm(CLOSED);
+  const handleExceptionSubmit = async (values: ExceptionFormValues) => {
+    try {
+      if (exceptionForm.item) await schedule.updateException(exceptionForm.item.id, values);
+      else await schedule.createException(values);
+      setExceptionForm(CLOSED);
+    } catch (error) {
+      Alert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error)));
+    }
   };
 
   const handleExceptionDelete = (exception: ScheduleException) =>
     askDelete(
       SCHEDULE_TEXTS.exceptions.deleteTitle,
       SCHEDULE_TEXTS.exceptions.deleteMessage(isoToDisplay(exception.date)),
-      () => schedule.deleteException(exception.id),
+      () =>
+        schedule.deleteException(exception.id).catch((error) =>
+          Alert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error))),
+        ),
     );
 
   // ---------------------------------------------------------------
   // Bahías
   // ---------------------------------------------------------------
 
-  const handleBaySubmit = (values: BayFormValues) => {
-    if (bayForm.item) schedule.updateBay(bayForm.item.id, values);
-    else schedule.createBay(values);
-    setBayForm(CLOSED);
+  const handleBaySubmit = async (values: BayFormValues) => {
+    try {
+      if (bayForm.item) await schedule.updateBay(bayForm.item.id, values);
+      else await schedule.createBay(values);
+      setBayForm(CLOSED);
+    } catch (error) {
+      Alert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error)));
+    }
   };
 
   const handleBayDelete = (bay: Bay) =>
     askDelete(
       SCHEDULE_TEXTS.bays.deleteTitle,
       SCHEDULE_TEXTS.bays.deleteMessage(bay.name),
-      () => schedule.deleteBay(bay.id),
+      () =>
+        schedule.deleteBay(bay.id).catch((error) =>
+          Alert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error))),
+        ),
     );
 
   return (
@@ -148,7 +166,11 @@ export const AdminScheduleScreen = () => {
               bays={schedule.bays}
               onAdd={() => setBayForm({ visible: true, item: null })}
               onEdit={(bay) => setBayForm({ visible: true, item: bay })}
-              onChangeStatus={schedule.changeBayStatus}
+              onChangeStatus={(id, status) => {
+                void schedule.changeBayStatus(id, status).catch((error) =>
+                  Alert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error))),
+                );
+              }}
               onDelete={handleBayDelete}
             />
           ) : null}

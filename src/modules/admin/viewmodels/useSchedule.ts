@@ -1,4 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { bookingService } from '../../../core/services/booking/BookingService';
+import {
+  BayResponse,
+  BayStatusCode,
+  BusinessHourDto,
+  HoursExceptionRequest,
+  HoursExceptionResponse,
+} from '../../../core/services/booking/booking.types';
 import { SCHEDULE_TEXTS } from '../constants/scheduleTexts';
 import {
   BREAK_OPTIONS,
@@ -34,9 +42,95 @@ const JS_DAYS: WeekDay[] = [
   'saturday',
 ];
 
-// Genera un id único para los registros nuevos
+// El booking-service numera los días 1 = lunes ... 7 = domingo
+const DAY_BY_NUMBER: Record<number, WeekDay> = {
+  1: 'monday',
+  2: 'tuesday',
+  3: 'wednesday',
+  4: 'thursday',
+  5: 'friday',
+  6: 'saturday',
+  7: 'sunday',
+};
+const NUMBER_BY_DAY: Record<WeekDay, number> = {
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6,
+  sunday: 7,
+};
+
+// códigos de estado de bahía del backend -> estado de la pantalla (y al revés)
+const BAY_STATUS_BY_CODE: Record<BayStatusCode, BayStatus> = {
+  ACTIVE: 'active',
+  MAINTENANCE: 'maintenance',
+  INACTIVE: 'inactive',
+};
+const BAY_CODE_BY_STATUS: Record<BayStatus, BayStatusCode> = {
+  active: 'ACTIVE',
+  maintenance: 'MAINTENANCE',
+  inactive: 'INACTIVE',
+};
+
+// operarios de bahía asignados localmente (no hay backend de operarios): sobreviven a las recargas
+const bayOperators = new Map<string, string>();
+
+// Genera un id único para los registros nuevos (solo historial local)
 const newId = (prefix: string): string =>
   `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+// Horario del backend (BusinessHourDto) -> horario de la pantalla
+const hourToDay = (hour: BusinessHourDto): DaySchedule => ({
+  day: DAY_BY_NUMBER[hour.dayOfWeek] ?? 'monday',
+  open: hour.working,
+  opening: hour.opensAt,
+  closing: hour.closesAt,
+  breakId: hour.breakStartsAt && hour.breakEndsAt ? `${hour.breakStartsAt}-${hour.breakEndsAt}` : '',
+});
+
+// Horario de la pantalla -> el que espera el backend al guardar
+const dayToHour = (day: DaySchedule): BusinessHourDto => {
+  const breakRange = day.breakId ? day.breakId.split('-') : null;
+  return {
+    dayOfWeek: NUMBER_BY_DAY[day.day],
+    working: day.open,
+    opensAt: day.opening,
+    closesAt: day.closing,
+    breakStartsAt: day.open && breakRange ? breakRange[0] : null,
+    breakEndsAt: day.open && breakRange ? breakRange[1] : null,
+  };
+};
+
+// Excepción del backend -> excepción de la pantalla. El "tipo" no existe en el backend:
+// es solo visual (festivo si está cerrada, especial si no).
+const exceptionToLocal = (exception: HoursExceptionResponse): ScheduleException => ({
+  id: String(exception.id),
+  date: exception.date,
+  type: exception.closed ? 'holiday' : 'special',
+  closedAllDay: exception.closed,
+  opening: exception.opensAt ?? '09:00',
+  closing: exception.closesAt ?? '18:00',
+  description: exception.reason,
+});
+
+// Excepción de la pantalla -> la que espera el backend al guardar
+const exceptionToRequest = (values: ExceptionFormValues): HoursExceptionRequest => ({
+  date: values.date,
+  closed: values.closedAllDay,
+  opensAt: values.closedAllDay ? null : values.opening,
+  closesAt: values.closedAllDay ? null : values.closing,
+  reason: values.description,
+});
+
+// Bahía del backend -> bahía de la pantalla (el operario asignado es local)
+const bayToLocal = (bay: BayResponse): Bay => ({
+  id: String(bay.id),
+  name: bay.name,
+  status: BAY_STATUS_BY_CODE[bay.status] ?? 'inactive',
+  operatorId: bayOperators.get(String(bay.id)) ?? '',
+});
 
 // Valida cada día laboral: horas correctas, apertura antes del cierre y pausa dentro del horario
 const validateWeek = (week: DaySchedule[]): WeekErrors => {
@@ -65,14 +159,45 @@ const validateWeek = (week: DaySchedule[]): WeekErrors => {
   return errors;
 };
 
-// Hook con el estado y la lógica de la pantalla de horarios y bahías
+// Hook con el estado y la lógica de la pantalla de horarios y bahías (datos reales del
+// booking-service; el historial de cambios se mantiene local porque no hay backend)
 export function useSchedule() {
-  // Horario guardado y borrador que se está editando
+  // Horario guardado y borrador que se está editando. Se arranca con los datos de
+  // ejemplo y la primera carga real los reemplaza (así la pantalla nunca se ve vacía).
   const [savedWeek, setSavedWeek] = useState<DaySchedule[]>(INITIAL_WEEK);
   const [draftWeek, setDraftWeek] = useState<DaySchedule[]>(INITIAL_WEEK);
   const [exceptions, setExceptions] = useState<ScheduleException[]>(INITIAL_EXCEPTIONS);
   const [bays, setBays] = useState<Bay[]>(INITIAL_BAYS);
   const [history, setHistory] = useState<HistoryEntry[]>(INITIAL_HISTORY);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Carga horario semanal, excepciones y bahías desde el booking-service
+  const reload = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const [hours, exceptionList, bayList] = await Promise.all([
+        bookingService.businessHours(),
+        bookingService.exceptions(),
+        bookingService.bays(),
+      ]);
+      const week = hours.map(hourToDay);
+      setSavedWeek(week);
+      setDraftWeek(week);
+      setExceptions(exceptionList.map(exceptionToLocal));
+      setBays(bayList.map(bayToLocal));
+    } catch (error) {
+      // se dejan los datos de ejemplo y se reporta para que la pantalla decida
+      setLoadError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
 
   // ---------------------------------------------------------------
   // Historial
@@ -102,9 +227,11 @@ export function useSchedule() {
   // Descarta los cambios y vuelve al último horario guardado
   const resetWeek = () => setDraftWeek(savedWeek);
 
-  // Guarda el horario (devuelve false si hay errores)
-  const saveWeek = (): boolean => {
+  // Guarda el horario en el booking-service (devuelve false si hay errores de validación)
+  const saveWeek = async (): Promise<boolean> => {
     if (Object.keys(weekErrors).length > 0) return false;
+
+    await bookingService.saveBusinessHours(draftWeek.map(dayToHour));
     setSavedWeek(draftWeek);
     addHistory(SCHEDULE_TEXTS.historyModal.weekUpdated);
     return true;
@@ -135,18 +262,21 @@ export function useSchedule() {
   const isDateTaken = (date: string, ignoreId?: string): boolean =>
     exceptions.some((item) => item.id !== ignoreId && item.date === date);
 
-  const createException = (values: ExceptionFormValues) => {
-    setExceptions((prev) => [...prev, { id: newId('exc'), ...values }]);
+  const createException = async (values: ExceptionFormValues) => {
+    const created = await bookingService.createException(exceptionToRequest(values));
+    setExceptions((prev) => [...prev, exceptionToLocal(created)]);
     addHistory(SCHEDULE_TEXTS.exceptions.history.added, values.description);
   };
 
-  const updateException = (id: string, values: ExceptionFormValues) => {
-    setExceptions((prev) => prev.map((item) => (item.id === id ? { ...item, ...values } : item)));
+  const updateException = async (id: string, values: ExceptionFormValues) => {
+    const updated = await bookingService.updateException(Number(id), exceptionToRequest(values));
+    setExceptions((prev) => prev.map((item) => (item.id === String(updated.id) ? exceptionToLocal(updated) : item)));
     addHistory(SCHEDULE_TEXTS.exceptions.history.updated, values.description);
   };
 
-  const deleteException = (id: string) => {
+  const deleteException = async (id: string) => {
     const target = exceptions.find((item) => item.id === id);
+    await bookingService.deleteException(Number(id));
     setExceptions((prev) => prev.filter((item) => item.id !== id));
     if (target) addHistory(SCHEDULE_TEXTS.exceptions.history.deleted, target.description);
   };
@@ -163,30 +293,37 @@ export function useSchedule() {
       (bay) => bay.id !== ignoreId && bay.name.trim().toLowerCase() === name.trim().toLowerCase(),
     );
 
-  const createBay = (values: BayFormValues) => {
-    setBays((prev) => [...prev, { id: newId('bay'), ...values }]);
+  const createBay = async (values: BayFormValues) => {
+    const created = await bookingService.createBay(values.name, BAY_CODE_BY_STATUS[values.status]);
+    bayOperators.set(String(created.id), values.operatorId);
+    setBays((prev) => [...prev, bayToLocal(created)]);
     addHistory(SCHEDULE_TEXTS.bays.history.added, values.name);
   };
 
-  const updateBay = (id: string, values: BayFormValues) => {
-    setBays((prev) => prev.map((bay) => (bay.id === id ? { ...bay, ...values } : bay)));
+  const updateBay = async (id: string, values: BayFormValues) => {
+    const updated = await bookingService.updateBay(Number(id), values.name, BAY_CODE_BY_STATUS[values.status]);
+    bayOperators.set(String(updated.id), values.operatorId);
+    setBays((prev) => prev.map((bay) => (bay.id === String(updated.id) ? bayToLocal(updated) : bay)));
     addHistory(SCHEDULE_TEXTS.bays.history.updated, values.name);
   };
 
   // Cambia solo el estado de una bahía (activa, mantenimiento o inactiva)
-  const changeBayStatus = (id: string, status: BayStatus) => {
+  const changeBayStatus = async (id: string, status: BayStatus) => {
     const target = bays.find((bay) => bay.id === id);
     if (!target || target.status === status) return;
 
-    setBays((prev) => prev.map((bay) => (bay.id === id ? { ...bay, status } : bay)));
+    const updated = await bookingService.updateBay(Number(id), target.name, BAY_CODE_BY_STATUS[status]);
+    setBays((prev) => prev.map((bay) => (bay.id === String(updated.id) ? bayToLocal(updated) : bay)));
     addHistory(
       SCHEDULE_TEXTS.bays.history.statusChanged,
       `${target.name} · ${SCHEDULE_TEXTS.bays.status[status]}`,
     );
   };
 
-  const deleteBay = (id: string) => {
+  const deleteBay = async (id: string) => {
     const target = bays.find((bay) => bay.id === id);
+    await bookingService.deleteBay(Number(id));
+    bayOperators.delete(id);
     setBays((prev) => prev.filter((bay) => bay.id !== id));
     if (target) addHistory(SCHEDULE_TEXTS.bays.history.deleted, target.name);
   };
@@ -216,5 +353,9 @@ export function useSchedule() {
     deleteBay,
     // Historial
     history,
+    // Carga
+    loading,
+    loadError,
+    reload,
   };
 }
