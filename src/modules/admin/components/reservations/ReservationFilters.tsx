@@ -7,7 +7,7 @@ import { SelectField, SelectOption } from '../../../../shared/components/forms/S
 import { withAlpha } from '../../../../shared/utils/color';
 import { TEXTS } from '../../constants/reservationTexts';
 import { RESERVATION_STATUSES, ReservationFilters as Filters } from '../../models/reservation';
-import { OPERATORS } from '../../services/reservationMock';
+import { useOperatorDirectory } from '../../viewmodels/useOperatorDirectory';
 import { getTodayISO, isoToDisplay, maskDate } from '../../utils/reservationUtils';
 
 interface ReservationFiltersProps {
@@ -22,16 +22,21 @@ const STATUS_OPTIONS: SelectOption[] = [
   ...RESERVATION_STATUSES.map((status) => ({ value: status, label: TEXTS.status[status] })),
 ];
 
-const OPERATOR_OPTIONS: SelectOption[] = [
-  { value: '', label: TEXTS.filters.allOperators },
-  { value: 'unassigned', label: TEXTS.filters.unassigned },
-  ...OPERATORS.map((operator) => ({ value: operator.id, label: operator.name })),
-];
 
 // Barra de búsqueda y filtros de la lista de reservas
 export function ReservationFilters({ filters, onChange, onClear }: ReservationFiltersProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  // operarios reales (operations-service)
+  const operators = useOperatorDirectory();
+  const OPERATOR_OPTIONS = useMemo<SelectOption[]>(
+    () => [
+      { value: '', label: TEXTS.filters.allOperators },
+      { value: 'unassigned', label: TEXTS.filters.unassigned },
+      ...operators.map((operator) => ({ value: operator.id, label: operator.name })),
+    ],
+    [operators],
+  );
 
   return (
     <View style={styles.card}>

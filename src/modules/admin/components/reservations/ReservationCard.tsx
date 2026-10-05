@@ -6,7 +6,7 @@ import { ThemeColors } from '../../../../app/theme/colors';
 import { withAlpha } from '../../../../shared/utils/color';
 import { TEXTS } from '../../constants/reservationTexts';
 import { Reservation } from '../../models/reservation';
-import { getOperatorById } from '../../services/reservationMock';
+import { useOperatorDirectory } from '../../viewmodels/useOperatorDirectory';
 import { getServiceById, useReservationCatalog } from '../../services/reservationCatalog';
 import { addMinutes, formatDateLabel, getInitials } from '../../utils/reservationUtils';
 import { StatusBadge } from '../common/StatusBadge';
@@ -27,7 +27,7 @@ export function ReservationCard({ reservation, onView, onAssign }: ReservationCa
   useReservationCatalog();
 
   const service = getServiceById(reservation.serviceId);
-  const operator = getOperatorById(reservation.operatorId);
+  const operator = useOperatorDirectory().find((item) => item.id === reservation.operatorId);
   const endTime = addMinutes(reservation.time, reservation.duration);
 
   return (

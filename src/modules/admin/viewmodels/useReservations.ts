@@ -5,6 +5,9 @@ import { bookingService } from '../../../core/services/booking/BookingService';
 import { BookingResponse, BookingStatusCode } from '../../../core/services/booking/booking.types';
 import { userAdminService } from '../../../core/services/users/UserAdminService';
 import { vehicleService } from '../../../core/services/vehicles/VehicleService';
+// quién tiene cada reserva (operations-service)
+import { AssignmentResponse, operationsService } from '../../../core/services/operations/OperationsService';
+import { Alert } from 'react-native';
 import { useSharedState } from '../../../shared/hooks/useSharedState';
 import {
   BayOption,
@@ -27,7 +30,7 @@ const STATUS_TO_LOCAL: Record<BookingStatusCode, Reservation['status']> = {
   NO_SHOW: 'no_show',
 };
 
-// operarios asignados localmente (no hay backend de operarios): sobreviven a las recargas
+// reserva -> operario asignado (operations-service), se refresca en cada recarga
 const operatorAssignments = new Map<string, string>();
 
 // Filtros sin ningún valor aplicado
@@ -89,10 +92,14 @@ export function useReservations() {
     setLoading(true);
     setLoadError(null);
     try {
-      const [bookings, accounts] = await Promise.all([
+      const [bookings, accounts, assignments] = await Promise.all([
         bookingService.adminBookings(addDays(-29), addDays(1)),
         userAdminService.listAccounts(0, 200).catch(() => []),
+        // si operations no responde, las reservas igual se muestran (sin operario)
+        operationsService.assignments(addDays(-29), addDays(1)).catch(() => [] as AssignmentResponse[]),
       ]);
+      operatorAssignments.clear();
+      assignments.forEach((a) => operatorAssignments.set(String(a.bookingId), String(a.operatorId)));
       // los nombres de servicios y bahías casi no cambian: se piden una vez por sesión
       await loadReservationCatalog().catch(() => undefined);
 
@@ -189,10 +196,18 @@ export function useReservations() {
     await reload();
   };
 
-  // Asigna (o cambia) el operario de una reserva: no hay backend de operarios, se guarda local
-  const assignOperator = (id: string, operatorId: string) => {
-    operatorAssignments.set(id, operatorId);
-    setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, operatorId } : item)));
+  // Asigna (o cambia) el operario de una reserva; operations valida turno, ausencias y cruces.
+  // Devuelve true si quedó asignado (si no, ya mostró el error).
+  const assignOperator = async (id: string, operatorId: string): Promise<boolean> => {
+    try {
+      await operationsService.assign(Number(id), Number(operatorId));
+      operatorAssignments.set(id, operatorId);
+      setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, operatorId } : item)));
+      return true;
+    } catch (error) {
+      Alert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)));
+      return false;
+    }
   };
 
   // opciones reales para el formulario de crear/editar

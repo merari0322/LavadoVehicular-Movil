@@ -10,15 +10,20 @@ export interface OperatorReservation {
   code: string;
   date: string; // aaaa-mm-dd
   time: string; // HH:mm
-  service: string; // BASIC | PREMIUM | FULL
+  service: string; // nombres de los servicios, ya escritos por el backend
   client: string;
   phone: string;
-  vehicle: string; // tipo: CAR, MOTO...
+  vehicle: string; // tipo: CAR, MOTO... (vacío si el backend no lo manda: ícono de carro)
   vehicleName: string; // "Mazda 3"
   plate: string;
   durationMin: number;
-  paymentMethod: string; // CARD | PSE | NEQUI | CASH
+  paymentMethod: string; // CARD | PSE | NEQUI | CASH; vacío mientras payment no lo asocie
+  // total de la reserva (booking-service)
+  total?: number;
   status: ReservationStatus;
+  // calificación del cliente cuando ya terminó (operations-service)
+  rating?: number | null;
+  comment?: string | null;
 }
 
 export function statusLabel(status: ReservationStatus): string {
@@ -67,7 +72,7 @@ export function historyTone(status: HistoryStatus): PillTone {
 export interface RatingItem {
   id: number;
   client: string;
-  service: string; // BASIC | PREMIUM | FULL
+  service: string; // nombres de los servicios
   date: string; // aaaa-mm-dd
   rating: number;
   comment: string;

@@ -19,11 +19,9 @@ import { useTheme } from '../../../app/theme';
 import { ConfirmDialog } from '../../../shared/components/feedback/ConfirmDialog';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
 import { AbsenceModal } from '../components/operators/AbsenceModal';
-import { AssignShiftModal } from '../components/operators/AssignShiftModal';
 import { AvailabilityModal } from '../components/operators/AvailabilityModal';
 import { OperatorCard } from '../components/operators/OperatorCard';
 import { OperatorFilters } from '../components/operators/OperatorFilters';
-import { OperatorFormModal } from '../components/operators/OperatorFormModal';
 import { OperatorMetrics } from '../components/operators/OperatorMetrics';
 import { OperatorProfileCard } from '../components/operators/OperatorProfileCard';
 import { OperatorsHeader } from '../components/operators/OperatorsHeader';
@@ -31,24 +29,9 @@ import { OperatorsSummaryCards } from '../components/operators/OperatorsSummaryC
 import { SkillsCard } from '../components/operators/SkillsCard';
 import { TodayServicesCard } from '../components/operators/TodayServicesCard';
 import { OPERATOR_TEXTS } from '../constants/operatorTexts';
-import {
-  AbsenceFormValues,
-  AssignShiftValues,
-  AvailabilityDay,
-  Operator,
-  OperatorFormValues,
-  TodayService,
-} from '../models/operator';
+import { AbsenceFormValues, AvailabilityDay, Operator, TodayService } from '../models/operator';
 import { formatCurrency } from '../utils/paymentUtils';
 import { useOperators } from '../viewmodels/useOperators';
-
-// Estado de un modal de formulario: abierto/cerrado y el registro que se edita (null = crear)
-interface FormState<T> {
-  visible: boolean;
-  item: T | null;
-}
-
-const CLOSED = { visible: false, item: null };
 
 export const AdminOperatorsScreen = () => {
   const { colors } = useTheme();
@@ -63,11 +46,6 @@ export const AdminOperatorsScreen = () => {
   const selected = operators.operators.find((item) => item.id === selectedId) ?? null;
 
   // Modales
-  const [operatorForm, setOperatorForm] = useState<FormState<Operator>>(CLOSED);
-  const [assign, setAssign] = useState<{ visible: boolean; operatorId: string | null }>({
-    visible: false,
-    operatorId: null,
-  });
   const [availabilityVisible, setAvailabilityVisible] = useState(false);
   const [absenceVisible, setAbsenceVisible] = useState(false);
   const [returnTarget, setReturnTarget] = useState<Operator | null>(null);
@@ -98,16 +76,11 @@ export const AdminOperatorsScreen = () => {
   // Acciones de los modales
   // ---------------------------------------------------------------
 
-  const handleOperatorSubmit = (values: OperatorFormValues) => {
-    if (operatorForm.item) operators.updateOperator(operatorForm.item.id, values);
-    else operators.createOperator(values);
-    setOperatorForm(CLOSED);
-  };
-
-  const handleAssignSubmit = (values: AssignShiftValues) => {
-    operators.assignShift(values);
-    setAssign({ visible: false, operatorId: null });
-  };
+  // los operarios son cuentas de security con rol Operario: se crean y editan en Gestión → Usuarios
+  const goToUsers = () =>
+    Alert.alert(OPERATOR_TEXTS.newOperator, OPERATOR_TEXTS.manageInUsers, [
+      { text: 'OK', onPress: () => navigation.navigate('AdminManagement') },
+    ]);
 
   const handleAvailabilitySubmit = (availability: AvailabilityDay[]) => {
     if (selected) operators.saveAvailability(selected.id, availability);
@@ -163,8 +136,7 @@ export const AdminOperatorsScreen = () => {
   const renderList = () => (
     <>
       <OperatorsHeader
-        onAssignShifts={() => setAssign({ visible: true, operatorId: null })}
-        onCreate={() => setOperatorForm({ visible: true, item: null })}
+        onCreate={goToUsers}
       />
       <OperatorsSummaryCards summary={operators.summary} />
       <OperatorFilters
@@ -187,7 +159,7 @@ export const AdminOperatorsScreen = () => {
             key={item.id}
             operator={item}
             bayName={operators.getBayName(item.bayId)}
-            onEdit={() => setOperatorForm({ visible: true, item })}
+            onEdit={goToUsers}
             onOpen={() => openDetail(item.id)}
             onRegisterReturn={() => setReturnTarget(item)}
           />
@@ -216,7 +188,6 @@ export const AdminOperatorsScreen = () => {
           onRegisterAbsence={() => setAbsenceVisible(true)}
           onRegisterReturn={() => setReturnTarget(operator)}
           onEditAvailability={() => setAvailabilityVisible(true)}
-          onAssign={() => setAssign({ visible: true, operatorId: operator.id })}
         />
         <OperatorMetrics operator={operator} />
         <TodayServicesCard
@@ -256,21 +227,6 @@ export const AdminOperatorsScreen = () => {
       </SafeAreaView>
 
       {/* Modales */}
-      <OperatorFormModal
-        visible={operatorForm.visible}
-        operator={operatorForm.item}
-        bays={operators.getAvailableBays(operatorForm.item?.id)}
-        onClose={() => setOperatorForm(CLOSED)}
-        onSubmit={handleOperatorSubmit}
-      />
-      <AssignShiftModal
-        visible={assign.visible}
-        operators={operators.operators}
-        initialOperatorId={assign.operatorId}
-        getAvailableBays={operators.getAvailableBays}
-        onClose={() => setAssign({ visible: false, operatorId: null })}
-        onSubmit={handleAssignSubmit}
-      />
       <AvailabilityModal
         visible={availabilityVisible}
         operator={selected}

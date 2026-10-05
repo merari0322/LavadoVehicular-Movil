@@ -14,7 +14,6 @@ import { OPERATOR_TEXTS } from '../constants/operatorTexts';
 import { SCHEDULE_TEXTS } from '../constants/scheduleTexts';
 import { CalendarBlock, CalendarBlockType, CalendarView } from '../models/operator';
 import { WEEK_DAYS } from '../models/schedule';
-import { CALENDAR_BLOCKS } from '../services/operatorMock';
 import { useOperators } from '../viewmodels/useOperators';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminOperatorCalendar'>;
@@ -46,12 +45,13 @@ export function AdminOperatorCalendarScreen({ route, navigation }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   useTranslation();
-  const { operators } = useOperators();
+  const { operators, getCalendarBlocks } = useOperators();
   const texts = OPERATOR_TEXTS.calendar;
   const locale = DASHBOARD_TEXTS.dateLocale;
 
   const operator = operators.find((item) => item.id === route.params.operatorId);
-  const blocks = CALENDAR_BLOCKS[route.params.operatorId] ?? [];
+  // turno semanal real del operario (operations-service)
+  const blocks = getCalendarBlocks(route.params.operatorId);
 
   const [view, setView] = useState<CalendarView>('week');
   const [weekOffset, setWeekOffset] = useState(0);

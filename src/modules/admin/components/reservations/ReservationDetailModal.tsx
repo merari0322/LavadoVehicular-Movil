@@ -6,7 +6,7 @@ import { ThemeColors } from '../../../../app/theme/colors';
 import { withAlpha } from '../../../../shared/utils/color';
 import { TEXTS } from '../../constants/reservationTexts';
 import { Reservation } from '../../models/reservation';
-import { getOperatorById } from '../../services/reservationMock';
+import { useOperatorDirectory } from '../../viewmodels/useOperatorDirectory';
 import { getBayById, getServiceById, useReservationCatalog } from '../../services/reservationCatalog';
 import { addMinutes, formatDateLabel } from '../../utils/reservationUtils';
 import { StatusBadge } from '../common/StatusBadge';
@@ -50,12 +50,13 @@ export function ReservationDetailModal({ reservation, onClose, onEdit }: Reserva
 
   // repinta el modal cuando llega el catálogo (nombres de servicios y bahías)
   useReservationCatalog();
+  const operators = useOperatorDirectory();
 
   if (!reservation) return null;
 
   const service = getServiceById(reservation.serviceId);
   const bay = getBayById(reservation.bayId);
-  const operator = getOperatorById(reservation.operatorId);
+  const operator = operators.find((item) => item.id === reservation.operatorId);
   const endTime = addMinutes(reservation.time, reservation.duration);
   const detail = TEXTS.detail;
 

@@ -16,7 +16,6 @@ import { ReservationStats } from '../components/reservations/ReservationStats';
 import { TEXTS } from '../constants/reservationTexts';
 import { Reservation, ReservationFormValues } from '../models/reservation';
 import { apiErrorKey } from '../../../core/api/apiError';
-import { getOperatorById } from '../services/reservationMock';
 import { getServiceById } from '../services/reservationCatalog';
 import { useOperators } from '../viewmodels/useOperators';
 import { useReservations } from '../viewmodels/useReservations';
@@ -50,9 +49,9 @@ export const AdminReservationsScreen = () => {
   const [assigning, setAssigning] = useState<Reservation | null>(null);
   const servicesByOperator = useServicesByOperator(reservations, assigning?.date);
 
-  const handleAssign = (reservation: Reservation, operatorId: string) => {
-    assignOperator(reservation.id, operatorId);
+  const handleAssign = async (reservation: Reservation, operatorId: string) => {
     setAssigning(null);
+    if (!(await assignOperator(reservation.id, operatorId))) return;
     const name = operators.find((item) => item.id === operatorId)?.name ?? '';
     setTimeout(() => Alert.alert(TEXTS.assign.successTitle, TEXTS.assign.successMessage(name, reservation.code)), 300);
   };
@@ -108,7 +107,7 @@ export const AdminReservationsScreen = () => {
         getServiceById(item.serviceId)?.name ?? '',
         item.date,
         item.time,
-        getOperatorById(item.operatorId)?.name ?? '',
+        operators.find((operator) => operator.id === item.operatorId)?.name ?? '',
         TEXTS.status[item.status],
       ]
         .map(csvValue)

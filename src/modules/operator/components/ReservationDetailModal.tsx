@@ -8,6 +8,7 @@ import { Pill } from '../../../shared/components/ui/Pill';
 import { ActionButton } from '../../../shared/components/screen/ActionButton';
 import { InfoRow } from '../../../shared/components/screen/InfoRow';
 import { isoToDisplay } from '../../../shared/utils/format';
+import { formatCOP } from '../../../shared/utils/format';
 import { OperatorReservation, statusIcon, statusLabel, statusTone } from '../models/operator';
 
 interface ReservationDetailModalProps {
@@ -57,14 +58,14 @@ export function ReservationDetailModal({
               </View>
 
               <Text style={[styles.title, { color: colors.text }]}>
-                {t(`SERVICE.${r.service}`)} — {r.client}
+                {r.service} — {r.client}
               </Text>
 
               <InfoRow icon="event" label={t('SCHEDULE.DETAIL.DATE')} value={`${isoToDisplay(r.date)} · ${r.time}`} />
               <InfoRow icon="timer" label={t('SCHEDULE.DETAIL.DURATION')} value={`${r.durationMin} min`} />
-              <InfoRow icon="directions-car" label={t('SCHEDULE.DETAIL.VEHICLE')} value={`${t(`VEHICLE.${r.vehicle}`)} · ${r.vehicleName}`} />
+              <InfoRow icon="directions-car" label={t('SCHEDULE.DETAIL.VEHICLE')} value={`${r.vehicleName} · ${r.plate}`} />
               <InfoRow icon="pin" label={t('BOOKING_DETAIL.PLATE')} value={r.plate} />
-              <InfoRow icon="payments" label={t('ASSIGNED_SERVICES.DETAIL.PAYMENT_METHOD')} value={t(`SERVICE_HISTORY.METHODS.${r.paymentMethod}`)} />
+              <InfoRow icon="payments" label={t('ASSIGNED_SERVICES.DETAIL.PAYMENT_METHOD')} value={r.paymentMethod ? t(`SERVICE_HISTORY.METHODS.${r.paymentMethod}`) : formatCOP(r.total ?? 0)} />
 
               {r.status !== 'finalizado' ? (
                 <Text style={[styles.section, { color: colors.textSecondary }]}>{t('ASSIGNED_SERVICES.DETAIL.PROGRESS_TITLE')}</Text>

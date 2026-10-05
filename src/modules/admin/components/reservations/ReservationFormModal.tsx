@@ -24,7 +24,7 @@ import {
   ReservationStatus,
   ServiceOption,
 } from '../../models/reservation';
-import { OPERATORS } from '../../services/reservationMock';
+import { useOperatorDirectory } from '../../viewmodels/useOperatorDirectory';
 import {
   displayToISO,
   getTodayISO,
@@ -67,10 +67,6 @@ type FormErrors = Partial<Record<keyof FormState, string>>;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Opciones de los selectores
-const OPERATOR_OPTIONS: SelectOption[] = [
-  { value: '', label: TEXTS.form.noOperator },
-  ...OPERATORS.map((item) => ({ value: item.id, label: item.name })),
-];
 const STATUS_OPTIONS: SelectOption[] = RESERVATION_STATUSES.map((status) => ({
   value: status,
   label: TEXTS.status[status],
@@ -148,6 +144,12 @@ export function ReservationFormModal({
 }: ReservationFormModalProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  // operarios reales (operations-service)
+  const operators = useOperatorDirectory();
+  const OPERATOR_OPTIONS = useMemo<SelectOption[]>(
+    () => [{ value: '', label: TEXTS.form.noOperator }, ...operators.map((item) => ({ value: item.id, label: item.name }))],
+    [operators],
+  );
 
   const isEditing = reservation !== null;
   const [state, setState] = useState<FormState>(() => buildInitialState(reservation, serviceOptions));
