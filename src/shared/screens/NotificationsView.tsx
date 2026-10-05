@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -16,12 +16,14 @@ import { useFeedback } from '../hooks/useFeedback';
 import { NotificationTab, NotificationType, RoleNotification, tabForType } from '../models/notification';
 import { withAlpha } from '../utils/color';
 import { displayToISO, isoToDisplay } from '../utils/format';
+// bandeja real del usuario (notification-service)
+import { notificationService, toRoleNotification } from '../../core/services/notifications/NotificationService';
+import { apiErrorKey } from '../../core/api/apiError';
 
 type ReadFilter = 'all' | 'read' | 'unread';
 
 interface NotificationsViewProps {
   role: 'CLIENT' | 'OPERATOR';
-  initial: RoleNotification[];
 }
 
 const TABS: { key: NotificationTab; icon: ChipOption<NotificationTab>['icon']; label: string }[] = [
@@ -40,13 +42,28 @@ function typeTone(type: NotificationType): PillTone {
 
 // centro de notificaciones de cliente y operario (componente <app-notifications> de la web):
 // pestañas por categoría, filtros, marcar leído/no leído, ver detalle y eliminar
-export function NotificationsView({ role, initial }: NotificationsViewProps) {
+export function NotificationsView({ role }: NotificationsViewProps) {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const feedback = useFeedback();
 
-  // TODO: traerlas de notification-service cuando exista
-  const [items, setItems] = useState<RoleNotification[]>(initial);
+  const [items, setItems] = useState<RoleNotification[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // bandeja del usuario con sesión; el id sale del token
+  const load = useCallback(() => {
+    setLoading(true);
+    notificationService
+      .list()
+      .then((list) => setItems(list.map(toRoleNotification)))
+      .catch((error) => feedback.showError(t(apiErrorKey(error))))
+      .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
   const [tab, setTab] = useState<NotificationTab>('all');
   const [readFilter, setReadFilter] = useState<ReadFilter>('all');
   const [dateFrom, setDateFrom] = useState('');
@@ -70,10 +87,17 @@ export function NotificationsView({ role, initial }: NotificationsViewProps) {
       .sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
   }, [items, tab, readFilter, dateFrom, dateTo]);
 
+  // el cambio se guarda en el backend y luego se pinta
   const setRead = (id: number, read: boolean) =>
-    setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read } : n)));
+    (read ? notificationService.markRead(id) : notificationService.markUnread(id))
+      .then(() => setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read } : n))))
+      .catch((error) => feedback.showError(t(apiErrorKey(error))));
 
-  const markAllRead = () => setItems((prev) => prev.map((n) => ({ ...n, read: true })));
+  const markAllRead = () =>
+    notificationService
+      .markAllRead()
+      .then(() => setItems((prev) => prev.map((n) => ({ ...n, read: true }))))
+      .catch((error) => feedback.showError(t(apiErrorKey(error))));
 
   const hasFilters = readFilter !== 'all' || dateFrom !== '' || dateTo !== '';
   const resetFilters = () => {
@@ -104,9 +128,14 @@ export function NotificationsView({ role, initial }: NotificationsViewProps) {
       message: t('NOTIFICATIONS.DELETE_MESSAGE'),
       confirmLabel: t('COMMON.DELETE'),
       danger: true,
-      onConfirm: () => {
-        setItems((prev) => prev.filter((x) => x.id !== n.id));
-        feedback.showStatus({ title: t('NOTIFICATIONS.DELETED_TITLE'), message: t('NOTIFICATIONS.DELETED_MESSAGE') });
+      onConfirm: async () => {
+        try {
+          await notificationService.remove(n.id);
+          setItems((prev) => prev.filter((x) => x.id !== n.id));
+          feedback.showStatus({ title: t('NOTIFICATIONS.DELETED_TITLE'), message: t('NOTIFICATIONS.DELETED_MESSAGE') });
+        } catch (error) {
+          feedback.showError(t(apiErrorKey(error)));
+        }
       },
     });
 
@@ -161,7 +190,7 @@ export function NotificationsView({ role, initial }: NotificationsViewProps) {
         </SectionCard>
 
         {visible.length === 0 ? (
-          <EmptyState icon="notifications-none" title={t('NOTIFICATIONS.EMPTY')} />
+          <EmptyState loading={loading} icon="notifications-none" title={t(loading ? 'MOBILE_NAV.LOADING' : 'NOTIFICATIONS.EMPTY')} />
         ) : (
           visible.map((n) => {
             const tone = typeTone(n.type);

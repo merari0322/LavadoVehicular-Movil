@@ -113,7 +113,7 @@ export function OperatorScheduleScreen() {
                 {t('SCHEDULE.NEXT.LABEL')} · {t('SCHEDULE.NEXT.IN_MINUTES', { min: minutesToNext })}
               </Text>
               <Text style={[styles.nextTitle, { color: colors.text }]}>
-                {t(`SERVICE.${next.service}`)} — {next.client}
+                {next.service} — {next.client}
               </Text>
             </View>
             {next.status === 'pendiente' ? (

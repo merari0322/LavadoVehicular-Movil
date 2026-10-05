@@ -16,8 +16,11 @@ import { ThemeColors } from '../../../../app/theme/colors';
 import { SelectField, SelectOption } from '../../../../shared/components/forms/SelectField';
 import { withAlpha } from '../../../../shared/utils/color';
 import { PAYMENT_TEXTS } from '../../constants/paymentTexts';
-import { ManualPaymentValues, PAYMENT_METHODS, PaymentMethod } from '../../models/payment';
-import { maskAmount, parseAmount } from '../../utils/paymentUtils';
+import { ManualPaymentValues } from '../../models/payment';
+import { bookingService } from '../../../../core/services/booking/BookingService';
+import { paymentService } from '../../../../core/services/payments/PaymentService';
+import { toISODate } from '../../../../shared/utils/format';
+import { formatCOP } from '../../../../shared/utils/format';
 import { ReservationField } from '../reservations/ReservationField';
 
 interface ManualPaymentModalProps {
@@ -26,11 +29,6 @@ interface ManualPaymentModalProps {
   onSubmit: (values: ManualPaymentValues) => void;
 }
 
-// Opciones del selector de método de pago
-const METHOD_OPTIONS: SelectOption[] = PAYMENT_METHODS.map((method) => ({
-  value: method,
-  label: PAYMENT_TEXTS.methodsForm[method],
-}));
 
 // Modal para registrar un pago hecho en caja
 export function ManualPaymentModal({ visible, onClose, onSubmit }: ManualPaymentModalProps) {
@@ -38,33 +36,52 @@ export function ManualPaymentModal({ visible, onClose, onSubmit }: ManualPayment
   const styles = useMemo(() => createStyles(colors), [colors]);
   const texts = PAYMENT_TEXTS.form;
 
-  const [customerName, setCustomerName] = useState('');
-  const [serviceName, setServiceName] = useState('');
-  const [amount, setAmount] = useState('');
-  const [method, setMethod] = useState<PaymentMethod>('cash');
+  // reservas que se pueden pagar (últimos 30 días y la próxima semana) y cuentas activas
+  const [bookings, setBookings] = useState<{ id: number; label: string; total: number }[]>([]);
+  const [accounts, setAccounts] = useState<SelectOption[]>([]);
+  const [bookingId, setBookingId] = useState('');
+  const [accountId, setAccountId] = useState('');
 
-  // Cada vez que se abre el modal se reinicia el formulario
+  // Cada vez que se abre el modal se recargan las opciones
   useEffect(() => {
-    if (visible) {
-      setCustomerName('');
-      setServiceName('');
-      setAmount('');
-      setMethod('cash');
-    }
+    if (!visible) return;
+    setBookingId('');
+    const from = new Date();
+    from.setDate(from.getDate() - 30);
+    const to = new Date();
+    to.setDate(to.getDate() + 7);
+    bookingService
+      .adminBookings(toISODate(from), toISODate(to))
+      .then((list) =>
+        setBookings(
+          list
+            .filter((b) => b.status === 'CONFIRMED' || b.status === 'IN_PROGRESS' || b.status === 'COMPLETED')
+            .map((b) => ({
+              id: b.id,
+              total: b.total,
+              label: `${b.code} · ${b.services.map((x) => x.name).join(', ')} · ${b.vehicle?.licensePlateFormatted ?? ''}`,
+            })),
+        ),
+      )
+      .catch(() => setBookings([]));
+    paymentService
+      .adminAccounts()
+      .then((list) => {
+        const active = list.filter((a) => a.active);
+        setAccounts(active.map((a) => ({ value: String(a.id), label: `${a.methodName} · ${a.accountHolder}` })));
+        // efectivo primero: es lo más común en caja
+        const cash = active.find((a) => a.methodCode === 'EFECTIVO') ?? active[0];
+        setAccountId(cash ? String(cash.id) : '');
+      })
+      .catch(() => setAccounts([]));
   }, [visible]);
 
-  // El botón se habilita solo cuando los datos son válidos
-  const isValid =
-    customerName.trim().length >= 3 && serviceName.trim().length >= 3 && parseAmount(amount) > 0;
+  const selected = bookings.find((b) => String(b.id) === bookingId);
+  const isValid = !!selected && accountId !== '';
 
   const handleSubmit = () => {
     if (!isValid) return;
-    onSubmit({
-      customerName: customerName.trim(),
-      serviceName: serviceName.trim(),
-      amount: parseAmount(amount),
-      method,
-    });
+    onSubmit({ bookingId: Number(bookingId), paymentAccountId: Number(accountId) });
   };
 
   return (
@@ -91,46 +108,20 @@ export function ManualPaymentModal({ visible, onClose, onSubmit }: ManualPayment
             contentContainerStyle={styles.bodyContent}
             keyboardShouldPersistTaps="handled"
           >
-            <ReservationField label={texts.customer}>
-              <TextInput
-                style={styles.input}
-                value={customerName}
-                onChangeText={setCustomerName}
-                placeholder={texts.customerPlaceholder}
-                placeholderTextColor={colors.textMuted}
-                autoCapitalize="words"
-              />
-            </ReservationField>
-
             <ReservationField label={texts.service}>
-              <TextInput
-                style={styles.input}
-                value={serviceName}
-                onChangeText={setServiceName}
-                placeholder={texts.servicePlaceholder}
-                placeholderTextColor={colors.textMuted}
-                autoCapitalize="sentences"
+              <SelectField
+                value={bookingId}
+                options={bookings.map((b) => ({ value: String(b.id), label: b.label }))}
+                onChange={setBookingId}
               />
             </ReservationField>
 
             <View style={styles.row}>
               <ReservationField label={texts.amount} style={styles.flex}>
-                <TextInput
-                  style={styles.input}
-                  value={amount}
-                  onChangeText={(text) => setAmount(maskAmount(text))}
-                  placeholder={texts.amountPlaceholder}
-                  placeholderTextColor={colors.textMuted}
-                  keyboardType="number-pad"
-                  maxLength={11}
-                />
+                <TextInput style={styles.input} value={selected ? formatCOP(selected.total) : '—'} editable={false} />
               </ReservationField>
               <ReservationField label={texts.method} style={styles.methodField}>
-                <SelectField
-                  value={method}
-                  options={METHOD_OPTIONS}
-                  onChange={(value) => setMethod(value as PaymentMethod)}
-                />
+                <SelectField value={accountId} options={accounts} onChange={setAccountId} />
               </ReservationField>
             </View>
           </ScrollView>

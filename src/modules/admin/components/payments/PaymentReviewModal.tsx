@@ -17,7 +17,8 @@ import { ThemeColors } from '../../../../app/theme/colors';
 import { withAlpha } from '../../../../shared/utils/color';
 import { PAYMENT_TEXTS } from '../../constants/paymentTexts';
 import { Payment } from '../../models/payment';
-import { CURRENT_AUDITOR } from '../../services/paymentMock';
+// quien revisa es el admin con sesión
+import { useSession } from '../../../../core/services/auth';
 import {
   formatCOP,
   formatDateTime,
@@ -59,6 +60,7 @@ function InfoBlock({ label, value, detail }: { label: string; value: string; det
 // Comparación entre el monto a pagar y el declarado en el comprobante
 function AmountComparison({ payment }: { payment: Payment }) {
   const { colors, styles } = useThemedStyles();
+  const { user } = useSession();
 
   const difference = payment.declaredAmount - payment.amount;
   const matches = difference === 0;
@@ -111,6 +113,7 @@ function AmountComparison({ payment }: { payment: Payment }) {
 // Modal para revisar un pago: aprobar, rechazar o consultar el recibo
 export function PaymentReviewModal({ payment, onClose, onApprove, onReject }: PaymentReviewModalProps) {
   const { colors, styles } = useThemedStyles();
+  const { user } = useSession();
 
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState('');
@@ -282,7 +285,7 @@ export function PaymentReviewModal({ payment, onClose, onApprove, onReject }: Pa
           {/* Pie: auditor y botones */}
           <View style={styles.footer}>
             <Text style={styles.auditText}>
-              {texts.auditedBy(payment.auditedBy || CURRENT_AUDITOR)}
+              {texts.auditedBy(payment.auditedBy || `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim())}
             </Text>
 
             <View style={styles.footerButtons}>

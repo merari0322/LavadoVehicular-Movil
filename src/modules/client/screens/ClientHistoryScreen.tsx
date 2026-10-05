@@ -83,15 +83,17 @@ export function ClientHistoryScreen({ navigation }: Props) {
       },
     });
 
-  const saveRating = (result: RatingResult) => {
+  // el aviso de éxito sale solo si operations guardó la calificación
+  const saveRating = async (result: RatingResult) => {
     if (!rating) return;
-    const isEdit = Boolean(rating.rating);
-    vm.rate(rating.id, result.rating, result.comment);
+    const target = rating;
     setRating(null);
-    feedback.showStatusAfterClose({
-      title: t(isEdit ? 'RATINGS.UPDATED_TITLE' : 'RATINGS.SUCCESS_TITLE'),
-      message: t(isEdit ? 'RATINGS.UPDATED_MESSAGE' : 'RATINGS.SUCCESS_MESSAGE'),
-    });
+    const error = await vm.rate(target.id, result.rating, result.comment);
+    if (error) {
+      feedback.showError(error);
+      return;
+    }
+    feedback.showStatusAfterClose({ title: t('RATINGS.SUCCESS_TITLE'), message: t('RATINGS.SUCCESS_MESSAGE') });
   };
 
   return (
@@ -168,14 +170,13 @@ export function ClientHistoryScreen({ navigation }: Props) {
                   <ActionButton small variant="outline" label={t('HISTORY_CARD.RATE')} icon="star-outline" onPress={() => setRating(booking)} />
                 ) : null}
                 {booking.rating ? (
-                  // ya calificado: al tocarlo se puede editar
+                  // ya calificado: la calificación es una sola vez (regla de operations-service)
                   <ActionButton
                     small
                     variant="soft"
                     label={`${t('HISTORY_CARD.RATED')} ★ ${booking.rating}`}
-                    icon="edit"
-                    iconRight
-                    onPress={() => setRating(booking)}
+                    icon="star"
+                    onPress={() => undefined}
                   />
                 ) : null}
               </View>

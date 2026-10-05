@@ -16,7 +16,8 @@ interface OperatorProfileCardProps {
   onRegisterAbsence: () => void;
   onRegisterReturn: () => void;
   onEditAvailability: () => void;
-  onAssign: () => void;
+  // opcional: sin él no se muestra "asignar bahía" (la bahía va en cada reserva)
+  onAssign?: () => void;
 }
 
 const texts = OPERATOR_TEXTS.detail;
@@ -97,10 +98,12 @@ export function OperatorProfileCard({
           <Text style={styles.filledText}>{texts.editAvailability}</Text>
         </Pressable>
 
-        <Pressable style={[styles.button, styles.outlineButton]} onPress={onAssign}>
-          <MaterialIcons name="meeting-room" size={20} color={colors.text} />
-          <Text style={[styles.outlineText, { color: colors.text }]}>{texts.assignBay}</Text>
-        </Pressable>
+        {onAssign ? (
+          <Pressable style={[styles.button, styles.outlineButton]} onPress={onAssign}>
+            <MaterialIcons name="meeting-room" size={20} color={colors.text} />
+            <Text style={[styles.outlineText, { color: colors.text }]}>{texts.assignBay}</Text>
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );

@@ -35,9 +35,9 @@ export function AdminDashboardScreen({ navigation }: Props) {
   const [assigning, setAssigning] = useState<Reservation | null>(null);
   const servicesByOperator = useServicesByOperator(vm.reservations);
 
-  const handleAssign = (reservation: Reservation, operatorId: string) => {
-    vm.assignOperator(reservation.id, operatorId);
+  const handleAssign = async (reservation: Reservation, operatorId: string) => {
     setAssigning(null);
+    if (!(await vm.assignOperator(reservation.id, operatorId))) return;
     const name = vm.operatorsFull.find((item) => item.id === operatorId)?.name ?? '';
     setTimeout(
       () => Alert.alert(RESERVATION_TEXTS.assign.successTitle, RESERVATION_TEXTS.assign.successMessage(name, reservation.code)),

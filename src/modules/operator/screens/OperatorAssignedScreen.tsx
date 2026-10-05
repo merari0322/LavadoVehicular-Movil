@@ -11,7 +11,6 @@ import { PageHeader } from '../../../shared/components/screen/PageHeader';
 import { ScreenScroll } from '../../../shared/components/screen/ScreenScroll';
 import { SectionCard } from '../../../shared/components/screen/SectionCard';
 import { StatGrid, StatTile } from '../../../shared/components/screen/StatTile';
-import { SERVICE_TYPES } from '../../../shared/constants/business';
 import { OperatorLayout } from '../../../shared/layouts/OperatorLayout';
 import { displayToISO, todayISO } from '../../../shared/utils/format';
 import { ReservationCard } from '../components/ReservationCard';
@@ -40,14 +39,17 @@ export function OperatorAssignedScreen() {
         if (iso && r.date !== iso) return false;
         if (type && r.service !== type) return false;
         if (text) {
-          return [r.code, r.client, r.plate, r.vehicleName, t(`SERVICE.${r.service}`)].some((value) =>
+          return [r.code, r.client, r.plate, r.vehicleName, r.service].some((value) =>
             value.toLowerCase().includes(text),
           );
         }
         return true;
       })
       .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
-  }, [all, date, type, search, t]);
+  }, [all, date, type, search]);
+
+  // nombres de servicio que aparecen en sus servicios (salen de los datos)
+  const serviceTypes = useMemo(() => [...new Set(all.map((r) => r.service))], [all]);
 
   const hasFilters = date !== '' || type !== '' || search !== '';
   const clear = () => {
@@ -91,7 +93,7 @@ export function OperatorAssignedScreen() {
             onChange={setType}
             options={[
               { value: '', label: t('ASSIGNED_SERVICES.FILTERS.ALL') },
-              ...SERVICE_TYPES.map((service) => ({ value: service, label: t(`SERVICE.${service}`) })),
+              ...serviceTypes.map((service) => ({ value: service, label: service })),
             ]}
           />
           <Text style={[styles.label, { color: colors.textSecondary }]}>{t('ASSIGNED_SERVICES.FILTERS.BY_SERVICE')}</Text>

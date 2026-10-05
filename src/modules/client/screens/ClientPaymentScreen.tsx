@@ -1,15 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { fontSize, fontWeight, radius, spacing, useTheme } from '../../../app/theme';
 import { RootStackParamList } from '../../../core/navigation/types';
-import { bookingService } from '../../../core/services/booking/BookingService';
 import { isActiveStatus } from '../../../core/services/booking/bookingDisplay';
+// cuentas del lavadero (con su QR) y reporte del pago: payment-service
+import { PaymentAccount, paymentService } from '../../../core/services/payments/PaymentService';
+import { apiErrorKey } from '../../../core/api/apiError';
 import { LabeledInput } from '../../../shared/components/forms/LabeledInput';
 import { Pill } from '../../../shared/components/ui/Pill';
 import { ActionButton } from '../../../shared/components/screen/ActionButton';
@@ -43,9 +46,13 @@ const QR_DURATION_MS = 15 * 60 * 1000;
 const REFERENCE_REGEX = /^[A-Za-z0-9]{8,12}$/;
 const MAX_RECEIPT_BYTES = 10 * 1024 * 1024;
 
-// datos de la cuenta que recibe el pago. La llave todavía no existe en el backend:
-// queda como constante hasta que el "Datos del negocio" del admin la exponga (igual que la web).
-const PAYEE_KEY = '318 450 9988';
+// medio de la pantalla para el código de payment-service
+function methodIdOf(code: string): MethodId {
+  if (code === 'NEQUI') return 'NEQUI';
+  if (code === 'DAVIPLATA') return 'DAVIPLATA';
+  if (code === 'EFECTIVO') return 'CASH';
+  return 'TRANSFER';
+}
 
 // lo que se guarda del pago para que no se pierda al salir de la pantalla
 interface SavedPayment {
@@ -73,7 +80,9 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   const { t } = useTranslation();
   const feedback = useFeedback();
   const vm = useClientBookings();
-  const [payeeName, setPayeeName] = useState('Lavado Vehicular S.A.S.');
+  // cuentas activas del lavadero; el efectivo siempre está
+  const [accounts, setAccounts] = useState<PaymentAccount[]>([]);
+  const [sending, setSending] = useState(false);
 
   const booking = useMemo(() => pickBooking(vm.bookings, route.params?.bookingId), [vm.bookings, route.params?.bookingId]);
 
@@ -81,21 +90,44 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   const [flowStep, setFlowStep] = useState<FlowStep>('PENDING');
   const [qrExpiresAt, setQrExpiresAt] = useState(() => Date.now() + QR_DURATION_MS);
   const [secondsLeft, setSecondsLeft] = useState(QR_DURATION_MS / 1000);
-  const [receipt, setReceipt] = useState<{ name: string; size: number } | null>(null);
+  const [receipt, setReceipt] = useState<{ name: string; size: number; uri: string; mimeType: string } | null>(null);
   const [reference, setReference] = useState('');
 
   const total = Math.max(0, (booking?.total ?? 0));
   const isVerifying = flowStep === 'VERIFYING';
   const isReferenceValid = REFERENCE_REGEX.test(reference);
-  const canConfirm = !isVerifying && (method === 'CASH' || (receipt !== null && isReferenceValid));
+  const canConfirm = !sending && !isVerifying && (method === 'CASH' || (receipt !== null && isReferenceValid));
 
-  // nombre del negocio para la cuenta que recibe el pago
+  const methods = useMemo(
+    () => METHODS.filter((item) => item.id === 'CASH' || accounts.some((a) => methodIdOf(a.methodCode) === item.id)),
+    [accounts],
+  );
+  const account = accounts.find((a) => methodIdOf(a.methodCode) === method) ?? null;
+
+  // cuentas reales del lavadero (las configura el admin, con su QR)
   useEffect(() => {
-    bookingService
-      .establishment()
-      .then((establishment) => setPayeeName(establishment.tradeName))
+    paymentService
+      .accounts()
+      .then((list) => {
+        setAccounts(list);
+        if (!isVerifying && list.length > 0) setMethod(methodIdOf(list[0].methodCode));
+      })
       .catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // si ya hay un pago reportado para esta reserva, la pantalla queda en revisión
+  useEffect(() => {
+    if (!booking) return;
+    paymentService
+      .mine()
+      .then((payments) => {
+        const current = payments.find((payment) => payment.booking?.id === booking.id);
+        const open = !!current && ['PENDING', 'IN_REVIEW', 'APPROVED'].includes(current.status);
+        setFlowStep(open ? 'VERIFYING' : 'PENDING');
+      })
+      .catch(() => undefined);
+  }, [booking?.id]);
 
   // recupera el pago guardado o empieza uno nuevo con el QR de 15 minutos
   useEffect(() => {
@@ -139,7 +171,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   };
 
   const pickReceipt = async () => {
-    const result = await DocumentPicker.getDocumentAsync({ type: ['image/jpeg', 'image/png'], copyToCacheDirectory: false });
+    const result = await DocumentPicker.getDocumentAsync({ type: ['image/jpeg', 'image/png'], copyToCacheDirectory: true });
     if (result.canceled || result.assets.length === 0) return;
 
     const file = result.assets[0];
@@ -149,15 +181,33 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
       feedback.showStatus({ type: 'error', title: t('PAYMENT.INVALID_FILE_TITLE'), message: t('PAYMENT.INVALID_FILE_MESSAGE') });
       return;
     }
-    setReceipt({ name: file.name, size: file.size ?? 0 });
+    setReceipt({ name: file.name, size: file.size ?? 0, uri: file.uri, mimeType: file.mimeType ?? 'image/jpeg' });
   };
 
-  const confirmPayment = () => {
-    if (!canConfirm) return;
-    // TODO: integrar con el backend de pagos (Commercial service), igual que la web
-    setFlowStep('VERIFYING');
-    save({ flowStep: 'VERIFYING' });
-    feedback.showStatus({ title: t('PAYMENT.SUCCESS_TITLE'), message: t('PAYMENT.SUCCESS_MESSAGE') });
+  const confirmPayment = async () => {
+    if (!canConfirm || !booking) return;
+
+    // efectivo: se paga en el lavadero, no hay comprobante que reportar
+    if (method === 'CASH' || !account || !receipt) {
+      setFlowStep('VERIFYING');
+      save({ flowStep: 'VERIFYING' });
+      feedback.showStatus({ title: t('PAYMENT.SUCCESS_TITLE'), message: t('PAYMENT.SUCCESS_MESSAGE') });
+      return;
+    }
+
+    setSending(true);
+    try {
+      // el comprobante viaja como imagen; el monto lo pone payment-service con el total de la reserva
+      const base64 = await FileSystem.readAsStringAsync(receipt.uri, { encoding: FileSystem.EncodingType.Base64 });
+      await paymentService.report(booking.id, account.id, reference, `data:${receipt.mimeType};base64,${base64}`);
+      setFlowStep('VERIFYING');
+      save({ flowStep: 'VERIFYING' });
+      feedback.showStatus({ title: t('PAYMENT.SUCCESS_TITLE'), message: t('PAYMENT.SUCCESS_MESSAGE') });
+    } catch (error) {
+      feedback.showError(t(apiErrorKey(error)));
+    } finally {
+      setSending(false);
+    }
   };
 
   const cancelReservation = () => {
@@ -220,7 +270,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
         <SectionCard title={t('PAYMENT.METHOD.TITLE')} icon="credit-card">
           <Text style={[styles.muted, { color: colors.textMuted }]}>{t('PAYMENT.METHOD.NO_FEES')}</Text>
           <View style={styles.methodGrid}>
-            {METHODS.map((item) => {
+            {methods.map((item) => {
               const active = item.id === method;
               return (
                 <Pressable
@@ -259,14 +309,18 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
             >
               <Text style={[styles.muted, { color: colors.textMuted }]}>{t('PAYMENT.QR.VALID_FOR')}</Text>
               <View style={[styles.qrBox, { borderColor: colors.border }]}>
-                <MaterialIcons name="qr-code-2" size={150} color={colors.text} />
+                {account?.qrImageUrl ? (
+                  <Image source={{ uri: account.qrImageUrl }} style={{ width: 180, height: 180 }} resizeMode="contain" />
+                ) : (
+                  <MaterialIcons name="qr-code-2" size={150} color={colors.text} />
+                )}
                 <Text style={[styles.muted, { color: colors.textMuted }]}>{t('PAYMENT.QR.SCAN_HINT')}</Text>
               </View>
               <View style={styles.row}>
-                <Text style={[styles.strong, { color: colors.text }]}>{payeeName}</Text>
+                <Text style={[styles.strong, { color: colors.text }]}>{account?.accountHolder ?? ''}</Text>
                 <Pill label={t('PAYMENT.QR.VERIFIED')} tone="success" icon="verified" />
               </View>
-              <InfoRow label={t('PAYMENT.QR.KEY')} value={PAYEE_KEY} />
+              <InfoRow label={t('PAYMENT.QR.KEY')} value={account?.accountNumber ?? '—'} />
               <InfoRow label={t('PAYMENT.QR.ACCOUNT_TYPE')} value={t('PAYMENT.QR.ACCOUNT_TYPE_VALUE')} />
               <InfoRow label={t('PAYMENT.QR.AMOUNT')} value={`${formatCOP(total)} COP`} strong />
               <View style={[styles.hint, { backgroundColor: withAlpha(colors.primary, 0.08) }]}>

@@ -31,14 +31,17 @@ export interface Payment {
   status: PaymentStatus;
   rejectionReason: string;
   auditedBy: string;
+  // imagen real del comprobante (payment-service); null en pagos registrados en caja
+  receiptImage?: string | null;
+  // titular de la cuenta que recibió el pago
+  payee?: string;
 }
 
 // Datos del formulario de pago manual
+// pago recibido en caja: reserva real y cuenta del lavadero; el monto lo pone payment-service
 export interface ManualPaymentValues {
-  customerName: string;
-  serviceName: string;
-  amount: number;
-  method: PaymentMethod;
+  bookingId: number;
+  paymentAccountId: number;
 }
 
 // Filtros de la lista de pagos

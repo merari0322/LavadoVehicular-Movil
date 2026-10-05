@@ -5,7 +5,7 @@ import { SelectOption } from '../../../../shared/components/forms/SelectField';
 import { FormModal } from '../../../../shared/components/feedback/FormModal';
 import { SCHEDULE_TEXTS } from '../../constants/scheduleTexts';
 import { BAY_STATUSES, Bay, BayFormValues, BayStatus } from '../../models/schedule';
-import { OPERATORS } from '../../services/reservationMock';
+import { useOperatorDirectory } from '../../viewmodels/useOperatorDirectory';
 
 interface BayFormModalProps {
   visible: boolean;
@@ -23,13 +23,15 @@ const STATUS_OPTIONS: SelectOption[] = BAY_STATUSES.map((status) => ({
   label: SCHEDULE_TEXTS.bays.status[status],
 }));
 
-const OPERATOR_OPTIONS: SelectOption[] = [
-  { value: '', label: SCHEDULE_TEXTS.bays.unassigned },
-  ...OPERATORS.map((operator) => ({ value: operator.id, label: operator.name })),
-];
 
 // Modal para agregar o editar una bahía
 export function BayFormModal({ visible, bay, isNameTaken, onClose, onSubmit }: BayFormModalProps) {
+  // operarios reales (operations-service)
+  const operators = useOperatorDirectory();
+  const OPERATOR_OPTIONS = useMemo<SelectOption[]>(
+    () => [{ value: '', label: SCHEDULE_TEXTS.bays.unassigned }, ...operators.map((o) => ({ value: o.id, label: o.name }))],
+    [operators],
+  );
   const isEditing = bay !== null;
 
   const [name, setName] = useState('');

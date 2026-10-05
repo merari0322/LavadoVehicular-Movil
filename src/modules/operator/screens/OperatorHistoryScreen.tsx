@@ -15,12 +15,13 @@ import { ProgressBar } from '../../../shared/components/screen/ProgressBar';
 import { ScreenScroll } from '../../../shared/components/screen/ScreenScroll';
 import { SectionCard } from '../../../shared/components/screen/SectionCard';
 import { StatGrid, StatTile } from '../../../shared/components/screen/StatTile';
-import { SERVICE_TYPES, vehicleIcon } from '../../../shared/constants/business';
+import { vehicleIcon } from '../../../shared/constants/business';
 import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { OperatorLayout } from '../../../shared/layouts/OperatorLayout';
 import { displayToISO, formatCOP, isoToDisplay } from '../../../shared/utils/format';
 import { HistoryStatus, ServiceHistoryItem, historyTone } from '../models/operator';
-import { SERVICE_HISTORY } from '../services/operatorMock';
+// servicios ya terminados, de booking-service (los cancelados no le llegan al operario)
+import { useOperatorReservations } from '../viewmodels/useOperatorReservations';
 
 type Tab = 'todos' | HistoryStatus;
 
@@ -29,7 +30,29 @@ export function OperatorHistoryScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const feedback = useFeedback();
-  const services = SERVICE_HISTORY;
+  const vm = useOperatorReservations();
+  const services: ServiceHistoryItem[] = useMemo(
+    () =>
+      vm.reservations
+        .filter((r) => r.status === 'finalizado')
+        .map((r) => ({
+          id: r.id,
+          code: r.code,
+          date: r.date,
+          time: r.time,
+          service: r.service,
+          vehicle: r.vehicleName,
+          plate: r.plate,
+          client: r.client,
+          paymentMethod: r.paymentMethod,
+          amount: r.total ?? 0,
+          rating: r.rating ?? null,
+          comment: r.comment ?? null,
+          status: 'finalizado' as const,
+          reason: null,
+        })),
+    [vm.reservations],
+  );
 
   const [tab, setTab] = useState<Tab>('todos');
   const [search, setSearch] = useState('');
@@ -52,13 +75,16 @@ export function OperatorHistoryScreen() {
       if (iso && s.date !== iso) return false;
       if (type && s.service !== type) return false;
       if (text) {
-        return [s.code, s.plate, s.client, t(`VEHICLE.${s.vehicle}`), t(`SERVICE.${s.service}`)].some((value) =>
+        return [s.code, s.plate, s.client, s.vehicle, s.service].some((value) =>
           value.toLowerCase().includes(text),
         );
       }
       return true;
     });
-  }, [services, tab, date, type, search, t]);
+  }, [services, tab, date, type, search]);
+
+  // nombres de servicio del historial (salen de los datos)
+  const serviceTypes = useMemo(() => [...new Set(services.map((s) => s.service))], [services]);
 
   const clear = () => {
     setSearch('');
@@ -71,13 +97,13 @@ export function OperatorHistoryScreen() {
     feedback.showStatus({
       type: 'info',
       icon: 'receipt-long',
-      title: `${t(`SERVICE.${s.service}`)} · ${s.code}`,
+      title: `${s.service} · ${s.code}`,
       message: s.client,
       buttonText: t('COMMON.CLOSE'),
       details: [
         { label: t('SERVICE_HISTORY.DETAIL.DATE'), value: `${isoToDisplay(s.date)} · ${s.time}` },
-        { label: t('SERVICE_HISTORY.DETAIL.VEHICLE'), value: `${t(`VEHICLE.${s.vehicle}`)} · ${s.plate}` },
-        { label: t('SERVICE_HISTORY.DETAIL.PAYMENT'), value: `${t(`SERVICE_HISTORY.METHODS.${s.paymentMethod}`)} · ${formatCOP(s.amount)}` },
+        { label: t('SERVICE_HISTORY.DETAIL.VEHICLE'), value: `${s.vehicle} · ${s.plate}` },
+        { label: t('SERVICE_HISTORY.DETAIL.PAYMENT'), value: s.paymentMethod ? `${t(`SERVICE_HISTORY.METHODS.${s.paymentMethod}`)} · ${formatCOP(s.amount)}` : formatCOP(s.amount) },
         { label: t('HISTORY_TABLE.STATUS'), value: t(`SERVICE_HISTORY.STATUS.${s.status.toUpperCase()}`) },
         ...(s.rating !== null ? [{ label: t('SERVICE_HISTORY.DETAIL.RATING'), value: `★ ${s.rating}${s.comment ? ` · "${s.comment}"` : ''}` }] : []),
         ...(s.reason ? [{ label: t('SERVICE_HISTORY.DETAIL.REASON'), value: s.reason }] : []),
@@ -111,7 +137,7 @@ export function OperatorHistoryScreen() {
             onChange={setType}
             options={[
               { value: '', label: t('SERVICE_HISTORY.ALL_SERVICES') },
-              ...SERVICE_TYPES.map((service) => ({ value: service, label: t(`SERVICE.${service}`) })),
+              ...serviceTypes.map((service) => ({ value: service, label: service })),
             ]}
           />
           <ChipTabs<Tab>
@@ -137,13 +163,13 @@ export function OperatorHistoryScreen() {
                   <Pill label={t(`SERVICE_HISTORY.STATUS.${s.status.toUpperCase()}`)} tone={historyTone(s.status)} />
                 </View>
                 <View style={styles.titleRow}>
-                  <MaterialIcons name={vehicleIcon(s.vehicle)} size={18} color={colors.primary} />
+                  <MaterialIcons name={vehicleIcon('')} size={18} color={colors.primary} />
                   <Text style={[styles.title, { color: colors.text }]}>
-                    {t(`SERVICE.${s.service}`)} — {s.client}
+                    {s.service} — {s.client}
                   </Text>
                 </View>
                 <InfoRow label={t('HISTORY_TABLE.DATE_COMPLETED')} value={`${isoToDisplay(s.date)} · ${s.time}`} />
-                <InfoRow label={t('HISTORY_TABLE.VEHICLE')} value={`${t(`VEHICLE.${s.vehicle}`)} · ${s.plate}`} />
+                <InfoRow label={t('HISTORY_TABLE.VEHICLE')} value={`${s.vehicle} · ${s.plate}`} />
                 <InfoRow label={t('HISTORY_TABLE.AMOUNT')} value={formatCOP(s.amount)} />
                 {s.rating !== null ? <InfoRow label={t('HISTORY_TABLE.RATING')} value={`★ ${s.rating}`} /> : null}
                 <Text style={[styles.more, { color: colors.primary }]}>{t('HISTORY_TABLE.DETAIL')} ›</Text>

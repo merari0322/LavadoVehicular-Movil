@@ -1,13 +1,16 @@
 import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 
-// Abre el selector de archivos y devuelve el nombre de la imagen elegida (null = cancelado)
-// TODO: subir el archivo a la API y guardar la URL en lugar del nombre
-export const pickQrImage = async (): Promise<string | null> => {
+// Abre el selector de imágenes y devuelve el QR elegido como imagen (data URL) para guardarlo
+// en payment-service. null = cancelado.
+export const pickQrImage = async (): Promise<{ name: string; dataUrl: string } | null> => {
   const result = await DocumentPicker.getDocumentAsync({
     type: 'image/*',
-    copyToCacheDirectory: false,
+    copyToCacheDirectory: true,
   });
 
   if (result.canceled || result.assets.length === 0) return null;
-  return result.assets[0].name;
+  const file = result.assets[0];
+  const base64 = await FileSystem.readAsStringAsync(file.uri, { encoding: FileSystem.EncodingType.Base64 });
+  return { name: file.name, dataUrl: `data:${file.mimeType ?? 'image/png'};base64,${base64}` };
 };

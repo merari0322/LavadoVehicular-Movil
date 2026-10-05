@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { setAppLanguage } from '../../../app/config/i18n';
 import { ThemeName, useTheme } from '../../../app/theme';
@@ -18,8 +18,32 @@ import { pickQrImage } from '../services/qrPicker';
 import {
   INITIAL_BUSINESS,
   INITIAL_NOTIFICATION_PREFERENCES,
-  INITIAL_PAYMENT_METHODS,
 } from '../services/settingsMock';
+import { PaymentAccount, SaveAccountRequest, paymentService } from '../../../core/services/payments/PaymentService';
+
+// cuenta de payment-service -> medio de pago de la pantalla
+function toMethod(a: PaymentAccount): PaymentMethod {
+  return {
+    id: String(a.id),
+    name: a.methodName,
+    type: a.methodCode === 'TRANSFERENCIA' ? 'bank' : a.methodCode === 'EFECTIVO' ? 'other' : 'wallet',
+    holder: a.accountHolder,
+    account: a.accountNumber ?? '',
+    requiresQr: a.requiresReceipt,
+    qrFileName: a.qrImageUrl ? 'QR' : '',
+    active: a.active,
+    qrImage: a.qrImageUrl,
+  };
+}
+
+// el formulario pide un nombre libre; se traduce al medio del catálogo de payment-service
+function methodCodeFor(name: string, type: string): string {
+  const text = `${name} ${type}`.toLowerCase();
+  if (text.includes('nequi')) return 'NEQUI';
+  if (text.includes('davi')) return 'DAVIPLATA';
+  if (text.includes('efectivo') || text.includes('cash') || type === 'other') return 'EFECTIVO';
+  return 'TRANSFERENCIA';
+}
 import { displayToISO } from '../utils/reservationUtils';
 import { countDigits, isValidEmail } from '../utils/settingsUtils';
 
@@ -28,10 +52,6 @@ export type BusinessErrors = Partial<Record<keyof BusinessData, string>>;
 
 // Campos que no pueden quedar vacíos
 const REQUIRED_FIELDS: (keyof BusinessData)[] = ['legalName', 'taxId', 'address', 'phone'];
-
-// Genera un id único para los registros nuevos
-const newId = (prefix: string): string =>
-  `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
 // Valida obligatorios, teléfonos, correo y fecha de constitución
 const validateBusiness = (data: BusinessData): BusinessErrors => {
@@ -82,8 +102,35 @@ export function useSettings() {
   const [draftBusiness, setDraftBusiness] = useState<BusinessData>(INITIAL_BUSINESS);
   const [showAllErrors, setShowAllErrors] = useState(false);
 
-  // Métodos de pago
-  const [payments, setPayments] = useState<PaymentMethod[]>(INITIAL_PAYMENT_METHODS);
+  // Métodos de pago: cuentas reales del lavadero (payment-service)
+  const [payments, setPayments] = useState<PaymentMethod[]>([]);
+  const [accounts, setAccounts] = useState<PaymentAccount[]>([]);
+
+  const reloadPayments = useCallback(async () => {
+    const list = await paymentService.adminAccounts();
+    setAccounts(list);
+    setPayments(list.map(toMethod));
+  }, []);
+
+  useEffect(() => {
+    reloadPayments().catch(() => undefined);
+  }, [reloadPayments]);
+
+  // guarda una cuenta con los cambios indicados y recarga
+  const saveAccount = async (id: string, changes: Partial<SaveAccountRequest>) => {
+    const current = accounts.find((a) => String(a.id) === id);
+    if (!current) return;
+    await paymentService.updateAccount(Number(id), {
+      methodCode: current.methodCode,
+      accountHolder: current.accountHolder,
+      accountNumber: current.accountNumber,
+      qrImageUrl: current.qrImageUrl,
+      instructions: current.instructions,
+      active: current.active,
+      ...changes,
+    });
+    await reloadPayments();
+  };
 
   // ---------------------------------------------------------------
   // General
@@ -153,35 +200,42 @@ export function useSettings() {
     );
 
   const createPaymentMethod = (values: PaymentMethodFormValues) =>
-    setPayments((prev) => [...prev, { id: newId('pay'), active: true, qrFileName: '', ...values }]);
+    paymentService
+      .createAccount({
+        methodCode: methodCodeFor(values.name, values.type),
+        // el titular es obligatorio en payment-service; si no lo escriben, va el nombre del medio
+        accountHolder: values.holder || values.name,
+        accountNumber: values.account || null,
+        qrImageUrl: null,
+        instructions: null,
+        active: true,
+      })
+      .then(reloadPayments)
+      .catch(() => undefined);
 
-  // Si el método deja de requerir QR, se descarta el archivo cargado
   const updatePaymentMethod = (id: string, values: PaymentMethodFormValues) =>
-    setPayments((prev) =>
-      prev.map((method) =>
-        method.id === id
-          ? { ...method, ...values, qrFileName: values.requiresQr ? method.qrFileName : '' }
-          : method,
-      ),
-    );
+    saveAccount(id, {
+      methodCode: methodCodeFor(values.name, values.type),
+      accountHolder: values.holder || values.name,
+      accountNumber: values.account || null,
+    }).catch(() => undefined);
 
-  const togglePaymentActive = (id: string) =>
-    setPayments((prev) =>
-      prev.map((method) => (method.id === id ? { ...method, active: !method.active } : method)),
-    );
+  const togglePaymentActive = (id: string) => {
+    const current = accounts.find((a) => String(a.id) === id);
+    if (current) saveAccount(id, { active: !current.active }).catch(() => undefined);
+  };
 
-  const deletePaymentMethod = (id: string) =>
-    setPayments((prev) => prev.filter((method) => method.id !== id));
+  // las cuentas no se borran (hay pagos que las usan): se desactivan
+  const deletePaymentMethod = (id: string) => saveAccount(id, { active: false }).catch(() => undefined);
 
   // Elige una imagen y la guarda como QR del método
   const replaceQr = async (id: string): Promise<QrPickResult> => {
     try {
-      const fileName = await pickQrImage();
-      if (!fileName) return 'cancelled';
+      const picked = await pickQrImage();
+      if (!picked) return 'cancelled';
 
-      setPayments((prev) =>
-        prev.map((method) => (method.id === id ? { ...method, qrFileName: fileName } : method)),
-      );
+      // el QR queda guardado en payment-service: es el que ve y escanea el cliente
+      await saveAccount(id, { qrImageUrl: picked.dataUrl });
       return 'updated';
     } catch {
       return 'error';

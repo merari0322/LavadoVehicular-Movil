@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -17,7 +17,9 @@ import { todayISO } from '../../../shared/utils/format';
 import { ReservationCard } from '../components/ReservationCard';
 import { ReservationDetailModal } from '../components/ReservationDetailModal';
 import { OperatorReservation } from '../models/operator';
-import { OPERATOR_STATS } from '../services/operatorMock';
+// no leídas reales (notification-service) y promedio de calificaciones (operations-service)
+import { notificationService } from '../../../core/services/notifications/NotificationService';
+import { operationsService } from '../../../core/services/operations/OperationsService';
 import { useOperatorReservations } from '../viewmodels/useOperatorReservations';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OperatorHome'>;
@@ -28,6 +30,22 @@ export function OperatorHomeScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const { user } = useSession();
   const vm = useOperatorReservations();
+  // no leídas reales; 0 si notification-service no responde
+  const [unread, setUnread] = useState(0);
+  useEffect(() => {
+    notificationService.unreadCount().then(setUnread).catch(() => setUnread(0));
+  }, []);
+  // promedio de sus calificaciones; '—' si aún no tiene o el servicio no responde
+  const [average, setAverage] = useState<number | string>('—');
+  useEffect(() => {
+    operationsService
+      .myRatings()
+      .then((list) => {
+        if (list.length === 0) return;
+        setAverage(Math.round((list.reduce((sum, r) => sum + r.rating, 0) / list.length) * 10) / 10);
+      })
+      .catch(() => undefined);
+  }, []);
   const [detail, setDetail] = useState<OperatorReservation | null>(null);
 
   const today = todayISO();
@@ -53,14 +71,14 @@ export function OperatorHomeScreen({ navigation }: Props) {
           <StatTile icon="sync" value={inProgress} label={t('OPERATOR_HOME.STATS.IN_PROGRESS')} onPress={() => navigation.navigate('OperatorSchedule')} />
           <StatTile
             icon="notifications"
-            value={OPERATOR_STATS.unreadNotifications}
-            badge={OPERATOR_STATS.unreadNotifications}
+            value={unread}
+            badge={unread}
             label={t('OPERATOR_HOME.STATS.NOTIFICATIONS')}
             onPress={() => navigation.navigate('OperatorNotifications')}
           />
           <StatTile
             icon="star-outline"
-            value={OPERATOR_STATS.averageRating}
+            value={average}
             label={t('OPERATOR_HOME.STATS.RATING')}
             onPress={() => navigation.navigate('OperatorRatings')}
           />

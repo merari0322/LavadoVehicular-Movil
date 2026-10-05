@@ -1,11 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { NOTIFICATION_TEXTS } from '../constants/notificationTexts';
 import {
   AppNotification,
   NotificationFilters,
   NotificationTab,
 } from '../models/notifications';
-import { INITIAL_NOTIFICATIONS } from '../services/notificationMock';
+import {
+  NotificationResponse,
+  notificationService,
+} from '../../../core/services/notifications/NotificationService';
 import { getDatePart } from '../utils/notificationUtils';
 import { displayToISO } from '../utils/reservationUtils';
 
@@ -17,9 +20,43 @@ export interface FilterErrors {
 
 const EMPTY_FILTERS: NotificationFilters = { readState: 'all', dateFrom: '', dateTo: '' };
 
+const pad = (n: number) => String(n).padStart(2, '0');
+
+// notificación del backend -> modelo de la pantalla (fecha local "aaaa-mm-ddTHH:mm")
+function toAppNotification(n: NotificationResponse): AppNotification {
+  const d = new Date(n.sentAt);
+  const category: AppNotification['category'] =
+    n.category === 'REMINDER' ? 'reminder'
+      : n.category === 'PROMOTION' ? 'promotion'
+        : n.category === 'CONFIRMATION' ? 'confirmation' : 'other';
+  return {
+    id: String(n.id),
+    category,
+    title: n.title,
+    message: n.message,
+    createdAt: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`,
+    read: n.read,
+  };
+}
+
 // Hook con el estado y la lógica de la pantalla de notificaciones
 export function useNotifications() {
-  const [notifications, setNotifications] = useState<AppNotification[]>(INITIAL_NOTIFICATIONS);
+  // bandeja real del admin (notification-service); el id sale del token
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const reload = useCallback(() => {
+    setLoading(true);
+    notificationService
+      .list()
+      .then((list) => setNotifications(list.map(toAppNotification)))
+      .catch(() => setNotifications([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    reload();
+  }, [reload]);
   const [tab, setTab] = useState<NotificationTab>('all');
   const [filters, setFilters] = useState<NotificationFilters>(EMPTY_FILTERS);
 
@@ -96,17 +133,29 @@ export function useNotifications() {
   // Acciones
   // ---------------------------------------------------------------
 
-  // Alterna entre leída y no leída
-  const toggleRead = (id: string) =>
-    setNotifications((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, read: !item.read } : item)),
-    );
+  // los cambios se guardan en notification-service y luego se pintan
+  const toggleRead = (id: string) => {
+    const current = notifications.find((item) => item.id === id);
+    if (!current) return;
+    const call = current.read ? notificationService.markUnread(Number(id)) : notificationService.markRead(Number(id));
+    call
+      .then(() =>
+        setNotifications((prev) => prev.map((item) => (item.id === id ? { ...item, read: !item.read } : item))),
+      )
+      .catch(() => undefined);
+  };
 
   const markAllRead = () =>
-    setNotifications((prev) => prev.map((item) => ({ ...item, read: true })));
+    notificationService
+      .markAllRead()
+      .then(() => setNotifications((prev) => prev.map((item) => ({ ...item, read: true }))))
+      .catch(() => undefined);
 
   const deleteNotification = (id: string) =>
-    setNotifications((prev) => prev.filter((item) => item.id !== id));
+    notificationService
+      .remove(Number(id))
+      .then(() => setNotifications((prev) => prev.filter((item) => item.id !== id)))
+      .catch(() => undefined);
 
   return {
     tab,
@@ -121,5 +170,7 @@ export function useNotifications() {
     toggleRead,
     markAllRead,
     deleteNotification,
+    loading,
+    reload,
   };
 }

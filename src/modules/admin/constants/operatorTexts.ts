@@ -14,6 +14,8 @@ const es = {
   subtitle: 'Gestiona el equipo técnico, sus turnos y su disponibilidad operativa en tiempo real',
   assignShifts: 'Asignar turnos',
   newOperator: 'Nuevo operario',
+  inactiveTag: 'Inactivo',
+  manageInUsers: 'Los operarios son cuentas con rol Operario: se crean y editan en Gestión → Usuarios.',
 
   common: { cancel: 'Cancelar' },
 
@@ -232,6 +234,8 @@ const en: typeof es = {
   subtitle: 'Manage the technical team, their shifts and operational availability in real time',
   assignShifts: 'Assign shifts',
   newOperator: 'New operator',
+  inactiveTag: 'Inactive',
+  manageInUsers: 'Operators are accounts with the Operator role: create and edit them in Management → Users.',
   common: { cancel: 'Cancel' },
   summary: {
     staff: 'Operators on staff',
@@ -397,6 +401,8 @@ const fr: typeof es = {
   subtitle: "Gérez l'équipe technique, ses horaires et sa disponibilité opérationnelle en temps réel",
   assignShifts: 'Assigner des horaires',
   newOperator: 'Nouvel opérateur',
+  inactiveTag: 'Inactif',
+  manageInUsers: 'Les opérateurs sont des comptes avec le rôle Opérateur : créez-les et modifiez-les dans Gestion → Utilisateurs.',
   common: { cancel: 'Annuler' },
   summary: {
     staff: "Opérateurs de l'effectif",
@@ -563,6 +569,8 @@ const pt: typeof es = {
   subtitle: 'Gerencie a equipe técnica, seus turnos e sua disponibilidade operacional em tempo real',
   assignShifts: 'Atribuir turnos',
   newOperator: 'Novo operador',
+  inactiveTag: 'Inativo',
+  manageInUsers: 'Os operadores são contas com a função Operador: crie e edite em Gestão → Usuários.',
   common: { cancel: 'Cancelar' },
   summary: {
     staff: 'Operadores no quadro',

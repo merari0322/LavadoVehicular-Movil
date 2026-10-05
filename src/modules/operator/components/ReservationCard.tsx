@@ -39,12 +39,12 @@ export function ReservationCard({ reservation: r, showDate = false, onStart, onF
       </View>
 
       <Text style={[styles.title, { color: colors.text }]}>
-        {t(`SERVICE.${r.service}`)} — {r.client}
+        {r.service} — {r.client}
       </Text>
       <View style={styles.detail}>
         <MaterialIcons name={vehicleIcon(r.vehicle)} size={16} color={colors.textMuted} />
         <Text style={[styles.detailText, { color: colors.textSecondary }]}>
-          {t(`VEHICLE.${r.vehicle}`)} · {r.durationMin} min · {r.code}
+          {r.vehicleName} · {r.durationMin} min · {r.code}
         </Text>
       </View>
 

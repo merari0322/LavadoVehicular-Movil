@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -12,12 +12,26 @@ import { ProgressBar } from '../../../shared/components/screen/ProgressBar';
 import { ScreenScroll } from '../../../shared/components/screen/ScreenScroll';
 import { SectionCard } from '../../../shared/components/screen/SectionCard';
 import { StatGrid, StatTile } from '../../../shared/components/screen/StatTile';
-import { SERVICE_TYPES } from '../../../shared/constants/business';
 import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { OperatorLayout } from '../../../shared/layouts/OperatorLayout';
 import { displayToISO, isoToDisplay } from '../../../shared/utils/format';
 import { RatingItem } from '../models/operator';
-import { RATINGS } from '../services/operatorMock';
+// calificaciones reales que dejaron los clientes (operations-service)
+import { operationsService, RatingResponse } from '../../../core/services/operations/OperationsService';
+import { apiErrorKey } from '../../../core/api/apiError';
+
+function toItem(r: RatingResponse): RatingItem {
+  return {
+    id: r.bookingId,
+    client: r.plate || '—',
+    service: r.services,
+    date: r.date,
+    rating: r.rating,
+    comment: r.comment ?? '',
+    duration: '',
+    serviceId: r.bookingCode,
+  };
+}
 
 // estrellas llenas y vacías de una calificación
 function Stars({ value }: { value: number }) {
@@ -36,7 +50,19 @@ export function OperatorRatingsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const feedback = useFeedback();
-  const ratings = RATINGS;
+  const [ratings, setRatings] = useState<RatingItem[]>([]);
+
+  useEffect(() => {
+    operationsService
+      .myRatings()
+      .then((list) => setRatings(list.map(toItem)))
+      .catch((error) => feedback.showError(t(apiErrorKey(error))));
+    // solo al abrir la pantalla
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // nombres de servicio que aparecen en sus calificaciones
+  const serviceTypes = useMemo(() => [...new Set(ratings.map((r) => r.service))], [ratings]);
 
   const [date, setDate] = useState('');
   const [type, setType] = useState('');
@@ -72,11 +98,10 @@ export function OperatorRatingsScreen() {
       buttonText: t('COMMON.CLOSE'),
       details: [
         { label: t('BOOKING_DETAIL.CLIENT'), value: r.client },
-        { label: t('BOOKING_DETAIL.SERVICE'), value: t(`SERVICE.${r.service}`) },
+        { label: t('BOOKING_DETAIL.SERVICE'), value: r.service },
         { label: t('BOOKING_DETAIL.DATE'), value: isoToDisplay(r.date) },
         { label: t('SERVICE_HISTORY.DETAIL.RATING'), value: '★'.repeat(r.rating) },
-        { label: t('QUALIFICATION_CARD.COMMENT'), value: `"${r.comment}"` },
-        { label: t('QUALIFICATION_CARD.DURATION'), value: r.duration },
+        ...(r.comment ? [{ label: t('QUALIFICATION_CARD.COMMENT'), value: `"${r.comment}"` }] : []),
         { label: t('QUALIFICATION_CARD.ID'), value: r.serviceId },
       ],
     });
@@ -113,7 +138,7 @@ export function OperatorRatingsScreen() {
             onChange={setType}
             options={[
               { value: '', label: t('QUALIFICATIONS.TYPE_ALL') },
-              ...SERVICE_TYPES.map((service) => ({ value: service, label: t(`SERVICE.${service}`) })),
+              ...serviceTypes.map((service) => ({ value: service, label: service })),
             ]}
           />
           <ChipTabs<string>
@@ -135,15 +160,15 @@ export function OperatorRatingsScreen() {
                 <View style={styles.top}>
                   <View style={styles.flex}>
                     <Text style={[styles.client, { color: colors.text }]}>{r.client}</Text>
-                    <Text style={[styles.muted, { color: colors.textSecondary }]}>{t(`SERVICE.${r.service}`)}</Text>
+                    <Text style={[styles.muted, { color: colors.textSecondary }]}>{r.service}</Text>
                   </View>
                   <Text style={[styles.muted, { color: colors.textMuted }]}>{isoToDisplay(r.date)}</Text>
                   <MaterialIcons name="visibility" size={20} color={colors.primary} />
                 </View>
                 <Stars value={r.rating} />
-                <Text style={[styles.comment, { color: colors.text }]}>"{r.comment}"</Text>
+                {r.comment ? <Text style={[styles.comment, { color: colors.text }]}>"{r.comment}"</Text> : null}
                 <Text style={[styles.muted, { color: colors.textMuted }]}>
-                  {t('QUALIFICATION_CARD.DURATION')}: {r.duration} · {t('QUALIFICATION_CARD.ID')}: {r.serviceId}
+                  {t('QUALIFICATION_CARD.ID')}: {r.serviceId}
                 </Text>
               </Pressable>
             </SectionCard>
