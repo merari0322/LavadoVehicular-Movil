@@ -41,6 +41,17 @@ export interface AssignmentResponse {
   status: ExecutionStatusCode;
 }
 
+// operario candidato para una reserva: available false trae el código del motivo
+export interface CandidateResponse {
+  operatorId: number;
+  fullName: string;
+  averageRating: number | null;
+  ratingsCount: number;
+  assigned: boolean;
+  available: boolean;
+  unavailableReason: 'OPERATOR_INACTIVE' | 'OPERATOR_NOT_ON_SHIFT' | 'OPERATOR_ABSENT' | 'OPERATOR_BUSY' | null;
+}
+
 export interface OperatorServiceResponse {
   bookingId: number;
   code: string;
@@ -105,6 +116,11 @@ export const operationsService = {
 
   assignments(from: string, to: string): Promise<AssignmentResponse[]> {
     return request<AssignmentResponse[]>('GET', '/admin/assignments', { ...base, query: { from, to } });
+  },
+
+  // quién se puede asignar a esa reserva (turno, ausencias, cruces y estado los calcula el backend)
+  candidates(bookingId: number): Promise<CandidateResponse[]> {
+    return request<CandidateResponse[]>('GET', `/admin/assignments/${bookingId}/candidates`, base);
   },
 
   assign(bookingId: number, operatorId: number): Promise<AssignmentResponse> {

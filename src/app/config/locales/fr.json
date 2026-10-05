@@ -1337,5 +1337,11 @@
     "HOME": "Accueil",
     "LOADING": "Chargement...",
     "RETRY": "Réessayer"
+  },
+  "ASSIGN_REASONS": {
+    "OPERATOR_INACTIVE": "Inactif",
+    "OPERATOR_NOT_ON_SHIFT": "Pas de créneau à cette heure",
+    "OPERATOR_ABSENT": "Absent",
+    "OPERATOR_BUSY": "Occupé à cette heure"
   }
 }

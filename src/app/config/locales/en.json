@@ -1337,5 +1337,11 @@
     "HOME": "Home",
     "LOADING": "Loading...",
     "RETRY": "Retry"
+  },
+  "ASSIGN_REASONS": {
+    "OPERATOR_INACTIVE": "Inactive",
+    "OPERATOR_NOT_ON_SHIFT": "No shift at that time",
+    "OPERATOR_ABSENT": "Absent",
+    "OPERATOR_BUSY": "Busy at that time"
   }
 }
