@@ -1,12 +1,11 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
 import { withAlpha } from '../../../../shared/utils/color';
 import { PAYMENT_TEXTS } from '../../constants/paymentTexts';
 import { Payment } from '../../models/payment';
-import { BUSINESS } from '../../services/paymentMock';
 import { formatCurrencyExact, formatDateTime } from '../../utils/paymentUtils';
 
 interface ReceiptRowProps {
@@ -43,6 +42,15 @@ export function PaymentReceipt({ payment }: { payment: Payment }) {
     return Array.from({ length: 48 }, (_, index) => 1 + ((seed.charCodeAt(index % seed.length) + index) % 3));
   }, [payment.reference, payment.code]);
 
+  // imagen real del comprobante que subió el cliente (payment-service)
+  if (payment.receiptImage) {
+    return (
+      <View style={styles.card}>
+        <Image source={{ uri: payment.receiptImage }} style={{ width: '100%', height: 380 }} resizeMode="contain" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{title}</Text>
@@ -58,8 +66,7 @@ export function PaymentReceipt({ payment }: { payment: Payment }) {
       <Text style={styles.amount}>{formatCurrencyExact(payment.declaredAmount)}</Text>
 
       <View style={styles.rows}>
-        <ReceiptRow label={texts.to} value={BUSINESS.name} />
-        <ReceiptRow label={texts.taxId} value={BUSINESS.phone} />
+        <ReceiptRow label={texts.to} value={payment.payee || '—'} />
         <ReceiptRow label={texts.reference} value={payment.reference} />
         <ReceiptRow label={texts.dateTime} value={`${formatDateTime(payment.date, payment.time)} COT`} />
       </View>

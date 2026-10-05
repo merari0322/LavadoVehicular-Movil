@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { apiErrorKey } from '../../../core/api/apiError';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../../app/theme';
@@ -22,7 +23,7 @@ const csvValue = (value: string): string => `"${value.replace(/"/g, '""')}"`;
 
 export const AdminPaymentsScreen = () => {
   // vuelve a pintar la pantalla cuando cambia el idioma
-  useTranslation();
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -44,21 +45,26 @@ export const AdminPaymentsScreen = () => {
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
   // Guarda el pago manual y cierra el modal
-  const handleManualSubmit = (values: ManualPaymentValues) => {
-    createManualPayment(values);
+  // muestra el error del backend (ya traducido) si la acción falla
+  const report = (error: unknown) => {
+    if (error) Alert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)));
+  };
+
+  const handleManualSubmit = async (values: ManualPaymentValues) => {
     setManualVisible(false);
+    report(await createManualPayment(values));
   };
 
   // Aprueba el pago y cierra el modal
-  const handleApprove = (id: string) => {
-    approvePayment(id);
+  const handleApprove = async (id: string) => {
     setSelectedPayment(null);
+    report(await approvePayment(id));
   };
 
   // Rechaza el pago con su motivo y cierra el modal
-  const handleReject = (id: string, reason: string) => {
-    rejectPayment(id, reason);
+  const handleReject = async (id: string, reason: string) => {
     setSelectedPayment(null);
+    report(await rejectPayment(id, reason));
   };
 
   // Exporta los pagos filtrados en CSV usando el menú de compartir

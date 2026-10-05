@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 
 import { apiErrorKey } from '../../../core/api/apiError';
 import { bookingService } from '../../../core/services/booking/BookingService';
+// calificaciones del cliente (operations-service)
+import { operationsService, RatingResponse } from '../../../core/services/operations/OperationsService';
 import { ClientBookingItem, toClientBookingItem } from '../models/booking-view';
 
 // reservas reales del cliente contra el booking-service, mismo patrón que useClientVehicles.
@@ -16,8 +18,19 @@ export function useClientBookings() {
     setLoading(true);
     setLoadError(null);
     try {
-      const list = await bookingService.myBookings();
-      setBookings(list.map(toClientBookingItem));
+      // si operations no responde, las reservas se muestran igual (sin calificaciones)
+      const [list, given] = await Promise.all([
+        bookingService.myBookings(),
+        operationsService.givenRatings().catch(() => [] as RatingResponse[]),
+      ]);
+      const byBooking = new Map(given.map((r) => [r.bookingId, r]));
+      setBookings(
+        list.map((b) => {
+          const item = toClientBookingItem(b);
+          const r = byBooking.get(item.id);
+          return r ? { ...item, rating: r.rating, ratingComment: r.comment ?? undefined } : item;
+        }),
+      );
     } catch (error) {
       setLoadError(t(apiErrorKey(error)));
     } finally {
@@ -43,10 +56,22 @@ export function useClientBookings() {
     [reload, t],
   );
 
-  // calificar queda solo en memoria: el booking-service todavía no guarda calificaciones
-  const rate = useCallback((id: number, rating: number, comment: string) => {
-    setBookings((prev) => prev.map((item) => (item.id === id ? { ...item, rating, ratingComment: comment } : item)));
-  }, []);
+  // califica en operations-service (una sola vez y solo si está finalizada: lo valida el backend).
+  // Devuelve null si quedó guardada o el texto del error.
+  const rate = useCallback(
+    async (id: number, rating: number, comment: string): Promise<string | null> => {
+      try {
+        const saved = await operationsService.rate(id, rating, comment || null);
+        setBookings((prev) =>
+          prev.map((item) => (item.id === id ? { ...item, rating: saved.rating, ratingComment: saved.comment ?? undefined } : item)),
+        );
+        return null;
+      } catch (error) {
+        return t(apiErrorKey(error));
+      }
+    },
+    [t],
+  );
 
   return { bookings, loading, loadError, reload, cancel, rate };
 }

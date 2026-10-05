@@ -97,6 +97,8 @@ export interface PaymentMethod {
   requiresQr: boolean;
   qrFileName: string; // '' = aún no tiene QR cargado
   active: boolean;
+  // imagen del QR guardada en payment-service (data URL)
+  qrImage?: string | null;
 }
 
 export type PaymentMethodFormValues = Pick<

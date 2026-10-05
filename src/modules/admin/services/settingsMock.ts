@@ -1,4 +1,4 @@
-import { BusinessData, NotificationPreferences, PaymentMethod } from '../models/settings';
+import { BusinessData, NotificationPreferences } from '../models/settings';
 
 // Datos de ejemplo de configuración (TODO: reemplazar por datos de la API)
 
@@ -31,35 +31,3 @@ export const INITIAL_BUSINESS: BusinessData = {
   schedule: 'Lunes a sábado 7:00 AM - 6:30 PM',
 };
 
-export const INITIAL_PAYMENT_METHODS: PaymentMethod[] = [
-  {
-    id: 'pay-1',
-    name: 'Nequi',
-    type: 'wallet',
-    holder: 'Express Car Wash S.A.S.',
-    account: '312 490 8821',
-    requiresQr: true,
-    qrFileName: 'qr-nequi.png',
-    active: true,
-  },
-  {
-    id: 'pay-2',
-    name: 'Bancolombia',
-    type: 'bank',
-    holder: 'Express Car Wash S.A.S.',
-    account: '901.482.930-1',
-    requiresQr: true,
-    qrFileName: 'qr-bancolombia.png',
-    active: true,
-  },
-  {
-    id: 'pay-3',
-    name: 'DaviPlata',
-    type: 'wallet',
-    holder: 'Express Car Wash S.A.S.',
-    account: '300 123 4567',
-    requiresQr: true,
-    qrFileName: 'qr-daviplata.png',
-    active: false,
-  },
-];

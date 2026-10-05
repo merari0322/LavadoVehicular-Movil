@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Switch, Text, View, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
@@ -59,7 +59,11 @@ export function PaymentMethodCard({ method, onToggleActive, onReplaceQr, onEdit,
       {/* Código QR (solo si el método lo requiere) */}
       {method.requiresQr ? (
         <View style={styles.qrBox}>
-          <MaterialIcons name="qr-code-2" size={26} color={colors.textSecondary} />
+          {method.qrImage ? (
+            <Image source={{ uri: method.qrImage }} style={{ width: 56, height: 56, borderRadius: 8, backgroundColor: '#fff' }} resizeMode="contain" />
+          ) : (
+            <MaterialIcons name="qr-code-2" size={26} color={colors.textSecondary} />
+          )}
           <View style={styles.flex}>
             <Text style={styles.qrName} numberOfLines={1}>
               {hasQr ? method.qrFileName : texts.qr.missing}
