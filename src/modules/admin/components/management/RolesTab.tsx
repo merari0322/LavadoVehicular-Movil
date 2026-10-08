@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
 import { MANAGEMENT_TEXTS } from '../../constants/managementTexts';
@@ -9,6 +9,8 @@ import { ActionIconButton, EmptyState, ManagementCard, Pill, SectionHeader } fro
 interface RolesTabProps {
   roles: Role[];
   userCounts: Record<string, number>; // Usuarios asignados por rol
+  error: string | null; // ya traducido; si security-service no respondió
+  onRetry: () => void;
   onEdit: (role: Role) => void;
 }
 
@@ -16,7 +18,7 @@ const texts = MANAGEMENT_TEXTS.roles;
 
 // Pestaña de roles (ADR-015): los 3 roles son fijos, solo se editan sus permisos — sin crear
 // ni eliminar.
-export function RolesTab({ roles, userCounts, onEdit }: RolesTabProps) {
+export function RolesTab({ roles, userCounts, error, onRetry, onEdit }: RolesTabProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -24,7 +26,11 @@ export function RolesTab({ roles, userCounts, onEdit }: RolesTabProps) {
     <View style={styles.container}>
       <SectionHeader title={texts.title} subtitle={texts.subtitle} />
 
-      {roles.length === 0 ? (
+      {error ? (
+        <Pressable onPress={onRetry}>
+          <EmptyState title={error} hint={texts.retryHint} />
+        </Pressable>
+      ) : roles.length === 0 ? (
         <EmptyState title={texts.empty} hint={texts.emptyHint} />
       ) : (
         roles.map((role) => (

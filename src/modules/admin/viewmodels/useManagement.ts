@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { apiErrorKey } from '../../../core/api/apiError';
 import { bookingService } from '../../../core/services/booking/BookingService';
 import {
   CatalogServiceRequest,
@@ -17,8 +19,10 @@ import {
   rolePermissionsService,
 } from '../../../core/services/users/CustomRoleService';
 import { VehicleTypeResponse, vehicleService } from '../../../core/services/vehicles/VehicleService';
+import { MANAGEMENT_TEXTS } from '../constants/managementTexts';
 import {
   ManagedService,
+  Permission,
   Promotion,
   PromotionFormValues,
   PromotionIcon,
@@ -28,13 +32,6 @@ import {
   ServiceCategory,
   ServiceFormValues,
 } from '../models/management';
-
-// etiquetas en español de los 3 roles fijos (ADR-015)
-const ROLE_LABELS: Record<BackendRoleCode, string> = {
-  ADMIN: 'Administrador',
-  OPERATOR: 'Operario',
-  CLIENT: 'Cliente',
-};
 
 // el formulario no pide fecha de fin (solo activa/pausa); se guarda "sin vencimiento"
 const NO_END_DATE = '9999-12-31';
@@ -78,16 +75,27 @@ function toSaveRequest(values: PromotionFormValues): SavePromotionRequest {
   };
 }
 
-// Permisos de un rol fijo (security-service, ADR-015) -> rol de la pantalla
-function toRole(role: BackendRoleCode, matrix: RolePermissionsMatrix): Role {
+// Nombre de un permiso en el idioma actual según su code (VIEW_PANELS -> view_panels); si llega
+// uno que la app no conoce se muestra el name que manda security-service
+export function permissionLabel(permission: PermissionView): string {
+  const label = MANAGEMENT_TEXTS.roles.permissions[permission.code.toLowerCase() as Permission];
+  return typeof label === 'string' ? label : permission.name;
+}
+
+// Permisos de un rol fijo (security-service, ADR-015) -> rol de la pantalla. El nombre del rol y
+// el de cada permiso van en el idioma actual: el name de security.permission está solo en español
+function toRole(role: BackendRoleCode, matrix: RolePermissionsMatrix, roleLabel: string): Role {
   const assigned = matrix.roles.find((r) => r.role === role);
   const permissionIds = assigned?.permissionIds ?? [];
   const byId = new Map<number, PermissionView>(matrix.permissions.map((p) => [p.id, p]));
   return {
     id: role,
-    name: ROLE_LABELS[role],
+    name: roleLabel,
     description: '',
-    permissions: permissionIds.map((id) => byId.get(id)?.name ?? String(id)),
+    permissions: permissionIds.map((id) => {
+      const permission = byId.get(id);
+      return permission ? permissionLabel(permission) : String(id);
+    }),
     permissionIds,
   };
 }
@@ -146,19 +154,34 @@ const ROLE_CODES: BackendRoleCode[] = ['ADMIN', 'OPERATOR', 'CLIENT'];
 
 // Hook con el estado y la lógica de la pantalla de gestión
 export function useManagement() {
-  // Permisos de los 3 roles fijos, reales (security-service, ADR-015)
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [permissionsCatalog, setPermissionsCatalog] = useState<PermissionView[]>([]);
+  const { t, i18n } = useTranslation();
+
+  // Permisos de los 3 roles fijos, reales (security-service, ADR-015). Los roles se arman con
+  // useMemo para que cambien de idioma sin volver a pedirlos
+  const [roleMatrix, setRoleMatrix] = useState<RolePermissionsMatrix>({ permissions: [], roles: [] });
+  const [rolesError, setRolesError] = useState<string | null>(null);
 
   const reloadRoles = useCallback(async () => {
-    const matrix = await rolePermissionsService.matrix();
-    setPermissionsCatalog(matrix.permissions);
-    setRoles(ROLE_CODES.map((role) => toRole(role, matrix)));
+    setRolesError(null);
+    try {
+      setRoleMatrix(await rolePermissionsService.matrix());
+    } catch (error) {
+      // sin security-service la pestaña muestra el error en vez de quedar vacía
+      setRolesError(apiErrorKey(error));
+    }
   }, []);
 
   useEffect(() => {
     void reloadRoles();
   }, [reloadRoles]);
+
+  const roles = useMemo<Role[]>(
+    () => ROLE_CODES.map((role) => toRole(role, roleMatrix, t(`PROFILE.ROLE.${role}`))),
+    // i18n.language: al cambiar de idioma se vuelven a traducir los nombres
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [roleMatrix, t, i18n.language],
+  );
+  const permissionsCatalog = roleMatrix.permissions;
 
   // Promociones reales del payment-service (migración 017)
   const [promotions, setPromotions] = useState<Promotion[]>([]);
@@ -213,12 +236,6 @@ export function useManagement() {
   // ---------------------------------------------------------------
   // Datos calculados
   // ---------------------------------------------------------------
-
-  // Cantidad de usuarios por rol (para la pestaña de roles). Los 3 roles son fijos (ADR-015) y
-  // sí tienen cuentas reales asignadas (useUserAccounts.ts), pero ese hook vive aparte y esta
-  // pantalla no lo consume todavía, así que por ahora queda en 0 (no bloquea nada: los roles ya
-  // no se pueden borrar de todos modos).
-  const roleUserCounts = useMemo<Record<string, number>>(() => ({}), []);
 
   // ---------------------------------------------------------------
   // Roles (security-service, ADR-015): los 3 roles son fijos, solo se editan sus permisos
@@ -293,10 +310,11 @@ export function useManagement() {
   return {
     // Datos
     roles,
+    rolesError,
+    reloadRoles,
     permissionsCatalog,
     services,
     promotions,
-    roleUserCounts,
     promotionMetrics,
     // Roles
     updateRole,
