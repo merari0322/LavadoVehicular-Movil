@@ -52,6 +52,74 @@ export interface SaveAccountRequest {
   active: boolean;
 }
 
+// paquete a precio fijo (admin, Gestión > Promociones). status se calcula en el backend.
+export interface PromotionView {
+  id: number;
+  code: string;
+  name: string;
+  description: string | null;
+  price: number;
+  durationMinutes: number;
+  icon: string | null;
+  featured: boolean;
+  benefits: string[];
+  validFrom: string; // ISO yyyy-MM-dd
+  validTo: string;
+  status: 'active' | 'scheduled' | 'paused';
+  redemptions: number;
+  // cupón real (ADR-015): % de descuento que aplica al canjear, y puntos necesarios para
+  // desbloquearlo; price/durationMinutes/icon/featured/benefits son solo la tarjeta de marketing
+  discountPercent: number;
+  requiredPoints: number;
+}
+
+export interface PromotionMetrics {
+  redemptions: number;
+  savings: number;
+  conversion: number;
+}
+
+export interface SavePromotionRequest {
+  code: string;
+  name: string;
+  description: string | null;
+  price: number;
+  durationMinutes: number;
+  icon: string | null;
+  featured: boolean;
+  benefits: string[];
+  validFrom: string;
+  validTo: string;
+  discountPercent: number;
+  requiredPoints: number;
+}
+
+// fidelización y cupones del cliente (payment-service, /api/v1/loyalty, ADR-015)
+export interface LoyaltyBalance {
+  points: number;
+}
+
+export interface PromotionForCustomer {
+  id: number;
+  code: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  featured: boolean;
+  benefits: string[];
+  discountPercent: number;
+  requiredPoints: number;
+  unlocked: boolean;
+}
+
+export interface RedeemPromotionResult {
+  promotionId: number;
+  promotionCode: string;
+  promotionName: string;
+  discountAmount: number;
+  newTotal: number;
+}
+
 export interface ClientPayment {
   id: number;
   status: 'PENDING' | 'IN_REVIEW' | 'APPROVED' | 'REJECTED' | 'REFUNDED';
@@ -107,5 +175,45 @@ export const paymentService = {
 
   updateAccount(id: number, body: SaveAccountRequest): Promise<PaymentAccount> {
     return request<PaymentAccount>('PUT', '/admin/payment-accounts/' + id, { ...base, body });
+  },
+
+  /* ---------- promociones (admin) ---------- */
+
+  promotions(): Promise<PromotionView[]> {
+    return request<PromotionView[]>('GET', '/admin/promotions', base);
+  },
+
+  promotionMetrics(): Promise<PromotionMetrics> {
+    return request<PromotionMetrics>('GET', '/admin/promotions/metrics', base);
+  },
+
+  createPromotion(body: SavePromotionRequest): Promise<PromotionView> {
+    return request<PromotionView>('POST', '/admin/promotions', { ...base, body });
+  },
+
+  updatePromotion(id: number, body: SavePromotionRequest): Promise<PromotionView> {
+    return request<PromotionView>('PUT', '/admin/promotions/' + id, { ...base, body });
+  },
+
+  setPromotionActive(id: number, active: boolean): Promise<PromotionView> {
+    return request<PromotionView>('PATCH', '/admin/promotions/' + id + '/active', { ...base, body: { active } });
+  },
+
+  deletePromotion(id: number): Promise<void> {
+    return request<void>('DELETE', '/admin/promotions/' + id, base);
+  },
+
+  /* ---------- fidelización y cupones (cliente) ---------- */
+
+  loyaltyBalance(): Promise<LoyaltyBalance> {
+    return request<LoyaltyBalance>('GET', '/loyalty/balance', base);
+  },
+
+  loyaltyPromotions(): Promise<PromotionForCustomer[]> {
+    return request<PromotionForCustomer[]>('GET', '/loyalty/promotions', base);
+  },
+
+  redeemCoupon(bookingId: number, code: string): Promise<RedeemPromotionResult> {
+    return request<RedeemPromotionResult>('POST', '/loyalty/redeem', { ...base, body: { bookingId, code } });
   },
 };
