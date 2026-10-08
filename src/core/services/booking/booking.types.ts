@@ -55,11 +55,22 @@ export interface HoursExceptionRequest {
   reason: string;
 }
 
+// sin operatorId: ADR-015 reafirma ADR-010, el operario no se fija a una bahía por turno
 export interface BayResponse {
   id: number;
   code: string;
   name: string;
   status: BayStatusCode;
+}
+
+// historial de "Horarios y bahias": entityType es WEEK, EXCEPTION o BAY
+export interface ScheduleHistoryEntryResponse {
+  id: number;
+  entityType: string;
+  title: string;
+  detail: string | null;
+  changedAt: string;
+  changedBy: number | null;
 }
 
 export interface EstablishmentResponse {

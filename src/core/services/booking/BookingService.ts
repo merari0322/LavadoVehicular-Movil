@@ -14,6 +14,7 @@ import {
   HoursExceptionRequest,
   HoursExceptionResponse,
   RescheduleBookingRequest,
+  ScheduleHistoryEntryResponse,
   ServiceCategoryResponse,
 } from './booking.types';
 
@@ -162,6 +163,8 @@ export const bookingService = {
     return request<BayResponse[]>('GET', '/admin/bays', base);
   },
 
+  // sin operatorId (ADR-015 reafirma ADR-010: el operario no queda fijo en una bahía por todo
+  // el turno, la pareja operario-bahía es por reserva — ver assignments() en OperationsService)
   createBay(name: string, status: BayStatusCode): Promise<BayResponse> {
     return request<BayResponse>('POST', '/admin/bays', { ...base, body: { name, status } });
   },
@@ -172,5 +175,10 @@ export const bookingService = {
 
   deleteBay(id: number): Promise<void> {
     return request<void>('DELETE', `/admin/bays/${id}`, base);
+  },
+
+  // historial de cambios de horario, excepciones y bahias (mas reciente primero)
+  scheduleHistory(): Promise<ScheduleHistoryEntryResponse[]> {
+    return request<ScheduleHistoryEntryResponse[]>('GET', '/admin/schedule/history', base);
   },
 };
