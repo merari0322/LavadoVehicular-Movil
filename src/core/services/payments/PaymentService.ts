@@ -1,8 +1,12 @@
 import { PAYMENT_API_URL } from '../../api/config';
 import { request } from '../../api/httpClient';
 
-// habla con payment-service, mismos endpoints que la web. El monto lo pone el backend con el
-// total de la reserva; aquí solo viajan la reserva, la cuenta, la referencia y el comprobante.
+// habla con payment-service, mismos endpoints que la web. El monto a cobrar lo pone el backend con
+// el total de la reserva; aquí viajan la reserva, la cuenta, la referencia, el comprobante y el
+// monto que el cliente dice haber pagado (el admin compara ambos al revisar).
+
+// formatos de imagen para el QR y el comprobante (payment-service no acepta SVG ni otros)
+export const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg'];
 
 export interface PaymentAccount {
   id: number;
@@ -37,10 +41,20 @@ export interface PaymentView {
   processedAtUtc: string | null;
   rejectionReason: string | null;
   transactionReference: string | null;
+  // lo que el cliente dice que pagó según su comprobante (null si no lo indicó); amount es lo esperado
+  reportedAmount: number | null;
   receiptImage: string | null;
   reportedAtUtc: string | null;
   account: PaymentAccount | null;
   booking: PaymentBookingInfo | null;
+}
+
+// lo que falta por pagar de una reserva: su total menos los cupones canjeados
+export interface AmountDue {
+  bookingId: number;
+  bookingTotal: number;
+  appliedDiscounts: number;
+  amountDue: number;
 }
 
 export interface SaveAccountRequest {
@@ -139,10 +153,16 @@ export const paymentService = {
     return request<ClientPayment[]>('GET', '/payments/me', base);
   },
 
-  report(bookingId: number, paymentAccountId: number, transactionReference: string, receiptImage: string): Promise<ClientPayment> {
+  report(
+    bookingId: number,
+    paymentAccountId: number,
+    transactionReference: string,
+    receiptImage: string,
+    reportedAmount: number | null = null,
+  ): Promise<ClientPayment> {
     return request<ClientPayment>('POST', '/payments', {
       ...base,
-      body: { bookingId, paymentAccountId, transactionReference, receiptImage },
+      body: { bookingId, paymentAccountId, transactionReference, receiptImage, reportedAmount },
     });
   },
 
@@ -160,9 +180,22 @@ export const paymentService = {
     return request<PaymentView>('POST', '/admin/payments/' + id + '/reject', { ...base, body: { reason } });
   },
 
-  // pago recibido en el lavadero: queda aprobado con el total de la reserva
-  registerManual(bookingId: number, paymentAccountId: number): Promise<PaymentView> {
-    return request<PaymentView>('POST', '/admin/payments', { ...base, body: { bookingId, paymentAccountId } });
+  // devuelve un pago aprobado y revierte los puntos que ganó la reserva (204, sin cuerpo)
+  refund(id: number): Promise<void> {
+    return request<void>('POST', '/admin/payments/' + id + '/refund', base);
+  },
+
+  // monto con el que quedaría un pago en caja (el mismo que usa registerManual)
+  amountDue(bookingId: number): Promise<AmountDue> {
+    return request<AmountDue>('GET', '/admin/payments/amount-due', { ...base, query: { bookingId } });
+  },
+
+  // pago recibido en el lavadero: queda aprobado con lo que falta por pagar de la reserva
+  registerManual(bookingId: number, paymentAccountId: number, transactionReference: string | null = null): Promise<PaymentView> {
+    return request<PaymentView>('POST', '/admin/payments', {
+      ...base,
+      body: { bookingId, paymentAccountId, transactionReference },
+    });
   },
 
   adminAccounts(): Promise<PaymentAccount[]> {
