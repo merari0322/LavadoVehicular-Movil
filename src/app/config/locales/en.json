@@ -1077,7 +1077,8 @@
     "PROMOTION_ALREADY_REDEEMED": "You already redeemed this coupon on this booking.",
     "NETWORK_ERROR": "Cannot reach the server. Please try again in a moment.",
     "UNEXPECTED": "An unexpected error occurred. Please try again.",
-    "CANNOT_DISABLE_OWN_ACCOUNT": "You cannot disable your own account"
+    "CANNOT_DISABLE_OWN_ACCOUNT": "You cannot disable your own account",
+    "UNKNOWN_PERMISSION": "One of the selected permissions no longer exists. Reload the page and try again."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Change password",

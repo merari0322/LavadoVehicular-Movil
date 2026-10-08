@@ -1077,7 +1077,8 @@
     "PROMOTION_ALREADY_REDEEMED": "Ya canjeaste este cupón en esta reserva.",
     "NETWORK_ERROR": "No hay conexión con el servidor. Intenta de nuevo en un momento.",
     "UNEXPECTED": "Ocurrió un error inesperado. Intenta de nuevo.",
-    "CANNOT_DISABLE_OWN_ACCOUNT": "No puedes desactivar tu propia cuenta"
+    "CANNOT_DISABLE_OWN_ACCOUNT": "No puedes desactivar tu propia cuenta",
+    "UNKNOWN_PERMISSION": "Uno de los permisos elegidos ya no existe. Recarga la página e inténtalo de nuevo."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Cambiar contraseña",
