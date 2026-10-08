@@ -15,13 +15,13 @@ import { ProgressBar } from '../../../shared/components/screen/ProgressBar';
 import { ScreenScroll } from '../../../shared/components/screen/ScreenScroll';
 import { SectionCard } from '../../../shared/components/screen/SectionCard';
 import { StatGrid, StatTile } from '../../../shared/components/screen/StatTile';
-import { BUSINESS_LOCATION } from '../../../shared/constants/business';
+import { useEstablishment } from '../../../shared/services/establishmentCatalog';
 import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { ClientLayout } from '../../../shared/layouts/ClientLayout';
 import { withAlpha } from '../../../shared/utils/color';
 import { PROGRESS_BY_STATUS } from '../models/client';
-import { BENEFITS, LOYALTY } from '../services/clientMock';
 import { useClientBookings } from '../viewmodels/useClientBookings';
+import { useClientLoyalty } from '../viewmodels/useClientLoyalty';
 import { useClientVehicles } from '../viewmodels/useClientVehicles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientHome'>;
@@ -49,7 +49,9 @@ export function ClientHomeScreen({ navigation }: Props) {
   const { user } = useSession();
   const { vehicles, loading } = useClientVehicles();
   const { bookings } = useClientBookings();
+  const loyalty = useClientLoyalty();
   const feedback = useFeedback();
+  const establishment = useEstablishment();
 
   const activeReservations = bookings.filter((booking) => isActiveStatus(booking.status));
   const washesDone = bookings.filter((booking) => isFinishedStatus(booking.status)).length;
@@ -61,7 +63,6 @@ export function ClientHomeScreen({ navigation }: Props) {
     .sort((a, b) => `${a.date} ${a.timeRange}`.localeCompare(`${b.date} ${b.timeRange}`));
   const service = upcoming[0] ?? null;
   const progress = service ? PROGRESS_BY_STATUS[service.status] ?? 0 : 0;
-  const loyaltyPercentage = Math.round((LOYALTY.current / LOYALTY.goal) * 100);
 
   const viewNextServiceDetail = () => {
     if (!service) return;
@@ -75,7 +76,7 @@ export function ClientHomeScreen({ navigation }: Props) {
         { label: t('RESERVE.SUMMARY.SERVICE'), value: service.services.join(', ') },
         { label: t('RESERVE.SUMMARY.VEHICLE'), value: `${service.vehicle} · ${service.plate}`.trim() },
         { label: t('RESERVE.SUMMARY.DATE'), value: `${service.displayDate} · ${service.timeRange}` },
-        { label: t('RESERVE.SUMMARY.LOCATION'), value: BUSINESS_LOCATION.address },
+        { label: t('RESERVE.SUMMARY.LOCATION'), value: establishment.address },
         // el booking-service todavía no asigna operario a la reserva
         { label: t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED'), value: '—' },
         { label: t('DASHBOARD.NEXT_SERVICE.STATUS'), value: t(`STATUS.${service.status}`) },
@@ -130,7 +131,7 @@ export function ClientHomeScreen({ navigation }: Props) {
             <View style={styles.meta}>
               <MaterialIcons name="storefront" size={16} color={colors.textMuted} />
               <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-                {BUSINESS_LOCATION.name} · {BUSINESS_LOCATION.address}
+                {establishment.tradeName} · {establishment.address}
               </Text>
             </View>
             <View style={styles.meta}>
@@ -165,17 +166,25 @@ export function ClientHomeScreen({ navigation }: Props) {
           </View>
         </SectionCard>
 
-        {/* Beneficios y promociones */}
+        {/* Beneficios y promociones: puntos de fidelización reales (payment-service, ADR-015) */}
         <SectionCard title={t('DASHBOARD.BENEFITS.TITLE')} icon="card-giftcard">
-          {BENEFITS.map((benefit) => (
-            <View key={benefit.title} style={[styles.benefit, { backgroundColor: withAlpha(colors.primary, 0.08) }]}>
-              <Text style={[styles.strong, { color: colors.text }]}>{benefit.title}</Text>
-              <Text style={[styles.muted, { color: colors.textSecondary }]}>{benefit.description}</Text>
-            </View>
-          ))}
+          {loyalty.benefits.length === 0 ? (
+            <Text style={[styles.muted, { color: colors.textSecondary }]}>{t('DASHBOARD.BENEFITS.EMPTY')}</Text>
+          ) : (
+            loyalty.benefits.map((benefit) => (
+              <View key={benefit.title} style={[styles.benefit, { backgroundColor: withAlpha(colors.primary, 0.08) }]}>
+                <Text style={[styles.strong, { color: colors.text }]}>{benefit.title}</Text>
+                <Text style={[styles.muted, { color: colors.textSecondary }]}>
+                  {benefit.unlocked
+                    ? t('DASHBOARD.BENEFITS.UNLOCKED')
+                    : t('DASHBOARD.BENEFITS.LOCKED', { points: benefit.description })}
+                </Text>
+              </View>
+            ))
+          )}
           <ProgressBar
-            percentage={loyaltyPercentage}
-            label={`${t('DASHBOARD.BENEFITS.LOYALTY_PROGRESS')} (${LOYALTY.current}/${LOYALTY.goal})`}
+            percentage={loyalty.percentage}
+            label={`${t('DASHBOARD.BENEFITS.LOYALTY_PROGRESS')} (${t('DASHBOARD.BENEFITS.POINTS_OF', { current: loyalty.points, goal: loyalty.goal })})`}
           />
         </SectionCard>
       </ScreenScroll>
