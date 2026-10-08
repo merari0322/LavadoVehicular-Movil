@@ -55,7 +55,8 @@ const es = {
       } as Record<HelpTopic, string>,
     },
 
-    // TODO: reemplazar por el contenido real (o abrir la URL oficial)
+    // texto fijo, igual que el legal-document-modal de la web: términos y política no
+    // tienen backend en ningún lado del proyecto, se traducen a los 4 idiomas y ya
     helpDocs: {
       helpCenter: {
         title: 'Centro de ayuda',

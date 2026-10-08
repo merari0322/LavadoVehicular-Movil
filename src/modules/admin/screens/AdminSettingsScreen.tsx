@@ -7,7 +7,7 @@ import { AdminLayout } from '../../../shared/layouts/AdminLayout';
 import { BusinessTab } from '../components/settings/BusinessTab';
 import { GeneralTab } from '../components/settings/GeneralTab';
 import { LegalDocumentModal, LegalDocumentType } from '../../../shared/components/feedback/LegalDocumentModal';
-import { BUSINESS_CONTACT, BUSINESS_LOCATION } from '../../../shared/constants/business';
+import { useEstablishment } from '../../../shared/services/establishmentCatalog';
 import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { PaymentMethodFormModal } from '../components/settings/PaymentMethodFormModal';
 import { PaymentsTab } from '../components/settings/PaymentsTab';
@@ -33,6 +33,7 @@ interface ConfirmState {
 
 export const AdminSettingsScreen = () => {
   const settings = useSettings();
+  const establishment = useEstablishment();
 
   // Tema de ayuda abierto en el modal de lectura (null = cerrado)
   // Términos / Política abiertos en el documento legal (igual que la web)
@@ -53,11 +54,12 @@ export const AdminSettingsScreen = () => {
       message: t('CONFIG.HELP_MODAL.MESSAGE'),
       buttonText: t('COMMON.CLOSE'),
       details: [
-        { label: t('CONFIG.HELP_MODAL.WHATSAPP'), value: BUSINESS_CONTACT.whatsapp },
-        { label: t('CONFIG.HELP_MODAL.SUPPORT_LINE'), value: BUSINESS_CONTACT.supportLine },
-        { label: t('CONFIG.HELP_MODAL.EMAIL'), value: BUSINESS_CONTACT.email },
+        // el negocio solo tiene un teléfono: se muestra como WhatsApp y como línea de atención
+        { label: t('CONFIG.HELP_MODAL.WHATSAPP'), value: establishment.phone ?? '—' },
+        { label: t('CONFIG.HELP_MODAL.SUPPORT_LINE'), value: establishment.phone ?? '—' },
+        { label: t('CONFIG.HELP_MODAL.EMAIL'), value: establishment.email ?? '—' },
         { label: t('CONFIG.HELP_MODAL.HOURS'), value: t('CONFIG.HELP_MODAL.HOURS_VALUE') },
-        { label: t('CONFIG.HELP_MODAL.ADDRESS'), value: BUSINESS_LOCATION.address },
+        { label: t('CONFIG.HELP_MODAL.ADDRESS'), value: establishment.address },
       ],
     });
   };

@@ -1,6 +1,9 @@
 import { BusinessData, NotificationPreferences } from '../models/settings';
 
-// Datos de ejemplo de configuración (TODO: reemplazar por datos de la API)
+// Valores de arranque mientras useSettings() carga lo real: el nombre, dirección, teléfono y
+// correo los reemplaza el booking-service al abrir la pantalla (useSettings.ts); las
+// preferencias y el resto de los datos del negocio quedan guardados en el celular porque
+// todavía no hay un endpoint para escribirlos (igual que BusinessStore en la web).
 
 export const INITIAL_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   push: true,

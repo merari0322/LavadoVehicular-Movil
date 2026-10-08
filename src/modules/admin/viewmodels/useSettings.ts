@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { setAppLanguage } from '../../../app/config/i18n';
@@ -20,6 +21,13 @@ import {
   INITIAL_NOTIFICATION_PREFERENCES,
 } from '../services/settingsMock';
 import { PaymentAccount, SaveAccountRequest, paymentService } from '../../../core/services/payments/PaymentService';
+import { bookingService } from '../../../core/services/booking/BookingService';
+
+// el booking-service no tiene (todavía) un endpoint para guardar los datos del negocio ni las
+// preferencias de notificaciones: /api/v1/establishment es solo lectura. Igual que en la web
+// (BusinessStore, localStorage), mientras tanto quedan en el celular.
+const BUSINESS_STORAGE_KEY = 'admin-business-data';
+const NOTIFICATION_PREFS_STORAGE_KEY = 'admin-notification-preferences';
 
 // cuenta de payment-service -> medio de pago de la pantalla
 function toMethod(a: PaymentAccount): PaymentMethod {
@@ -97,10 +105,49 @@ export function useSettings() {
   const language = i18n.language as AppLanguage;
   const setLanguage = (code: AppLanguage) => void setAppLanguage(code);
 
-  // Datos del negocio: guardado y borrador que se está editando
+  // se cargan al abrir la pantalla; si no hay nada guardado se quedan los valores de ejemplo
+  useEffect(() => {
+    AsyncStorage.getItem(NOTIFICATION_PREFS_STORAGE_KEY)
+      .then((raw) => {
+        if (raw) setPreferences(JSON.parse(raw));
+      })
+      .catch(() => undefined);
+  }, []);
+
+  // Datos del negocio: guardado y borrador que se está editando. Arranca con los datos de
+  // ejemplo; la carga real (abajo) los reemplaza en cuanto responde el backend o el celular.
   const [savedBusiness, setSavedBusiness] = useState<BusinessData>(INITIAL_BUSINESS);
   const [draftBusiness, setDraftBusiness] = useState<BusinessData>(INITIAL_BUSINESS);
   const [showAllErrors, setShowAllErrors] = useState(false);
+
+  // trae lo real del booking-service (nombre, nit, dirección, teléfono, correo) y, encima, lo que
+  // el admin haya guardado antes en este celular para los campos que el backend no tiene
+  useEffect(() => {
+    (async () => {
+      let merged = INITIAL_BUSINESS;
+      try {
+        const establishment = await bookingService.establishment();
+        merged = {
+          ...merged,
+          legalName: establishment.legalName,
+          address: establishment.address,
+          phone: establishment.phone ?? merged.phone,
+          whatsapp: establishment.phone ?? merged.whatsapp,
+          email: establishment.email ?? merged.email,
+        };
+      } catch {
+        // sin conexión al booking-service se queda con los datos de ejemplo
+      }
+      try {
+        const raw = await AsyncStorage.getItem(BUSINESS_STORAGE_KEY);
+        if (raw) merged = { ...merged, ...JSON.parse(raw) };
+      } catch {
+        // nada guardado localmente todavía
+      }
+      setSavedBusiness(merged);
+      setDraftBusiness(merged);
+    })();
+  }, []);
 
   // Métodos de pago: cuentas reales del lavadero (payment-service)
   const [payments, setPayments] = useState<PaymentMethod[]>([]);
@@ -136,9 +183,13 @@ export function useSettings() {
   // General
   // ---------------------------------------------------------------
 
-  // Enciende o apaga una preferencia de notificaciones
+  // Enciende o apaga una preferencia de notificaciones y la guarda en el celular
   const togglePreference = (key: NotificationPreferenceKey) =>
-    setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
+    setPreferences((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      AsyncStorage.setItem(NOTIFICATION_PREFS_STORAGE_KEY, JSON.stringify(next)).catch(() => undefined);
+      return next;
+    });
 
   // ---------------------------------------------------------------
   // Datos del negocio
@@ -171,7 +222,9 @@ export function useSettings() {
     setShowAllErrors(false);
   };
 
-  // Guarda los datos (devuelve false si hay errores)
+  // Guarda los datos (devuelve false si hay errores). El booking-service todavía no tiene un
+  // endpoint para escribir establishment, así que por ahora queda en el celular, igual que en la
+  // web (BusinessStore); el nombre, dirección, teléfono y correo sí llegan de ahí al abrir.
   const saveBusiness = (): boolean => {
     if (Object.keys(validateBusiness(draftBusiness)).length > 0) {
       setShowAllErrors(true);
@@ -180,6 +233,7 @@ export function useSettings() {
 
     setSavedBusiness(draftBusiness);
     setShowAllErrors(false);
+    AsyncStorage.setItem(BUSINESS_STORAGE_KEY, JSON.stringify(draftBusiness)).catch(() => undefined);
     return true;
   };
 

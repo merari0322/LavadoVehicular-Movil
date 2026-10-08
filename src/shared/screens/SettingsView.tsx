@@ -10,7 +10,7 @@ import { LegalDocumentModal, LegalDocumentType } from '../components/feedback/Le
 import { PageHeader } from '../components/screen/PageHeader';
 import { ScreenScroll } from '../components/screen/ScreenScroll';
 import { SectionCard } from '../components/screen/SectionCard';
-import { BUSINESS_CONTACT, BUSINESS_LOCATION } from '../constants/business';
+import { useEstablishment } from '../services/establishmentCatalog';
 import { useFeedback } from '../hooks/useFeedback';
 import { withAlpha } from '../utils/color';
 
@@ -46,6 +46,7 @@ export function SettingsView() {
   const { colors, themeName, setThemeName } = useTheme();
   const { t, i18n } = useTranslation();
   const feedback = useFeedback();
+  const establishment = useEstablishment();
   const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
   const [legal, setLegal] = useState<LegalDocumentType | null>(null);
 
@@ -71,11 +72,12 @@ export function SettingsView() {
       message: t('CONFIG.HELP_MODAL.MESSAGE'),
       buttonText: t('COMMON.CLOSE'),
       details: [
-        { label: t('CONFIG.HELP_MODAL.WHATSAPP'), value: BUSINESS_CONTACT.whatsapp },
-        { label: t('CONFIG.HELP_MODAL.SUPPORT_LINE'), value: BUSINESS_CONTACT.supportLine },
-        { label: t('CONFIG.HELP_MODAL.EMAIL'), value: BUSINESS_CONTACT.email },
+        // el negocio solo tiene un teléfono: se muestra como WhatsApp y como línea de atención
+        { label: t('CONFIG.HELP_MODAL.WHATSAPP'), value: establishment.phone ?? '—' },
+        { label: t('CONFIG.HELP_MODAL.SUPPORT_LINE'), value: establishment.phone ?? '—' },
+        { label: t('CONFIG.HELP_MODAL.EMAIL'), value: establishment.email ?? '—' },
         { label: t('CONFIG.HELP_MODAL.HOURS'), value: t('CONFIG.HELP_MODAL.HOURS_VALUE') },
-        { label: t('CONFIG.HELP_MODAL.ADDRESS'), value: BUSINESS_LOCATION.address },
+        { label: t('CONFIG.HELP_MODAL.ADDRESS'), value: establishment.address },
       ],
     });
 

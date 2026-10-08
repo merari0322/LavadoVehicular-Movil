@@ -2,8 +2,8 @@ import { SetStateAction, useCallback, useSyncExternalStore } from 'react';
 
 // Estado en memoria compartido entre pantallas mientras la app está abierta (como los
 // "stores" de la web): si el inicio del admin aprueba un pago, la pantalla de pagos lo ve
-// aprobado. Se usa igual que useState, con una llave para cada grupo de datos.
-// TODO: reemplazar por los datos de los microservicios cuando existan
+// aprobado. Se usa igual que useState, con una llave para cada grupo de datos; lo que guarda
+// cada pantalla (usePayments, useOperators, useReservations...) ya viene de los microservicios.
 interface Entry {
   value: unknown;
   listeners: Set<() => void>;
