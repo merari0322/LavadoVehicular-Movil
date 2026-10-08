@@ -1,99 +1,84 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { CheckboxField } from '../../../../shared/components/forms/CheckboxField';
 import { FormModal } from '../../../../shared/components/feedback/FormModal';
-import { LabeledInput } from '../../../../shared/components/forms/LabeledInput';
+import { LabeledSelect } from '../../../../shared/components/forms/LabeledSelect';
 import { useTheme } from '../../../../app/theme';
 import { MANAGEMENT_TEXTS } from '../../constants/managementTexts';
-import { PERMISSIONS, Permission, Role, RoleFormValues } from '../../models/management';
+import { PermissionView, RoleCode } from '../../../../core/services/users/CustomRoleService';
+import { Role, RoleFormValues } from '../../models/management';
 
 interface RoleFormModalProps {
   visible: boolean;
-  role: Role | null; // null = crear, con valor = editar
+  role: Role; // los 3 roles son fijos (ADR-015): siempre se edita uno, nunca se crea
+  roles: Role[]; // para cargar los permisos ya asignados al cambiar de rol en el desplegable
+  permissionsCatalog: PermissionView[];
   onClose: () => void;
   onSubmit: (values: RoleFormValues) => void;
 }
 
 const texts = MANAGEMENT_TEXTS.roles.form;
 
-// Modal para crear o editar un rol con sus permisos
-export function RoleFormModal({ visible, role, onClose, onSubmit }: RoleFormModalProps) {
+const ROLE_OPTIONS = [
+  { value: 'ADMIN', label: 'Administrador' },
+  { value: 'OPERATOR', label: 'Operario' },
+  { value: 'CLIENT', label: 'Cliente' },
+];
+
+// Modal de permisos de uno de los 3 roles fijos. Antes se escribía un nombre libre de rol; ahora
+// se elige con un desplegable, y los permisos vienen del catálogo real (security.permission).
+export function RoleFormModal({ visible, role, roles, permissionsCatalog, onClose, onSubmit }: RoleFormModalProps) {
   const { colors } = useTheme();
-  const isEditing = role !== null;
 
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [permissions, setPermissions] = useState<Permission[]>([]);
-  const [nameError, setNameError] = useState<string | undefined>();
+  const [selectedRole, setSelectedRole] = useState<RoleCode>('ADMIN');
+  const [permissionIds, setPermissionIds] = useState<number[]>([]);
 
-  // Cada vez que se abre el modal se cargan los datos del rol (o valores por defecto)
   useEffect(() => {
     if (!visible) return;
-    setName(role?.name ?? '');
-    setDescription(role?.description ?? '');
-    setPermissions(role?.permissions ?? ['view_panels']);
-    setNameError(undefined);
+    setSelectedRole(role.id as RoleCode);
+    setPermissionIds(role.permissionIds);
   }, [visible, role]);
 
-  // Marca o desmarca un permiso
-  const togglePermission = (permission: Permission) =>
-    setPermissions((prev) =>
-      prev.includes(permission) ? prev.filter((item) => item !== permission) : [...prev, permission],
-    );
+  const onRoleChange = (value: string) => {
+    const next = value as RoleCode;
+    setSelectedRole(next);
+    const found = roles.find((r) => r.id === next);
+    setPermissionIds(found?.permissionIds ?? []);
+  };
+
+  const togglePermission = (id: number) =>
+    setPermissionIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
 
   const handleSubmit = () => {
-    if (name.trim().length < 3) {
-      setNameError(texts.errors.name);
-      return;
-    }
-
-    // Se conserva el orden original de los permisos
-    onSubmit({
-      name: name.trim(),
-      description: description.trim(),
-      permissions: PERMISSIONS.filter((item) => permissions.includes(item)),
-    });
+    onSubmit({ role: selectedRole, permissionIds });
   };
+
+  const permissionsStyles = useMemo(
+    () => StyleSheet.create({ label: { marginBottom: 10, fontSize: 13, fontWeight: '500', color: colors.textSecondary } }),
+    [colors],
+  );
 
   return (
     <FormModal
       visible={visible}
-      title={isEditing ? texts.editTitle : texts.createTitle}
-      subtitle={isEditing ? texts.editSubtitle : texts.createSubtitle}
+      title={texts.editTitle}
+      subtitle={texts.editSubtitle}
       cancelLabel={MANAGEMENT_TEXTS.common.cancel}
-      submitLabel={isEditing ? texts.save : texts.create}
+      submitLabel={texts.save}
       onClose={onClose}
       onSubmit={handleSubmit}
     >
-      <LabeledInput
-        label={texts.name}
-        value={name}
-        onChangeText={(text) => {
-          setName(text);
-          setNameError(undefined);
-        }}
-        placeholder={texts.namePlaceholder}
-        error={nameError}
-        autoCapitalize="words"
-      />
-
-      <LabeledInput
-        label={texts.description}
-        value={description}
-        onChangeText={setDescription}
-        placeholder={texts.descriptionPlaceholder}
-        multiline
-      />
+      <LabeledSelect label={texts.roleSelectLabel} value={selectedRole} options={ROLE_OPTIONS} onChange={onRoleChange} />
 
       <View>
-        <Text style={[styles.label, { color: colors.textSecondary }]}>{texts.permissions}</Text>
+        <Text style={permissionsStyles.label}>{texts.permissions}</Text>
         <View style={styles.permissions}>
-          {PERMISSIONS.map((permission) => (
-            <View key={permission} style={styles.permissionItem}>
+          {permissionsCatalog.map((permission) => (
+            <View key={permission.id} style={styles.permissionItem}>
               <CheckboxField
-                checked={permissions.includes(permission)}
-                label={MANAGEMENT_TEXTS.roles.permissions[permission]}
-                onChange={() => togglePermission(permission)}
+                checked={permissionIds.includes(permission.id)}
+                label={permission.name}
+                onChange={() => togglePermission(permission.id)}
               />
             </View>
           ))}
@@ -104,7 +89,6 @@ export function RoleFormModal({ visible, role, onClose, onSubmit }: RoleFormModa
 }
 
 const styles = StyleSheet.create({
-  label: { marginBottom: 10, fontSize: 13, fontWeight: '500' },
   permissions: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 14 },
   permissionItem: { width: '50%' },
 });
