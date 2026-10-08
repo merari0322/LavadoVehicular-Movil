@@ -11,7 +11,12 @@ import { fontSize, fontWeight, radius, spacing, useTheme } from '../../../app/th
 import { RootStackParamList } from '../../../core/navigation/types';
 import { isActiveStatus } from '../../../core/services/booking/bookingDisplay';
 // cuentas del lavadero (con su QR), reporte del pago y canje de cupón: payment-service
-import { PaymentAccount, paymentService, RedeemPromotionResult } from '../../../core/services/payments/PaymentService';
+import {
+  ALLOWED_IMAGE_TYPES,
+  PaymentAccount,
+  paymentService,
+  RedeemPromotionResult,
+} from '../../../core/services/payments/PaymentService';
 import { apiErrorKey } from '../../../core/api/apiError';
 import { LabeledInput } from '../../../shared/components/forms/LabeledInput';
 import { Pill } from '../../../shared/components/ui/Pill';
@@ -26,6 +31,8 @@ import { ClientLayout } from '../../../shared/layouts/ClientLayout';
 import { withAlpha } from '../../../shared/utils/color';
 import { formatCOP } from '../../../shared/utils/format';
 import { ClientBookingItem } from '../models/booking-view';
+// textos de pagos que ya existen en los 4 idiomas (los de la pantalla del admin)
+import { PAYMENT_TEXTS } from '../../admin/constants/paymentTexts';
 import { useClientBookings } from '../viewmodels/useClientBookings';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientPayment'>;
@@ -94,6 +101,10 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   const [secondsLeft, setSecondsLeft] = useState(QR_DURATION_MS / 1000);
   const [receipt, setReceipt] = useState<{ name: string; size: number; uri: string; mimeType: string } | null>(null);
   const [reference, setReference] = useState('');
+  // monto que el cliente pagó según su comprobante (solo dígitos); null = no lo ha cambiado, se asume el total
+  const [paidAmountText, setPaidAmountText] = useState<string | null>(null);
+  // motivo del último pago rechazado de esta reserva (para que el cliente sepa qué corregir)
+  const [lastRejectionReason, setLastRejectionReason] = useState<string | null>(null);
 
   // canje de cupón de fidelización (payment-service, ADR-015): puntos acumulados desbloquean
   // la promoción, se aplica un % de descuento real sobre el total
@@ -105,7 +116,10 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   const total = Math.max(0, (booking?.total ?? 0) - (couponResult?.discountAmount ?? 0));
   const isVerifying = flowStep === 'VERIFYING';
   const isReferenceValid = REFERENCE_REGEX.test(reference);
-  const canConfirm = !sending && !isVerifying && (method === 'CASH' || (receipt !== null && isReferenceValid));
+  const paidAmount = paidAmountText === null ? total : Number(paidAmountText);
+  const isPaidAmountValid = Number.isFinite(paidAmount) && paidAmount > 0;
+  const canConfirm =
+    !sending && !isVerifying && (method === 'CASH' || (receipt !== null && isReferenceValid && isPaidAmountValid));
 
   const methods = useMemo(
     () => METHODS.filter((item) => item.id === 'CASH' || accounts.some((a) => methodIdOf(a.methodCode) === item.id)),
@@ -131,9 +145,11 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
     paymentService
       .mine()
       .then((payments) => {
+        // payment-service los devuelve del más reciente al más antiguo: el primero es el vigente
         const current = payments.find((payment) => payment.booking?.id === booking.id);
         const open = !!current && ['PENDING', 'IN_REVIEW', 'APPROVED'].includes(current.status);
         setFlowStep(open ? 'VERIFYING' : 'PENDING');
+        setLastRejectionReason(current?.status === 'REJECTED' ? (current.rejectionReason ?? '—') : null);
       })
       .catch(() => undefined);
   }, [booking?.id]);
@@ -180,11 +196,11 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   };
 
   const pickReceipt = async () => {
-    const result = await DocumentPicker.getDocumentAsync({ type: ['image/jpeg', 'image/png'], copyToCacheDirectory: true });
+    const result = await DocumentPicker.getDocumentAsync({ type: ALLOWED_IMAGE_TYPES, copyToCacheDirectory: true });
     if (result.canceled || result.assets.length === 0) return;
 
     const file = result.assets[0];
-    const validType = !file.mimeType || ['image/jpeg', 'image/png'].includes(file.mimeType);
+    const validType = !file.mimeType || ALLOWED_IMAGE_TYPES.includes(file.mimeType);
     const validSize = (file.size ?? 0) <= MAX_RECEIPT_BYTES;
     if (!validType || !validSize) {
       feedback.showStatus({ type: 'error', title: t('PAYMENT.INVALID_FILE_TITLE'), message: t('PAYMENT.INVALID_FILE_MESSAGE') });
@@ -228,10 +244,12 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
 
     setSending(true);
     try {
-      // el comprobante viaja como imagen; el monto lo pone payment-service con el total de la reserva
+      // el comprobante viaja como imagen; el monto a cobrar lo pone payment-service y paidAmount
+      // es lo que el cliente dice haber pagado (el admin compara ambos)
       const base64 = await FileSystem.readAsStringAsync(receipt.uri, { encoding: FileSystem.EncodingType.Base64 });
-      await paymentService.report(booking.id, account.id, reference, `data:${receipt.mimeType};base64,${base64}`);
+      await paymentService.report(booking.id, account.id, reference, `data:${receipt.mimeType};base64,${base64}`, paidAmount);
       setFlowStep('VERIFYING');
+      setLastRejectionReason(null);
       save({ flowStep: 'VERIFYING' });
       feedback.showStatus({ title: t('PAYMENT.SUCCESS_TITLE'), message: t('PAYMENT.SUCCESS_MESSAGE') });
     } catch (error) {
@@ -296,6 +314,17 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
       <ScreenScroll>
         <Pill label={`${t('PAYMENT.STEP')} · #${booking.code}`} tone="primary" icon="check-circle" />
         <PageHeader title={t('PAYMENT.TITLE')} subtitle={t('PAYMENT.SUBTITLE')} />
+
+        {/* el último pago de esta reserva fue rechazado: se explica por qué antes de reportar otro */}
+        {lastRejectionReason && !isVerifying ? (
+          <View style={[styles.hint, { backgroundColor: colors.errorSoft }]}>
+            <MaterialIcons name="error-outline" size={20} color={colors.error} />
+            <View style={styles.flex}>
+              <Text style={[styles.strong, { color: colors.error }]}>{PAYMENT_TEXTS.review.rejectionSection}</Text>
+              <Text style={[styles.hintText, { color: colors.text }]}>{lastRejectionReason}</Text>
+            </View>
+          </View>
+        ) : null}
 
         {/* Método de pago */}
         <SectionCard title={t('PAYMENT.METHOD.TITLE')} icon="credit-card">
@@ -389,6 +418,19 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
               />
               <Text style={[styles.muted, { color: isReferenceValid ? colors.success : colors.textMuted }]}>
                 {t('PAYMENT.CONFIRM.REFERENCE_HINT')}
+              </Text>
+
+              <LabeledInput
+                label={t('PAYMENT.CONFIRM.AMOUNT')}
+                required
+                prefix="$"
+                value={paidAmountText ?? String(total)}
+                onChangeText={(text) => setPaidAmountText(text.replace(/[^0-9]/g, ''))}
+                keyboardType="number-pad"
+                editable={!isVerifying}
+              />
+              <Text style={[styles.muted, { color: isPaidAmountValid ? colors.textMuted : colors.error }]}>
+                {t('PAYMENT.CONFIRM.AMOUNT_HINT')}
               </Text>
 
               <View style={[styles.hint, { backgroundColor: withAlpha(colors.primary, 0.08) }]}>
