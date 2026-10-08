@@ -1077,7 +1077,8 @@
     "PROMOTION_ALREADY_REDEEMED": "Vous avez déjà utilisé ce coupon sur cette réservation.",
     "NETWORK_ERROR": "Impossible de joindre le serveur. Réessayez dans un instant.",
     "UNEXPECTED": "Une erreur inattendue est survenue. Réessayez.",
-    "CANNOT_DISABLE_OWN_ACCOUNT": "Vous ne pouvez pas désactiver votre propre compte"
+    "CANNOT_DISABLE_OWN_ACCOUNT": "Vous ne pouvez pas désactiver votre propre compte",
+    "UNKNOWN_PERMISSION": "L’une des autorisations choisies n’existe plus. Rechargez la page et réessayez."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Changer le mot de passe",

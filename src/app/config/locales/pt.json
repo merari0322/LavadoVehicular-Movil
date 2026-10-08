@@ -1077,7 +1077,8 @@
     "PROMOTION_ALREADY_REDEEMED": "Você já resgatou esse cupom nesta reserva.",
     "NETWORK_ERROR": "Não foi possível conectar ao servidor. Tente novamente em instantes.",
     "UNEXPECTED": "Ocorreu um erro inesperado. Tente novamente.",
-    "CANNOT_DISABLE_OWN_ACCOUNT": "Você não pode desativar sua própria conta"
+    "CANNOT_DISABLE_OWN_ACCOUNT": "Você não pode desativar sua própria conta",
+    "UNKNOWN_PERMISSION": "Uma das permissões escolhidas não existe mais. Recarregue a página e tente novamente."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Alterar senha",

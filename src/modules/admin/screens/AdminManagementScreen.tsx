@@ -58,6 +58,15 @@ export const AdminManagementScreen = () => {
   const management = useManagement();
   const accounts = useUserAccounts();
 
+  // usuarios reales por rol (cuentas del security-service) para la pestaña de roles
+  const roleUserCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    accounts.users.forEach((user) => {
+      counts[user.roleId] = (counts[user.roleId] ?? 0) + 1;
+    });
+    return counts;
+  }, [accounts.users]);
+
   const [tab, setTab] = useState<ManagementTab>('users');
 
   // Modales de formulario (uno por pestaña)
@@ -201,7 +210,9 @@ export const AdminManagementScreen = () => {
           {tab === 'roles' ? (
             <RolesTab
               roles={management.roles}
-              userCounts={management.roleUserCounts}
+              userCounts={roleUserCounts}
+              error={management.rolesError ? t(management.rolesError) : null}
+              onRetry={management.reloadRoles}
               onEdit={(role) => setRoleForm({ visible: true, item: role })}
             />
           ) : null}
