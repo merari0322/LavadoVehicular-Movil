@@ -5,6 +5,7 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../app/theme';
 import { RootStackParamList } from '../../../core/navigation/types';
+import { apiErrorKey } from '../../../core/api/apiError';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
 import { StatCard } from '../components/dashboard/StatCard';
 import { RevenueChart } from '../components/dashboard/RevenueChart';
@@ -26,12 +27,16 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AdminDashboard'>;
 export function AdminDashboardScreen({ navigation }: Props) {
   const { colors } = useTheme();
   // vuelve a pintar la pantalla cuando cambia el idioma
-  useTranslation();
+  const { t } = useTranslation();
   const vm = useAdminDashboardViewModel();
   const texts = DASHBOARD_TEXTS;
 
   // modales: revisar pago y asignar operario
   const [reviewing, setReviewing] = useState<Payment | null>(null);
+  // si payment-service rechaza la aprobación o el rechazo, se explica por qué (ya traducido)
+  const reportPaymentError = (error: unknown) => {
+    if (error) Alert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)));
+  };
   const [assigning, setAssigning] = useState<Reservation | null>(null);
   const servicesByOperator = useServicesByOperator(vm.reservations);
 
@@ -121,13 +126,13 @@ export function AdminDashboardScreen({ navigation }: Props) {
       <PaymentReviewModal
         payment={reviewing}
         onClose={() => setReviewing(null)}
-        onApprove={(id) => {
-          vm.approvePayment(id);
+        onApprove={async (id) => {
           setReviewing(null);
+          reportPaymentError(await vm.approvePayment(id));
         }}
-        onReject={(id, reason) => {
-          vm.rejectPayment(id, reason);
+        onReject={async (id, reason) => {
           setReviewing(null);
+          reportPaymentError(await vm.rejectPayment(id, reason));
         }}
       />
       <AssignOperatorModal
