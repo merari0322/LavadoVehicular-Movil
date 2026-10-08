@@ -146,9 +146,11 @@ export function ActionIconButton({ icon, onPress, danger = false }: ActionIconBu
 interface SectionHeaderProps {
   title: string;
   subtitle: string;
-  actionLabel: string;
-  actionIcon: IconName;
-  onAction: () => void;
+  // sin acción: encabezados como el de Roles, que ya no tienen un "+ Crear" (ADR-015, los 3
+  // roles son fijos)
+  actionLabel?: string;
+  actionIcon?: IconName;
+  onAction?: () => void;
 }
 
 export function SectionHeader({ title, subtitle, actionLabel, actionIcon, onAction }: SectionHeaderProps) {
@@ -158,10 +160,12 @@ export function SectionHeader({ title, subtitle, actionLabel, actionIcon, onActi
     <View style={styles.header}>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.subtitle}>{subtitle}</Text>
-      <Pressable style={styles.action} onPress={onAction}>
-        <MaterialIcons name={actionIcon} size={20} color={colors.onPrimary} />
-        <Text style={styles.actionText}>{actionLabel}</Text>
-      </Pressable>
+      {onAction && actionIcon && actionLabel ? (
+        <Pressable style={styles.action} onPress={onAction}>
+          <MaterialIcons name={actionIcon} size={20} color={colors.onPrimary} />
+          <Text style={styles.actionText}>{actionLabel}</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }

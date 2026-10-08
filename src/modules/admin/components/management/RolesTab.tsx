@@ -9,27 +9,20 @@ import { ActionIconButton, EmptyState, ManagementCard, Pill, SectionHeader } fro
 interface RolesTabProps {
   roles: Role[];
   userCounts: Record<string, number>; // Usuarios asignados por rol
-  onCreate: () => void;
   onEdit: (role: Role) => void;
-  onDelete: (role: Role) => void;
 }
 
 const texts = MANAGEMENT_TEXTS.roles;
 
-// Pestaña de roles: lista con permisos y cantidad de usuarios
-export function RolesTab({ roles, userCounts, onCreate, onEdit, onDelete }: RolesTabProps) {
+// Pestaña de roles (ADR-015): los 3 roles son fijos, solo se editan sus permisos — sin crear
+// ni eliminar.
+export function RolesTab({ roles, userCounts, onEdit }: RolesTabProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
     <View style={styles.container}>
-      <SectionHeader
-        title={texts.title}
-        subtitle={texts.subtitle}
-        actionLabel={texts.create}
-        actionIcon="add"
-        onAction={onCreate}
-      />
+      <SectionHeader title={texts.title} subtitle={texts.subtitle} />
 
       {roles.length === 0 ? (
         <EmptyState title={texts.empty} hint={texts.emptyHint} />
@@ -37,20 +30,20 @@ export function RolesTab({ roles, userCounts, onCreate, onEdit, onDelete }: Role
         roles.map((role) => (
           <ManagementCard key={role.id}>
             <Text style={styles.name}>{role.name}</Text>
-            <Text style={styles.description}>{role.description || '-'}</Text>
 
             {/* Permisos del rol */}
             <View style={styles.pills}>
-              {role.permissions.map((permission) => (
-                <Pill key={permission} label={permission} tone="primary" />
-              ))}
+              {role.permissions.length === 0 ? (
+                <Text style={styles.description}>{texts.noPermissions}</Text>
+              ) : (
+                role.permissions.map((permission) => <Pill key={permission} label={permission} tone="primary" />)
+              )}
             </View>
 
             <View style={styles.footer}>
               <Text style={styles.users}>{texts.users(userCounts[role.id] ?? 0)}</Text>
               <View style={styles.actions}>
                 <ActionIconButton icon="edit" onPress={() => onEdit(role)} />
-                <ActionIconButton icon="delete" danger onPress={() => onDelete(role)} />
               </View>
             </View>
           </ManagementCard>
