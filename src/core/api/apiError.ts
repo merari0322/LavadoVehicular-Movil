@@ -49,6 +49,10 @@ const TRANSLATED_CODES = new Set([
   'OPERATOR_NOT_FOUND',
   'BOOKING_NOT_FOUND',
   'BOOKING_SERVICE_UNAVAILABLE',
+  // canje de cupones de fidelización (payment-service, ADR-015)
+  'PROMOTION_NOT_FOUND',
+  'PROMOTION_NOT_REDEEMABLE',
+  'PROMOTION_ALREADY_REDEEMED',
   'NETWORK_ERROR',
 ]);
 
