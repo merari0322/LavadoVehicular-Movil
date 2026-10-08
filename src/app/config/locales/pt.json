@@ -191,7 +191,11 @@
     },
     "BENEFITS": {
       "TITLE": "Seus benefícios e promoções",
-      "LOYALTY_PROGRESS": "Progresso de fidelidade"
+      "LOYALTY_PROGRESS": "Progresso de fidelidade",
+      "POINTS_OF": "{{current}} de {{goal}} pontos",
+      "UNLOCKED": "Já desbloqueada! Resgate ao pagar.",
+      "LOCKED": "Faltam {{points}} pontos para desbloquear",
+      "EMPTY": "Ainda não há promoções disponíveis."
     },
     "SERVICES_HISTORY": {
       "TITLE": "Meu histórico de serviços",
@@ -791,6 +795,11 @@
       "CANCEL": "Cancelar reserva",
       "SECURE": "Pagamento 100% seguro · Verificação imediata pela equipe do box"
     },
+    "COUPON": {
+      "PLACEHOLDER": "Código do cupom",
+      "APPLY": "Aplicar",
+      "APPLIED": "Cupom aplicado: {{name}}"
+    },
     "CANCEL_CONFIRM": {
       "TITLE": "Cancelar reserva?",
       "MESSAGE": "A reserva {{code}} será cancelada e o horário será liberado. Esta ação não pode ser desfeita.",
@@ -1063,6 +1072,9 @@
     "OPERATOR_NOT_FOUND": "Operador não encontrado.",
     "BOOKING_NOT_FOUND": "Reserva não encontrada.",
     "BOOKING_SERVICE_UNAVAILABLE": "O serviço de reservas não responde. Tente novamente em instantes.",
+    "PROMOTION_NOT_FOUND": "Esse cupom não existe.",
+    "PROMOTION_NOT_REDEEMABLE": "Esse cupom não está vigente ou você ainda não tem os pontos necessários.",
+    "PROMOTION_ALREADY_REDEEMED": "Você já resgatou esse cupom nesta reserva.",
     "NETWORK_ERROR": "Não foi possível conectar ao servidor. Tente novamente em instantes.",
     "UNEXPECTED": "Ocorreu um erro inesperado. Tente novamente.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "Você não pode desativar sua própria conta"

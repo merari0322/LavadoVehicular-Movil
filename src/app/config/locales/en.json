@@ -191,7 +191,11 @@
     },
     "BENEFITS": {
       "TITLE": "Your benefits and promotions",
-      "LOYALTY_PROGRESS": "Loyalty progress"
+      "LOYALTY_PROGRESS": "Loyalty progress",
+      "POINTS_OF": "{{current}} of {{goal}} points",
+      "UNLOCKED": "Unlocked! Redeem it when you pay.",
+      "LOCKED": "{{points}} points to go to unlock it",
+      "EMPTY": "No promotions available yet."
     },
     "SERVICES_HISTORY": {
       "TITLE": "My service history",
@@ -791,6 +795,11 @@
       "CANCEL": "Cancel booking",
       "SECURE": "100% secure payment · Immediate verification by the bay team"
     },
+    "COUPON": {
+      "PLACEHOLDER": "Coupon code",
+      "APPLY": "Apply",
+      "APPLIED": "Coupon applied: {{name}}"
+    },
     "CANCEL_CONFIRM": {
       "TITLE": "Cancel booking?",
       "MESSAGE": "Booking {{code}} will be cancelled and the time slot will be released. This action cannot be undone.",
@@ -1063,6 +1072,9 @@
     "OPERATOR_NOT_FOUND": "Operator not found.",
     "BOOKING_NOT_FOUND": "Booking not found.",
     "BOOKING_SERVICE_UNAVAILABLE": "The booking service is not responding. Try again in a moment.",
+    "PROMOTION_NOT_FOUND": "That coupon doesn't exist.",
+    "PROMOTION_NOT_REDEEMABLE": "That coupon isn't active, or you haven't reached the points it needs yet.",
+    "PROMOTION_ALREADY_REDEEMED": "You already redeemed this coupon on this booking.",
     "NETWORK_ERROR": "Cannot reach the server. Please try again in a moment.",
     "UNEXPECTED": "An unexpected error occurred. Please try again.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "You cannot disable your own account"
