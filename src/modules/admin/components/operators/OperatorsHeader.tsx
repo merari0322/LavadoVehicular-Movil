@@ -7,13 +7,12 @@ import { withAlpha } from '../../../../shared/utils/color';
 import { OPERATOR_TEXTS } from '../../constants/operatorTexts';
 
 interface OperatorsHeaderProps {
-  // opcional: sin él no se muestra el botón (las bahías van en cada reserva)
-  onAssignShifts?: () => void;
   onCreate: () => void;
 }
 
-// Encabezado de la lista: título y botones principales
-export function OperatorsHeader({ onAssignShifts, onCreate }: OperatorsHeaderProps) {
+// Encabezado de la lista: título y botón de crear. "Asignar turnos" (operario fijo en una
+// bahía) fue removido: las bahías van por reserva (ADR-010/015), no por turno fijo.
+export function OperatorsHeader({ onCreate }: OperatorsHeaderProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -30,12 +29,6 @@ export function OperatorsHeader({ onAssignShifts, onCreate }: OperatorsHeaderPro
       </View>
 
       <View style={styles.actions}>
-        {onAssignShifts ? (
-          <Pressable style={[styles.button, styles.outlineButton]} onPress={onAssignShifts}>
-            <MaterialIcons name="event" size={20} color={colors.text} />
-            <Text style={styles.outlineText}>{OPERATOR_TEXTS.assignShifts}</Text>
-          </Pressable>
-        ) : null}
         <Pressable style={[styles.button, styles.primaryButton]} onPress={onCreate}>
           <MaterialIcons name="person-add" size={20} color={colors.onPrimary} />
           <Text style={styles.primaryText}>{OPERATOR_TEXTS.newOperator}</Text>

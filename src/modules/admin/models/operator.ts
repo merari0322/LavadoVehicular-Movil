@@ -83,11 +83,8 @@ export interface OperatorFormValues {
 
 export type AbsenceFormValues = Absence;
 
-export interface AssignShiftValues {
-  operatorId: string;
-  status: OperatorStatus;
-  bayId: string;
-}
+// "Asignar turno" (operario fijo en una bahía) fue removido: ADR-010/015, el operario no queda
+// fijo en una bahía por turno, el par operario-bahía es por reserva.
 
 // ---------------------------------------------------------------
 // Detalle del operario
