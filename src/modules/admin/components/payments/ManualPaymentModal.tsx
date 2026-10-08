@@ -37,15 +37,18 @@ export function ManualPaymentModal({ visible, onClose, onSubmit }: ManualPayment
   const texts = PAYMENT_TEXTS.form;
 
   // reservas que se pueden pagar (últimos 30 días y la próxima semana) y cuentas activas
-  const [bookings, setBookings] = useState<{ id: number; label: string; total: number }[]>([]);
+  const [bookings, setBookings] = useState<{ id: number; label: string }[]>([]);
   const [accounts, setAccounts] = useState<SelectOption[]>([]);
   const [bookingId, setBookingId] = useState('');
   const [accountId, setAccountId] = useState('');
+  // opcional: payment-service la usa para no aceptar la misma transferencia en dos reservas
+  const [reference, setReference] = useState('');
 
   // Cada vez que se abre el modal se recargan las opciones
   useEffect(() => {
     if (!visible) return;
     setBookingId('');
+    setReference('');
     const from = new Date();
     from.setDate(from.getDate() - 30);
     const to = new Date();
@@ -58,7 +61,6 @@ export function ManualPaymentModal({ visible, onClose, onSubmit }: ManualPayment
             .filter((b) => b.status === 'CONFIRMED' || b.status === 'IN_PROGRESS' || b.status === 'COMPLETED')
             .map((b) => ({
               id: b.id,
-              total: b.total,
               label: `${b.code} · ${b.services.map((x) => x.name).join(', ')} · ${b.vehicle?.licensePlateFormatted ?? ''}`,
             })),
         ),
@@ -79,9 +81,30 @@ export function ManualPaymentModal({ visible, onClose, onSubmit }: ManualPayment
   const selected = bookings.find((b) => String(b.id) === bookingId);
   const isValid = !!selected && accountId !== '';
 
+  // lo que se va a cobrar según payment-service: el total de la reserva menos los cupones canjeados.
+  // undefined = cargando, null = no se pudo consultar (no se adivina con el total)
+  const [amountDue, setAmountDue] = useState<number | null | undefined>(undefined);
+  useEffect(() => {
+    if (!bookingId) return;
+    let current = true;
+    setAmountDue(undefined);
+    paymentService
+      .amountDue(Number(bookingId))
+      .then((due) => current && setAmountDue(due.amountDue))
+      .catch(() => current && setAmountDue(null));
+    return () => {
+      current = false;
+    };
+  }, [bookingId]);
+  const amountLabel = !selected || amountDue === null ? '—' : amountDue === undefined ? '…' : formatCOP(amountDue);
+
   const handleSubmit = () => {
     if (!isValid) return;
-    onSubmit({ bookingId: Number(bookingId), paymentAccountId: Number(accountId) });
+    onSubmit({
+      bookingId: Number(bookingId),
+      paymentAccountId: Number(accountId),
+      transactionReference: reference.trim() || null,
+    });
   };
 
   return (
@@ -118,12 +141,25 @@ export function ManualPaymentModal({ visible, onClose, onSubmit }: ManualPayment
 
             <View style={styles.row}>
               <ReservationField label={texts.amount} style={styles.flex}>
-                <TextInput style={styles.input} value={selected ? formatCOP(selected.total) : '—'} editable={false} />
+                <TextInput style={styles.input} value={amountLabel} editable={false} />
               </ReservationField>
               <ReservationField label={texts.method} style={styles.methodField}>
                 <SelectField value={accountId} options={accounts} onChange={setAccountId} />
               </ReservationField>
             </View>
+
+            <ReservationField label={texts.reference}>
+              <TextInput
+                style={styles.input}
+                value={reference}
+                onChangeText={setReference}
+                placeholder={texts.referencePlaceholder}
+                placeholderTextColor={colors.textMuted}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                maxLength={100}
+              />
+            </ReservationField>
           </ScrollView>
 
           {/* Botones */}

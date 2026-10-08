@@ -35,6 +35,7 @@ export const AdminPaymentsScreen = () => {
     clearFilters,
     approvePayment,
     rejectPayment,
+    refundPayment,
     createManualPayment,
   } = usePayments();
 
@@ -67,6 +68,26 @@ export const AdminPaymentsScreen = () => {
     report(await rejectPayment(id, reason));
   };
 
+  // Reembolsar es irreversible (revierte los puntos de la reserva): se confirma antes
+  const handleRefund = (id: string) => {
+    const payment = filteredPayments.find((item) => item.id === id);
+    const code = payment?.code ?? id;
+    const texts = PAYMENT_TEXTS.review;
+    setSelectedPayment(null);
+    Alert.alert(texts.refundTitle, texts.refundMessage(code), [
+      { text: t('COMMON.CANCEL'), style: 'cancel' },
+      {
+        text: texts.refundConfirm,
+        style: 'destructive',
+        onPress: async () => {
+          const error = await refundPayment(id);
+          if (error) report(error);
+          else Alert.alert(texts.refundedTitle, texts.refundedMessage(code));
+        },
+      },
+    ]);
+  };
+
   // Exporta los pagos filtrados en CSV usando el menú de compartir
   const handleExport = async () => {
     const header = [...PAYMENT_TEXTS.csvHeaders];
@@ -79,7 +100,7 @@ export const AdminPaymentsScreen = () => {
         item.reference,
         PAYMENT_TEXTS.methods[item.method],
         String(item.amount),
-        String(item.declaredAmount),
+        item.declaredAmount === null ? '' : String(item.declaredAmount),
         isoToDisplay(item.date),
         item.time,
         item.serviceName,
@@ -156,6 +177,7 @@ export const AdminPaymentsScreen = () => {
         onClose={() => setSelectedPayment(null)}
         onApprove={handleApprove}
         onReject={handleReject}
+        onRefund={handleRefund}
       />
     </AdminLayout>
   );

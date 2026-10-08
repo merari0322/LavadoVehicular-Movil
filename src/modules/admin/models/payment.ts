@@ -1,10 +1,11 @@
 // Modelos y tipos del módulo de pagos
 
-export type PaymentStatus = 'pending' | 'approved' | 'rejected';
+// pending agrupa PENDING e IN_REVIEW de payment-service (los dos esperan decisión del admin)
+export type PaymentStatus = 'pending' | 'approved' | 'rejected' | 'refunded';
 export type PaymentMethod = 'cash' | 'nequi' | 'daviplata' | 'bancolombia';
 
 // Orden en el que aparecen las opciones en los selectores
-export const PAYMENT_STATUSES: PaymentStatus[] = ['pending', 'approved', 'rejected'];
+export const PAYMENT_STATUSES: PaymentStatus[] = ['pending', 'approved', 'rejected', 'refunded'];
 export const PAYMENT_METHODS: PaymentMethod[] = ['cash', 'nequi', 'daviplata', 'bancolombia'];
 
 export interface Payment {
@@ -17,7 +18,7 @@ export interface Payment {
   reference: string; // Referencia de la transacción (ej. NQ-8841920)
   method: PaymentMethod;
   amount: number; // Monto a pagar según el servicio (COP)
-  declaredAmount: number; // Monto que aparece en el comprobante (COP)
+  declaredAmount: number | null; // Monto que el cliente dice haber pagado (COP); null si no lo indicó
   date: string; // Formato ISO: YYYY-MM-DD
   time: string; // Formato HH:mm
   serviceName: string;
@@ -42,6 +43,8 @@ export interface Payment {
 export interface ManualPaymentValues {
   bookingId: number;
   paymentAccountId: number;
+  // opcional: payment-service la usa para no aceptar la misma transferencia en dos reservas
+  transactionReference: string | null;
 }
 
 // Filtros de la lista de pagos

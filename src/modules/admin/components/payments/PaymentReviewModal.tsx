@@ -33,6 +33,8 @@ interface PaymentReviewModalProps {
   onClose: () => void;
   onApprove: (id: string) => void;
   onReject: (id: string, reason: string) => void;
+  // solo para pagos aprobados; sin él no se muestra el botón (ej. desde el dashboard)
+  onRefund?: (id: string) => void;
 }
 
 const texts = PAYMENT_TEXTS.review;
@@ -60,7 +62,32 @@ function InfoBlock({ label, value, detail }: { label: string; value: string; det
 // Comparación entre el monto a pagar y el declarado en el comprobante
 function AmountComparison({ payment }: { payment: Payment }) {
   const { colors, styles } = useThemedStyles();
-  const { user } = useSession();
+
+  // el cliente no indicó cuánto pagó: no hay nada que comparar, se revisa en la imagen
+  if (payment.declaredAmount === null) {
+    return (
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{texts.comparison}</Text>
+        <View style={styles.twoColumns}>
+          <View style={styles.flex}>
+            <Text style={styles.infoLabel}>{texts.amountDue}</Text>
+            <Text style={styles.infoValue}>{formatCOP(payment.amount)}</Text>
+          </View>
+          <View style={styles.flex}>
+            <Text style={styles.infoLabel}>{texts.amountDeclared}</Text>
+            <Text style={styles.infoValue}>{texts.notDeclared}</Text>
+          </View>
+        </View>
+        <View style={[styles.resultBox, { backgroundColor: withAlpha(colors.textMuted, 0.12) }]}>
+          <MaterialIcons name="info" size={22} color={colors.textSecondary} />
+          <View style={styles.flex}>
+            <Text style={[styles.resultTitle, { color: colors.textSecondary }]}>{texts.notDeclaredTitle}</Text>
+            <Text style={styles.resultText}>{texts.notDeclaredText}</Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
 
   const difference = payment.declaredAmount - payment.amount;
   const matches = difference === 0;
@@ -111,7 +138,7 @@ function AmountComparison({ payment }: { payment: Payment }) {
 }
 
 // Modal para revisar un pago: aprobar, rechazar o consultar el recibo
-export function PaymentReviewModal({ payment, onClose, onApprove, onReject }: PaymentReviewModalProps) {
+export function PaymentReviewModal({ payment, onClose, onApprove, onReject, onRefund }: PaymentReviewModalProps) {
   const { colors, styles } = useThemedStyles();
   const { user } = useSession();
 
@@ -167,7 +194,7 @@ export function PaymentReviewModal({ payment, onClose, onApprove, onReject }: Pa
       `${texts.service}: ${payment.serviceName}`,
       `${texts.method}: ${PAYMENT_TEXTS.methods[payment.method]}`,
       `${texts.reference}: ${payment.reference}`,
-      `${texts.amount}: ${formatCOP(payment.declaredAmount)}`,
+      `${texts.amount}: ${formatCOP(payment.declaredAmount ?? payment.amount)}`,
       `${texts.dateTime}: ${formatDateTime(payment.date, payment.time)}`,
     ].join('\n');
 
@@ -326,6 +353,15 @@ export function PaymentReviewModal({ payment, onClose, onApprove, onReject }: Pa
                         <Text style={styles.filledText}>{texts.approve}</Text>
                       </Pressable>
                     </>
+                  ) : null}
+
+                  {isApproved && onRefund ? (
+                    <Pressable
+                      style={[styles.button, styles.rejectButton]}
+                      onPress={() => onRefund(payment.id)}
+                    >
+                      <Text style={styles.rejectText}>{texts.refund}</Text>
+                    </Pressable>
                   ) : null}
 
                   {isApproved ? (

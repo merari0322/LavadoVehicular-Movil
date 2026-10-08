@@ -5,6 +5,7 @@ import {
   PaymentFilters,
   PaymentMethod,
   PaymentStatsData,
+  PaymentStatus,
 } from '../models/payment';
 import { getTodayISO } from '../utils/reservationUtils';
 import { useSharedState } from '../../../shared/hooks/useSharedState';
@@ -28,7 +29,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
 // pago de payment-service -> modelo que pintan las tarjetas y el modal de revisión
 function toPayment(p: PaymentView): Payment {
   const reported = p.reportedAtUtc ? new Date(p.reportedAtUtc) : null;
-  const status = p.status === 'APPROVED' ? 'approved' : p.status === 'REJECTED' || p.status === 'REFUNDED' ? 'rejected' : 'pending';
+  const status: PaymentStatus =
+    p.status === 'APPROVED' ? 'approved' : p.status === 'REJECTED' ? 'rejected' : p.status === 'REFUNDED' ? 'refunded' : 'pending';
   return {
     id: String(p.id),
     code: `#PAG-${p.id}`,
@@ -40,7 +42,7 @@ function toPayment(p: PaymentView): Payment {
     reference: p.transactionReference ?? '',
     method: methodOf(p.account?.methodCode),
     amount: p.amount,
-    declaredAmount: p.amount,
+    declaredAmount: p.reportedAmount,
     date: reported ? `${reported.getFullYear()}-${pad(reported.getMonth() + 1)}-${pad(reported.getDate())}` : (p.booking?.date ?? getTodayISO()),
     time: reported ? `${pad(reported.getHours())}:${pad(reported.getMinutes())}` : '',
     serviceName: p.booking?.services ?? '',
@@ -133,9 +135,12 @@ export function usePayments() {
 
   const rejectPayment = (id: string, reason: string) => run(() => paymentService.reject(Number(id), reason));
 
+  // Devuelve un pago aprobado; payment-service revierte los puntos de la reserva
+  const refundPayment = (id: string) => run(() => paymentService.refund(Number(id)));
+
   // Pago recibido en caja para una reserva real (queda aprobado con su total)
   const createManualPayment = (values: ManualPaymentValues) =>
-    run(() => paymentService.registerManual(values.bookingId, values.paymentAccountId));
+    run(() => paymentService.registerManual(values.bookingId, values.paymentAccountId, values.transactionReference));
 
   return {
     payments,
@@ -148,6 +153,7 @@ export function usePayments() {
     clearFilters,
     approvePayment,
     rejectPayment,
+    refundPayment,
     createManualPayment,
   };
 }

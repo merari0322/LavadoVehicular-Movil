@@ -33,7 +33,7 @@ export function PaymentReceipt({ payment }: { payment: Payment }) {
   const texts = PAYMENT_TEXTS.review;
 
   const isCash = payment.method === 'cash';
-  const isRejected = payment.status === 'rejected';
+  const isRejected = payment.status === 'rejected' || payment.status === 'refunded';
   const title = isCash ? texts.cashTitle : `${PAYMENT_TEXTS.methods[payment.method]} Colombia`;
 
   // El grosor de cada barra sale de la referencia, así cada pago tiene su propio código
@@ -63,7 +63,7 @@ export function PaymentReceipt({ payment }: { payment: Payment }) {
         />
       </View>
 
-      <Text style={styles.amount}>{formatCurrencyExact(payment.declaredAmount)}</Text>
+      <Text style={styles.amount}>{formatCurrencyExact(payment.declaredAmount ?? payment.amount)}</Text>
 
       <View style={styles.rows}>
         <ReceiptRow label={texts.to} value={payment.payee || '—'} />

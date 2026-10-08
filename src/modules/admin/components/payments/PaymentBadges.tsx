@@ -13,6 +13,7 @@ export function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
     pending: { background: colors.warningSoft, text: colors.warning },
     approved: { background: colors.successSoft, text: colors.success },
     rejected: { background: colors.errorSoft, text: colors.error },
+    refunded: { background: withAlpha(colors.textMuted, 0.18), text: colors.textSecondary },
   };
 
   const { background, text } = palette[status];

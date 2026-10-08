@@ -17,6 +17,7 @@ const ACTION_LABEL: Record<PaymentStatus, string> = {
   pending: PAYMENT_TEXTS.list.review,
   approved: PAYMENT_TEXTS.list.receipt,
   rejected: PAYMENT_TEXTS.list.reason,
+  refunded: PAYMENT_TEXTS.list.receipt,
 };
 
 // Tarjeta de un pago (en móvil reemplaza a la fila de la tabla)
