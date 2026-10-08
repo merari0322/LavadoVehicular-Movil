@@ -101,6 +101,7 @@ const es = {
     empty: 'No hay permisos configurados',
     emptyHint: 'Edita un rol para asignarle permisos',
     noPermissions: 'Sin permisos',
+    retryHint: 'Toca para intentar de nuevo',
     // se deja como fallback de visualización; el catálogo real viene de security-service
     permissions: {
       view_panels: 'Ver paneles',
@@ -295,6 +296,7 @@ const en: typeof es = {
     empty: 'No permissions configured',
     emptyHint: 'Edit a role to assign it permissions',
     noPermissions: 'No permissions',
+    retryHint: 'Tap to try again',
     permissions: { view_panels: 'View panels', create_records: 'Create records', edit_data: 'Edit data', delete: 'Delete' },
     form: {
       editTitle: 'Role permissions',
@@ -456,6 +458,7 @@ const fr: typeof es = {
     empty: 'Aucune permission configurée',
     emptyHint: 'Modifiez un rôle pour lui attribuer des permissions',
     noPermissions: 'Aucune permission',
+    retryHint: 'Touchez pour réessayer',
     permissions: { view_panels: 'Voir les panneaux', create_records: 'Créer des registres', edit_data: 'Modifier les données', delete: 'Supprimer' },
     form: {
       editTitle: 'Permissions du rôle',
@@ -617,6 +620,7 @@ const pt: typeof es = {
     empty: 'Nenhuma permissão configurada',
     emptyHint: 'Edite uma função para atribuir permissões',
     noPermissions: 'Sem permissões',
+    retryHint: 'Toque para tentar novamente',
     permissions: { view_panels: 'Ver painéis', create_records: 'Criar registros', edit_data: 'Editar dados', delete: 'Excluir' },
     form: {
       editTitle: 'Permissões da função',
