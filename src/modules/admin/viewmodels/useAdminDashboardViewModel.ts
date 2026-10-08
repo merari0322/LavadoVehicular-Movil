@@ -3,15 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useSession } from '../../../core/services/auth';
 import { DASHBOARD_TEXTS } from '../constants/dashboardTexts';
 import { OperatorStatus, OperatorStatusValue, RevenueDay } from '../types/dashboard.types';
-import { getTodayISO } from '../utils/reservationUtils';
+import { addDays, getTodayISO } from '../utils/reservationUtils';
 import { usePayments } from './usePayments';
 import { useOperators } from './useOperators';
 import { useReservations } from './useReservations';
 
-// ingresos de la semana (lunes a domingo): vendrán de commercial-service
-// TODO: calcularlos con los pagos aprobados cuando exista el backend de pagos
-const WEEKLY_AMOUNTS = [520000, 610000, 450000, 680000, 790000, 1100000, 670000];
-// comparación con ayer (dato del reporte diario)
+// comparación con ayer (dato del reporte diario: todavía no hay un endpoint que lo calcule)
 const VS_YESTERDAY = 3;
 
 export function formatCOP(amount: number): string {
@@ -94,21 +91,32 @@ export function useAdminDashboardViewModel() {
     [operators],
   );
 
+  // ingresos reales de la semana (lunes a domingo): suma de los pagos aprobados de cada día
+  const weeklyAmounts = useMemo<number[]>(() => {
+    const todayIndex = (new Date().getDay() + 6) % 7;
+    const weekDates = Array.from({ length: 7 }, (_, index) => addDays(index - todayIndex));
+    return weekDates.map((date) =>
+      payments
+        .filter((item) => item.date === date && item.status === 'approved')
+        .reduce((sum, item) => sum + item.amount, 0),
+    );
+  }, [payments]);
+
   // barras de la semana con los nombres cortos de los días en el idioma actual
   const weeklyRevenue = useMemo<RevenueDay[]>(() => {
     const days = t('CALENDAR.DAYS_SHORT', { returnObjects: true }) as string[];
     const todayIndex = (new Date().getDay() + 6) % 7;
-    return WEEKLY_AMOUNTS.map((amount, index) => ({
+    return weeklyAmounts.map((amount, index) => ({
       day: Array.isArray(days) ? days[index] : String(index + 1),
       amount,
       label: shortAmount(amount),
       isToday: index === todayIndex,
     }));
-  }, [t]);
+  }, [t, weeklyAmounts]);
 
-  const maxRevenue = Math.max(...WEEKLY_AMOUNTS);
-  const weekTotal = WEEKLY_AMOUNTS.reduce((sum, amount) => sum + amount, 0);
-  const busiestDay = weeklyRevenue[WEEKLY_AMOUNTS.indexOf(maxRevenue)]?.day ?? '';
+  const maxRevenue = Math.max(1, ...weeklyAmounts);
+  const weekTotal = weeklyAmounts.reduce((sum, amount) => sum + amount, 0);
+  const busiestDay = weeklyRevenue[weeklyAmounts.indexOf(Math.max(...weeklyAmounts))]?.day ?? '';
   const barHeightPct = (amount: number) => Math.round((amount / maxRevenue) * 100);
 
   const countByStatus = (status: OperatorStatusValue) => operatorRows.filter((o) => o.status === status).length;
