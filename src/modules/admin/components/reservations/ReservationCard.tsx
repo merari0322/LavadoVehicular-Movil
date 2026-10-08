@@ -24,10 +24,12 @@ export function ReservationCard({ reservation, onView, onAssign }: ReservationCa
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   // repinta la tarjeta cuando llega el catálogo (nombres de servicios y bahías)
-  useReservationCatalog();
+  const { bays } = useReservationCatalog();
 
   const service = getServiceById(reservation.serviceId);
   const operator = useOperatorDirectory().find((item) => item.id === reservation.operatorId);
+  // bahía de esta reserva (ADR-015): el par operario-bahía es por reserva, no un turno fijo
+  const bay = bays.find((item) => String(item.id) === reservation.bayId);
   const endTime = addMinutes(reservation.time, reservation.duration);
 
   return (
@@ -68,11 +70,19 @@ export function ReservationCard({ reservation, onView, onAssign }: ReservationCa
       {/* Operario y estado */}
       <View style={styles.bottomRow}>
         {operator ? (
-          <View style={styles.operatorRow}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{getInitials(operator.name)}</Text>
+          <View style={styles.operatorColumn}>
+            <View style={styles.operatorRow}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{getInitials(operator.name)}</Text>
+              </View>
+              <Text style={styles.operatorName}>{operator.name}</Text>
             </View>
-            <Text style={styles.operatorName}>{operator.name}</Text>
+            {bay ? (
+              <View style={styles.bayRow}>
+                <MaterialIcons name="garage" size={13} color={colors.textSecondary} />
+                <Text style={styles.bayText}>{bay.name}</Text>
+              </View>
+            ) : null}
           </View>
         ) : onAssign && reservation.status !== 'cancelled' && reservation.status !== 'completed' ? (
           <Pressable style={styles.assignButton} onPress={() => onAssign(reservation)} hitSlop={6}>
@@ -134,7 +144,10 @@ const createStyles = (colors: ThemeColors) =>
       justifyContent: 'space-between',
       marginTop: 12,
     },
+    operatorColumn: { gap: 3 },
     operatorRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    bayRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+    bayText: { fontSize: 11, color: colors.textSecondary },
     avatar: {
       width: 30,
       height: 30,
