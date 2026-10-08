@@ -154,6 +154,7 @@ const es = {
     subtitle: 'Últimas modificaciones al horario del negocio',
     empty: 'Aún no hay cambios registrados',
     weekUpdated: 'Horario semanal actualizado',
+    unknownAuthor: 'Otro administrador',
   },
 };
 
@@ -265,6 +266,7 @@ const en: typeof es = {
     subtitle: 'Latest changes to the business hours',
     empty: 'No changes recorded yet',
     weekUpdated: 'Weekly schedule updated',
+    unknownAuthor: 'Another administrator',
   },
 };
 
@@ -376,6 +378,7 @@ const fr: typeof es = {
     subtitle: "Dernières modifications des horaires de l'entreprise",
     empty: 'Aucune modification enregistrée',
     weekUpdated: 'Horaire hebdomadaire modifié',
+    unknownAuthor: 'Un autre administrateur',
   },
 };
 
@@ -487,6 +490,7 @@ const pt: typeof es = {
     subtitle: 'Últimas alterações no horário do negócio',
     empty: 'Ainda não há alterações registradas',
     weekUpdated: 'Horário semanal atualizado',
+    unknownAuthor: 'Outro administrador',
   },
 };
 
