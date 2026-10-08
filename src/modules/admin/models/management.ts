@@ -7,17 +7,32 @@ export const MANAGEMENT_TABS: ManagementTab[] = ['users', 'roles', 'services', '
 // Roles
 // ---------------------------------------------------------------
 
+// ADR-015: los 3 roles son fijos (ADMIN/OPERATOR/CLIENT); id es el código del rol. Los permisos
+// vienen del catálogo real de security-service (security.permission), ya no son estos 4 fijos,
+// pero se deja el tipo para quien todavía los use como fallback de visualización.
 export type Permission = 'view_panels' | 'create_records' | 'edit_data' | 'delete';
 export const PERMISSIONS: Permission[] = ['view_panels', 'create_records', 'edit_data', 'delete'];
 
-export interface Role {
-  id: string;
+export type RoleCode = 'ADMIN' | 'OPERATOR' | 'CLIENT';
+export const ROLE_CODES: RoleCode[] = ['ADMIN', 'OPERATOR', 'CLIENT'];
+
+export interface RolePermissionOption {
+  id: number;
   name: string;
-  description: string;
-  permissions: Permission[];
 }
 
-export type RoleFormValues = Omit<Role, 'id'>;
+export interface Role {
+  id: string; // RoleCode
+  name: string; // etiqueta ya traducida (Administrador/Operario/Cliente)
+  description: string;
+  permissions: string[]; // nombres de los permisos asignados (para mostrar en la tabla)
+  permissionIds: number[]; // ids reales (security.permission), para editar
+}
+
+export interface RoleFormValues {
+  role: RoleCode;
+  permissionIds: number[];
+}
 
 // ---------------------------------------------------------------
 // Usuarios
@@ -88,6 +103,10 @@ export interface Promotion {
   featured: boolean;
   benefits: string[];
   redemptions: number; // Cantidad de canjes del cupón
+  // cupón real (ADR-015): % de descuento que aplica al canjear y puntos necesarios para
+  // desbloquearlo; price/duration/icon/featured/benefits son solo la tarjeta de marketing
+  discountPercent: number;
+  requiredPoints: number;
 }
 
 export type PromotionFormValues = Omit<Promotion, 'id' | 'redemptions'>;

@@ -113,32 +113,16 @@ export const AdminManagementScreen = () => {
   };
 
   // ---------------------------------------------------------------
-  // Roles
+  // Roles (ADR-015: los 3 roles son fijos, solo se editan sus permisos)
   // ---------------------------------------------------------------
 
-  const handleRoleSubmit = (values: RoleFormValues) => {
-    if (roleForm.item) management.updateRole(roleForm.item.id, values);
-    else management.createRole(values);
-    setRoleForm(CLOSED);
-  };
-
-  const handleRoleDelete = (role: Role) => {
-    const assigned = management.roleUserCounts[role.id] ?? 0;
-
-    // Un rol con usuarios asignados no se puede eliminar
-    if (assigned > 0) {
-      Alert.alert(
-        MANAGEMENT_TEXTS.roles.blockedTitle,
-        MANAGEMENT_TEXTS.roles.blockedMessage(role.name, assigned),
-      );
-      return;
+  const handleRoleSubmit = async (values: RoleFormValues) => {
+    try {
+      await management.updateRole(values);
+      setRoleForm(CLOSED);
+    } catch (error) {
+      Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)));
     }
-
-    askDelete(
-      MANAGEMENT_TEXTS.roles.deleteTitle,
-      MANAGEMENT_TEXTS.roles.deleteMessage(role.name),
-      () => management.deleteRole(role.id),
-    );
   };
 
   // ---------------------------------------------------------------
@@ -170,17 +154,24 @@ export const AdminManagementScreen = () => {
   // Promociones
   // ---------------------------------------------------------------
 
-  const handlePromotionSubmit = (values: PromotionFormValues) => {
-    if (promotionForm.item) management.updatePromotion(promotionForm.item.id, values);
-    else management.createPromotion(values);
-    setPromotionForm(CLOSED);
+  const handlePromotionSubmit = async (values: PromotionFormValues) => {
+    try {
+      if (promotionForm.item) await management.updatePromotion(promotionForm.item.id, values);
+      else await management.createPromotion(values);
+      setPromotionForm(CLOSED);
+    } catch (error) {
+      Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)));
+    }
   };
 
   const handlePromotionDelete = (promotion: Promotion) =>
     askDelete(
       MANAGEMENT_TEXTS.promotions.deleteTitle,
       MANAGEMENT_TEXTS.promotions.deleteMessage(promotion.name),
-      () => management.deletePromotion(promotion.id),
+      () =>
+        management.deletePromotion(promotion.id).catch((error) =>
+          Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error))),
+        ),
     );
 
   return (
@@ -211,9 +202,7 @@ export const AdminManagementScreen = () => {
             <RolesTab
               roles={management.roles}
               userCounts={management.roleUserCounts}
-              onCreate={() => setRoleForm({ visible: true, item: null })}
               onEdit={(role) => setRoleForm({ visible: true, item: role })}
-              onDelete={handleRoleDelete}
             />
           ) : null}
 
@@ -237,7 +226,11 @@ export const AdminManagementScreen = () => {
               metrics={management.promotionMetrics}
               onCreate={() => setPromotionForm({ visible: true, item: null })}
               onEdit={(promotion) => setPromotionForm({ visible: true, item: promotion })}
-              onChangeStatus={management.changePromotionStatus}
+              onChangeStatus={(id, status) => {
+                void management.changePromotionStatus(id, status).catch((error) =>
+                  Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error))),
+                );
+              }}
               onDelete={handlePromotionDelete}
             />
           ) : null}
@@ -251,12 +244,16 @@ export const AdminManagementScreen = () => {
         onClose={() => setUserFormVisible(false)}
         onSubmit={handleUserSubmit}
       />
-      <RoleFormModal
-        visible={roleForm.visible}
-        role={roleForm.item}
-        onClose={() => setRoleForm(CLOSED)}
-        onSubmit={handleRoleSubmit}
-      />
+      {roleForm.item ? (
+        <RoleFormModal
+          visible={roleForm.visible}
+          role={roleForm.item}
+          roles={management.roles}
+          permissionsCatalog={management.permissionsCatalog}
+          onClose={() => setRoleForm(CLOSED)}
+          onSubmit={handleRoleSubmit}
+        />
+      ) : null}
       <ServiceFormModal
         visible={serviceForm.visible}
         service={serviceForm.item}

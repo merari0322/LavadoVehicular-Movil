@@ -13,7 +13,7 @@ const ROLE_IDS: UserRole[] = ['ADMIN', 'OPERATOR', 'CLIENT'];
 export function useSystemRoles(): Role[] {
   const { t } = useTranslation();
   return useMemo(
-    () => ROLE_IDS.map((id) => ({ id, name: t(`PROFILE.ROLE.${id}`), description: '', permissions: [] })),
+    () => ROLE_IDS.map((id) => ({ id, name: t(`PROFILE.ROLE.${id}`), description: '', permissions: [], permissionIds: [] })),
     [t],
   );
 }

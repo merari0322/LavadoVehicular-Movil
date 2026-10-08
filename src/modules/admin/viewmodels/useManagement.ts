@@ -5,32 +5,92 @@ import {
   CatalogServiceResponse,
   ServiceCategoryResponse,
 } from '../../../core/services/booking/booking.types';
+import {
+  PromotionView,
+  SavePromotionRequest,
+  paymentService,
+} from '../../../core/services/payments/PaymentService';
+import {
+  PermissionView,
+  RoleCode as BackendRoleCode,
+  RolePermissionsMatrix,
+  rolePermissionsService,
+} from '../../../core/services/users/CustomRoleService';
 import { VehicleTypeResponse, vehicleService } from '../../../core/services/vehicles/VehicleService';
 import {
   ManagedService,
-  ManagedUser,
   Promotion,
   PromotionFormValues,
+  PromotionIcon,
   PromotionMetrics,
-  PromotionStatus,
   Role,
   RoleFormValues,
   ServiceCategory,
   ServiceFormValues,
-  UserFilter,
-  UserFormValues,
 } from '../models/management';
-import {
-  INITIAL_PROMOTIONS,
-  INITIAL_ROLES,
-  INITIAL_USERS,
-  PROMOTION_METRICS,
-} from '../services/managementMock';
-import { getTodayISO } from '../utils/reservationUtils';
 
-// Genera un id único para los registros nuevos (solo los datos que siguen siendo mock)
-const newId = (prefix: string): string =>
-  `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+// etiquetas en español de los 3 roles fijos (ADR-015)
+const ROLE_LABELS: Record<BackendRoleCode, string> = {
+  ADMIN: 'Administrador',
+  OPERATOR: 'Operario',
+  CLIENT: 'Cliente',
+};
+
+// el formulario no pide fecha de fin (solo activa/pausa); se guarda "sin vencimiento"
+const NO_END_DATE = '9999-12-31';
+const DEFAULT_ICON: PromotionIcon = 'directions-car';
+
+// Promoción del payment-service -> promoción de la pantalla
+function toPromotion(view: PromotionView): Promotion {
+  return {
+    id: String(view.id),
+    name: view.name,
+    coupon: view.code,
+    description: view.description ?? '',
+    price: view.price,
+    duration: view.durationMinutes,
+    icon: (view.icon as PromotionIcon) ?? DEFAULT_ICON,
+    status: view.status,
+    startDate: view.validFrom,
+    featured: view.featured,
+    benefits: view.benefits,
+    redemptions: view.redemptions,
+    discountPercent: view.discountPercent,
+    requiredPoints: view.requiredPoints,
+  };
+}
+
+// Promoción de la pantalla -> lo que espera el backend al guardar
+function toSaveRequest(values: PromotionFormValues): SavePromotionRequest {
+  return {
+    code: values.coupon,
+    name: values.name,
+    description: values.description.trim() || null,
+    price: values.price,
+    durationMinutes: values.duration,
+    icon: values.icon,
+    featured: values.featured,
+    benefits: values.benefits,
+    validFrom: values.startDate,
+    validTo: NO_END_DATE,
+    discountPercent: values.discountPercent,
+    requiredPoints: values.requiredPoints,
+  };
+}
+
+// Permisos de un rol fijo (security-service, ADR-015) -> rol de la pantalla
+function toRole(role: BackendRoleCode, matrix: RolePermissionsMatrix): Role {
+  const assigned = matrix.roles.find((r) => r.role === role);
+  const permissionIds = assigned?.permissionIds ?? [];
+  const byId = new Map<number, PermissionView>(matrix.permissions.map((p) => [p.id, p]));
+  return {
+    id: role,
+    name: ROLE_LABELS[role],
+    description: '',
+    permissions: permissionIds.map((id) => byId.get(id)?.name ?? String(id)),
+    permissionIds,
+  };
+}
 
 // Códigos de categoría del booking-service (seed 103: LAVADO, POLICHADO, DETALLADO, INTERIOR)
 // y su equivalente en las pantallas de la app
@@ -82,11 +142,41 @@ function buildServiceRequest(
   };
 }
 
+const ROLE_CODES: BackendRoleCode[] = ['ADMIN', 'OPERATOR', 'CLIENT'];
+
 // Hook con el estado y la lógica de la pantalla de gestión
 export function useManagement() {
-  const [roles, setRoles] = useState<Role[]>(INITIAL_ROLES);
-  const [users, setUsers] = useState<ManagedUser[]>(INITIAL_USERS);
-  const [promotions, setPromotions] = useState<Promotion[]>(INITIAL_PROMOTIONS);
+  // Permisos de los 3 roles fijos, reales (security-service, ADR-015)
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [permissionsCatalog, setPermissionsCatalog] = useState<PermissionView[]>([]);
+
+  const reloadRoles = useCallback(async () => {
+    const matrix = await rolePermissionsService.matrix();
+    setPermissionsCatalog(matrix.permissions);
+    setRoles(ROLE_CODES.map((role) => toRole(role, matrix)));
+  }, []);
+
+  useEffect(() => {
+    void reloadRoles();
+  }, [reloadRoles]);
+
+  // Promociones reales del payment-service (migración 017)
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [promotionMetrics, setPromotionMetrics] = useState<PromotionMetrics>({
+    redemptions: 0,
+    savings: 0,
+    conversion: 0,
+  });
+
+  const reloadPromotions = useCallback(async () => {
+    const [list, metrics] = await Promise.all([paymentService.promotions(), paymentService.promotionMetrics()]);
+    setPromotions(list.map(toPromotion));
+    setPromotionMetrics(metrics);
+  }, []);
+
+  useEffect(() => {
+    void reloadPromotions();
+  }, [reloadPromotions]);
 
   // Servicios reales del booking-service. Categorías y tipos de vehículo se cargan junto
   // con el catálogo para poder armar las tarifas al crear/editar.
@@ -124,89 +214,19 @@ export function useManagement() {
   // Datos calculados
   // ---------------------------------------------------------------
 
-  // Cantidad de usuarios por rol (para la pestaña de roles)
-  const roleUserCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    users.forEach((user) => {
-      counts[user.roleId] = (counts[user.roleId] ?? 0) + 1;
-    });
-    return counts;
-  }, [users]);
-
-  // Números de los filtros de usuarios
-  const userCounts = useMemo<Record<UserFilter, number>>(
-    () => ({
-      enabled: users.filter((user) => user.active).length,
-      registered: users.filter((user) => user.invited).length,
-      disabled: users.filter((user) => !user.active).length,
-    }),
-    [users],
-  );
-
-  // Métricas de promociones
-  const promotionMetrics = useMemo<PromotionMetrics>(
-    () => ({
-      redemptions: promotions.reduce((total, item) => total + item.redemptions, 0),
-      savings: PROMOTION_METRICS.savings,
-      conversion: PROMOTION_METRICS.conversion,
-    }),
-    [promotions],
-  );
+  // Cantidad de usuarios por rol (para la pestaña de roles). Los 3 roles son fijos (ADR-015) y
+  // sí tienen cuentas reales asignadas (useUserAccounts.ts), pero ese hook vive aparte y esta
+  // pantalla no lo consume todavía, así que por ahora queda en 0 (no bloquea nada: los roles ya
+  // no se pueden borrar de todos modos).
+  const roleUserCounts = useMemo<Record<string, number>>(() => ({}), []);
 
   // ---------------------------------------------------------------
-  // Usuarios
+  // Roles (security-service, ADR-015): los 3 roles son fijos, solo se editan sus permisos
   // ---------------------------------------------------------------
 
-  // Indica si un correo ya existe (se ignora el usuario que se está editando)
-  const isEmailTaken = (email: string, ignoreId?: string): boolean =>
-    users.some(
-      (user) => user.id !== ignoreId && user.email.toLowerCase() === email.trim().toLowerCase(),
-    );
-
-  const createUser = (values: UserFormValues) =>
-    setUsers((prev) => [
-      ...prev,
-      {
-        id: newId('usr'),
-        name: values.name,
-        email: values.email,
-        roleId: values.roleId,
-        createdAt: getTodayISO(),
-        invited: values.sendInvitation,
-        active: true,
-      },
-    ]);
-
-  const updateUser = (id: string, values: UserFormValues) =>
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === id
-          ? { ...user, name: values.name, email: values.email, roleId: values.roleId }
-          : user,
-      ),
-    );
-
-  // Habilita o inhabilita la cuenta
-  const toggleUserActive = (id: string) =>
-    setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, active: !user.active } : user)));
-
-  const deleteUser = (id: string) => setUsers((prev) => prev.filter((user) => user.id !== id));
-
-  // ---------------------------------------------------------------
-  // Roles
-  // ---------------------------------------------------------------
-
-  const createRole = (values: RoleFormValues) =>
-    setRoles((prev) => [...prev, { id: newId('role'), ...values }]);
-
-  const updateRole = (id: string, values: RoleFormValues) =>
-    setRoles((prev) => prev.map((role) => (role.id === id ? { ...role, ...values } : role)));
-
-  // Un rol con usuarios asignados no se puede eliminar (devuelve false)
-  const deleteRole = (id: string): boolean => {
-    if (users.some((user) => user.roleId === id)) return false;
-    setRoles((prev) => prev.filter((role) => role.id !== id));
-    return true;
+  const updateRole = async (values: RoleFormValues) => {
+    await rolePermissionsService.update(values.role, values.permissionIds);
+    await reloadRoles();
   };
 
   // ---------------------------------------------------------------
@@ -246,40 +266,40 @@ export function useManagement() {
   };
 
   // ---------------------------------------------------------------
-  // Promociones
+  // Promociones (payment-service, migración 017)
   // ---------------------------------------------------------------
 
-  const createPromotion = (values: PromotionFormValues) =>
-    setPromotions((prev) => [...prev, { id: newId('promo'), redemptions: 0, ...values }]);
+  const createPromotion = async (values: PromotionFormValues) => {
+    await paymentService.createPromotion(toSaveRequest(values));
+    await reloadPromotions();
+  };
 
-  const updatePromotion = (id: string, values: PromotionFormValues) =>
-    setPromotions((prev) => prev.map((item) => (item.id === id ? { ...item, ...values } : item)));
+  const updatePromotion = async (id: string, values: PromotionFormValues) => {
+    await paymentService.updatePromotion(Number(id), toSaveRequest(values));
+    await reloadPromotions();
+  };
 
-  const changePromotionStatus = (id: string, status: PromotionStatus) =>
-    setPromotions((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)));
+  // la pantalla solo alterna activa/pausada; "scheduled" sale sola cuando la fecha es futura
+  const changePromotionStatus = async (id: string, status: Promotion['status']) => {
+    await paymentService.setPromotionActive(Number(id), status !== 'paused');
+    await reloadPromotions();
+  };
 
-  const deletePromotion = (id: string) =>
-    setPromotions((prev) => prev.filter((item) => item.id !== id));
+  const deletePromotion = async (id: string) => {
+    await paymentService.deletePromotion(Number(id));
+    await reloadPromotions();
+  };
 
   return {
     // Datos
     roles,
-    users,
+    permissionsCatalog,
     services,
     promotions,
     roleUserCounts,
-    userCounts,
     promotionMetrics,
-    // Usuarios
-    isEmailTaken,
-    createUser,
-    updateUser,
-    toggleUserActive,
-    deleteUser,
     // Roles
-    createRole,
     updateRole,
-    deleteRole,
     // Servicios
     servicesLoading,
     servicesError,
