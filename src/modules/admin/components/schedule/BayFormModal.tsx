@@ -5,7 +5,6 @@ import { SelectOption } from '../../../../shared/components/forms/SelectField';
 import { FormModal } from '../../../../shared/components/feedback/FormModal';
 import { SCHEDULE_TEXTS } from '../../constants/scheduleTexts';
 import { BAY_STATUSES, Bay, BayFormValues, BayStatus } from '../../models/schedule';
-import { useOperatorDirectory } from '../../viewmodels/useOperatorDirectory';
 
 interface BayFormModalProps {
   visible: boolean;
@@ -17,26 +16,20 @@ interface BayFormModalProps {
 
 const texts = SCHEDULE_TEXTS.bays.form;
 
-// Opciones de los selectores
+// Opciones del selector de estado
 const STATUS_OPTIONS: SelectOption[] = BAY_STATUSES.map((status) => ({
   value: status,
   label: SCHEDULE_TEXTS.bays.status[status],
 }));
 
-
-// Modal para agregar o editar una bahía
+// Modal para agregar o editar una bahía. Sin selector de operario (ADR-015 reafirma ADR-010):
+// el operario no queda fijo en una bahía por turno, el par operario-bahía es por reserva (se
+// asigna en Reservas, no aquí).
 export function BayFormModal({ visible, bay, isNameTaken, onClose, onSubmit }: BayFormModalProps) {
-  // operarios reales (operations-service)
-  const operators = useOperatorDirectory();
-  const OPERATOR_OPTIONS = useMemo<SelectOption[]>(
-    () => [{ value: '', label: SCHEDULE_TEXTS.bays.unassigned }, ...operators.map((o) => ({ value: o.id, label: o.name }))],
-    [operators],
-  );
   const isEditing = bay !== null;
 
   const [name, setName] = useState('');
   const [status, setStatus] = useState<BayStatus>('active');
-  const [operatorId, setOperatorId] = useState('');
   const [touched, setTouched] = useState(false);
 
   // Cada vez que se abre el modal se cargan los datos de la bahía (o valores por defecto)
@@ -44,7 +37,6 @@ export function BayFormModal({ visible, bay, isNameTaken, onClose, onSubmit }: B
     if (!visible) return;
     setName(bay?.name ?? '');
     setStatus(bay?.status ?? 'active');
-    setOperatorId(bay?.operatorId ?? '');
     setTouched(false);
   }, [visible, bay]);
 
@@ -60,7 +52,7 @@ export function BayFormModal({ visible, bay, isNameTaken, onClose, onSubmit }: B
 
   const handleSubmit = () => {
     if (!isValid) return;
-    onSubmit({ name: name.trim(), status, operatorId });
+    onSubmit({ name: name.trim(), status });
   };
 
   return (
@@ -91,13 +83,6 @@ export function BayFormModal({ visible, bay, isNameTaken, onClose, onSubmit }: B
         value={status}
         options={STATUS_OPTIONS}
         onChange={(value) => setStatus(value as BayStatus)}
-      />
-
-      <LabeledSelect
-        label={texts.operator}
-        value={operatorId}
-        options={OPERATOR_OPTIONS}
-        onChange={setOperatorId}
       />
     </FormModal>
   );

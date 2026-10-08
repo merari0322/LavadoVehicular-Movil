@@ -13,7 +13,6 @@ type IconName = keyof typeof MaterialIcons.glyphMap;
 
 interface BayCardProps {
   bay: Bay;
-  operatorName: string; // Vacío = sin asignar
   onChangeStatus: (status: BayStatus) => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -40,8 +39,9 @@ const STATUS_OPTIONS: SelectOption[] = BAY_STATUSES.map((status) => ({
   label: texts.status[status],
 }));
 
-// Tarjeta de una bahía: estado, operario actual y acciones
-export function BayCard({ bay, operatorName, onChangeStatus, onEdit, onDelete }: BayCardProps) {
+// Tarjeta de una bahía: estado y acciones. Sin operario fijo (ADR-015 reafirma ADR-010): el
+// par operario-bahía es por reserva, se ve en Reservas, no aquí.
+export function BayCard({ bay, onChangeStatus, onEdit, onDelete }: BayCardProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -55,13 +55,6 @@ export function BayCard({ bay, operatorName, onChangeStatus, onEdit, onDelete }:
       </View>
 
       <Text style={styles.name}>{bay.name}</Text>
-
-      <View style={styles.operatorRow}>
-        <MaterialIcons name="badge" size={18} color={colors.textSecondary} />
-        <Text style={styles.operatorText}>
-          {texts.currentOperator(operatorName || texts.unassigned)}
-        </Text>
-      </View>
 
       {/* El estado se cambia directamente desde la tarjeta */}
       <Text style={styles.stateLabel}>{texts.state}</Text>

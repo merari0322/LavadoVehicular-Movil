@@ -73,11 +73,12 @@ export type ExceptionFormValues = Omit<ScheduleException, 'id'>;
 export type BayStatus = 'active' | 'maintenance' | 'inactive';
 export const BAY_STATUSES: BayStatus[] = ['active', 'maintenance', 'inactive'];
 
+// Sin operatorId: el operario no queda fijo en una bahía por turno (ADR-015 reafirma ADR-010);
+// el par operario-bahía es por reserva (ver Reservas).
 export interface Bay {
   id: string;
   name: string;
   status: BayStatus;
-  operatorId: string; // '' = sin asignar
 }
 
 export type BayFormValues = Omit<Bay, 'id'>;

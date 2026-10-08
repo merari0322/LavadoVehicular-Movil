@@ -5,7 +5,6 @@ import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
 import { SCHEDULE_TEXTS } from '../../constants/scheduleTexts';
 import { Bay, BayStatus } from '../../models/schedule';
-import { useOperators } from '../../viewmodels/useOperators';
 import { BayCard } from './BayCard';
 
 interface BaysTabProps {
@@ -22,12 +21,6 @@ const texts = SCHEDULE_TEXTS.bays;
 export function BaysTab({ bays, onAdd, onEdit, onChangeStatus, onDelete }: BaysTabProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  // operarios reales (operations-service); aquí se cargan si aún no se habían pedido
-  const { operators } = useOperators();
-
-  // Nombre del operario asignado a una bahía
-  const getOperatorName = (operatorId: string) =>
-    operators.find((operator) => operator.id === operatorId)?.name ?? '';
 
   return (
     <View style={styles.container}>
@@ -50,7 +43,6 @@ export function BaysTab({ bays, onAdd, onEdit, onChangeStatus, onDelete }: BaysT
           <BayCard
             key={bay.id}
             bay={bay}
-            operatorName={getOperatorName(bay.operatorId)}
             onChangeStatus={(status) => onChangeStatus(bay.id, status)}
             onEdit={() => onEdit(bay)}
             onDelete={() => onDelete(bay)}
