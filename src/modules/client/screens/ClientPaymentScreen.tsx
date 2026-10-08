@@ -10,8 +10,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { fontSize, fontWeight, radius, spacing, useTheme } from '../../../app/theme';
 import { RootStackParamList } from '../../../core/navigation/types';
 import { isActiveStatus } from '../../../core/services/booking/bookingDisplay';
-// cuentas del lavadero (con su QR) y reporte del pago: payment-service
-import { PaymentAccount, paymentService } from '../../../core/services/payments/PaymentService';
+// cuentas del lavadero (con su QR), reporte del pago y canje de cupón: payment-service
+import { PaymentAccount, paymentService, RedeemPromotionResult } from '../../../core/services/payments/PaymentService';
 import { apiErrorKey } from '../../../core/api/apiError';
 import { LabeledInput } from '../../../shared/components/forms/LabeledInput';
 import { Pill } from '../../../shared/components/ui/Pill';
@@ -61,7 +61,9 @@ interface SavedPayment {
   method: MethodId;
 }
 
-// TODO: reemplazar el guardado local por el estado real de la reserva (commercial-service)
+// el estado real (si el pago ya se reportó) lo trae el efecto de paymentService.mine() de
+// arriba y pisa esto; aquí solo queda el cronómetro del QR y el método elegido, que son de
+// la sesión y no tienen dónde vivir en el backend
 const storageKey = (code: string) => `@lavado_vehicular/payment/${code}`;
 
 // con bookingId en la ruta se paga esa reserva; sin id, la primera activa (o la más reciente)
@@ -93,7 +95,14 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   const [receipt, setReceipt] = useState<{ name: string; size: number; uri: string; mimeType: string } | null>(null);
   const [reference, setReference] = useState('');
 
-  const total = Math.max(0, (booking?.total ?? 0));
+  // canje de cupón de fidelización (payment-service, ADR-015): puntos acumulados desbloquean
+  // la promoción, se aplica un % de descuento real sobre el total
+  const [couponCode, setCouponCode] = useState('');
+  const [couponResult, setCouponResult] = useState<RedeemPromotionResult | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [redeemingCoupon, setRedeemingCoupon] = useState(false);
+
+  const total = Math.max(0, (booking?.total ?? 0) - (couponResult?.discountAmount ?? 0));
   const isVerifying = flowStep === 'VERIFYING';
   const isReferenceValid = REFERENCE_REGEX.test(reference);
   const canConfirm = !sending && !isVerifying && (method === 'CASH' || (receipt !== null && isReferenceValid));
@@ -182,6 +191,28 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
       return;
     }
     setReceipt({ name: file.name, size: file.size ?? 0, uri: file.uri, mimeType: file.mimeType ?? 'image/jpeg' });
+  };
+
+  const canRedeemCoupon = !isVerifying && !couponResult && !redeemingCoupon && couponCode.trim().length >= 3;
+
+  const redeemCoupon = async () => {
+    if (!canRedeemCoupon || !booking) return;
+    setRedeemingCoupon(true);
+    setCouponError(null);
+    try {
+      const result = await paymentService.redeemCoupon(booking.id, couponCode.trim().toUpperCase());
+      setCouponResult(result);
+    } catch (error) {
+      setCouponError(t(apiErrorKey(error)));
+    } finally {
+      setRedeemingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setCouponResult(null);
+    setCouponCode('');
+    setCouponError(null);
   };
 
   const confirmPayment = async () => {
@@ -382,6 +413,45 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
           {booking.pointsDiscount > 0 ? (
             <InfoRow label={t('PAYMENT.SUMMARY.DISCOUNT')} value={`-${formatCOP(booking.pointsDiscount)} COP`} />
           ) : null}
+
+          {/* canjear un cupón de fidelización (ADR-015): puntos acumulados desbloquean la
+              promoción, se aplica un % de descuento real sobre el total */}
+          {couponResult ? (
+            <View style={[styles.couponApplied, { backgroundColor: colors.successSoft }]}>
+              <MaterialIcons name="local-offer" size={18} color={colors.success} />
+              <Text style={[styles.flex, styles.muted, { color: colors.success }]}>
+                {t('PAYMENT.COUPON.APPLIED', { name: couponResult.promotionName })}
+              </Text>
+              <Text style={[styles.strong, { color: colors.success }]}>-{formatCOP(couponResult.discountAmount)} COP</Text>
+              <Pressable onPress={removeCoupon} disabled={isVerifying} hitSlop={6}>
+                <MaterialIcons name="close" size={18} color={colors.success} />
+              </Pressable>
+            </View>
+          ) : (
+            <View style={styles.couponRow}>
+              <LabeledInput
+                containerStyle={styles.flex}
+                value={couponCode}
+                onChangeText={setCouponCode}
+                placeholder={t('PAYMENT.COUPON.PLACEHOLDER')}
+                autoCapitalize="characters"
+                editable={!isVerifying}
+              />
+              <Pressable
+                onPress={redeemCoupon}
+                disabled={!canRedeemCoupon}
+                style={[styles.couponApply, { backgroundColor: colors.primary, opacity: canRedeemCoupon ? 1 : 0.5 }]}
+              >
+                {redeemingCoupon ? (
+                  <MaterialIcons name="hourglass-top" size={18} color={colors.onPrimary} />
+                ) : (
+                  <Text style={[styles.couponApplyText, { color: colors.onPrimary }]}>{t('PAYMENT.COUPON.APPLY')}</Text>
+                )}
+              </Pressable>
+            </View>
+          )}
+          {couponError ? <Text style={[styles.muted, { color: colors.error }]}>{couponError}</Text> : null}
+
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <InfoRow label={t('PAYMENT.SUMMARY.TOTAL')} value={`${formatCOP(total)} COP`} strong />
           <Text style={[styles.muted, { color: colors.textMuted }]}>{t('PAYMENT.SUMMARY.TAX')}</Text>
@@ -439,4 +509,14 @@ const styles = StyleSheet.create({
   dropzone: { alignItems: 'center', gap: 4, padding: spacing.lg, borderWidth: 1.5, borderStyle: 'dashed', borderRadius: radius.md },
   serviceBox: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: radius.md },
   divider: { height: 1 },
+  couponRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
+  couponApply: { paddingHorizontal: 16, paddingVertical: 11, borderRadius: radius.md },
+  couponApplyText: { fontSize: fontSize.small, fontWeight: fontWeight.bold },
+  couponApplied: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radius.md,
+  },
 });
