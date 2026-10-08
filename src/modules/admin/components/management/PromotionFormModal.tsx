@@ -36,14 +36,10 @@ type Errors = {
   price?: string;
   duration?: string;
   startDate?: string;
+  discountPercent?: string;
 };
 
 const texts = MANAGEMENT_TEXTS.promotions.form;
-
-const ICON_OPTIONS: SelectOption[] = PROMOTION_ICONS.map((icon) => ({
-  value: icon,
-  label: MANAGEMENT_TEXTS.promotions.icons[icon],
-}));
 
 const STATUS_OPTIONS: SelectOption[] = PROMOTION_STATUSES.map((status) => ({
   value: status,
@@ -66,6 +62,8 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
   const [startDate, setStartDate] = useState('');
   const [featured, setFeatured] = useState(false);
   const [benefits, setBenefits] = useState<string[]>([]);
+  const [discountPercent, setDiscountPercent] = useState('');
+  const [requiredPoints, setRequiredPoints] = useState('');
   const [errors, setErrors] = useState<Errors>({});
 
   // Cada vez que se abre el modal se cargan los datos de la promoción (o valores por defecto)
@@ -81,6 +79,8 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
     setStartDate(isoToDisplay(promotion?.startDate ?? getTodayISO()));
     setFeatured(promotion?.featured ?? false);
     setBenefits(promotion?.benefits ?? []);
+    setDiscountPercent(promotion ? String(promotion.discountPercent) : '100');
+    setRequiredPoints(promotion ? String(promotion.requiredPoints) : '0');
     setErrors({});
   }, [visible, promotion]);
 
@@ -103,6 +103,8 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
     if (parseAmount(price) <= 0) found.price = errorTexts.price;
     if (!(Number(duration) > 0)) found.duration = errorTexts.duration;
     if (!displayToISO(startDate)) found.startDate = errorTexts.startDate;
+    const discountValue = Number(discountPercent);
+    if (!(discountValue >= 1 && discountValue <= 100)) found.discountPercent = errorTexts.discountPercent;
 
     if (Object.keys(found).length > 0) {
       setErrors(found);
@@ -120,6 +122,8 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
       startDate: displayToISO(startDate) as string,
       featured,
       benefits: benefits.map((item) => item.trim()).filter(Boolean),
+      discountPercent: discountValue,
+      requiredPoints: Number(requiredPoints) || 0,
     });
   };
 
@@ -205,21 +209,55 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
         />
       </View>
 
+      {/* selector de ícono visual: antes era un desplegable que solo mostraba el nombre del
+          ícono como texto; ahora se ve cada opción como el ícono real */}
+      <ReservationField label={texts.icon}>
+        <View style={styles.iconPicker}>
+          {PROMOTION_ICONS.map((option) => {
+            const selected = option === icon;
+            return (
+              <Pressable
+                key={option}
+                style={[styles.iconOption, selected && styles.iconOptionSelected]}
+                onPress={() => setIcon(option)}
+              >
+                <MaterialIcons name={option} size={22} color={selected ? colors.primary : colors.textSecondary} />
+              </Pressable>
+            );
+          })}
+        </View>
+      </ReservationField>
+
+      <ReservationField label={texts.status}>
+        <SelectField
+          value={status}
+          options={STATUS_OPTIONS}
+          onChange={(value) => setStatus(value as PromotionStatus)}
+        />
+      </ReservationField>
+
       <View style={styles.row}>
-        <ReservationField label={texts.icon} style={styles.flex}>
-          <SelectField
-            value={icon}
-            options={ICON_OPTIONS}
-            onChange={(value) => setIcon(value as PromotionIcon)}
-          />
-        </ReservationField>
-        <ReservationField label={texts.status} style={styles.flex}>
-          <SelectField
-            value={status}
-            options={STATUS_OPTIONS}
-            onChange={(value) => setStatus(value as PromotionStatus)}
-          />
-        </ReservationField>
+        <LabeledInput
+          containerStyle={styles.flex}
+          label={texts.discountPercent}
+          required
+          value={discountPercent}
+          onChangeText={(text) => {
+            setDiscountPercent(text.replace(/\D/g, ''));
+            clearError('discountPercent');
+          }}
+          error={errors.discountPercent}
+          keyboardType="number-pad"
+          maxLength={3}
+        />
+        <LabeledInput
+          containerStyle={styles.flex}
+          label={texts.requiredPoints}
+          value={requiredPoints}
+          onChangeText={(text) => setRequiredPoints(text.replace(/\D/g, ''))}
+          keyboardType="number-pad"
+          maxLength={6}
+        />
       </View>
 
       <LabeledInput
@@ -272,6 +310,18 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     flex: { flex: 1 },
     row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+    iconPicker: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    iconOption: {
+      width: 44,
+      height: 44,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: withAlpha(colors.textMuted, 0.1),
+    },
+    iconOptionSelected: { borderColor: colors.primary, backgroundColor: withAlpha(colors.primary, 0.12) },
     benefitsHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     benefitsTitle: { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
     addButton: {
