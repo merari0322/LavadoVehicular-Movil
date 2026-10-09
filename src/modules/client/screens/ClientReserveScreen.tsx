@@ -300,6 +300,15 @@ export function ClientReserveScreen({ navigation }: Props) {
                       {t('RESERVE.SUMMARY.DURATION')}: {minutes} min
                     </Text>
                   </View>
+                  {/* puntos de fidelización que suma este servicio cuando se aprueba el pago */}
+                  {item.loyaltyPoints > 0 ? (
+                    <View style={styles.row}>
+                      <MaterialIcons name="stars" size={15} color={colors.primary} />
+                      <Text style={[styles.optionSubtitle, { color: colors.primary }]}>
+                        {t('RESERVE.POINTS', { count: item.loyaltyPoints })}
+                      </Text>
+                    </View>
+                  ) : null}
                   {item.description ? (
                     <Text style={[styles.optionSubtitle, { color: colors.text }]}>{item.description}</Text>
                   ) : null}
