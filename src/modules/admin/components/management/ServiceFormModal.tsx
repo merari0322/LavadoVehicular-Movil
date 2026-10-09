@@ -36,6 +36,7 @@ export function ServiceFormModal({ visible, service, onClose, onSubmit }: Servic
   const [description, setDescription] = useState('');
   const [duration, setDuration] = useState(String(SERVICE_DURATIONS[1]));
   const [category, setCategory] = useState<ServiceCategory>('wash');
+  const [loyaltyPoints, setLoyaltyPoints] = useState('0');
 
   // Cada vez que se abre el modal se cargan los datos del servicio (o valores por defecto)
   useEffect(() => {
@@ -45,6 +46,7 @@ export function ServiceFormModal({ visible, service, onClose, onSubmit }: Servic
     setDescription(service?.description ?? '');
     setDuration(String(service?.duration ?? SERVICE_DURATIONS[1]));
     setCategory(service?.category ?? 'wash');
+    setLoyaltyPoints(String(service?.loyaltyPoints ?? 0));
   }, [visible, service]);
 
   // Opciones de duración (incluye la actual si no está en la lista)
@@ -69,6 +71,8 @@ export function ServiceFormModal({ visible, service, onClose, onSubmit }: Servic
       description: description.trim(),
       duration: Number(duration),
       category,
+      // solo dígitos: vacío equivale a 0 (el servicio no da puntos)
+      loyaltyPoints: Number(loyaltyPoints) || 0,
     });
   };
 
@@ -96,6 +100,7 @@ export function ServiceFormModal({ visible, service, onClose, onSubmit }: Servic
         value={price}
         onChangeText={(text) => setPrice(maskAmount(text))}
         placeholder={texts.pricePlaceholder}
+        hint={texts.priceHint}
         keyboardType="number-pad"
         maxLength={11}
         prefix="$"
@@ -120,6 +125,17 @@ export function ServiceFormModal({ visible, service, onClose, onSubmit }: Servic
           onChange={(value) => setCategory(value as ServiceCategory)}
         />
       </ReservationField>
+
+      {/* puntos de fidelización: los gana el cliente cuando su pago queda aprobado */}
+      <LabeledInput
+        label={texts.points}
+        value={loyaltyPoints}
+        onChangeText={(text) => setLoyaltyPoints(text.replace(/\D/g, ''))}
+        placeholder="0"
+        hint={texts.pointsHint}
+        keyboardType="number-pad"
+        maxLength={5}
+      />
     </FormModal>
   );
 }
