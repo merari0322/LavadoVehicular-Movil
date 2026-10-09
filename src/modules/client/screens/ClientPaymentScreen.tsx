@@ -47,8 +47,6 @@ const METHODS: { id: MethodId; icon: IconName }[] = [
   { id: 'CASH', icon: 'payments' },
 ];
 
-// vigencia del QR
-const QR_DURATION_MS = 15 * 60 * 1000;
 // la referencia debe tener entre 8 y 12 caracteres alfanuméricos
 const REFERENCE_REGEX = /^[A-Za-z0-9]{8,12}$/;
 const MAX_RECEIPT_BYTES = 10 * 1024 * 1024;
@@ -63,14 +61,13 @@ function methodIdOf(code: string): MethodId {
 
 // lo que se guarda del pago para que no se pierda al salir de la pantalla
 interface SavedPayment {
-  qrExpiresAt: number;
   flowStep: FlowStep;
   method: MethodId;
 }
 
 // el estado real (si el pago ya se reportó) lo trae el efecto de paymentService.mine() de
-// arriba y pisa esto; aquí solo queda el cronómetro del QR y el método elegido, que son de
-// la sesión y no tienen dónde vivir en el backend
+// arriba y pisa esto; aquí solo queda el método elegido, que es de la sesión. El QR de la cuenta
+// es estático: no vence, por eso no hay cronómetro
 const storageKey = (code: string) => `@lavado_vehicular/payment/${code}`;
 
 // con bookingId en la ruta se paga esa reserva; sin id, la primera activa (o la más reciente)
@@ -83,7 +80,7 @@ function pickBooking(bookings: ClientBookingItem[], bookingId?: number): ClientB
   return active[0] ?? [...bookings].sort(bySchedule).reverse()[0] ?? null;
 }
 
-// pago de la reserva real (booking-service): método, QR con temporizador, comprobante y referencia
+// pago de la reserva real (booking-service): método, QR de la cuenta, comprobante y referencia
 export function ClientPaymentScreen({ navigation, route }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation();
@@ -97,8 +94,6 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
 
   const [method, setMethod] = useState<MethodId>('NEQUI');
   const [flowStep, setFlowStep] = useState<FlowStep>('PENDING');
-  const [qrExpiresAt, setQrExpiresAt] = useState(() => Date.now() + QR_DURATION_MS);
-  const [secondsLeft, setSecondsLeft] = useState(QR_DURATION_MS / 1000);
   const [receipt, setReceipt] = useState<{ name: string; size: number; uri: string; mimeType: string } | null>(null);
   const [reference, setReference] = useState('');
   // monto que el cliente pagó según su comprobante (solo dígitos); null = no lo ha cambiado, se asume el total
@@ -120,6 +115,16 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   const isPaidAmountValid = Number.isFinite(paidAmount) && paidAmount > 0;
   const canConfirm =
     !sending && !isVerifying && (method === 'CASH' || (receipt !== null && isReferenceValid && isPaidAmountValid));
+  // lo que le falta al cliente para poder confirmar: se muestra debajo del botón deshabilitado
+  // para que no quede bloqueado sin explicación
+  const missingRequirements: string[] =
+    isVerifying || method === 'CASH'
+      ? []
+      : [
+          ...(receipt ? [] : ['PAYMENT.CONFIRM.MISSING.RECEIPT']),
+          ...(isReferenceValid ? [] : ['PAYMENT.CONFIRM.MISSING.REFERENCE']),
+          ...(isPaidAmountValid ? [] : ['PAYMENT.CONFIRM.MISSING.AMOUNT']),
+        ];
 
   const methods = useMemo(
     () => METHODS.filter((item) => item.id === 'CASH' || accounts.some((a) => methodIdOf(a.methodCode) === item.id)),
@@ -154,17 +159,16 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
       .catch(() => undefined);
   }, [booking?.id]);
 
-  // recupera el pago guardado o empieza uno nuevo con el QR de 15 minutos
+  // recupera el método y el paso guardados o empieza un pago nuevo
   useEffect(() => {
     if (!booking) return;
     AsyncStorage.getItem(storageKey(booking.code))
       .then((raw) => {
         if (!raw) {
-          const fresh: SavedPayment = { qrExpiresAt, flowStep: 'PENDING', method: 'NEQUI' };
+          const fresh: SavedPayment = { flowStep: 'PENDING', method: 'NEQUI' };
           return AsyncStorage.setItem(storageKey(booking.code), JSON.stringify(fresh));
         }
         const saved = JSON.parse(raw) as SavedPayment;
-        setQrExpiresAt(saved.qrExpiresAt);
         setFlowStep(saved.flowStep);
         setMethod(saved.method);
       })
@@ -175,19 +179,9 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
 
   const save = (next: Partial<SavedPayment>) => {
     if (!booking) return;
-    const state: SavedPayment = { qrExpiresAt, flowStep, method, ...next };
+    const state: SavedPayment = { flowStep, method, ...next };
     AsyncStorage.setItem(storageKey(booking.code), JSON.stringify(state)).catch(() => undefined);
   };
-
-  // temporizador del QR
-  useEffect(() => {
-    const update = () => setSecondsLeft(Math.max(0, Math.ceil((qrExpiresAt - Date.now()) / 1000)));
-    update();
-    const timer = setInterval(update, 1000);
-    return () => clearInterval(timer);
-  }, [qrExpiresAt]);
-
-  const timeLeft = `${String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:${String(secondsLeft % 60).padStart(2, '0')}`;
 
   const selectMethod = (id: MethodId) => {
     if (isVerifying) return;
@@ -365,9 +359,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
             <SectionCard
               title={`${t('PAYMENT.QR.VIA')} ${t(`PAYMENT.METHOD.${method}`)}`}
               icon="qr-code-2"
-              right={<Pill label={timeLeft} tone={secondsLeft > 0 ? 'primary' : 'error'} icon="schedule" />}
             >
-              <Text style={[styles.muted, { color: colors.textMuted }]}>{t('PAYMENT.QR.VALID_FOR')}</Text>
               <View style={[styles.qrBox, { borderColor: colors.border }]}>
                 {account?.qrImageUrl ? (
                   <Image source={{ uri: account.qrImageUrl }} style={{ width: 180, height: 180 }} resizeMode="contain" />
@@ -510,6 +502,18 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
             disabled={!canConfirm}
             onPress={confirmPayment}
           />
+          {/* por qué el botón sigue bloqueado: lo que falta completar */}
+          {missingRequirements.length > 0 ? (
+            <View style={[styles.missingBox, { backgroundColor: colors.warningSoft }]}>
+              <Text style={[styles.strong, { color: colors.text }]}>{t('PAYMENT.CONFIRM.MISSING.TITLE')}</Text>
+              {missingRequirements.map((key) => (
+                <View key={key} style={styles.row}>
+                  <MaterialIcons name="radio-button-unchecked" size={14} color={colors.warning} />
+                  <Text style={[styles.muted, styles.flex, { color: colors.textSecondary }]}>{t(key)}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
           <ActionButton label={t('PAYMENT.SUMMARY.CANCEL')} variant="link" onPress={cancelReservation} />
           <View style={styles.row}>
             <MaterialIcons name="verified-user" size={16} color={colors.success} />
@@ -552,6 +556,7 @@ const styles = StyleSheet.create({
   serviceBox: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, borderRadius: radius.md },
   divider: { height: 1 },
   couponRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
+  missingBox: { gap: 6, padding: spacing.md, borderRadius: radius.md },
   couponApply: { paddingHorizontal: 16, paddingVertical: 11, borderRadius: radius.md },
   couponApplyText: { fontSize: fontSize.small, fontWeight: fontWeight.bold },
   couponApplied: {
