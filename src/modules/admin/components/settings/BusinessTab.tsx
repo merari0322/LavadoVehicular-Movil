@@ -107,7 +107,6 @@ export function BusinessTab({ businessName, data, errors, isDirty, onChange, onD
       >
         {renderField('address')}
         {renderField('phone', { keyboardType: 'phone-pad' })}
-        {renderField('whatsapp', { keyboardType: 'phone-pad' })}
         {renderField('email', { keyboardType: 'email-address', autoCapitalize: 'none' })}
         {renderField('website', { keyboardType: 'url', autoCapitalize: 'none' })}
       </SettingsSectionCard>

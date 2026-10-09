@@ -54,8 +54,8 @@ export const AdminSettingsScreen = () => {
       message: t('CONFIG.HELP_MODAL.MESSAGE'),
       buttonText: t('COMMON.CLOSE'),
       details: [
-        // el negocio solo tiene un teléfono: se muestra como WhatsApp y como línea de atención
-        { label: t('CONFIG.HELP_MODAL.WHATSAPP'), value: establishment.phone ?? '—' },
+        // el negocio solo tiene un teléfono: es la línea de atención. Las novedades del servicio
+        // le llegan al cliente por sus notificaciones y su correo
         { label: t('CONFIG.HELP_MODAL.SUPPORT_LINE'), value: establishment.phone ?? '—' },
         { label: t('CONFIG.HELP_MODAL.EMAIL'), value: establishment.email ?? '—' },
         { label: t('CONFIG.HELP_MODAL.HOURS'), value: t('CONFIG.HELP_MODAL.HOURS_VALUE') },

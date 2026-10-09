@@ -65,7 +65,6 @@ export interface BusinessData {
   // Ubicación y contacto
   address: string;
   phone: string;
-  whatsapp: string;
   email: string;
   website: string;
   // Información fiscal
