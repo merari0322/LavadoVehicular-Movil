@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '../../../core/services/auth';
 import { DASHBOARD_TEXTS } from '../constants/dashboardTexts';
+import { useReservationCatalog } from '../services/reservationCatalog';
 import { OperatorStatus, OperatorStatusValue, RevenueDay } from '../types/dashboard.types';
 import { addDays, getTodayISO } from '../utils/reservationUtils';
 import { usePayments } from './usePayments';
@@ -35,6 +36,8 @@ export function useAdminDashboardViewModel() {
   const { reservations, assignOperator } = useReservations();
   const { payments, stats: paymentStats, approvePayment, rejectPayment } = usePayments();
   const { operators, getBayName } = useOperators();
+  // bahías reales (las carga useReservations con loadReservationCatalog)
+  const { bays } = useReservationCatalog();
 
   const todayISO = getTodayISO();
   const texts = DASHBOARD_TEXTS;
@@ -122,8 +125,9 @@ export function useAdminDashboardViewModel() {
   const countByStatus = (status: OperatorStatusValue) => operatorRows.filter((o) => o.status === status).length;
   const statusLabel = (status: OperatorStatusValue) => texts.operators.status[status];
 
-  // bahías ocupadas por los operarios en servicio
-  const activeBays = new Set(operators.filter((item) => item.bayId && item.status !== 'absent').map((item) => item.bayId)).size;
+  // bahías en estado ACTIVE del booking-service (el operario ya no queda fijo en una bahía,
+  // ADR-015: contarlas por operario siempre daba 0)
+  const activeBays = bays.filter((bay) => bay.status === 'ACTIVE').length;
 
   return {
     adminName: user?.firstName ?? '',
