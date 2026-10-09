@@ -51,6 +51,10 @@ export function ServicesTab({ services, onCreate, onEdit, onToggle, onDelete }: 
               <Text style={styles.price}>{formatCurrency(service.price)}</Text>
               <Text style={styles.duration}>{texts.duration(service.duration)}</Text>
               <Pill label={texts.categories[service.category].toLowerCase()} />
+              {/* puntos de fidelización que suma el servicio cuando se aprueba el pago */}
+              {service.loyaltyPoints > 0 ? (
+                <Pill label={texts.points(service.loyaltyPoints)} tone="primary" icon="stars" />
+              ) : null}
             </View>
 
             <View style={styles.actions}>
@@ -75,7 +79,7 @@ const createStyles = (colors: ThemeColors) =>
     topRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     name: { fontSize: 17, fontWeight: '800', color: colors.text },
     description: { marginTop: 2, fontSize: 13, lineHeight: 19, color: colors.textSecondary },
-    infoRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 10 },
+    infoRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginTop: 10 },
     price: { fontSize: 16, fontWeight: '700', color: colors.text },
     duration: { fontSize: 14, color: colors.textSecondary },
     actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 10 },
