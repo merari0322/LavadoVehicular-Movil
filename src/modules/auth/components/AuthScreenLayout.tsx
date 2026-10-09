@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '../../../app/theme';
@@ -17,10 +17,8 @@ export function AuthScreenLayout({ children }: AuthScreenLayoutProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.flex, { backgroundColor: colors.bg }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    // 'padding' también en Android: con edge-to-edge la ventana no se achica con el teclado
+    <KeyboardAvoidingView style={[styles.flex, { backgroundColor: colors.bg }]} behavior="padding">
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,

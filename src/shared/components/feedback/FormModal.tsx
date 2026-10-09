@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -42,10 +41,8 @@ export function FormModal({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <KeyboardAvoidingView
-        style={styles.backdrop}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      {/* 'padding' también en Android: con edge-to-edge la ventana no se achica con el teclado */}
+      <KeyboardAvoidingView style={styles.backdrop} behavior="padding">
         <View style={styles.sheet}>
           {/* Encabezado */}
           <View style={styles.header}>
