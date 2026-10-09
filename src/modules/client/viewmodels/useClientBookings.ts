@@ -5,6 +5,8 @@ import { apiErrorKey } from '../../../core/api/apiError';
 import { bookingService } from '../../../core/services/booking/BookingService';
 // calificaciones del cliente (operations-service)
 import { operationsService, RatingResponse } from '../../../core/services/operations/OperationsService';
+// estado de pago de cada reserva (payment-service): decide si se muestra "Pagar"
+import { BookingPaymentState, paymentService } from '../../../core/services/payments/PaymentService';
 import { ClientBookingItem, toClientBookingItem } from '../models/booking-view';
 
 // reservas reales del cliente contra el booking-service, mismo patrón que useClientVehicles.
@@ -18,15 +20,18 @@ export function useClientBookings() {
     setLoading(true);
     setLoadError(null);
     try {
-      // si operations no responde, las reservas se muestran igual (sin calificaciones)
-      const [list, given] = await Promise.all([
+      // si operations o payment no responden, las reservas se muestran igual (sin calificaciones
+      // o sin estado de pago)
+      const [list, given, payments] = await Promise.all([
         bookingService.myBookings(),
         operationsService.givenRatings().catch(() => [] as RatingResponse[]),
+        paymentService.myBookings().catch(() => [] as BookingPaymentState[]),
       ]);
       const byBooking = new Map(given.map((r) => [r.bookingId, r]));
+      const paymentByBooking = new Map(payments.map((p) => [p.bookingId, p]));
       setBookings(
         list.map((b) => {
-          const item = toClientBookingItem(b);
+          const item = toClientBookingItem(b, paymentByBooking.get(b.id) ?? null);
           const r = byBooking.get(item.id);
           return r ? { ...item, rating: r.rating, ratingComment: r.comment ?? undefined } : item;
         }),

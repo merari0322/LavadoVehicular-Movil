@@ -152,6 +152,10 @@ export function ClientHistoryScreen({ navigation }: Props) {
               <InfoRow label={t('HISTORY_CARD.TYPE')} value={booking.services.join(' / ')} />
               <InfoRow label={t('HISTORY_CARD.VEHICLE')} value={`${booking.vehicle || '—'}${booking.plate ? ` · ${booking.plate}` : ''}`} />
               <InfoRow label={t('HISTORY_CARD.STATUS')} value={t(`STATUS.${booking.status}`)} />
+              {/* estado del pago (payment-service): explica por qué no aparece "Pagar" */}
+              {booking.paymentStatus ? (
+                <InfoRow label={t('HISTORY_CARD.PAYMENT')} value={t(`HISTORY_CARD.PAYMENT_STATUS.${booking.paymentStatus}`)} />
+              ) : null}
 
               <View style={styles.actions}>
                 {booking.canPay ? (

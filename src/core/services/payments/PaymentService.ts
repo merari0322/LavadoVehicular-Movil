@@ -72,8 +72,6 @@ export interface PromotionView {
   code: string;
   name: string;
   description: string | null;
-  price: number;
-  durationMinutes: number;
   icon: string | null;
   featured: boolean;
   benefits: string[];
@@ -82,7 +80,8 @@ export interface PromotionView {
   status: 'active' | 'scheduled' | 'paused';
   redemptions: number;
   // cupón real (ADR-015): % de descuento que aplica al canjear, y puntos necesarios para
-  // desbloquearlo; price/durationMinutes/icon/featured/benefits son solo la tarjeta de marketing
+  // desbloquearlo; icon/featured/benefits son solo la tarjeta. price y durationMinutes ya no se
+  // usan: payment-service los acepta vacíos y la app no los envía
   discountPercent: number;
   requiredPoints: number;
 }
@@ -97,8 +96,6 @@ export interface SavePromotionRequest {
   code: string;
   name: string;
   description: string | null;
-  price: number;
-  durationMinutes: number;
   icon: string | null;
   featured: boolean;
   benefits: string[];
@@ -142,6 +139,14 @@ export interface ClientPayment {
   booking: { id: number; code: string } | null;
 }
 
+// cómo va el pago de cada reserva del cliente: último pago (null si no tiene) y si todavía se puede
+// pagar. payable lo decide payment-service con su misma regla de reporte
+export interface BookingPaymentState {
+  bookingId: number;
+  paymentStatus: ClientPayment['status'] | null;
+  payable: boolean;
+}
+
 const base = { baseUrl: PAYMENT_API_URL };
 
 export const paymentService = {
@@ -151,6 +156,11 @@ export const paymentService = {
 
   mine(): Promise<ClientPayment[]> {
     return request<ClientPayment[]>('GET', '/payments/me', base);
+  },
+
+  // por cada reserva del cliente: último pago y si todavía se puede pagar (decide payment-service)
+  myBookings(): Promise<BookingPaymentState[]> {
+    return request<BookingPaymentState[]>('GET', '/payments/me/bookings', base);
   },
 
   report(

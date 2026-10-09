@@ -1,9 +1,12 @@
 import { BookingResponse, BookingStatusCode } from '../../../core/services/booking/booking.types';
 import { isActiveStatus, isoToDisplayDate, vehicleLabel } from '../../../core/services/booking/bookingDisplay';
+import { BookingPaymentState, ClientPayment } from '../../../core/services/payments/PaymentService';
+
+export type ClientPaymentStatus = ClientPayment['status'];
 
 // fila del historial del cliente: la reserva cruda del backend ya lista para pintar.
-// el booking-service no maneja el estado de pago, por eso canPay se deriva de que la
-// reserva siga activa y no de un campo "pagado". Mismo criterio que la web.
+// el booking-service no maneja el estado de pago: el último pago y si la reserva todavía se puede
+// pagar los dice payment-service (GET /payments/me/bookings). La app no repite esa regla.
 export interface ClientBookingItem {
   id: number;
   code: string;
@@ -18,6 +21,8 @@ export interface ClientBookingItem {
   // descuento por puntos redimidos (booking.pointsDiscountAmount)
   pointsDiscount: number;
   total: number;
+  // estado del último pago de la reserva (null = todavía no hay pago)
+  paymentStatus: ClientPaymentStatus | null;
   canPay: boolean;
   canCancel: boolean;
   canRate: boolean;
@@ -25,7 +30,11 @@ export interface ClientBookingItem {
   ratingComment?: string;
 }
 
-export function toClientBookingItem(booking: BookingResponse): ClientBookingItem {
+/** @param payment estado del pago de la reserva según payment-service (null si no respondió) */
+export function toClientBookingItem(
+  booking: BookingResponse,
+  payment: BookingPaymentState | null = null,
+): ClientBookingItem {
   const active = isActiveStatus(booking.status);
   return {
     id: booking.id,
@@ -40,7 +49,9 @@ export function toClientBookingItem(booking: BookingResponse): ClientBookingItem
     subtotal: booking.subtotal,
     pointsDiscount: booking.pointsDiscountAmount,
     total: booking.total,
-    canPay: active,
+    paymentStatus: payment?.paymentStatus ?? null,
+    // sin respuesta de payment-service no se ofrece pagar: de todos modos no se podría
+    canPay: payment?.payable ?? false,
     // changeable lo decide el backend (RF-007: ni empezada ni pasada)
     canCancel: active && booking.changeable,
     canRate: booking.status === 'COMPLETED',
