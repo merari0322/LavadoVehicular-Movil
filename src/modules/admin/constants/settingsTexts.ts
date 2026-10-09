@@ -36,11 +36,11 @@ const es = {
         },
         emailReminders: {
           title: 'Recordatorios por Email',
-          description: 'Un día antes de tu lavado programado',
+          description: 'Recordatorios de tus reservas por correo (un día y una hora antes)',
         },
         promotions: {
           title: 'Promociones y Ofertas',
-          description: 'Recibe descuentos exclusivos',
+          description: 'Avisos de los cupones que desbloqueas con tus puntos (correo y push)',
         },
       } as Record<NotificationPreferenceKey, { title: string; description: string }>,
     },
@@ -62,7 +62,7 @@ const es = {
         title: 'Centro de ayuda',
         paragraphs: [
           'Aquí encontrarás respuestas a las dudas más frecuentes sobre reservas, pagos y horarios.',
-          'Si no encuentras lo que buscas, escríbenos por WhatsApp o a nuestro correo corporativo y te ayudaremos lo antes posible.',
+          'Si no encuentras lo que buscas, escríbenos a nuestro correo corporativo o llama a la línea de atención y te ayudaremos lo antes posible. Las novedades de tus reservas te llegan por notificaciones y correo.',
         ],
       },
       terms: {
@@ -145,7 +145,6 @@ const es = {
       legalDocument: 'Documento',
       address: 'Dirección sede principal *',
       phone: 'Teléfono de contacto *',
-      whatsapp: 'WhatsApp oficial',
       email: 'Correo electrónico corporativo',
       website: 'Sitio web oficial',
       taxRegime: 'Régimen fiscal',
@@ -232,8 +231,8 @@ const en: typeof es = {
       title: 'Notifications',
       items: {
         push: { title: 'Push notifications', description: 'Get booking and promotion alerts' },
-        emailReminders: { title: 'Email reminders', description: 'One day before your scheduled wash' },
-        promotions: { title: 'Promotions and offers', description: 'Get exclusive discounts' },
+        emailReminders: { title: 'Email reminders', description: 'Booking reminders by email (one day and one hour before)' },
+        promotions: { title: 'Promotions and offers', description: 'Alerts for the coupons you unlock with your points (email and push)' },
       },
     },
     help: {
@@ -246,7 +245,7 @@ const en: typeof es = {
         title: 'Help center',
         paragraphs: [
           'Here you will find answers to the most common questions about bookings, payments and hours.',
-          'If you cannot find what you are looking for, write to us on WhatsApp or to our corporate email and we will help you as soon as possible.',
+          'If you cannot find what you are looking for, write to our corporate email or call our support line and we will help you as soon as possible. Updates about your bookings reach you through notifications and email.',
         ],
       },
       terms: {
@@ -301,7 +300,6 @@ const en: typeof es = {
       legalDocument: 'Document',
       address: 'Headquarters address *',
       phone: 'Contact phone *',
-      whatsapp: 'Official WhatsApp',
       email: 'Corporate email',
       website: 'Official website',
       taxRegime: 'Tax regime',
@@ -374,8 +372,8 @@ const fr: typeof es = {
       title: 'Notifications',
       items: {
         push: { title: 'Notifications push', description: 'Recevez des alertes de réservations et de promotions' },
-        emailReminders: { title: 'Rappels par e-mail', description: 'Un jour avant votre lavage programmé' },
-        promotions: { title: 'Promotions et offres', description: 'Recevez des réductions exclusives' },
+        emailReminders: { title: 'Rappels par e-mail', description: 'Rappels de vos réservations par e-mail (un jour et une heure avant)' },
+        promotions: { title: 'Promotions et offres', description: 'Alertes des coupons débloqués avec vos points (e-mail et push)' },
       },
     },
     help: {
@@ -388,7 +386,7 @@ const fr: typeof es = {
         title: "Centre d'aide",
         paragraphs: [
           'Vous trouverez ici les réponses aux questions les plus fréquentes sur les réservations, les paiements et les horaires.',
-          'Si vous ne trouvez pas ce que vous cherchez, écrivez-nous sur WhatsApp ou à notre e-mail et nous vous aiderons au plus vite.',
+          "Si vous ne trouvez pas ce que vous cherchez, écrivez à notre e-mail ou appelez notre ligne d'assistance et nous vous aiderons au plus vite. Les nouvelles de vos réservations vous arrivent par notifications et par e-mail.",
         ],
       },
       terms: {
@@ -443,7 +441,6 @@ const fr: typeof es = {
       legalDocument: 'Document',
       address: 'Adresse du siège *',
       phone: 'Téléphone de contact *',
-      whatsapp: 'WhatsApp officiel',
       email: "E-mail de l'entreprise",
       website: 'Site web officiel',
       taxRegime: 'Régime fiscal',
@@ -516,8 +513,8 @@ const pt: typeof es = {
       title: 'Notificações',
       items: {
         push: { title: 'Notificações push', description: 'Receba alertas de reservas e promoções' },
-        emailReminders: { title: 'Lembretes por e-mail', description: 'Um dia antes da sua lavagem agendada' },
-        promotions: { title: 'Promoções e ofertas', description: 'Receba descontos exclusivos' },
+        emailReminders: { title: 'Lembretes por e-mail', description: 'Lembretes das suas reservas por e-mail (um dia e uma hora antes)' },
+        promotions: { title: 'Promoções e ofertas', description: 'Avisos dos cupons que você desbloqueia com seus pontos (e-mail e push)' },
       },
     },
     help: {
@@ -530,7 +527,7 @@ const pt: typeof es = {
         title: 'Central de ajuda',
         paragraphs: [
           'Aqui você encontra respostas para as dúvidas mais frequentes sobre reservas, pagamentos e horários.',
-          'Se não encontrar o que procura, escreva para nós pelo WhatsApp ou no nosso e-mail e ajudaremos o quanto antes.',
+          'Se não encontrar o que procura, escreva para o nosso e-mail ou ligue para a nossa central de atendimento e ajudaremos o quanto antes. As novidades das suas reservas chegam por notificações e e-mail.',
         ],
       },
       terms: {
@@ -585,7 +582,6 @@ const pt: typeof es = {
       legalDocument: 'Documento',
       address: 'Endereço da sede *',
       phone: 'Telefone de contato *',
-      whatsapp: 'WhatsApp oficial',
       email: 'E-mail corporativo',
       website: 'Site oficial',
       taxRegime: 'Regime fiscal',

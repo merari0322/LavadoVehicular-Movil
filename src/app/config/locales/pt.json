@@ -5,9 +5,10 @@
     "PUSH": "Notificações Push",
     "PUSH_DESC": "Receba alertas de reservas e promoções",
     "EMAIL": "Lembretes por Email",
-    "EMAIL_DESC": "Um dia antes da sua lavagem programada",
+    "EMAIL_DESC": "Lembretes das suas reservas por e-mail (um dia e uma hora antes)",
     "PROMO": "Promoções e Ofertas",
-    "PROMO_DESC": "Receba descontos exclusivos",
+    "PROMO_DESC": "Avisos dos cupons que você desbloqueia com seus pontos (e-mail e push)",
+    "NOTIFICATIONS_SAVE_ERROR": "Não foi possível salvar suas preferências de notificação. Tente novamente.",
     "APPEARANCE": "Aparência",
     "THEME": "Escolher tema",
     "THEME_DESC": "Personalize as cores do aplicativo",
@@ -21,7 +22,6 @@
     "OPEN": "Abrir",
     "HELP_MODAL": {
       "MESSAGE": "Tem dúvidas ou algum problema? Fale conosco por qualquer um destes canais.",
-      "WHATSAPP": "WhatsApp",
       "SUPPORT_LINE": "Central de atendimento",
       "EMAIL": "E-mail",
       "HOURS": "Horário",
@@ -81,6 +81,14 @@
     "TYPE": "Tipo de serviço",
     "VEHICLE": "Veículo",
     "STATUS": "Status",
+    "PAYMENT": "Pagamento",
+    "PAYMENT_STATUS": {
+      "PENDING": "Aguardando verificação",
+      "IN_REVIEW": "Em verificação",
+      "APPROVED": "Pago",
+      "REJECTED": "Recusado",
+      "REFUNDED": "Reembolsado"
+    },
     "PAY_NOW": "Pagar agora",
     "CANCEL": "Cancelar reserva",
     "RATE": "Avaliar serviço",
@@ -440,7 +448,8 @@
     },
     "SUCCESS_TITLE": "Reserva criada!",
     "SUCCESS_MESSAGE": "Sua lavagem foi agendada. Este é o resumo da sua reserva:",
-    "SUCCESS_BUTTON": "Ir para o pagamento"
+    "SUCCESS_BUTTON": "Ir para o pagamento",
+    "POINTS": "Soma {{count}} pontos"
   },
   "APP": {
     "TITLE": "Lavagem de Veículos"
@@ -816,7 +825,6 @@
     "QR": {
       "INSTANT": "PAGAMENTO DIGITAL IMEDIATO",
       "VIA": "Via",
-      "VALID_FOR": "O código é válido por 15 minutos",
       "SCAN_HINT": "Pode ser escaneado na tela",
       "VERIFIED": "Verificado",
       "KEY": "Chave / Conta autorizada",
@@ -839,7 +847,13 @@
       "REFERENCE_HINT": "Número de 8 a 12 caracteres emitido pelo seu banco",
       "AMOUNT": "Valor pago",
       "AMOUNT_HINT": "Valor definido pela reserva com desconto",
-      "INFO": "Um administrador verificará seu pagamento e você receberá uma notificação. Sua vaga ficará 100% garantida e pronta no horário reservado."
+      "INFO": "Um administrador verificará seu pagamento e você receberá uma notificação. Sua vaga ficará 100% garantida e pronta no horário reservado.",
+      "MISSING": {
+        "TITLE": "Para confirmar o pagamento, falta:",
+        "RECEIPT": "Enviar o comprovante (JPG ou PNG)",
+        "REFERENCE": "Digitar a referência da transação (8 a 12 letras ou números)",
+        "AMOUNT": "Informar o valor pago (maior que 0)"
+      }
     },
     "HELP": {
       "TITLE": "Precisa de ajuda com seu pagamento?",

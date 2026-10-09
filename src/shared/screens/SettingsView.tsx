@@ -1,10 +1,14 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { SupportedLanguage, setAppLanguage } from '../../app/config/i18n';
+import {
+  NotificationChannels,
+  preferencesService,
+  toNotificationChannels,
+} from '../../core/services/users/PreferencesService';
 import { ThemeName, fontSize, fontWeight, radius, spacing, useTheme } from '../../app/theme';
 import { LegalDocumentModal, LegalDocumentType } from '../components/feedback/LegalDocumentModal';
 import { PageHeader } from '../components/screen/PageHeader';
@@ -16,14 +20,9 @@ import { withAlpha } from '../utils/color';
 
 type IconName = keyof typeof MaterialIcons.glyphMap;
 
-// preferencias de notificaciones guardadas en el celular (misma llave que la web)
-const NOTIFICATIONS_KEY = '@lavado_vehicular/notificationSettings';
-interface NotificationSettings {
-  push: boolean;
-  email: boolean;
-  promo: boolean;
-}
-const DEFAULT_SETTINGS: NotificationSettings = { push: true, email: true, promo: false };
+// interruptores de notificaciones: se guardan en la cuenta (security-service) y notification-service
+// los respeta. Hasta que responda la cuenta se muestran todos activos (su valor por defecto)
+const DEFAULT_SETTINGS: NotificationChannels = { push: true, email: true, promo: true };
 
 // miniaturas de los 4 temas (colores solo para la vista previa)
 const THEMES: { name: ThemeName; accent: string; surface: string; line: string }[] = [
@@ -47,21 +46,28 @@ export function SettingsView() {
   const { t, i18n } = useTranslation();
   const feedback = useFeedback();
   const establishment = useEstablishment();
-  const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState<NotificationChannels>(DEFAULT_SETTINGS);
   const [legal, setLegal] = useState<LegalDocumentType | null>(null);
 
   useEffect(() => {
-    AsyncStorage.getItem(NOTIFICATIONS_KEY)
-      .then((raw) => {
-        if (raw) setSettings({ ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<NotificationSettings>) });
-      })
+    preferencesService
+      .get()
+      .then((prefs) => setSettings(toNotificationChannels(prefs)))
       .catch(() => undefined);
   }, []);
 
-  const toggle = (key: keyof NotificationSettings) => {
+  // se ve el cambio de una vez; si la cuenta no lo guarda, vuelve como estaba y avisa
+  const toggle = (key: keyof NotificationChannels) => {
+    const previous = settings;
     const next = { ...settings, [key]: !settings[key] };
     setSettings(next);
-    AsyncStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(next)).catch(() => undefined);
+    preferencesService
+      .saveNotificationChannels(next)
+      .then((saved) => setSettings(toNotificationChannels(saved)))
+      .catch(() => {
+        setSettings(previous);
+        feedback.showError(t('CONFIG.NOTIFICATIONS_SAVE_ERROR'));
+      });
   };
 
   const openHelpCenter = () =>
@@ -72,8 +78,8 @@ export function SettingsView() {
       message: t('CONFIG.HELP_MODAL.MESSAGE'),
       buttonText: t('COMMON.CLOSE'),
       details: [
-        // el negocio solo tiene un teléfono: se muestra como WhatsApp y como línea de atención
-        { label: t('CONFIG.HELP_MODAL.WHATSAPP'), value: establishment.phone ?? '—' },
+        // el negocio solo tiene un teléfono: es la línea de atención. Las novedades del servicio
+        // le llegan al cliente por sus notificaciones y su correo
         { label: t('CONFIG.HELP_MODAL.SUPPORT_LINE'), value: establishment.phone ?? '—' },
         { label: t('CONFIG.HELP_MODAL.EMAIL'), value: establishment.email ?? '—' },
         { label: t('CONFIG.HELP_MODAL.HOURS'), value: t('CONFIG.HELP_MODAL.HOURS_VALUE') },
@@ -81,7 +87,7 @@ export function SettingsView() {
       ],
     });
 
-  const toggleRow = (key: keyof NotificationSettings, title: string, subtitle: string) => (
+  const toggleRow = (key: keyof NotificationChannels, title: string, subtitle: string) => (
     <View style={styles.item}>
       <View style={styles.flex}>
         <Text style={[styles.itemTitle, { color: colors.text }]}>{t(title)}</Text>

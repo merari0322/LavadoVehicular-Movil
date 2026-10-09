@@ -5,9 +5,10 @@
     "PUSH": "Notificaciones Push",
     "PUSH_DESC": "Recibe alertas de reservas y promociones",
     "EMAIL": "Recordatorios por Email",
-    "EMAIL_DESC": "Un día antes de tu lavado programado",
+    "EMAIL_DESC": "Recordatorios de tus reservas por correo (un día y una hora antes)",
     "PROMO": "Promociones y Ofertas",
-    "PROMO_DESC": "Recibe descuentos exclusivos",
+    "PROMO_DESC": "Avisos de los cupones que desbloqueas con tus puntos (correo y push)",
+    "NOTIFICATIONS_SAVE_ERROR": "No se pudieron guardar tus preferencias de notificación. Inténtalo de nuevo.",
     "APPEARANCE": "Apariencia",
     "THEME": "Elegir tema",
     "THEME_DESC": "Cambiar interfaz (Personaliza los colores de la aplicación)",
@@ -21,7 +22,6 @@
     "OPEN": "Abrir",
     "HELP_MODAL": {
       "MESSAGE": "¿Tienes dudas o algún problema? Contáctanos por cualquiera de estos canales.",
-      "WHATSAPP": "WhatsApp",
       "SUPPORT_LINE": "Línea de atención",
       "EMAIL": "Correo",
       "HOURS": "Horario",
@@ -81,6 +81,14 @@
     "TYPE": "Tipo de servicio",
     "VEHICLE": "Vehículo",
     "STATUS": "Estado",
+    "PAYMENT": "Pago",
+    "PAYMENT_STATUS": {
+      "PENDING": "Pendiente de verificación",
+      "IN_REVIEW": "En verificación",
+      "APPROVED": "Pagado",
+      "REJECTED": "Rechazado",
+      "REFUNDED": "Reembolsado"
+    },
     "PAY_NOW": "Pagar ahora",
     "CANCEL": "Cancelar reserva",
     "RATE": "Calificar Servicio",
@@ -440,7 +448,8 @@
     },
     "SUCCESS_TITLE": "¡Reserva creada!",
     "SUCCESS_MESSAGE": "Tu lavado quedó programado. Este es el resumen de tu reserva:",
-    "SUCCESS_BUTTON": "Ir a pagar"
+    "SUCCESS_BUTTON": "Ir a pagar",
+    "POINTS": "Suma {{count}} puntos"
   },
   "APP": {
     "TITLE": "Lavado Vehicular"
@@ -816,7 +825,6 @@
     "QR": {
       "INSTANT": "PAGO DIGITAL INMEDIATO",
       "VIA": "Vía",
-      "VALID_FOR": "El código es válido por 15 minutos",
       "SCAN_HINT": "Válido para escanear en pantalla",
       "VERIFIED": "Verificado",
       "KEY": "Llave / Cuenta autorizada",
@@ -839,7 +847,13 @@
       "REFERENCE_HINT": "Número de 8 a 12 caracteres emitido por tu entidad",
       "AMOUNT": "Monto pagado",
       "AMOUNT_HINT": "Monto fijado según reserva con descuento",
-      "INFO": "Un administrador verificará tu pago y recibirás una notificación. Tu plaza quedará 100% garantizada y lista en tu horario reservado."
+      "INFO": "Un administrador verificará tu pago y recibirás una notificación. Tu plaza quedará 100% garantizada y lista en tu horario reservado.",
+      "MISSING": {
+        "TITLE": "Para confirmar el pago te falta:",
+        "RECEIPT": "Subir el comprobante (JPG o PNG)",
+        "REFERENCE": "Escribir la referencia de la transacción (8 a 12 letras o números)",
+        "AMOUNT": "Indicar el monto pagado (mayor a 0)"
+      }
     },
     "HELP": {
       "TITLE": "¿Necesitas asistencia con tu pago?",

@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Alert } from 'react-native';
 import { setAppLanguage } from '../../../app/config/i18n';
 import { ThemeName, useTheme } from '../../../app/theme';
 import { SETTINGS_TEXTS } from '../constants/settingsTexts';
@@ -22,12 +23,19 @@ import {
 } from '../services/settingsMock';
 import { PaymentAccount, SaveAccountRequest, paymentService } from '../../../core/services/payments/PaymentService';
 import { bookingService } from '../../../core/services/booking/BookingService';
+import { AccountPreferences, preferencesService } from '../../../core/services/users/PreferencesService';
 
-// el booking-service no tiene (todavía) un endpoint para guardar los datos del negocio ni las
-// preferencias de notificaciones: /api/v1/establishment es solo lectura. Igual que en la web
-// (BusinessStore, localStorage), mientras tanto quedan en el celular.
+// el booking-service no tiene (todavía) un endpoint para guardar los datos del negocio:
+// /api/v1/establishment es solo lectura. Igual que en la web (BusinessStore, localStorage),
+// mientras tanto quedan en el celular. Los interruptores de notificaciones sí se guardan en la
+// cuenta (security-service) y notification-service los respeta.
 const BUSINESS_STORAGE_KEY = 'admin-business-data';
-const NOTIFICATION_PREFS_STORAGE_KEY = 'admin-notification-preferences';
+
+const toPreferences = (prefs: AccountPreferences): NotificationPreferences => ({
+  push: prefs.notificationsEnabled,
+  emailReminders: prefs.emailRemindersEnabled,
+  promotions: prefs.promotionsEnabled,
+});
 
 // cuenta de payment-service -> medio de pago de la pantalla
 function toMethod(a: PaymentAccount): PaymentMethod {
@@ -71,7 +79,6 @@ const validateBusiness = (data: BusinessData): BusinessErrors => {
   });
 
   if (data.phone.trim() && countDigits(data.phone) < 7) errors.phone = messages.phone;
-  if (data.whatsapp.trim() && countDigits(data.whatsapp) < 7) errors.whatsapp = messages.phone;
   if (data.email.trim() && !isValidEmail(data.email)) errors.email = messages.email;
   if (data.foundedAt.trim() && !displayToISO(data.foundedAt)) errors.foundedAt = messages.date;
 
@@ -99,18 +106,17 @@ export function useSettings() {
   );
   // tema e idioma reales: se aplican a toda la app y quedan guardados en el celular
   const { themeName, setThemeName } = useTheme();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = ID_BY_THEME[themeName];
   const setTheme = (id: ThemeId) => setThemeName(THEME_BY_ID[id]);
   const language = i18n.language as AppLanguage;
   const setLanguage = (code: AppLanguage) => void setAppLanguage(code);
 
-  // se cargan al abrir la pantalla; si no hay nada guardado se quedan los valores de ejemplo
+  // interruptores de la cuenta; sin respuesta se quedan los valores por defecto (todos activos)
   useEffect(() => {
-    AsyncStorage.getItem(NOTIFICATION_PREFS_STORAGE_KEY)
-      .then((raw) => {
-        if (raw) setPreferences(JSON.parse(raw));
-      })
+    preferencesService
+      .get()
+      .then((prefs) => setPreferences(toPreferences(prefs)))
       .catch(() => undefined);
   }, []);
 
@@ -132,7 +138,6 @@ export function useSettings() {
           legalName: establishment.legalName,
           address: establishment.address,
           phone: establishment.phone ?? merged.phone,
-          whatsapp: establishment.phone ?? merged.whatsapp,
           email: establishment.email ?? merged.email,
         };
       } catch {
@@ -183,13 +188,20 @@ export function useSettings() {
   // General
   // ---------------------------------------------------------------
 
-  // Enciende o apaga una preferencia de notificaciones y la guarda en el celular
-  const togglePreference = (key: NotificationPreferenceKey) =>
-    setPreferences((prev) => {
-      const next = { ...prev, [key]: !prev[key] };
-      AsyncStorage.setItem(NOTIFICATION_PREFS_STORAGE_KEY, JSON.stringify(next)).catch(() => undefined);
-      return next;
-    });
+  // Enciende o apaga una preferencia de notificaciones y la guarda en la cuenta; si no se guarda,
+  // vuelve como estaba y avisa
+  const togglePreference = (key: NotificationPreferenceKey) => {
+    const previous = preferences;
+    const next = { ...preferences, [key]: !preferences[key] };
+    setPreferences(next);
+    preferencesService
+      .saveNotificationChannels({ push: next.push, email: next.emailReminders, promo: next.promotions })
+      .then((saved) => setPreferences(toPreferences(saved)))
+      .catch(() => {
+        setPreferences(previous);
+        Alert.alert(t('COMMON.ERROR'), t('CONFIG.NOTIFICATIONS_SAVE_ERROR'));
+      });
+  };
 
   // ---------------------------------------------------------------
   // Datos del negocio

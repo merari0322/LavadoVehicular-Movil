@@ -55,9 +55,9 @@ export function AccountPreferencesSync() {
     const theme = CODE_BY_THEME[themeName];
     const language = i18n.language;
     if (theme === current.theme && language === current.language) return;
-    const next = { ...current, theme, language };
-    synced.current = next;
-    preferencesService.save(next).catch(() => undefined);
+    synced.current = { ...current, theme, language };
+    // solo tema e idioma: los interruptores de notificaciones se guardan aparte (Configuración)
+    preferencesService.saveInterface(theme, language).catch(() => undefined);
   }, [themeName, i18n.language, status]);
 
   return null;

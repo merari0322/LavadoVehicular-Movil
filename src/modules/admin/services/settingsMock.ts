@@ -5,10 +5,11 @@ import { BusinessData, NotificationPreferences } from '../models/settings';
 // preferencias y el resto de los datos del negocio quedan guardados en el celular porque
 // todavía no hay un endpoint para escribirlos (igual que BusinessStore en la web).
 
+// mismos valores por defecto que security-service mientras responde la cuenta
 export const INITIAL_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   push: true,
   emailReminders: true,
-  promotions: false,
+  promotions: true,
 };
 
 export const INITIAL_BUSINESS: BusinessData = {
@@ -20,7 +21,6 @@ export const INITIAL_BUSINESS: BusinessData = {
   legalDocument: 'CC 1.032.456.789',
   address: 'Calle 127 #19A-48, Bogotá, Colombia',
   phone: '+57 312 490 8821',
-  whatsapp: '+57 312 490 8821',
   email: 'contacto@expresscarwash.co',
   website: 'www.expresscarwash.co',
   taxRegime: 'Responsable de IVA 19% · Régimen Ordinario Común',

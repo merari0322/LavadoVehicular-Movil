@@ -5,9 +5,10 @@
     "PUSH": "Notifications Push",
     "PUSH_DESC": "Recevez des alertes de réservations et promotions",
     "EMAIL": "Rappels par Email",
-    "EMAIL_DESC": "Un jour avant votre lavage programmé",
+    "EMAIL_DESC": "Rappels de vos réservations par e-mail (un jour et une heure avant)",
     "PROMO": "Promotions et Offres",
-    "PROMO_DESC": "Recevez des réductions exclusives",
+    "PROMO_DESC": "Alertes des coupons débloqués avec vos points (e-mail et push)",
+    "NOTIFICATIONS_SAVE_ERROR": "Impossible d’enregistrer vos préférences de notification. Réessayez.",
     "APPEARANCE": "Apparence",
     "THEME": "Choisir un thème",
     "THEME_DESC": "Personnalisez les couleurs de l'application",
@@ -21,7 +22,6 @@
     "OPEN": "Ouvrir",
     "HELP_MODAL": {
       "MESSAGE": "Des questions ou un problème ? Contactez-nous par l’un de ces canaux.",
-      "WHATSAPP": "WhatsApp",
       "SUPPORT_LINE": "Service client",
       "EMAIL": "E-mail",
       "HOURS": "Horaires",
@@ -81,6 +81,14 @@
     "TYPE": "Type de service",
     "VEHICLE": "Véhicule",
     "STATUS": "Statut",
+    "PAYMENT": "Paiement",
+    "PAYMENT_STATUS": {
+      "PENDING": "En attente de vérification",
+      "IN_REVIEW": "En cours de vérification",
+      "APPROVED": "Payé",
+      "REJECTED": "Refusé",
+      "REFUNDED": "Remboursé"
+    },
     "PAY_NOW": "Payer maintenant",
     "CANCEL": "Annuler la réservation",
     "RATE": "Évaluer le service",
@@ -440,7 +448,8 @@
     },
     "SUCCESS_TITLE": "Réservation créée !",
     "SUCCESS_MESSAGE": "Votre lavage a été programmé. Voici le résumé de votre réservation :",
-    "SUCCESS_BUTTON": "Aller au paiement"
+    "SUCCESS_BUTTON": "Aller au paiement",
+    "POINTS": "Rapporte {{count}} points"
   },
   "APP": {
     "TITLE": "Lavage de Véhicules"
@@ -816,7 +825,6 @@
     "QR": {
       "INSTANT": "PAIEMENT NUMÉRIQUE IMMÉDIAT",
       "VIA": "Via",
-      "VALID_FOR": "Le code est valable 15 minutes",
       "SCAN_HINT": "Peut être scanné à l'écran",
       "VERIFIED": "Vérifié",
       "KEY": "Clé / Compte autorisé",
@@ -839,7 +847,13 @@
       "REFERENCE_HINT": "Numéro de 8 à 12 caractères émis par votre banque",
       "AMOUNT": "Montant payé",
       "AMOUNT_HINT": "Montant fixé par la réservation, remise incluse",
-      "INFO": "Un administrateur vérifiera votre paiement et vous recevrez une notification. Votre créneau sera garanti à 100 % et prêt à l'heure réservée."
+      "INFO": "Un administrateur vérifiera votre paiement et vous recevrez une notification. Votre créneau sera garanti à 100 % et prêt à l'heure réservée.",
+      "MISSING": {
+        "TITLE": "Pour confirmer le paiement, il vous reste à :",
+        "RECEIPT": "Joindre le justificatif (JPG ou PNG)",
+        "REFERENCE": "Saisir la référence de la transaction (8 à 12 lettres ou chiffres)",
+        "AMOUNT": "Indiquer le montant payé (supérieur à 0)"
+      }
     },
     "HELP": {
       "TITLE": "Besoin d'aide pour votre paiement ?",

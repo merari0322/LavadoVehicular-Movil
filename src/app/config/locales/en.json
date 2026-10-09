@@ -5,9 +5,10 @@
     "PUSH": "Push Notifications",
     "PUSH_DESC": "Receive alerts for bookings and promotions",
     "EMAIL": "Email Reminders",
-    "EMAIL_DESC": "One day before your scheduled wash",
+    "EMAIL_DESC": "Booking reminders by email (one day and one hour before)",
     "PROMO": "Promotions and Offers",
-    "PROMO_DESC": "Receive exclusive discounts",
+    "PROMO_DESC": "Alerts for the coupons you unlock with your points (email and push)",
+    "NOTIFICATIONS_SAVE_ERROR": "Your notification preferences could not be saved. Please try again.",
     "APPEARANCE": "Appearance",
     "THEME": "Choose theme",
     "THEME_DESC": "Customize the app colors",
@@ -21,7 +22,6 @@
     "OPEN": "Open",
     "HELP_MODAL": {
       "MESSAGE": "Have questions or a problem? Contact us through any of these channels.",
-      "WHATSAPP": "WhatsApp",
       "SUPPORT_LINE": "Support line",
       "EMAIL": "Email",
       "HOURS": "Opening hours",
@@ -81,6 +81,14 @@
     "TYPE": "Service type",
     "VEHICLE": "Vehicle",
     "STATUS": "Status",
+    "PAYMENT": "Payment",
+    "PAYMENT_STATUS": {
+      "PENDING": "Pending verification",
+      "IN_REVIEW": "Under review",
+      "APPROVED": "Paid",
+      "REJECTED": "Rejected",
+      "REFUNDED": "Refunded"
+    },
     "PAY_NOW": "Pay now",
     "CANCEL": "Cancel booking",
     "RATE": "Rate Service",
@@ -440,7 +448,8 @@
     },
     "SUCCESS_TITLE": "Booking created!",
     "SUCCESS_MESSAGE": "Your wash has been scheduled. Here is your booking summary:",
-    "SUCCESS_BUTTON": "Go to payment"
+    "SUCCESS_BUTTON": "Go to payment",
+    "POINTS": "Earns {{count}} points"
   },
   "APP": {
     "TITLE": "Car Wash Service"
@@ -816,7 +825,6 @@
     "QR": {
       "INSTANT": "INSTANT DIGITAL PAYMENT",
       "VIA": "Via",
-      "VALID_FOR": "The code is valid for 15 minutes",
       "SCAN_HINT": "Can be scanned from the screen",
       "VERIFIED": "Verified",
       "KEY": "Authorized key / account",
@@ -839,7 +847,13 @@
       "REFERENCE_HINT": "8 to 12 character number issued by your bank",
       "AMOUNT": "Amount paid",
       "AMOUNT_HINT": "Amount set by the booking, discount included",
-      "INFO": "An administrator will verify your payment and you'll receive a notification. Your slot will be 100% guaranteed and ready at your booked time."
+      "INFO": "An administrator will verify your payment and you'll receive a notification. Your slot will be 100% guaranteed and ready at your booked time.",
+      "MISSING": {
+        "TITLE": "To confirm the payment you still need to:",
+        "RECEIPT": "Upload the receipt (JPG or PNG)",
+        "REFERENCE": "Enter the transaction reference (8 to 12 letters or numbers)",
+        "AMOUNT": "Enter the amount paid (greater than 0)"
+      }
     },
     "HELP": {
       "TITLE": "Need help with your payment?",
