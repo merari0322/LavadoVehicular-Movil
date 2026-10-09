@@ -83,9 +83,12 @@ export function PromotionsTab({
             <Text style={styles.name}>{promotion.name}</Text>
             <Text style={styles.description}>{promotion.description}</Text>
 
-            <Text style={styles.price}>
-              {formatCurrency(promotion.price)}{' '}
-              <Text style={styles.duration}>· {texts.duration(promotion.duration)}</Text>
+            {/* Lo que obtiene el cliente: descuento al canjear y puntos para desbloquearlo */}
+            <Text style={styles.reward}>
+              {texts.discountValue(promotion.discountPercent)}{' '}
+              <Text style={styles.points}>
+                · {promotion.requiredPoints > 0 ? texts.pointsValue(promotion.requiredPoints) : texts.noPoints}
+              </Text>
             </Text>
 
             {/* Cupón y canjes */}
@@ -161,8 +164,8 @@ const createStyles = (colors: ThemeColors) =>
     pills: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 6, flexShrink: 1 },
     name: { marginTop: 6, fontSize: 20, fontWeight: '800', color: colors.text },
     description: { fontSize: 13, color: colors.textSecondary },
-    price: { marginTop: 6, fontSize: 26, fontWeight: '800', color: colors.text },
-    duration: { fontSize: 13, fontWeight: '400', color: colors.textSecondary },
+    reward: { marginTop: 6, fontSize: 22, fontWeight: '800', color: colors.text },
+    points: { fontSize: 13, fontWeight: '400', color: colors.textSecondary },
     couponBox: {
       gap: 2,
       marginTop: 6,

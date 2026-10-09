@@ -44,8 +44,6 @@ function toPromotion(view: PromotionView): Promotion {
     name: view.name,
     coupon: view.code,
     description: view.description ?? '',
-    price: view.price,
-    duration: view.durationMinutes,
     icon: (view.icon as PromotionIcon) ?? DEFAULT_ICON,
     status: view.status,
     startDate: view.validFrom,
@@ -63,8 +61,6 @@ function toSaveRequest(values: PromotionFormValues): SavePromotionRequest {
     code: values.coupon,
     name: values.name,
     description: values.description.trim() || null,
-    price: values.price,
-    durationMinutes: values.duration,
     icon: values.icon,
     featured: values.featured,
     benefits: values.benefits,
@@ -127,6 +123,7 @@ function toManagedService(service: CatalogServiceResponse): ManagedService {
     duration: prices.length ? Math.min(...prices.map((item) => item.estimatedMinutes)) : 30,
     category: CATEGORY_BY_CODE[service.category?.code ?? ''] ?? 'wash',
     active: service.active,
+    loyaltyPoints: service.loyaltyPoints ?? 0,
   };
 }
 
@@ -147,6 +144,7 @@ function buildServiceRequest(
       price: values.price,
       estimatedMinutes: values.duration,
     })),
+    loyaltyPoints: values.loyaltyPoints,
   };
 }
 
@@ -257,10 +255,16 @@ export function useManagement() {
     setServices((prev) => [...prev, toManagedService(created)]);
   };
 
+  // El formulario muestra la tarifa más baja; si el admin no cambió precio ni duración (ej. solo
+  // le puso puntos), las tarifas van vacías y booking-service conserva las de cada tipo de
+  // vehículo. Si las reenviara, todas quedarían iguales a la más baja.
   const updateService = async (id: string, values: ServiceFormValues) => {
+    const current = services.find((item) => item.id === id);
+    const tariffsChanged = !current || current.price !== values.price || current.duration !== values.duration;
+    const request = buildServiceRequest(values, serviceCategories, vehicleTypes);
     const updated = await bookingService.updateService(
       Number(id),
-      buildServiceRequest(values, serviceCategories, vehicleTypes),
+      tariffsChanged ? request : { ...request, prices: [] },
     );
     setServices((prev) =>
       prev.map((item) => (item.id === String(updated.id) ? toManagedService(updated) : item)),

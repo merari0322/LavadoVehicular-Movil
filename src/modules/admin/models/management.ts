@@ -76,6 +76,7 @@ export interface ManagedService {
   duration: number; // Minutos
   category: ServiceCategory;
   active: boolean;
+  loyaltyPoints: number; // Puntos que gana el cliente cuando se aprueba el pago
 }
 
 export type ServiceFormValues = Omit<ManagedService, 'id' | 'active'>;
@@ -84,8 +85,9 @@ export type ServiceFormValues = Omit<ManagedService, 'id' | 'active'>;
 // Promociones
 // ---------------------------------------------------------------
 
+// el estado lo calcula payment-service (programada si la fecha de inicio es futura) y se pausa o
+// reanuda desde la tarjeta: el formulario no lo pide
 export type PromotionStatus = 'active' | 'paused' | 'scheduled';
-export const PROMOTION_STATUSES: PromotionStatus[] = ['active', 'paused', 'scheduled'];
 
 export type PromotionIcon = 'directions-car' | 'water-drop' | 'auto-awesome';
 export const PROMOTION_ICONS: PromotionIcon[] = ['directions-car', 'water-drop', 'auto-awesome'];
@@ -95,8 +97,6 @@ export interface Promotion {
   name: string;
   coupon: string;
   description: string;
-  price: number; // COP
-  duration: number; // Minutos
   icon: PromotionIcon;
   status: PromotionStatus;
   startDate: string; // Formato ISO: YYYY-MM-DD
@@ -104,12 +104,13 @@ export interface Promotion {
   benefits: string[];
   redemptions: number; // Cantidad de canjes del cupón
   // cupón real (ADR-015): % de descuento que aplica al canjear y puntos necesarios para
-  // desbloquearlo; price/duration/icon/featured/benefits son solo la tarjeta de marketing
+  // desbloquearlo; icon/featured/benefits son solo la tarjeta. No hay precio ni duración: el
+  // cupón es un descuento sobre la reserva, no un paquete con precio propio
   discountPercent: number;
   requiredPoints: number;
 }
 
-export type PromotionFormValues = Omit<Promotion, 'id' | 'redemptions'>;
+export type PromotionFormValues = Omit<Promotion, 'id' | 'redemptions' | 'status'>;
 
 // Métricas generales de las promociones
 export interface PromotionMetrics {
