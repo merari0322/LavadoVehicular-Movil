@@ -44,6 +44,14 @@ export interface TeamSummaryResponse {
   ratingsCount: number;
 }
 
+// operario libre para un horario, como lo ve el cliente al reservar (RF-010)
+export interface AvailableOperatorResponse {
+  operatorId: number;
+  firstName: string;
+  averageRating: number | null;
+  ratingsCount: number;
+}
+
 export interface OperatorResponse {
   id: number;
   userId: number;
@@ -126,6 +134,12 @@ export const operationsService = {
   // resumen del equipo para la lista de operarios (lo calcula operations-service)
   teamSummary(): Promise<TeamSummaryResponse> {
     return request<TeamSummaryResponse>('GET', '/admin/operators/summary', base);
+  },
+
+  // RF-010: operarios libres para el horario que el cliente va a reservar
+  availableOperators(date: string, time: string, minutes: number): Promise<AvailableOperatorResponse[]> {
+    const query = `date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}&minutes=${minutes}`;
+    return request<AvailableOperatorResponse[]>('GET', `/operators/available?${query}`, base);
   },
 
   // métricas de la semana actual del operario (las calcula operations-service)

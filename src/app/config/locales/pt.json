@@ -450,7 +450,15 @@
     "SUCCESS_TITLE": "Reserva criada!",
     "SUCCESS_MESSAGE": "Sua lavagem foi agendada. Este é o resumo da sua reserva:",
     "SUCCESS_BUTTON": "Ir para o pagamento",
-    "POINTS": "Soma {{count}} pontos"
+    "POINTS": "Soma {{count}} pontos",
+    "OPERATOR": {
+      "LABEL": "Operador (opcional)",
+      "ANY": "Sem preferência: atribuímos um livre",
+      "ANY_SHORT": "Sem preferência",
+      "LOADING": "Procurando operadores livres...",
+      "HINT": "Se o operador escolhido não estiver mais livre ao confirmar, atribuímos outro.",
+      "NONE_FREE": "Não há operadores livres para escolher nesse horário; mesmo assim atribuiremos um."
+    }
   },
   "APP": {
     "TITLE": "Lavagem de Veículos"

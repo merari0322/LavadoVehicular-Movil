@@ -8,6 +8,7 @@ import { fontSize, fontWeight, radius, spacing, useTheme } from '../../../app/th
 import { apiErrorKey, slotAlternatives } from '../../../core/api/apiError';
 import { RootStackParamList } from '../../../core/navigation/types';
 import { bookingService } from '../../../core/services/booking/BookingService';
+import { AvailableOperatorResponse, operationsService } from '../../../core/services/operations/OperationsService';
 import { AvailabilityResponse, CatalogServiceResponse } from '../../../core/services/booking/booking.types';
 import { ActionButton } from '../../../shared/components/screen/ActionButton';
 import { EmptyState } from '../../../shared/components/screen/EmptyState';
@@ -82,6 +83,10 @@ export function ClientReserveScreen({ navigation }: Props) {
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [slotsError, setSlotsError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // RF-010: operarios libres a esa hora; null = sin preferencia (el lavadero asigna uno, RF-008)
+  const [operators, setOperators] = useState<AvailableOperatorResponse[]>([]);
+  const [operatorsLoading, setOperatorsLoading] = useState(false);
+  const [preferredOperatorId, setPreferredOperatorId] = useState<number | null>(null);
 
   const vehicle = vehicles.find((v) => v.id === vehicleId) ?? null;
   const selectedService = services.find((s) => s.id === serviceId) ?? null;
@@ -163,6 +168,28 @@ export function ClientReserveScreen({ navigation }: Props) {
     void fetchSlots(vehicle, selectedService, date);
   }, [vehicle, selectedService, date, fetchSlots]);
 
+  // al escoger la hora: quién está libre en ese horario (lo calcula operations-service)
+  useEffect(() => {
+    setOperators([]);
+    setPreferredOperatorId(null);
+    if (!date || !time || !duration) return undefined;
+    let active = true;
+    setOperatorsLoading(true);
+    operationsService
+      .availableOperators(date, time, duration)
+      .then((list) => {
+        if (active) setOperators(list);
+      })
+      // sin la lista se reserva igual, sin preferencia
+      .catch(() => undefined)
+      .finally(() => {
+        if (active) setOperatorsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [date, time, duration]);
+
   const availableSlots = availability?.slots.filter((slot) => slot.available) ?? [];
   const closedDay = availability !== null && !availability.open;
 
@@ -177,6 +204,7 @@ export function ClientReserveScreen({ navigation }: Props) {
         date,
         time,
         notes: null,
+        preferredOperatorId,
       });
       feedback.showStatus(
         {
@@ -355,6 +383,42 @@ export function ClientReserveScreen({ navigation }: Props) {
               })}
             </View>
           )}
+
+          {/* RF-010: operario opcional; sin preferencia, el lavadero asigna uno libre (RF-008) */}
+          {time ? (
+            <>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>{t('RESERVE.OPERATOR.LABEL')}</Text>
+              {operatorsLoading ? (
+                <Text style={[styles.note, { color: colors.textSecondary }]}>{t('RESERVE.OPERATOR.LOADING')}</Text>
+              ) : (
+                <View style={styles.timeGrid}>
+                  <Pressable onPress={() => setPreferredOperatorId(null)} style={[chip(preferredOperatorId === null), styles.timeChip]}>
+                    <Text style={[styles.timeText, { color: preferredOperatorId === null ? colors.onPrimary : colors.text }]}>
+                      {t('RESERVE.OPERATOR.ANY_SHORT')}
+                    </Text>
+                  </Pressable>
+                  {operators.map((operator) => {
+                    const active = operator.operatorId === preferredOperatorId;
+                    return (
+                      <Pressable
+                        key={operator.operatorId}
+                        onPress={() => setPreferredOperatorId(operator.operatorId)}
+                        style={[chip(active), styles.timeChip]}
+                      >
+                        <Text style={[styles.timeText, { color: active ? colors.onPrimary : colors.text }]}>
+                          {operator.firstName}
+                          {operator.averageRating != null ? ` · ★ ${operator.averageRating}` : ''}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
+              <Text style={[styles.note, { color: colors.textSecondary }]}>
+                {t(operators.length || operatorsLoading ? 'RESERVE.OPERATOR.HINT' : 'RESERVE.OPERATOR.NONE_FREE')}
+              </Text>
+            </>
+          ) : null}
 
           {/* el cliente lleva su vehículo a la sede (no es a domicilio) */}
           <View style={[styles.location, { backgroundColor: withAlpha(colors.primary, 0.08) }]}>
