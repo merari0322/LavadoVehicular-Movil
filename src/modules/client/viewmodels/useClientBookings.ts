@@ -33,7 +33,9 @@ export function useClientBookings() {
         list.map((b) => {
           const item = toClientBookingItem(b, paymentByBooking.get(b.id) ?? null);
           const r = byBooking.get(item.id);
-          return r ? { ...item, rating: r.rating, ratingComment: r.comment ?? undefined } : item;
+          return r
+            ? { ...item, rating: r.rating, ratingComment: r.comment ?? undefined, ratingOperator: r.operatorName || undefined }
+            : item;
         }),
       );
     } catch (error) {

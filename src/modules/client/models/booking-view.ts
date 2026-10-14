@@ -28,6 +28,8 @@ export interface ClientBookingItem {
   canRate: boolean;
   rating?: number;
   ratingComment?: string;
+  // primer nombre del operario que lavó el vehículo (operations-service)
+  ratingOperator?: string;
 }
 
 /** @param payment estado del pago de la reserva según payment-service (null si no respondió) */

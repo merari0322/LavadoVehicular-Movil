@@ -178,7 +178,7 @@ export function ClientHistoryScreen({ navigation }: Props) {
                   <ActionButton
                     small
                     variant="soft"
-                    label={`${t('HISTORY_CARD.RATED')} ★ ${booking.rating}`}
+                    label={`${t('HISTORY_CARD.RATED')} ★ ${booking.rating}${booking.ratingOperator ? ` · ${t('HISTORY_CARD.WASHED_BY', { name: booking.ratingOperator })}` : ''}`}
                     icon="star"
                     onPress={() => undefined}
                   />

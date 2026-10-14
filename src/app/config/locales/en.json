@@ -93,7 +93,8 @@
     "CANCEL": "Cancel booking",
     "RATE": "Rate Service",
     "RATED": "Rated",
-    "EDIT_RATING": "Edit rating"
+    "EDIT_RATING": "Edit rating",
+    "WASHED_BY": "Served by {{name}}"
   },
   "COMMON": {
     "CLOSE": "Close",
