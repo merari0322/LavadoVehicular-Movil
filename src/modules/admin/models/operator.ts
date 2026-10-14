@@ -11,8 +11,6 @@ export const OPERATOR_STATUSES: OperatorStatus[] = ['available', 'in_service', '
 export type OperatorFilter = 'all' | OperatorStatus;
 export const OPERATOR_FILTERS: OperatorFilter[] = ['all', ...OPERATOR_STATUSES];
 
-export type ContractType = 'hired' | 'intern';
-
 // ---------------------------------------------------------------
 // Operario
 // ---------------------------------------------------------------
@@ -44,7 +42,6 @@ export interface Operator {
   rating: number;
   reviews: number;
   weeklyServices: number;
-  contract: ContractType;
   tags: string[];
   availability: AvailabilityDay[];
   absence: Absence | null;
@@ -101,18 +98,6 @@ export interface Skill {
   operatorId: string;
   name: string;
   level: SkillLevel;
-}
-
-// Números de las tarjetas de la lista
-export interface OperatorsSummary {
-  total: number;
-  hired: number;
-  interns: number;
-  available: number;
-  weeklyServices: number;
-  servicesTrend: number;
-  averageRating: number;
-  totalReviews: number;
 }
 
 // ---------------------------------------------------------------

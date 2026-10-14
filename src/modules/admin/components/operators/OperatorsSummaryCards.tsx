@@ -5,7 +5,7 @@ import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
 import { withAlpha } from '../../../../shared/utils/color';
 import { OPERATOR_TEXTS } from '../../constants/operatorTexts';
-import { OperatorsSummary } from '../../models/operator';
+import { TeamSummaryResponse } from '../../../../core/services/operations/OperationsService';
 
 type IconName = keyof typeof MaterialIcons.glyphMap;
 
@@ -41,26 +41,28 @@ function SummaryCard({ label, value, suffix, note, noteColor, icon, accent }: Su
   );
 }
 
-// Cuadrícula de 2x2 con el resumen del equipo
-export function OperatorsSummaryCards({ summary }: { summary: OperatorsSummary }) {
+// Cuadrícula de 2x2 con el resumen del equipo (operations-service); "—" mientras carga o si falla
+export function OperatorsSummaryCards({ summary }: { summary: TeamSummaryResponse | null }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const texts = OPERATOR_TEXTS.summary;
+  const show = (value: number | null | undefined) => (value == null ? '—' : String(value));
+  const trend = summary?.servicesTrendPercent;
 
   return (
     <View style={styles.grid}>
       <View style={styles.row}>
         <SummaryCard
           label={texts.staff}
-          value={String(summary.total)}
-          note={texts.staffDetail(summary.hired, summary.interns)}
+          value={show(summary?.totalOperators)}
+          note={texts.staffDetail(summary?.activeOperators ?? 0, summary ? summary.totalOperators - summary.activeOperators : 0)}
           icon="badge"
           accent={colors.primary}
         />
         <SummaryCard
           label={texts.availableToday}
-          value={String(summary.available)}
-          note={texts.availableDetail(summary.available)}
+          value={show(summary?.availableToday)}
+          note={texts.availableDetail(summary?.absentToday ?? 0)}
           icon="check-circle"
           accent={colors.primaryHover}
         />
@@ -68,17 +70,17 @@ export function OperatorsSummaryCards({ summary }: { summary: OperatorsSummary }
       <View style={styles.row}>
         <SummaryCard
           label={texts.weeklyServices}
-          value={String(summary.weeklyServices)}
-          note={texts.trend(summary.servicesTrend)}
+          value={show(summary?.completedServices)}
+          note={trend == null ? texts.noTrend : texts.trend(trend)}
           noteColor={colors.primaryHover}
           icon="directions-car"
           accent={colors.primary}
         />
         <SummaryCard
           label={texts.rating}
-          value={summary.averageRating.toFixed(1)}
+          value={summary?.averageRating == null ? '—' : summary.averageRating.toFixed(1)}
           suffix="/5.0"
-          note={texts.ratingBase(summary.totalReviews)}
+          note={texts.ratingBase(summary?.ratingsCount ?? 0)}
           icon="star"
           accent={colors.warning}
         />

@@ -5,6 +5,7 @@ import { apiErrorKey } from '../../../core/api/apiError';
 import {
   AbsenceResponse,
   OperatorResponse,
+  TeamSummaryResponse,
   operationsService,
 } from '../../../core/services/operations/OperationsService';
 import { useSharedState } from '../../../shared/hooks/useSharedState';
@@ -14,7 +15,6 @@ import {
   CalendarBlock,
   Operator,
   OperatorFilter,
-  OperatorsSummary,
   Skill,
   TodayService,
   WorkBay,
@@ -69,7 +69,6 @@ function toOperator(o: OperatorResponse, absences: AbsenceResponse[]): Operator 
     rating: o.averageRating ?? 0,
     reviews: o.ratingsCount,
     weeklyServices: o.completedServices,
-    contract: 'hired',
     tags: o.active ? [] : [OPERATOR_TEXTS.inactiveTag],
     availability,
     absence: current ?? null,
@@ -83,6 +82,8 @@ export function useOperators() {
   const [raw, setRaw] = useSharedState<Operator[]>('admin.operators', []);
   // las reservas las carga useReservations; aquí solo se leen para "servicios de hoy"
   const [reservations] = useSharedState<Reservation[]>('admin.reservations', []);
+  // tarjetas del resumen: las calcula operations-service; null mientras carga o si falla
+  const [summary, setSummary] = useSharedState<TeamSummaryResponse | null>('admin.operatorsSummary', null);
   const { services, bays } = useReservationCatalog();
   const [filter, setFilter] = useState<OperatorFilter>('all');
   const [search, setSearch] = useState('');
@@ -91,11 +92,12 @@ export function useOperators() {
 
   // pide los operarios y sus ausencias
   const reload = useCallback(async () => {
+    operationsService.teamSummary().then(setSummary).catch(() => setSummary(null));
     const list = await operationsService.operators();
     const absences = await Promise.all(list.map((o) => operationsService.absences(o.id).catch(() => [] as AbsenceResponse[])));
     list.forEach((o, i) => absencesByOperator.set(String(o.id), absences[i]));
     setRaw(list.map((o, i) => toOperator(o, absences[i])));
-  }, [setRaw]);
+  }, [setRaw, setSummary]);
 
   useEffect(() => {
     // se carga una vez (las tarjetas y selectores también usan el hook); las acciones recargan
@@ -140,21 +142,6 @@ export function useOperators() {
       return normalizeText(`${item.name} ${item.email}`).includes(query);
     });
   }, [operators, filter, search]);
-
-  const summary = useMemo<OperatorsSummary>(() => {
-    const totalReviews = operators.reduce((total, item) => total + item.reviews, 0);
-    const weightedRating = operators.reduce((total, item) => total + item.rating * item.reviews, 0);
-    return {
-      total: operators.length,
-      hired: operators.length,
-      interns: 0,
-      available: counts.available,
-      weeklyServices: operators.reduce((total, item) => total + item.weeklyServices, 0),
-      servicesTrend: 0,
-      averageRating: totalReviews > 0 ? weightedRating / totalReviews : 0,
-      totalReviews,
-    };
-  }, [operators, counts]);
 
   // ---------------------------------------------------------------
   // Consultas
