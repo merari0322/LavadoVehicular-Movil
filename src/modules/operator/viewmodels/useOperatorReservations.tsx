@@ -64,6 +64,7 @@ function toReservation(s: OperatorServiceResponse): OperatorReservation {
     status: statusOf(s.status),
     rating: s.rating,
     comment: s.comment,
+    startableAt: s.startableAt,
   };
 }
 

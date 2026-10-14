@@ -9,7 +9,7 @@ import { ActionButton } from '../../../shared/components/screen/ActionButton';
 import { InfoRow } from '../../../shared/components/screen/InfoRow';
 import { isoToDisplay } from '../../../shared/utils/format';
 import { formatCOP } from '../../../shared/utils/format';
-import { OperatorReservation, statusIcon, statusLabel, statusTone } from '../models/operator';
+import { OperatorReservation, statusIcon, statusLabel, statusTone, canStartNow, startFromLabel } from '../models/operator';
 
 interface ReservationDetailModalProps {
   // null = cerrado
@@ -71,7 +71,14 @@ export function ReservationDetailModal({
                 <Text style={[styles.section, { color: colors.textSecondary }]}>{t('ASSIGNED_SERVICES.DETAIL.PROGRESS_TITLE')}</Text>
               ) : null}
               {r.status === 'pendiente' ? (
-                <ActionButton icon="play-circle-outline" label={t('ASSIGNED_SERVICES.DETAIL.START')} onPress={then(onStart)} />
+                <>
+                  <ActionButton icon="play-circle-outline" label={t('ASSIGNED_SERVICES.DETAIL.START')} disabled={!canStartNow(r)} onPress={then(onStart)} />
+                  {!canStartNow(r) ? (
+                    <Text style={[styles.section, { color: colors.textMuted }]}>
+                      {t('OPERATOR_WORK.START_FROM', { time: startFromLabel(r) })}
+                    </Text>
+                  ) : null}
+                </>
               ) : null}
               {r.status === 'en_progreso' ? (
                 <>

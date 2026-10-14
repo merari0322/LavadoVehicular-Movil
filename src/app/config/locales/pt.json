@@ -1092,7 +1092,8 @@
     "NETWORK_ERROR": "Não foi possível conectar ao servidor. Tente novamente em instantes.",
     "UNEXPECTED": "Ocorreu um erro inesperado. Tente novamente.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "Você não pode desativar sua própria conta",
-    "UNKNOWN_PERMISSION": "Uma das permissões escolhidas não existe mais. Recarregue a página e tente novamente."
+    "UNKNOWN_PERMISSION": "Uma das permissões escolhidas não existe mais. Recarregue a página e tente novamente.",
+    "SERVICE_TOO_EARLY": "Você ainda não pode iniciar este serviço: ele é liberado 15 minutos antes do horário da reserva."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Alterar senha",
@@ -1370,5 +1371,8 @@
     "OPERATOR_NOT_ON_SHIFT": "Sem turno nesse horário",
     "OPERATOR_ABSENT": "Ausente",
     "OPERATOR_BUSY": "Ocupado nesse horário"
+  },
+  "OPERATOR_WORK": {
+    "START_FROM": "Você poderá iniciá-lo a partir das {{time}} (15 minutos antes da reserva)."
   }
 }
