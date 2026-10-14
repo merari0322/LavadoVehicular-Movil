@@ -1096,7 +1096,8 @@
     "UNEXPECTED": "Ocorreu um erro inesperado. Tente novamente.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "Você não pode desativar sua própria conta",
     "UNKNOWN_PERMISSION": "Uma das permissões escolhidas não existe mais. Recarregue a página e tente novamente.",
-    "SERVICE_TOO_EARLY": "Você ainda não pode iniciar este serviço: ele é liberado 15 minutos antes do horário da reserva."
+    "SERVICE_TOO_EARLY": "Você ainda não pode iniciar este serviço: ele é liberado 15 minutos antes do horário da reserva.",
+    "BOOKING_IN_PAST": "Esta reserva já passou: não pode ser atribuída. Marque-a como não compareceu ou cancele-a."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Alterar senha",
