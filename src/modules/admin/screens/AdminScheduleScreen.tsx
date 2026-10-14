@@ -23,6 +23,8 @@ import {
 import { isoToDisplay } from '../utils/reservationUtils';
 import { useSchedule } from '../viewmodels/useSchedule';
 import { apiErrorKey } from '../../../core/api/apiError';
+import { ActionButton } from '../../../shared/components/screen/ActionButton';
+import { EmptyState } from '../components/management/ManagementParts';
 
 // Estado de un modal de formulario: abierto/cerrado y el registro que se edita (null = crear)
 interface FormState<T> {
@@ -140,8 +142,20 @@ export const AdminScheduleScreen = () => {
 
           <ScheduleTabs active={tab} activeBays={schedule.activeBays} onChange={setTab} />
 
+          {/* sin datos todavía: cargando, o el error del booking-service con "Reintentar" */}
+          {schedule.draftWeek.length === 0 ? (
+            schedule.loading ? (
+              <EmptyState title={SCHEDULE_TEXTS.common.loading} hint="" />
+            ) : (
+              <View style={styles.section}>
+                <EmptyState title={SCHEDULE_TEXTS.common.loadError} hint={schedule.loadError ?? ''} />
+                <ActionButton label={SCHEDULE_TEXTS.common.retry} icon="refresh" onPress={() => void schedule.reload()} />
+              </View>
+            )
+          ) : null}
+
           {/* Pestaña: horario del negocio */}
-          {tab === 'hours' ? (
+          {schedule.draftWeek.length > 0 && tab === 'hours' ? (
             <View style={styles.section}>
               <WeeklyScheduleCard
                 week={schedule.draftWeek}
@@ -161,7 +175,7 @@ export const AdminScheduleScreen = () => {
           ) : null}
 
           {/* Pestaña: bahías de lavado */}
-          {tab === 'bays' ? (
+          {schedule.draftWeek.length > 0 && tab === 'bays' ? (
             <BaysTab
               bays={schedule.bays}
               onAdd={() => setBayForm({ visible: true, item: null })}

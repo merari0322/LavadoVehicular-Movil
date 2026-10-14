@@ -21,7 +21,6 @@ import {
   ScheduleException,
   WeekDay,
 } from '../models/schedule';
-import { INITIAL_BAYS, INITIAL_EXCEPTIONS, INITIAL_WEEK } from '../services/scheduleMock';
 import { getTodayISO, isValidTime } from '../utils/reservationUtils';
 
 // Resultado de validar el horario semanal: un mensaje de error por día
@@ -154,14 +153,14 @@ const validateWeek = (week: DaySchedule[]): WeekErrors => {
 export function useSchedule() {
   const { user } = useSession();
 
-  // Horario guardado y borrador que se está editando. Se arranca con los datos de
-  // ejemplo y la primera carga real los reemplaza (así la pantalla nunca se ve vacía).
-  const [savedWeek, setSavedWeek] = useState<DaySchedule[]>(INITIAL_WEEK);
-  const [draftWeek, setDraftWeek] = useState<DaySchedule[]>(INITIAL_WEEK);
-  const [exceptions, setExceptions] = useState<ScheduleException[]>(INITIAL_EXCEPTIONS);
-  const [bays, setBays] = useState<Bay[]>(INITIAL_BAYS);
+  // Horario guardado y borrador que se está editando. Arrancan vacíos: la pantalla muestra
+  // "cargando" o el error, nunca datos inventados que el admin pueda confundir con los reales.
+  const [savedWeek, setSavedWeek] = useState<DaySchedule[]>([]);
+  const [draftWeek, setDraftWeek] = useState<DaySchedule[]>([]);
+  const [exceptions, setExceptions] = useState<ScheduleException[]>([]);
+  const [bays, setBays] = useState<Bay[]>([]);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   // Movimiento del backend -> fila de la pantalla. changed_by es el id de la cuenta; solo se
@@ -204,7 +203,7 @@ export function useSchedule() {
       setBays(bayList.map(bayToLocal));
       await reloadHistory();
     } catch (error) {
-      // se dejan los datos de ejemplo y se reporta para que la pantalla decida
+      // se reporta para que la pantalla muestre el error con "Reintentar"
       setLoadError(error instanceof Error ? error.message : String(error));
     } finally {
       setLoading(false);
