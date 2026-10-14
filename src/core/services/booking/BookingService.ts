@@ -11,6 +11,7 @@ import {
   CatalogServiceResponse,
   CreateBookingRequest,
   BusinessDataDto,
+  DaySummaryResponse,
   EstablishmentResponse,
   HoursExceptionRequest,
   HoursExceptionResponse,
@@ -52,6 +53,13 @@ export const bookingService = {
 
   establishment(): Promise<EstablishmentResponse> {
     return request<EstablishmentResponse>('GET', '/establishment', base);
+  },
+
+  /* ---------- inicio del admin ---------- */
+
+  // reservas de hoy frente a ayer, contadas por booking-service en la fecha del lavadero
+  daySummary(): Promise<DaySummaryResponse> {
+    return request<DaySummaryResponse>('GET', '/admin/bookings/day-summary', base);
   },
 
   /* ---------- datos del negocio (admin) ---------- */

@@ -11,7 +11,7 @@ const es = {
 
   stats: {
     bookingsToday: 'Reservas de hoy',
-    vsYesterday: (total: number) => `↗ +${total} vs ayer`,
+    vsYesterday: (difference: number) => `${difference >= 0 ? '↗ +' : '↘ '}${Math.abs(difference)} vs ayer`,
     inProgress: 'En progreso',
     activeBays: (total: number) => (total === 1 ? '1 bahía activa' : `${total} bahías activas`),
     pendingPayments: 'Pagos por verificar',
@@ -66,7 +66,7 @@ const en: typeof es = {
   dateLocale: 'en-US',
   stats: {
     bookingsToday: "Today's bookings",
-    vsYesterday: (total: number) => `↗ +${total} vs yesterday`,
+    vsYesterday: (difference: number) => `${difference >= 0 ? '↗ +' : '↘ '}${Math.abs(difference)} vs yesterday`,
     inProgress: 'In progress',
     activeBays: (total: number) => (total === 1 ? '1 active bay' : `${total} active bays`),
     pendingPayments: 'Payments to verify',
@@ -117,7 +117,7 @@ const fr: typeof es = {
   dateLocale: 'fr-FR',
   stats: {
     bookingsToday: "Réservations d'aujourd'hui",
-    vsYesterday: (total: number) => `↗ +${total} vs hier`,
+    vsYesterday: (difference: number) => `${difference >= 0 ? '↗ +' : '↘ '}${Math.abs(difference)} vs hier`,
     inProgress: 'En cours',
     activeBays: (total: number) => (total === 1 ? '1 baie active' : `${total} baies actives`),
     pendingPayments: 'Paiements à vérifier',
@@ -168,7 +168,7 @@ const pt: typeof es = {
   dateLocale: 'pt-BR',
   stats: {
     bookingsToday: 'Reservas de hoje',
-    vsYesterday: (total: number) => `↗ +${total} vs ontem`,
+    vsYesterday: (difference: number) => `${difference >= 0 ? '↗ +' : '↘ '}${Math.abs(difference)} vs ontem`,
     inProgress: 'Em andamento',
     activeBays: (total: number) => (total === 1 ? '1 baia ativa' : `${total} baias ativas`),
     pendingPayments: 'Pagamentos a verificar',

@@ -1,6 +1,8 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '../../../core/services/auth';
+import { bookingService } from '../../../core/services/booking/BookingService';
+import { DaySummaryResponse } from '../../../core/services/booking/booking.types';
 import { DASHBOARD_TEXTS } from '../constants/dashboardTexts';
 import { useReservationCatalog } from '../services/reservationCatalog';
 import { OperatorStatus, OperatorStatusValue, RevenueDay } from '../types/dashboard.types';
@@ -9,8 +11,6 @@ import { usePayments } from './usePayments';
 import { useOperators } from './useOperators';
 import { useReservations } from './useReservations';
 
-// comparación con ayer (dato del reporte diario: todavía no hay un endpoint que lo calcule)
-const VS_YESTERDAY = 3;
 
 export function formatCOP(amount: number): string {
   return '$' + Math.round(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -41,6 +41,12 @@ export function useAdminDashboardViewModel() {
 
   const todayISO = getTodayISO();
   const texts = DASHBOARD_TEXTS;
+
+  // reservas de hoy frente a ayer: las cuenta booking-service con la fecha del lavadero
+  const [daySummary, setDaySummary] = useState<DaySummaryResponse | null>(null);
+  useEffect(() => {
+    bookingService.daySummary().then(setDaySummary).catch(() => undefined);
+  }, []);
 
   const today = useMemo(
     () =>
@@ -133,8 +139,8 @@ export function useAdminDashboardViewModel() {
     adminName: user?.firstName ?? '',
     today,
     stats: {
-      bookingsToday: todays.length,
-      vsYesterday: VS_YESTERDAY,
+      bookingsToday: daySummary?.bookings ?? todays.length,
+      vsYesterday: daySummary?.difference ?? 0,
       servicesInProgress: todays.filter((item) => item.status === 'in_progress').length,
       activeBays,
       pendingPayments: pendingPayments.length,
