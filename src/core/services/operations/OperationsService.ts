@@ -29,6 +29,21 @@ export interface OperatorMetricsResponse {
   occupancyPercent: number | null;
 }
 
+// los null son "sin datos": sin servicios la semana anterior o sin calificaciones
+export interface TeamSummaryResponse {
+  weekStart: string;
+  weekEnd: string;
+  totalOperators: number;
+  activeOperators: number;
+  availableToday: number;
+  absentToday: number;
+  completedServices: number;
+  previousWeekServices: number;
+  servicesTrendPercent: number | null;
+  averageRating: number | null;
+  ratingsCount: number;
+}
+
 export interface OperatorResponse {
   id: number;
   userId: number;
@@ -107,6 +122,11 @@ const base = { baseUrl: OPERATIONS_API_URL };
 
 export const operationsService = {
   /* ---------- admin ---------- */
+
+  // resumen del equipo para la lista de operarios (lo calcula operations-service)
+  teamSummary(): Promise<TeamSummaryResponse> {
+    return request<TeamSummaryResponse>('GET', '/admin/operators/summary', base);
+  },
 
   // métricas de la semana actual del operario (las calcula operations-service)
   operatorMetrics(id: number): Promise<OperatorMetricsResponse> {
