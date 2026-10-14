@@ -13,6 +13,22 @@ export interface WeekSlotDto {
   endsAt: string;
 }
 
+// semana de lunes a domingo; los null son "sin datos" (ej. sin servicios la semana anterior)
+export type PunctualityLevel = 'EXCELLENT' | 'GOOD' | 'NEEDS_IMPROVEMENT' | 'NO_DATA';
+export interface OperatorMetricsResponse {
+  weekStart: string;
+  weekEnd: string;
+  completedServices: number;
+  previousWeekServices: number;
+  servicesTrendPercent: number | null;
+  punctualityPercent: number | null;
+  punctualityLevel: PunctualityLevel;
+  revenue: number;
+  workedHours: number;
+  availableHours: number;
+  occupancyPercent: number | null;
+}
+
 export interface OperatorResponse {
   id: number;
   userId: number;
@@ -91,6 +107,11 @@ const base = { baseUrl: OPERATIONS_API_URL };
 
 export const operationsService = {
   /* ---------- admin ---------- */
+
+  // métricas de la semana actual del operario (las calcula operations-service)
+  operatorMetrics(id: number): Promise<OperatorMetricsResponse> {
+    return request<OperatorMetricsResponse>('GET', `/admin/operators/${id}/metrics`, base);
+  },
 
   operators(): Promise<OperatorResponse[]> {
     return request<OperatorResponse[]>('GET', '/admin/operators', base);

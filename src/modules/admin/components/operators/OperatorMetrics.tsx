@@ -5,18 +5,19 @@ import { ThemeColors } from '../../../../app/theme/colors';
 import { withAlpha } from '../../../../shared/utils/color';
 import { OPERATOR_TEXTS } from '../../constants/operatorTexts';
 import { Operator } from '../../models/operator';
-import { formatPercent } from '../../utils/managementUtils';
 import { formatCurrency } from '../../utils/paymentUtils';
+import { useOperatorMetrics } from '../../viewmodels/useOperatorMetrics';
 
 const texts = OPERATOR_TEXTS.metrics;
 
-// Cuadrícula de 2x2 con las métricas semanales del operario
+// Cuadrícula de 2x2 con las métricas reales de la semana del operario (operations-service)
 export function OperatorMetrics({ operator }: { operator: Operator }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const { stats } = operator;
-  const occupied = stats.capacityHours > 0 ? Math.round((stats.usedHours / stats.capacityHours) * 100) : 0;
+  const metrics = useOperatorMetrics(operator.id);
+  const occupied = metrics?.occupancyPercent ?? 0;
+  const trend = metrics?.servicesTrendPercent;
 
   return (
     <View style={styles.grid}>
@@ -25,10 +26,10 @@ export function OperatorMetrics({ operator }: { operator: Operator }) {
         <View style={styles.card}>
           <Text style={styles.label}>{texts.services}</Text>
           <Text style={styles.value}>
-            {operator.weeklyServices} <Text style={styles.unit}>{texts.servicesUnit}</Text>
+            {metrics ? metrics.completedServices : '—'} <Text style={styles.unit}>{texts.servicesUnit}</Text>
           </Text>
           <Text style={[styles.note, { color: colors.primaryHover }]}>
-            {OPERATOR_TEXTS.summary.trend(stats.servicesTrend)}
+            {trend == null ? texts.noTrend : texts.trend(trend)}
           </Text>
         </View>
 
@@ -36,7 +37,7 @@ export function OperatorMetrics({ operator }: { operator: Operator }) {
         <View style={styles.card}>
           <Text style={styles.label}>{texts.hours}</Text>
           <Text style={styles.value}>
-            {stats.usedHours} <Text style={styles.unit}>{texts.hoursOf(stats.capacityHours)}</Text>
+            {metrics ? metrics.workedHours : '—'} <Text style={styles.unit}>{texts.hoursOf(metrics ? metrics.availableHours : 0)}</Text>
           </Text>
           <View style={styles.track}>
             <View style={[styles.fill, { width: `${Math.min(occupied, 100)}%` }]} />
@@ -49,17 +50,17 @@ export function OperatorMetrics({ operator }: { operator: Operator }) {
         {/* Puntualidad */}
         <View style={styles.card}>
           <Text style={styles.label}>{texts.punctuality}</Text>
-          <Text style={styles.value}>{formatPercent(stats.punctuality)}</Text>
-          <Text style={styles.note}>{texts.punctualityNote}</Text>
+          <Text style={styles.value}>{metrics?.punctualityPercent != null ? `${metrics.punctualityPercent}%` : '—'}</Text>
+          <Text style={styles.note}>{texts.punctualityLevel[metrics?.punctualityLevel ?? 'NO_DATA']}</Text>
         </View>
 
         {/* Ingresos generados */}
         <View style={styles.card}>
           <Text style={styles.label}>{texts.revenue}</Text>
           <Text style={styles.value} numberOfLines={1} adjustsFontSizeToFit>
-            {formatCurrency(stats.revenue)} <Text style={styles.unit}>COP</Text>
+            {formatCurrency(metrics?.revenue ?? 0)} <Text style={styles.unit}>COP</Text>
           </Text>
-          <Text style={[styles.note, { color: colors.primaryHover }]}>{texts.goal(stats.goalPercent)}</Text>
+          <Text style={[styles.note, { color: colors.primaryHover }]}>{texts.revenueNote}</Text>
         </View>
       </View>
     </View>

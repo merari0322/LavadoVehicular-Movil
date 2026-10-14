@@ -30,7 +30,6 @@ import { SkillsCard } from '../components/operators/SkillsCard';
 import { TodayServicesCard } from '../components/operators/TodayServicesCard';
 import { OPERATOR_TEXTS } from '../constants/operatorTexts';
 import { AbsenceFormValues, AvailabilityDay, Operator, TodayService } from '../models/operator';
-import { formatCurrency } from '../utils/paymentUtils';
 import { useOperators } from '../viewmodels/useOperators';
 
 export const AdminOperatorsScreen = () => {
@@ -120,7 +119,6 @@ export const AdminOperatorsScreen = () => {
       selected.specialty,
       `${OPERATOR_TEXTS.status[selected.status]}`,
       `${selected.phone} · ${selected.email}`,
-      `${OPERATOR_TEXTS.metrics.revenue}: ${formatCurrency(selected.stats.revenue)} COP`,
       '',
       OPERATOR_TEXTS.skills.title,
       ...skills,

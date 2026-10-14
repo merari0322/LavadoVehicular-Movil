@@ -30,21 +30,12 @@ import { getTodayISO } from '../utils/reservationUtils';
 // security (se editan en Gestión → Usuarios); aquí se manejan el turno semanal, las ausencias y
 // si el operario está activo. Las reglas (cruces de ausencias, turnos) las valida el backend.
 
-// jornada de referencia para el cupo semanal (8 h x 6 días, igual que la web)
-const CAPACITY_HOURS = 48;
-
 // ausencias reales de cada operario, para poder borrar la de hoy al registrar el reingreso
 const absencesByOperator = new Map<string, AbsenceResponse[]>();
 let loading: Promise<void> | null = null;
 
 function hhmm(time: string): string {
   return time.slice(0, 5);
-}
-
-function hoursBetween(start: string, end: string): number {
-  const [sh, sm] = start.split(':').map(Number);
-  const [eh, em] = end.split(':').map(Number);
-  return Math.max(0, (eh * 60 + em - (sh * 60 + sm)) / 60);
 }
 
 function localISO(date: Date): string {
@@ -66,7 +57,6 @@ function toOperator(o: OperatorResponse, absences: AbsenceResponse[]): Operator 
     const slot = o.week.find((s) => s.dayOfWeek === index + 1);
     return { day, enabled: !!slot, start: slot ? hhmm(slot.startsAt) : '08:00', end: slot ? hhmm(slot.endsAt) : '17:00' };
   });
-  const usedHours = availability.filter((d) => d.enabled).reduce((sum, d) => sum + hoursBetween(d.start, d.end), 0);
   return {
     id: String(o.id),
     code: `OP-${o.id}`,
@@ -83,7 +73,6 @@ function toOperator(o: OperatorResponse, absences: AbsenceResponse[]): Operator 
     tags: o.active ? [] : [OPERATOR_TEXTS.inactiveTag],
     availability,
     absence: current ?? null,
-    stats: { servicesTrend: 0, usedHours, capacityHours: CAPACITY_HOURS, punctuality: 0, revenue: 0, goalPercent: 0 },
   };
 }
 

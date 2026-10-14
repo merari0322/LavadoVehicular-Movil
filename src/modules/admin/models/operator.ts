@@ -32,16 +32,6 @@ export interface Absence {
   reason: string;
 }
 
-// Métricas semanales del operario
-export interface OperatorStats {
-  servicesTrend: number; // % vs semana anterior
-  usedHours: number; // Horas ocupadas
-  capacityHours: number; // Horas totales del cupo semanal
-  punctuality: number; // Porcentaje
-  revenue: number; // COP
-  goalPercent: number; // % de la meta semanal
-}
-
 export interface Operator {
   id: string;
   code: string; // Ejemplo: OP-8492
@@ -58,7 +48,6 @@ export interface Operator {
   tags: string[];
   availability: AvailabilityDay[];
   absence: Absence | null;
-  stats: OperatorStats;
 }
 
 // Bahía en la que puede trabajar un operario
