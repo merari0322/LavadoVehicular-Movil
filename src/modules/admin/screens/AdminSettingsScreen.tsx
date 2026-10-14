@@ -75,12 +75,13 @@ export const AdminSettingsScreen = () => {
   // ---------------------------------------------------------------
 
   // Guarda los datos y avisa si salió bien o si hay errores
-  const handleSaveBusiness = () => {
+  const handleSaveBusiness = async () => {
     const texts = SETTINGS_TEXTS.business;
-    const saved = settings.saveBusiness();
+    const result = await settings.saveBusiness();
 
-    if (saved) Alert.alert(texts.savedTitle, texts.savedMessage);
-    else Alert.alert(texts.invalidTitle, texts.invalidMessage);
+    if (result.status === 'saved') Alert.alert(texts.savedTitle, texts.savedMessage);
+    else if (result.status === 'invalid') Alert.alert(texts.invalidTitle, texts.invalidMessage);
+    else Alert.alert(texts.invalidTitle, t(result.errorKey));
   };
 
   // ---------------------------------------------------------------

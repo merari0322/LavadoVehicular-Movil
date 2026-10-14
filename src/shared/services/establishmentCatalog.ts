@@ -13,6 +13,11 @@ const FALLBACK: EstablishmentResponse = {
   phone: '+57 312 490 8821',
   email: 'contacto@expresscarwash.co',
   logoUrl: null,
+  website: null,
+  instagram: null,
+  facebook: null,
+  supportLine: null,
+  serviceHoursNote: null,
 };
 
 let establishment: EstablishmentResponse = FALLBACK;
@@ -36,6 +41,12 @@ export function loadEstablishment(): Promise<void> {
       });
   }
   return loadPromise;
+}
+
+// vuelve a pedir la sede (por ejemplo, después de que el admin guarda los datos del negocio)
+export function refreshEstablishment(): Promise<void> {
+  loadPromise = null;
+  return loadEstablishment();
 }
 
 // hook reactivo: arranca la carga si hace falta y repinta la pantalla cuando llega

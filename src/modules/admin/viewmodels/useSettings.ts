@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
@@ -17,19 +16,74 @@ import {
   ThemeId,
 } from '../models/settings';
 import { pickQrImage } from '../services/qrPicker';
-import {
-  INITIAL_BUSINESS,
-  INITIAL_NOTIFICATION_PREFERENCES,
-} from '../services/settingsMock';
+import { INITIAL_NOTIFICATION_PREFERENCES } from '../services/settingsMock';
 import { PaymentAccount, SaveAccountRequest, paymentService } from '../../../core/services/payments/PaymentService';
 import { bookingService } from '../../../core/services/booking/BookingService';
+import { BusinessDataDto } from '../../../core/services/booking/booking.types';
+import { refreshEstablishment } from '../../../shared/services/establishmentCatalog';
+import { apiErrorKey } from '../../../core/api/apiError';
 import { AccountPreferences, preferencesService } from '../../../core/services/users/PreferencesService';
 
-// el booking-service no tiene (todavía) un endpoint para guardar los datos del negocio:
-// /api/v1/establishment es solo lectura. Igual que en la web (BusinessStore, localStorage),
-// mientras tanto quedan en el celular. Los interruptores de notificaciones sí se guardan en la
-// cuenta (security-service) y notification-service los respeta.
-const BUSINESS_STORAGE_KEY = 'admin-business-data';
+// los datos del negocio se leen y se guardan en booking-service (GET/PUT /admin/establishment), que
+// valida las reglas. Los interruptores de notificaciones se guardan en la cuenta (security-service)
+// y notification-service los respeta.
+const EMPTY_BUSINESS: BusinessData = {
+  legalName: '', taxId: '', businessType: '', foundedAt: '', legalRepresentative: '', legalDocument: '',
+  address: '', phone: '', email: '', website: '',
+  taxRegime: '', ciiuActivity: '', dianResolution: '', invoicePrefix: '', invoiceRange: '',
+  instagram: '', facebook: '', supportLine: '', schedule: '',
+};
+
+// vacío viaja como null para que la base no guarde textos en blanco
+const orNull = (value: string): string | null => (value.trim() === '' ? null : value.trim());
+
+const fromDto = (dto: BusinessDataDto): BusinessData => ({
+  legalName: dto.legalName ?? '',
+  taxId: dto.taxId ?? '',
+  businessType: dto.businessType ?? '',
+  foundedAt: dto.foundedOn ? isoToDisplay(dto.foundedOn) : '',
+  legalRepresentative: dto.legalRepresentative ?? '',
+  legalDocument: dto.legalRepresentativeDocument ?? '',
+  address: dto.address ?? '',
+  phone: dto.phone ?? '',
+  email: dto.email ?? '',
+  website: dto.website ?? '',
+  taxRegime: dto.taxRegime ?? '',
+  ciiuActivity: dto.ciiuActivity ?? '',
+  dianResolution: dto.dianResolution ?? '',
+  invoicePrefix: dto.invoicePrefix ?? '',
+  invoiceRange: dto.invoiceRange ?? '',
+  instagram: dto.instagram ?? '',
+  facebook: dto.facebook ?? '',
+  supportLine: dto.supportLine ?? '',
+  schedule: dto.serviceHoursNote ?? '',
+});
+
+const toDto = (data: BusinessData): BusinessDataDto => ({
+  tradeName: null, // el nombre comercial no se edita aquí: el backend conserva el actual
+  legalName: data.legalName.trim(),
+  taxId: data.taxId.trim(),
+  businessType: orNull(data.businessType),
+  foundedOn: data.foundedAt.trim() ? displayToISO(data.foundedAt.trim()) : null,
+  legalRepresentative: orNull(data.legalRepresentative),
+  legalRepresentativeDocument: orNull(data.legalDocument),
+  address: data.address.trim(),
+  phone: orNull(data.phone),
+  email: orNull(data.email),
+  website: orNull(data.website),
+  taxRegime: orNull(data.taxRegime),
+  ciiuActivity: orNull(data.ciiuActivity),
+  dianResolution: orNull(data.dianResolution),
+  invoicePrefix: orNull(data.invoicePrefix),
+  invoiceRange: orNull(data.invoiceRange),
+  instagram: orNull(data.instagram),
+  facebook: orNull(data.facebook),
+  supportLine: orNull(data.supportLine),
+  serviceHoursNote: orNull(data.schedule),
+});
+
+// resultado de guardar: invalid = errores del formulario; error = llave de traducción del backend
+export type SaveBusinessResult = { status: 'saved' } | { status: 'invalid' } | { status: 'error'; errorKey: string };
 
 const toPreferences = (prefs: AccountPreferences): NotificationPreferences => ({
   push: prefs.notificationsEnabled,
@@ -60,7 +114,7 @@ function methodCodeFor(name: string, type: string): string {
   if (text.includes('efectivo') || text.includes('cash') || type === 'other') return 'EFECTIVO';
   return 'TRANSFERENCIA';
 }
-import { displayToISO } from '../utils/reservationUtils';
+import { displayToISO, isoToDisplay } from '../utils/reservationUtils';
 import { countDigits, isValidEmail } from '../utils/settingsUtils';
 
 // Resultado de validar los datos del negocio: un mensaje de error por campo
@@ -120,39 +174,24 @@ export function useSettings() {
       .catch(() => undefined);
   }, []);
 
-  // Datos del negocio: guardado y borrador que se está editando. Arranca con los datos de
-  // ejemplo; la carga real (abajo) los reemplaza en cuanto responde el backend o el celular.
-  const [savedBusiness, setSavedBusiness] = useState<BusinessData>(INITIAL_BUSINESS);
-  const [draftBusiness, setDraftBusiness] = useState<BusinessData>(INITIAL_BUSINESS);
+  // Datos del negocio: lo guardado en booking-service y el borrador que se está editando.
+  // businessLoaded queda en false hasta que responde: así no se guarda un formulario vacío.
+  const [savedBusiness, setSavedBusiness] = useState<BusinessData>(EMPTY_BUSINESS);
+  const [draftBusiness, setDraftBusiness] = useState<BusinessData>(EMPTY_BUSINESS);
+  const [businessLoaded, setBusinessLoaded] = useState(false);
+  const [savingBusiness, setSavingBusiness] = useState(false);
   const [showAllErrors, setShowAllErrors] = useState(false);
 
-  // trae lo real del booking-service (nombre, nit, dirección, teléfono, correo) y, encima, lo que
-  // el admin haya guardado antes en este celular para los campos que el backend no tiene
-  useEffect(() => {
-    (async () => {
-      let merged = INITIAL_BUSINESS;
-      try {
-        const establishment = await bookingService.establishment();
-        merged = {
-          ...merged,
-          legalName: establishment.legalName,
-          address: establishment.address,
-          phone: establishment.phone ?? merged.phone,
-          email: establishment.email ?? merged.email,
-        };
-      } catch {
-        // sin conexión al booking-service se queda con los datos de ejemplo
-      }
-      try {
-        const raw = await AsyncStorage.getItem(BUSINESS_STORAGE_KEY);
-        if (raw) merged = { ...merged, ...JSON.parse(raw) };
-      } catch {
-        // nada guardado localmente todavía
-      }
-      setSavedBusiness(merged);
-      setDraftBusiness(merged);
-    })();
+  const loadBusiness = useCallback(async () => {
+    const business = fromDto(await bookingService.businessData());
+    setSavedBusiness(business);
+    setDraftBusiness(business);
+    setBusinessLoaded(true);
   }, []);
+
+  useEffect(() => {
+    loadBusiness().catch(() => undefined);
+  }, [loadBusiness]);
 
   // Métodos de pago: cuentas reales del lavadero (payment-service)
   const [payments, setPayments] = useState<PaymentMethod[]>([]);
@@ -234,19 +273,26 @@ export function useSettings() {
     setShowAllErrors(false);
   };
 
-  // Guarda los datos (devuelve false si hay errores). El booking-service todavía no tiene un
-  // endpoint para escribir establishment, así que por ahora queda en el celular, igual que en la
-  // web (BusinessStore); el nombre, dirección, teléfono y correo sí llegan de ahí al abrir.
-  const saveBusiness = (): boolean => {
-    if (Object.keys(validateBusiness(draftBusiness)).length > 0) {
+  // Guarda en booking-service. Primero revisa el formulario (para marcar los campos en rojo); las
+  // reglas las vuelve a validar el backend y, si las rechaza, se devuelve su mensaje.
+  const saveBusiness = async (): Promise<SaveBusinessResult> => {
+    if (!businessLoaded || Object.keys(validateBusiness(draftBusiness)).length > 0) {
       setShowAllErrors(true);
-      return false;
+      return { status: 'invalid' };
     }
-
-    setSavedBusiness(draftBusiness);
-    setShowAllErrors(false);
-    AsyncStorage.setItem(BUSINESS_STORAGE_KEY, JSON.stringify(draftBusiness)).catch(() => undefined);
-    return true;
+    setSavingBusiness(true);
+    try {
+      const saved = fromDto(await bookingService.saveBusinessData(toDto(draftBusiness)));
+      setSavedBusiness(saved);
+      setDraftBusiness(saved);
+      setShowAllErrors(false);
+      void refreshEstablishment();
+      return { status: 'saved' };
+    } catch (error) {
+      return { status: 'error', errorKey: apiErrorKey(error) };
+    } finally {
+      setSavingBusiness(false);
+    }
   };
 
   // ---------------------------------------------------------------
@@ -326,6 +372,9 @@ export function useSettings() {
     updateBusiness,
     discardBusiness,
     saveBusiness,
+    businessLoaded,
+    savingBusiness,
+    reloadBusiness: loadBusiness,
     // Métodos de pago
     payments,
     activePayments,

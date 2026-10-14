@@ -1097,7 +1097,12 @@
     "CANNOT_DISABLE_OWN_ACCOUNT": "No puedes desactivar tu propia cuenta",
     "UNKNOWN_PERMISSION": "Uno de los permisos elegidos ya no existe. Recarga la página e inténtalo de nuevo.",
     "SERVICE_TOO_EARLY": "Todavía no puedes iniciar este servicio: se habilita 15 minutos antes de la hora de la reserva.",
-    "BOOKING_IN_PAST": "Esta reserva ya pasó: no se le puede asignar un operario. Márcala como \"No asistió\" o cancélala."
+    "BOOKING_IN_PAST": "Esta reserva ya pasó: no se le puede asignar un operario. Márcala como \"No asistió\" o cancélala.",
+    "ESTABLISHMENT_REQUIRED_FIELD": "La razón social, el NIT y la dirección son obligatorios",
+    "ESTABLISHMENT_INVALID_PHONE": "El teléfono debe tener al menos 7 dígitos",
+    "ESTABLISHMENT_INVALID_EMAIL": "El correo del negocio no es válido",
+    "ESTABLISHMENT_INVALID_FOUNDATION_DATE": "La fecha de constitución no puede ser futura",
+    "ESTABLISHMENT_NOT_FOUND": "Los datos del negocio no están configurados"
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Cambiar contraseña",
