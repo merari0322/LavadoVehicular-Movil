@@ -9,7 +9,7 @@ import { ActionButton } from '../../../shared/components/screen/ActionButton';
 import { SectionCard } from '../../../shared/components/screen/SectionCard';
 import { vehicleIcon } from '../../../shared/constants/business';
 import { isoToDisplay } from '../../../shared/utils/format';
-import { OperatorReservation, statusIcon, statusLabel, statusTone } from '../models/operator';
+import { OperatorReservation, statusIcon, statusLabel, statusTone, canStartNow, startFromLabel } from '../models/operator';
 
 interface ReservationCardProps {
   reservation: OperatorReservation;
@@ -50,13 +50,18 @@ export function ReservationCard({ reservation: r, showDate = false, onStart, onF
 
       <View style={styles.actions}>
         {r.status === 'pendiente' ? (
-          <ActionButton small icon="play-arrow" label={t('SCHEDULE.START')} onPress={() => onStart(r)} />
+          <ActionButton small icon="play-arrow" label={t('SCHEDULE.START')} disabled={!canStartNow(r)} onPress={() => onStart(r)} />
         ) : null}
         {r.status === 'en_progreso' ? (
           <ActionButton small icon="check" label={t('SCHEDULE.FINISH')} onPress={() => onFinish(r)} />
         ) : null}
         <ActionButton small variant="outline" icon="visibility" label={t('SCHEDULE.VIEW_DETAIL')} onPress={() => onDetail(r)} />
       </View>
+      {r.status === 'pendiente' && !canStartNow(r) ? (
+        <Text style={[styles.detailText, { color: colors.textMuted }]}>
+          {t('OPERATOR_WORK.START_FROM', { time: startFromLabel(r) })}
+        </Text>
+      ) : null}
     </SectionCard>
   );
 }

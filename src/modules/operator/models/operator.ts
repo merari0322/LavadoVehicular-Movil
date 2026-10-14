@@ -24,6 +24,23 @@ export interface OperatorReservation {
   // calificación del cliente cuando ya terminó (operations-service)
   rating?: number | null;
   comment?: string | null;
+  // desde cuándo se puede iniciar (lo calcula operations-service)
+  startableAt?: string | null;
+}
+
+/**
+ * Si el botón "Iniciar" ya se puede usar. La regla (15 minutos antes de la reserva) la decide
+ * operations-service en startableAt; aquí solo se compara con la hora actual.
+ */
+export function canStartNow(r: OperatorReservation): boolean {
+  return !r.startableAt || Date.now() >= Date.parse(r.startableAt);
+}
+
+/** Hora local (HH:mm) desde la que se podrá iniciar, para el aviso junto al botón. */
+export function startFromLabel(r: OperatorReservation): string {
+  if (!r.startableAt) return '';
+  const d = new Date(r.startableAt);
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
 }
 
 export function statusLabel(status: ReservationStatus): string {

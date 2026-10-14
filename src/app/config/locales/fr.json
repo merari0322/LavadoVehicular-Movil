@@ -1092,7 +1092,8 @@
     "NETWORK_ERROR": "Impossible de joindre le serveur. Réessayez dans un instant.",
     "UNEXPECTED": "Une erreur inattendue est survenue. Réessayez.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "Vous ne pouvez pas désactiver votre propre compte",
-    "UNKNOWN_PERMISSION": "L’une des autorisations choisies n’existe plus. Rechargez la page et réessayez."
+    "UNKNOWN_PERMISSION": "L’une des autorisations choisies n’existe plus. Rechargez la page et réessayez.",
+    "SERVICE_TOO_EARLY": "Vous ne pouvez pas encore démarrer ce service : il s'ouvre 15 minutes avant l'heure de la réservation."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Changer le mot de passe",
@@ -1370,5 +1371,8 @@
     "OPERATOR_NOT_ON_SHIFT": "Pas de créneau à cette heure",
     "OPERATOR_ABSENT": "Absent",
     "OPERATOR_BUSY": "Occupé à cette heure"
+  },
+  "OPERATOR_WORK": {
+    "START_FROM": "Vous pourrez le démarrer à partir de {{time}} (15 minutes avant la réservation)."
   }
 }

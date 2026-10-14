@@ -1092,7 +1092,8 @@
     "NETWORK_ERROR": "Cannot reach the server. Please try again in a moment.",
     "UNEXPECTED": "An unexpected error occurred. Please try again.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "You cannot disable your own account",
-    "UNKNOWN_PERMISSION": "One of the selected permissions no longer exists. Reload the page and try again."
+    "UNKNOWN_PERMISSION": "One of the selected permissions no longer exists. Reload the page and try again.",
+    "SERVICE_TOO_EARLY": "You cannot start this service yet: it opens 15 minutes before the booking time."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Change password",
@@ -1370,5 +1371,8 @@
     "OPERATOR_NOT_ON_SHIFT": "No shift at that time",
     "OPERATOR_ABSENT": "Absent",
     "OPERATOR_BUSY": "Busy at that time"
+  },
+  "OPERATOR_WORK": {
+    "START_FROM": "You can start it from {{time}} (15 minutes before the booking)."
   }
 }

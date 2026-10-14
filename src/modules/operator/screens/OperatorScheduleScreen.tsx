@@ -16,7 +16,7 @@ import { toISODate, todayISO } from '../../../shared/utils/format';
 import { MiniCalendar } from '../components/MiniCalendar';
 import { ReservationCard } from '../components/ReservationCard';
 import { ReservationDetailModal } from '../components/ReservationDetailModal';
-import { OperatorReservation } from '../models/operator';
+import { OperatorReservation, canStartNow } from '../models/operator';
 import { useOperatorReservations } from '../viewmodels/useOperatorReservations';
 
 type Tab = 'day' | 'week' | 'completed';
@@ -117,7 +117,7 @@ export function OperatorScheduleScreen() {
               </Text>
             </View>
             {next.status === 'pendiente' ? (
-              <ActionButton small label={t('SCHEDULE.START')} onPress={() => vm.start(next)} />
+              <ActionButton small label={t('SCHEDULE.START')} disabled={!canStartNow(next)} onPress={() => vm.start(next)} />
             ) : (
               <ActionButton small label={t('SCHEDULE.FINISH')} onPress={() => vm.finish(next)} />
             )}
