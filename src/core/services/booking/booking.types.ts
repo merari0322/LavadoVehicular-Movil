@@ -75,6 +75,14 @@ export interface ScheduleHistoryEntryResponse {
   changedBy: number | null;
 }
 
+// reservas del día frente al día anterior (booking-service, fecha del lavadero)
+export interface DaySummaryResponse {
+  date: string;
+  bookings: number;
+  previousDayBookings: number;
+  difference: number;
+}
+
 export interface EstablishmentResponse {
   tradeName: string;
   legalName: string;
