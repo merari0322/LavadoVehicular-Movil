@@ -23,7 +23,8 @@ import { apiErrorKey } from '../../../core/api/apiError';
 function toItem(r: RatingResponse): RatingItem {
   return {
     id: r.bookingId,
-    client: r.plate || '—',
+    // nombre del cliente y la placa de su vehículo (si no hay nombre, solo la placa)
+    client: r.clientName ? `${r.clientName} · ${r.plate}` : r.plate || '—',
     service: r.services,
     date: r.date,
     rating: r.rating,

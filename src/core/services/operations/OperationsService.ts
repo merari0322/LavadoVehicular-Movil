@@ -83,6 +83,8 @@ export interface RatingResponse {
   comment: string | null;
   ratedAt: string;
   operatorName: string;
+  // primer nombre del cliente (lo ve el operario); vacío si security-service no lo devolvió
+  clientName: string;
 }
 
 const base = { baseUrl: OPERATIONS_API_URL };
