@@ -228,13 +228,13 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   const confirmPayment = async () => {
     if (!canConfirm || !booking) return;
 
-    // efectivo: se paga en el lavadero, no hay comprobante que reportar
-    if (method === 'CASH' || !account || !receipt) {
-      setFlowStep('VERIFYING');
-      save({ flowStep: 'VERIFYING' });
-      feedback.showStatus({ title: t('PAYMENT.SUCCESS_TITLE'), message: t('PAYMENT.SUCCESS_MESSAGE') });
+    // efectivo: se paga en el lavadero y lo registra el administrador ("Registrar pago en el
+    // local"), que lo deja aprobado. Aquí no se reporta nada ni queda "en verificación"
+    if (method === 'CASH') {
+      feedback.showStatus({ title: t('PAYMENT.CASH_INFO_TITLE'), message: t('PAYMENT.CASH_INFO_MESSAGE') });
       return;
     }
+    if (!account || !receipt) return;
 
     setSending(true);
     try {

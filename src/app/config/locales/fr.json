@@ -862,7 +862,9 @@
     },
     "RECEIPT_PICK": "Joindre le justificatif",
     "RECEIPT_CHANGE": "Changer le justificatif",
-    "EMPTY": "Aucun paiement en attente"
+    "EMPTY": "Aucun paiement en attente",
+    "CASH_INFO_TITLE": "Vous payez sur place",
+    "CASH_INFO_MESSAGE": "Payez en espèces lorsque vous récupérez votre véhicule. L'administrateur enregistrera le paiement et vous recevrez la notification de paiement approuvé."
   },
   "VEHICLES": {
     "TITLE": "Mes Véhicules",
