@@ -62,6 +62,9 @@ export function ServiceFormModal({ visible, service, onClose, onSubmit }: Servic
 
   // El botón se habilita cuando hay nombre y precio válidos
   const isValid = name.trim().length >= 3 && parseAmount(price) > 0;
+  // el error se muestra cuando ya escribió algo que no sirve; vacío solo deja el botón bloqueado
+  const nameError = name.length > 0 && name.trim().length < 3 ? texts.nameError : undefined;
+  const priceError = price.length > 0 && parseAmount(price) <= 0 ? texts.priceError : undefined;
 
   const handleSubmit = () => {
     if (!isValid) return;
@@ -92,6 +95,7 @@ export function ServiceFormModal({ visible, service, onClose, onSubmit }: Servic
         value={name}
         onChangeText={setName}
         placeholder={texts.namePlaceholder}
+        error={nameError}
         autoCapitalize="sentences"
       />
 
@@ -101,6 +105,7 @@ export function ServiceFormModal({ visible, service, onClose, onSubmit }: Servic
         onChangeText={(text) => setPrice(maskAmount(text))}
         placeholder={texts.pricePlaceholder}
         hint={texts.priceHint}
+        error={priceError}
         keyboardType="number-pad"
         maxLength={11}
         prefix="$"
