@@ -1097,7 +1097,12 @@
     "CANNOT_DISABLE_OWN_ACCOUNT": "You cannot disable your own account",
     "UNKNOWN_PERMISSION": "One of the selected permissions no longer exists. Reload the page and try again.",
     "SERVICE_TOO_EARLY": "You cannot start this service yet: it opens 15 minutes before the booking time.",
-    "BOOKING_IN_PAST": "This booking is already in the past: it cannot be assigned. Mark it as no-show or cancel it."
+    "BOOKING_IN_PAST": "This booking is already in the past: it cannot be assigned. Mark it as no-show or cancel it.",
+    "ESTABLISHMENT_REQUIRED_FIELD": "Legal name, tax ID and address are required",
+    "ESTABLISHMENT_INVALID_PHONE": "The phone needs at least 7 digits",
+    "ESTABLISHMENT_INVALID_EMAIL": "The business email is not valid",
+    "ESTABLISHMENT_INVALID_FOUNDATION_DATE": "The foundation date cannot be in the future",
+    "ESTABLISHMENT_NOT_FOUND": "The business data is not set up"
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Change password",

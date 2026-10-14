@@ -10,6 +10,7 @@ import {
   CatalogServiceRequest,
   CatalogServiceResponse,
   CreateBookingRequest,
+  BusinessDataDto,
   EstablishmentResponse,
   HoursExceptionRequest,
   HoursExceptionResponse,
@@ -51,6 +52,17 @@ export const bookingService = {
 
   establishment(): Promise<EstablishmentResponse> {
     return request<EstablishmentResponse>('GET', '/establishment', base);
+  },
+
+  /* ---------- datos del negocio (admin) ---------- */
+
+  businessData(): Promise<BusinessDataDto> {
+    return request<BusinessDataDto>('GET', '/admin/establishment', base);
+  },
+
+  // el backend valida las reglas y devuelve lo guardado
+  saveBusinessData(data: BusinessDataDto): Promise<BusinessDataDto> {
+    return request<BusinessDataDto>('PUT', '/admin/establishment', { ...base, body: data });
   },
 
   /* ---------- reservas del cliente ---------- */
