@@ -17,6 +17,8 @@ import { withAlpha } from '../../../shared/utils/color';
 import { VehicleFormModal } from '../components/VehicleFormModal';
 import { VehicleCard, VehicleFormValue, normalizePlate } from '../models/client';
 import { useClientVehicles } from '../viewmodels/useClientVehicles';
+import { useClientBookings } from '../viewmodels/useClientBookings';
+import { isFinishedStatus } from '../../../core/services/booking/bookingDisplay';
 
 // estado del modal: cerrado, registrando (vehicle = null) o editando un vehículo
 type FormState = { visible: false } | { visible: true; vehicle: VehicleCard | null };
@@ -26,6 +28,9 @@ export function ClientVehiclesScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const vm = useClientVehicles();
+  // lavados realizados: reservas terminadas del cliente, igual que en el inicio
+  const { bookings } = useClientBookings();
+  const washesDone = bookings.filter((booking) => isFinishedStatus(booking.status)).length;
   const feedback = useFeedback();
   const [form, setForm] = useState<FormState>({ visible: false });
 
@@ -79,8 +84,7 @@ export function ClientVehiclesScreen() {
 
         <StatGrid>
           <StatTile icon="directions-car" value={vm.vehicles.length} label={t('VEHICLES.STATS.TOTAL')} />
-          {/* total y fecha del último lavado los dará booking-service (todavía no existe) */}
-          <StatTile icon="water-drop" value={0} label={t('VEHICLES.STATS.WASHES')} />
+          <StatTile icon="water-drop" value={washesDone} label={t('VEHICLES.STATS.WASHES')} />
         </StatGrid>
 
         {vm.loading && vm.vehicles.length === 0 ? (
