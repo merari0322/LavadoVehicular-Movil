@@ -68,7 +68,7 @@ export function OperatorProfileCard({
       <View style={styles.info}>
         <View style={styles.specialtyRow}>
           <MaterialIcons name="verified" size={18} color={colors.primaryHover} />
-          <Text style={styles.specialty}>{operator.specialty}</Text>
+          <Text style={styles.specialty}>{operator.specialty || OPERATOR_TEXTS.profile.noSpecialty}</Text>
         </View>
         {operator.reviews > 0 ? <InfoLine icon="star" text={ratingText} /> : null}
         <InfoLine icon="directions-car" text={texts.bayLine(bayName || OPERATOR_TEXTS.card.noBay)} />
