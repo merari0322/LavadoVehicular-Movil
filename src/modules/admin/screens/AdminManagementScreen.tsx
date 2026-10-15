@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../../app/theme';
 import { ConfirmDialog } from '../../../shared/components/feedback/ConfirmDialog';
@@ -30,6 +30,7 @@ import { useManagement } from '../viewmodels/useManagement';
 import { useSystemRoles, useUserAccounts } from '../viewmodels/useUserAccounts';
 import { CreateAccountPayload } from '../../../core/services/users/UserAdminService';
 import { apiErrorKey } from '../../../core/api/apiError';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 // Estado de un modal de formulario: abierto/cerrado y el registro que se edita (null = crear)
 interface FormState<T> {
@@ -98,7 +99,7 @@ export const AdminManagementScreen = () => {
     const failure = await accounts.createAccount(values);
     if (!failure) {
       setUserFormVisible(false);
-      Alert.alert(MANAGEMENT_TEXTS.users.form.createdTitle, MANAGEMENT_TEXTS.users.form.createdMessage(`${values.firstName} ${values.lastName}`));
+      AppAlert.alert(MANAGEMENT_TEXTS.users.form.createdTitle, MANAGEMENT_TEXTS.users.form.createdMessage(`${values.firstName} ${values.lastName}`), undefined, { type: 'success' });
     }
     return failure;
   };
@@ -116,7 +117,7 @@ export const AdminManagementScreen = () => {
       onConfirm: async () => {
         setConfirm(null);
         const failure = await accounts.toggleActive(id);
-        if (failure) Alert.alert(texts.statusError, failure);
+        if (failure) AppAlert.alert(texts.statusError, failure, undefined, { type: 'error' });
       },
     });
   };
@@ -130,7 +131,7 @@ export const AdminManagementScreen = () => {
       await management.updateRole(values);
       setRoleForm(CLOSED);
     } catch (error) {
-      Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)));
+      AppAlert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' });
     }
   };
 
@@ -145,7 +146,7 @@ export const AdminManagementScreen = () => {
       setServiceForm(CLOSED);
     } catch (error) {
       // si el backend rechaza (p. ej. nombre repetido) se avisa sin cerrar el modal
-      Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)));
+      AppAlert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' });
     }
   };
 
@@ -155,7 +156,7 @@ export const AdminManagementScreen = () => {
       MANAGEMENT_TEXTS.services.deleteMessage(service.name),
       () =>
         management.deleteService(service.id).catch((error) =>
-          Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error))),
+          AppAlert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' }),
         ),
     );
 
@@ -169,7 +170,7 @@ export const AdminManagementScreen = () => {
       else await management.createPromotion(values);
       setPromotionForm(CLOSED);
     } catch (error) {
-      Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)));
+      AppAlert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' });
     }
   };
 
@@ -179,7 +180,7 @@ export const AdminManagementScreen = () => {
       MANAGEMENT_TEXTS.promotions.deleteMessage(promotion.name),
       () =>
         management.deletePromotion(promotion.id).catch((error) =>
-          Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error))),
+          AppAlert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' }),
         ),
     );
 
@@ -224,7 +225,7 @@ export const AdminManagementScreen = () => {
               onEdit={(service) => setServiceForm({ visible: true, item: service })}
               onToggle={(id) => {
                 void management.toggleServiceActive(id).catch((error) =>
-                  Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error))),
+                  AppAlert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' }),
                 );
               }}
               onDelete={handleServiceDelete}
@@ -239,7 +240,7 @@ export const AdminManagementScreen = () => {
               onEdit={(promotion) => setPromotionForm({ visible: true, item: promotion })}
               onChangeStatus={(id, status) => {
                 void management.changePromotionStatus(id, status).catch((error) =>
-                  Alert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error))),
+                  AppAlert.alert(MANAGEMENT_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' }),
                 );
               }}
               onDelete={handlePromotionDelete}

@@ -1,16 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
 import { SelectField, SelectOption } from '../../../../shared/components/forms/SelectField';
@@ -22,6 +11,8 @@ import { paymentService } from '../../../../core/services/payments/PaymentServic
 import { toISODate } from '../../../../shared/utils/format';
 import { formatCOP } from '../../../../shared/utils/format';
 import { ReservationField } from '../reservations/ReservationField';
+import { ModalCloseButton } from '../../../../shared/components/feedback/ModalCloseButton';
+import { ModalShell } from '../../../../shared/components/feedback/ModalShell';
 
 interface ManualPaymentModalProps {
   visible: boolean;
@@ -108,88 +99,75 @@ export function ManualPaymentModal({ visible, onClose, onSubmit }: ManualPayment
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <KeyboardAvoidingView
-        style={styles.backdrop}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <View style={styles.sheet}>
-          {/* Encabezado */}
-          <View style={styles.header}>
-            <View style={styles.flex}>
-              <Text style={styles.title}>{texts.title}</Text>
-              <Text style={styles.subtitle}>{texts.subtitle}</Text>
-            </View>
-            <Pressable onPress={onClose} hitSlop={10}>
-              <MaterialIcons name="close" size={22} color={colors.text} />
-            </Pressable>
+    <ModalShell visible={visible} onRequestClose={onClose} keyboardAvoiding>
+      <View style={styles.sheet}>
+        {/* Encabezado */}
+        <View style={styles.header}>
+          <View style={styles.flex}>
+            <Text style={styles.title}>{texts.title}</Text>
+            <Text style={styles.subtitle}>{texts.subtitle}</Text>
           </View>
-
-          {/* Campos */}
-          <ScrollView
-            style={styles.body}
-            contentContainerStyle={styles.bodyContent}
-            keyboardShouldPersistTaps="handled"
-          >
-            <ReservationField label={texts.service}>
-              <SelectField
-                value={bookingId}
-                options={bookings.map((b) => ({ value: String(b.id), label: b.label }))}
-                onChange={setBookingId}
-              />
-            </ReservationField>
-
-            <View style={styles.row}>
-              <ReservationField label={texts.amount} style={styles.flex}>
-                <TextInput style={styles.input} value={amountLabel} editable={false} />
-              </ReservationField>
-              <ReservationField label={texts.method} style={styles.methodField}>
-                <SelectField value={accountId} options={accounts} onChange={setAccountId} />
-              </ReservationField>
-            </View>
-
-            <ReservationField label={texts.reference}>
-              <TextInput
-                style={styles.input}
-                value={reference}
-                onChangeText={setReference}
-                placeholder={texts.referencePlaceholder}
-                placeholderTextColor={colors.textMuted}
-                autoCapitalize="characters"
-                autoCorrect={false}
-                maxLength={100}
-              />
-            </ReservationField>
-          </ScrollView>
-
-          {/* Botones */}
-          <View style={styles.footer}>
-            <Pressable style={[styles.button, styles.cancelButton]} onPress={onClose}>
-              <Text style={styles.cancelText}>{texts.cancel}</Text>
-            </Pressable>
-            <Pressable
-              style={[styles.button, styles.submitButton, !isValid && styles.disabled]}
-              onPress={handleSubmit}
-              disabled={!isValid}
-            >
-              <Text style={styles.submitText}>{texts.submit}</Text>
-            </Pressable>
-          </View>
+          <ModalCloseButton onPress={onClose} />
         </View>
-      </KeyboardAvoidingView>
-    </Modal>
+
+        {/* Campos */}
+        <ScrollView
+          style={styles.body}
+          contentContainerStyle={styles.bodyContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <ReservationField label={texts.service}>
+            <SelectField
+              value={bookingId}
+              options={bookings.map((b) => ({ value: String(b.id), label: b.label }))}
+              onChange={setBookingId}
+            />
+          </ReservationField>
+
+          <View style={styles.row}>
+            <ReservationField label={texts.amount} style={styles.flex}>
+              <TextInput style={styles.input} value={amountLabel} editable={false} />
+            </ReservationField>
+            <ReservationField label={texts.method} style={styles.methodField}>
+              <SelectField value={accountId} options={accounts} onChange={setAccountId} />
+            </ReservationField>
+          </View>
+
+          <ReservationField label={texts.reference}>
+            <TextInput
+              style={styles.input}
+              value={reference}
+              onChangeText={setReference}
+              placeholder={texts.referencePlaceholder}
+              placeholderTextColor={colors.textMuted}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              maxLength={100}
+            />
+          </ReservationField>
+        </ScrollView>
+
+        {/* Botones */}
+        <View style={styles.footer}>
+          <Pressable style={[styles.button, styles.cancelButton]} onPress={onClose}>
+            <Text style={styles.cancelText}>{texts.cancel}</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.button, styles.submitButton, !isValid && styles.disabled]}
+            onPress={handleSubmit}
+            disabled={!isValid}
+          >
+            <Text style={styles.submitText}>{texts.submit}</Text>
+          </Pressable>
+        </View>
+      </View>
+    </ModalShell>
   );
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     flex: { flex: 1 },
-    backdrop: {
-      flex: 1,
-      justifyContent: 'center',
-      padding: 16,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
     sheet: {
       maxHeight: '92%',
       borderRadius: 24,

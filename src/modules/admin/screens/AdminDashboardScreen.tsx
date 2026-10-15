@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../app/theme';
 import { RootStackParamList } from '../../../core/navigation/types';
@@ -20,6 +20,7 @@ import { Payment } from '../models/payment';
 import { Reservation } from '../models/reservation';
 import { formatCOP, useAdminDashboardViewModel } from '../viewmodels/useAdminDashboardViewModel';
 import { useServicesByOperator } from '../viewmodels/useServicesByOperator';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminDashboard'>;
 
@@ -35,7 +36,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
   const [reviewing, setReviewing] = useState<Payment | null>(null);
   // si payment-service rechaza la aprobación o el rechazo, se explica por qué (ya traducido)
   const reportPaymentError = (error: unknown) => {
-    if (error) Alert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)));
+    if (error) AppAlert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)), undefined, { type: 'error' });
   };
   const [assigning, setAssigning] = useState<Reservation | null>(null);
   const servicesByOperator = useServicesByOperator(vm.reservations);
@@ -45,7 +46,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
     if (!(await vm.assignOperator(reservation.id, operatorId))) return;
     const name = vm.operatorsFull.find((item) => item.id === operatorId)?.name ?? '';
     setTimeout(
-      () => Alert.alert(RESERVATION_TEXTS.assign.successTitle, RESERVATION_TEXTS.assign.successMessage(name, reservation.code)),
+      () => AppAlert.alert(RESERVATION_TEXTS.assign.successTitle, RESERVATION_TEXTS.assign.successMessage(name, reservation.code), undefined, { type: 'success' }),
       300,
     );
   };

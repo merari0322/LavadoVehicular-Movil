@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ConfirmDialog } from '../../../shared/components/feedback/ConfirmDialog';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
@@ -25,6 +25,7 @@ import { useSchedule } from '../viewmodels/useSchedule';
 import { apiErrorKey } from '../../../core/api/apiError';
 import { ActionButton } from '../../../shared/components/screen/ActionButton';
 import { EmptyState } from '../components/management/ManagementParts';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 // Estado de un modal de formulario: abierto/cerrado y el registro que se edita (null = crear)
 interface FormState<T> {
@@ -76,10 +77,10 @@ export const AdminScheduleScreen = () => {
     const texts = SCHEDULE_TEXTS.week;
     try {
       const saved = await schedule.saveWeek();
-      if (saved) Alert.alert(texts.savedTitle, texts.savedMessage);
-      else Alert.alert(texts.invalidTitle, texts.invalidMessage);
+      if (saved) AppAlert.alert(texts.savedTitle, texts.savedMessage, undefined, { type: 'success' });
+      else AppAlert.alert(texts.invalidTitle, texts.invalidMessage, undefined, { type: 'warning' });
     } catch (error) {
-      Alert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error)));
+      AppAlert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' });
     }
   };
 
@@ -93,7 +94,7 @@ export const AdminScheduleScreen = () => {
       else await schedule.createException(values);
       setExceptionForm(CLOSED);
     } catch (error) {
-      Alert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error)));
+      AppAlert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' });
     }
   };
 
@@ -103,7 +104,7 @@ export const AdminScheduleScreen = () => {
       SCHEDULE_TEXTS.exceptions.deleteMessage(isoToDisplay(exception.date)),
       () =>
         schedule.deleteException(exception.id).catch((error) =>
-          Alert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error))),
+          AppAlert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' }),
         ),
     );
 
@@ -117,7 +118,7 @@ export const AdminScheduleScreen = () => {
       else await schedule.createBay(values);
       setBayForm(CLOSED);
     } catch (error) {
-      Alert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error)));
+      AppAlert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' });
     }
   };
 
@@ -127,7 +128,7 @@ export const AdminScheduleScreen = () => {
       SCHEDULE_TEXTS.bays.deleteMessage(bay.name),
       () =>
         schedule.deleteBay(bay.id).catch((error) =>
-          Alert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error))),
+          AppAlert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' }),
         ),
     );
 
@@ -182,7 +183,7 @@ export const AdminScheduleScreen = () => {
               onEdit={(bay) => setBayForm({ visible: true, item: bay })}
               onChangeStatus={(id, status) => {
                 void schedule.changeBayStatus(id, status).catch((error) =>
-                  Alert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error))),
+                  AppAlert.alert(SCHEDULE_TEXTS.common.saveError, t(apiErrorKey(error)), undefined, { type: 'error' }),
                 );
               }}
               onDelete={handleBayDelete}

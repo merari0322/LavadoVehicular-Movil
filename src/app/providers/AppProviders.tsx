@@ -5,6 +5,7 @@ import { restoreSavedLanguage } from '../config/i18n';
 import { AuthServiceProvider } from '../../core/services/auth';
 import { ThemeProvider } from '../theme';
 import { AccountPreferencesSync } from './AccountPreferencesSync';
+import { AppAlertHost } from '../../shared/components/feedback/AppAlert';
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -28,6 +29,8 @@ export function AppProviders({ children }: AppProvidersProps) {
           {/* tema e idioma por cuenta (security-service) */}
           <AccountPreferencesSync />
           {children}
+          {/* alertas de la app (AppAlert.alert), encima de todas las pantallas */}
+          <AppAlertHost />
         </AuthServiceProvider>
       </ThemeProvider>
     </SafeAreaProvider>

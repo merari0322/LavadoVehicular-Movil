@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { apiErrorKey } from '../../../core/api/apiError';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,6 +17,7 @@ import { PAYMENT_TEXTS } from '../constants/paymentTexts';
 import { ManualPaymentValues, Payment } from '../models/payment';
 import { isoToDisplay } from '../utils/reservationUtils';
 import { usePayments } from '../viewmodels/usePayments';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 // Escapa un valor para CSV (comillas dobles)
 const csvValue = (value: string): string => `"${value.replace(/"/g, '""')}"`;
@@ -48,7 +49,7 @@ export const AdminPaymentsScreen = () => {
   // Guarda el pago manual y cierra el modal
   // muestra el error del backend (ya traducido) si la acción falla
   const report = (error: unknown) => {
-    if (error) Alert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)));
+    if (error) AppAlert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)), undefined, { type: 'error' });
   };
 
   const handleManualSubmit = async (values: ManualPaymentValues) => {
@@ -74,7 +75,7 @@ export const AdminPaymentsScreen = () => {
     const code = payment?.code ?? id;
     const texts = PAYMENT_TEXTS.review;
     setSelectedPayment(null);
-    Alert.alert(texts.refundTitle, texts.refundMessage(code), [
+    AppAlert.alert(texts.refundTitle, texts.refundMessage(code), [
       { text: t('COMMON.CANCEL'), style: 'cancel' },
       {
         text: texts.refundConfirm,
@@ -82,7 +83,7 @@ export const AdminPaymentsScreen = () => {
         onPress: async () => {
           const error = await refundPayment(id);
           if (error) report(error);
-          else Alert.alert(texts.refundedTitle, texts.refundedMessage(code));
+          else AppAlert.alert(texts.refundedTitle, texts.refundedMessage(code), undefined, { type: 'success' });
         },
       },
     ]);

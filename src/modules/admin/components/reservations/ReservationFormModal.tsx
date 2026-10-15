@@ -1,16 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
 import { SelectField, SelectOption } from '../../../../shared/components/forms/SelectField';
@@ -34,6 +23,8 @@ import {
   maskTime,
 } from '../../utils/reservationUtils';
 import { ReservationField } from './ReservationField';
+import { ModalCloseButton } from '../../../../shared/components/feedback/ModalCloseButton';
+import { ModalShell } from '../../../../shared/components/feedback/ModalShell';
 
 interface ReservationFormModalProps {
   visible: boolean;
@@ -221,191 +212,178 @@ export function ReservationFormModal({
   const inputStyle = (field: keyof FormState) => [styles.input, errors[field] ? styles.inputError : null];
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <KeyboardAvoidingView
-        style={styles.backdrop}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <View style={styles.sheet}>
-          {/* Encabezado */}
-          <View style={styles.header}>
-            <View style={styles.flex}>
-              <Text style={styles.title}>{isEditing ? TEXTS.form.editTitle : TEXTS.form.createTitle}</Text>
-              <Text style={styles.subtitle}>{TEXTS.form.subtitle}</Text>
-            </View>
-            <Pressable onPress={onClose} hitSlop={10}>
-              <MaterialIcons name="close" size={22} color={colors.text} />
-            </Pressable>
+    <ModalShell visible={visible} onRequestClose={onClose} keyboardAvoiding>
+      <View style={styles.sheet}>
+        {/* Encabezado */}
+        <View style={styles.header}>
+          <View style={styles.flex}>
+            <Text style={styles.title}>{isEditing ? TEXTS.form.editTitle : TEXTS.form.createTitle}</Text>
+            <Text style={styles.subtitle}>{TEXTS.form.subtitle}</Text>
           </View>
-
-          {/* Campos */}
-          <ScrollView
-            style={styles.body}
-            contentContainerStyle={styles.bodyContent}
-            keyboardShouldPersistTaps="handled"
-          >
-            <ReservationField label={TEXTS.form.customer} required error={errors.customerName}>
-              <TextInput
-                style={inputStyle('customerName')}
-                value={state.customerName}
-                onChangeText={(text) => setField('customerName', text)}
-                placeholder={TEXTS.form.customerPlaceholder}
-                placeholderTextColor={colors.textMuted}
-                autoCapitalize="words"
-              />
-            </ReservationField>
-
-            <ReservationField label={TEXTS.form.phone} required error={errors.phone}>
-              <TextInput
-                style={inputStyle('phone')}
-                value={state.phone}
-                onChangeText={(text) => setField('phone', text)}
-                placeholder={TEXTS.form.phonePlaceholder}
-                placeholderTextColor={colors.textMuted}
-                keyboardType="phone-pad"
-              />
-            </ReservationField>
-
-            <ReservationField label={TEXTS.form.email} error={errors.email}>
-              <TextInput
-                style={inputStyle('email')}
-                value={state.email}
-                onChangeText={(text) => setField('email', text)}
-                placeholder={TEXTS.form.emailPlaceholder}
-                placeholderTextColor={colors.textMuted}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </ReservationField>
-
-            <View style={styles.row}>
-              <ReservationField label={TEXTS.form.vehicle} required error={errors.vehicle} style={styles.flex}>
-                <TextInput
-                  style={inputStyle('vehicle')}
-                  value={state.vehicle}
-                  onChangeText={(text) => setField('vehicle', text)}
-                  placeholder={TEXTS.form.vehiclePlaceholder}
-                  placeholderTextColor={colors.textMuted}
-                />
-              </ReservationField>
-              <ReservationField label={TEXTS.form.plate} required error={errors.plate} style={styles.flex}>
-                <TextInput
-                  style={inputStyle('plate')}
-                  value={state.plate}
-                  onChangeText={(text) => setField('plate', text.toUpperCase())}
-                  placeholder={TEXTS.form.platePlaceholder}
-                  placeholderTextColor={colors.textMuted}
-                  autoCapitalize="characters"
-                  maxLength={8}
-                />
-              </ReservationField>
-            </View>
-
-            <ReservationField label={TEXTS.form.service} required error={errors.serviceId}>
-              <SelectField
-                value={state.serviceId}
-                options={serviceSelectOptions}
-                onChange={handleServiceChange}
-                hasError={Boolean(errors.serviceId)}
-              />
-            </ReservationField>
-
-            <View style={styles.row}>
-              <ReservationField label={TEXTS.form.date} required error={errors.date} style={styles.dateField}>
-                <TextInput
-                  style={inputStyle('date')}
-                  value={state.date}
-                  onChangeText={(text) => setField('date', maskDate(text))}
-                  placeholder={TEXTS.filters.datePlaceholder}
-                  placeholderTextColor={colors.textMuted}
-                  keyboardType="number-pad"
-                  maxLength={10}
-                />
-              </ReservationField>
-              <ReservationField label={TEXTS.form.time} required error={errors.time} style={styles.smallField}>
-                <TextInput
-                  style={inputStyle('time')}
-                  value={state.time}
-                  onChangeText={(text) => setField('time', maskTime(text))}
-                  placeholder="hh:mm"
-                  placeholderTextColor={colors.textMuted}
-                  keyboardType="number-pad"
-                  maxLength={5}
-                />
-              </ReservationField>
-            </View>
-
-            <View style={styles.row}>
-              <ReservationField label={TEXTS.form.duration} error={errors.duration} style={styles.flex}>
-                <TextInput
-                  style={inputStyle('duration')}
-                  value={state.duration}
-                  onChangeText={(text) => setField('duration', text.replace(/\D/g, ''))}
-                  keyboardType="number-pad"
-                  maxLength={3}
-                />
-              </ReservationField>
-              <ReservationField label={TEXTS.form.bay} style={styles.flex}>
-                <SelectField
-                  value={state.bayId}
-                  options={baySelectOptions}
-                  onChange={(value) => setField('bayId', value)}
-                />
-              </ReservationField>
-            </View>
-
-            <ReservationField label={TEXTS.form.operator}>
-              <SelectField
-                value={state.operatorId}
-                options={OPERATOR_OPTIONS}
-                onChange={(value) => setField('operatorId', value)}
-              />
-            </ReservationField>
-
-            <ReservationField label={TEXTS.form.status}>
-              <SelectField
-                value={state.status}
-                options={STATUS_OPTIONS}
-                onChange={(value) => setField('status', value as ReservationStatus)}
-              />
-            </ReservationField>
-
-            <ReservationField label={TEXTS.form.notes}>
-              <TextInput
-                style={[styles.input, styles.notesInput]}
-                value={state.notes}
-                onChangeText={(text) => setField('notes', text)}
-                placeholder={TEXTS.form.notesPlaceholder}
-                placeholderTextColor={colors.textMuted}
-                multiline
-              />
-            </ReservationField>
-          </ScrollView>
-
-          {/* Botones */}
-          <View style={styles.footer}>
-            <Pressable style={[styles.button, styles.cancelButton]} onPress={onClose}>
-              <Text style={styles.cancelText}>{TEXTS.form.cancel}</Text>
-            </Pressable>
-            <Pressable style={[styles.button, styles.submitButton]} onPress={handleSubmit}>
-              <Text style={styles.submitText}>{isEditing ? TEXTS.form.save : TEXTS.form.create}</Text>
-            </Pressable>
-          </View>
+          <ModalCloseButton onPress={onClose} />
         </View>
-      </KeyboardAvoidingView>
-    </Modal>
+
+        {/* Campos */}
+        <ScrollView
+          style={styles.body}
+          contentContainerStyle={styles.bodyContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <ReservationField label={TEXTS.form.customer} required error={errors.customerName}>
+            <TextInput
+              style={inputStyle('customerName')}
+              value={state.customerName}
+              onChangeText={(text) => setField('customerName', text)}
+              placeholder={TEXTS.form.customerPlaceholder}
+              placeholderTextColor={colors.textMuted}
+              autoCapitalize="words"
+            />
+          </ReservationField>
+
+          <ReservationField label={TEXTS.form.phone} required error={errors.phone}>
+            <TextInput
+              style={inputStyle('phone')}
+              value={state.phone}
+              onChangeText={(text) => setField('phone', text)}
+              placeholder={TEXTS.form.phonePlaceholder}
+              placeholderTextColor={colors.textMuted}
+              keyboardType="phone-pad"
+            />
+          </ReservationField>
+
+          <ReservationField label={TEXTS.form.email} error={errors.email}>
+            <TextInput
+              style={inputStyle('email')}
+              value={state.email}
+              onChangeText={(text) => setField('email', text)}
+              placeholder={TEXTS.form.emailPlaceholder}
+              placeholderTextColor={colors.textMuted}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </ReservationField>
+
+          <View style={styles.row}>
+            <ReservationField label={TEXTS.form.vehicle} required error={errors.vehicle} style={styles.flex}>
+              <TextInput
+                style={inputStyle('vehicle')}
+                value={state.vehicle}
+                onChangeText={(text) => setField('vehicle', text)}
+                placeholder={TEXTS.form.vehiclePlaceholder}
+                placeholderTextColor={colors.textMuted}
+              />
+            </ReservationField>
+            <ReservationField label={TEXTS.form.plate} required error={errors.plate} style={styles.flex}>
+              <TextInput
+                style={inputStyle('plate')}
+                value={state.plate}
+                onChangeText={(text) => setField('plate', text.toUpperCase())}
+                placeholder={TEXTS.form.platePlaceholder}
+                placeholderTextColor={colors.textMuted}
+                autoCapitalize="characters"
+                maxLength={8}
+              />
+            </ReservationField>
+          </View>
+
+          <ReservationField label={TEXTS.form.service} required error={errors.serviceId}>
+            <SelectField
+              value={state.serviceId}
+              options={serviceSelectOptions}
+              onChange={handleServiceChange}
+              hasError={Boolean(errors.serviceId)}
+            />
+          </ReservationField>
+
+          <View style={styles.row}>
+            <ReservationField label={TEXTS.form.date} required error={errors.date} style={styles.dateField}>
+              <TextInput
+                style={inputStyle('date')}
+                value={state.date}
+                onChangeText={(text) => setField('date', maskDate(text))}
+                placeholder={TEXTS.filters.datePlaceholder}
+                placeholderTextColor={colors.textMuted}
+                keyboardType="number-pad"
+                maxLength={10}
+              />
+            </ReservationField>
+            <ReservationField label={TEXTS.form.time} required error={errors.time} style={styles.smallField}>
+              <TextInput
+                style={inputStyle('time')}
+                value={state.time}
+                onChangeText={(text) => setField('time', maskTime(text))}
+                placeholder="hh:mm"
+                placeholderTextColor={colors.textMuted}
+                keyboardType="number-pad"
+                maxLength={5}
+              />
+            </ReservationField>
+          </View>
+
+          <View style={styles.row}>
+            <ReservationField label={TEXTS.form.duration} error={errors.duration} style={styles.flex}>
+              <TextInput
+                style={inputStyle('duration')}
+                value={state.duration}
+                onChangeText={(text) => setField('duration', text.replace(/\D/g, ''))}
+                keyboardType="number-pad"
+                maxLength={3}
+              />
+            </ReservationField>
+            <ReservationField label={TEXTS.form.bay} style={styles.flex}>
+              <SelectField
+                value={state.bayId}
+                options={baySelectOptions}
+                onChange={(value) => setField('bayId', value)}
+              />
+            </ReservationField>
+          </View>
+
+          <ReservationField label={TEXTS.form.operator}>
+            <SelectField
+              value={state.operatorId}
+              options={OPERATOR_OPTIONS}
+              onChange={(value) => setField('operatorId', value)}
+            />
+          </ReservationField>
+
+          <ReservationField label={TEXTS.form.status}>
+            <SelectField
+              value={state.status}
+              options={STATUS_OPTIONS}
+              onChange={(value) => setField('status', value as ReservationStatus)}
+            />
+          </ReservationField>
+
+          <ReservationField label={TEXTS.form.notes}>
+            <TextInput
+              style={[styles.input, styles.notesInput]}
+              value={state.notes}
+              onChangeText={(text) => setField('notes', text)}
+              placeholder={TEXTS.form.notesPlaceholder}
+              placeholderTextColor={colors.textMuted}
+              multiline
+            />
+          </ReservationField>
+        </ScrollView>
+
+        {/* Botones */}
+        <View style={styles.footer}>
+          <Pressable style={[styles.button, styles.cancelButton]} onPress={onClose}>
+            <Text style={styles.cancelText}>{TEXTS.form.cancel}</Text>
+          </Pressable>
+          <Pressable style={[styles.button, styles.submitButton]} onPress={handleSubmit}>
+            <Text style={styles.submitText}>{isEditing ? TEXTS.form.save : TEXTS.form.create}</Text>
+          </Pressable>
+        </View>
+      </View>
+    </ModalShell>
   );
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     flex: { flex: 1 },
-    backdrop: {
-      flex: 1,
-      justifyContent: 'center',
-      padding: 16,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
     sheet: {
       maxHeight: '92%',
       borderRadius: 24,

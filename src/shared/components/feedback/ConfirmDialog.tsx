@@ -1,7 +1,10 @@
-import React, { useMemo } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useTheme } from '../../../app/theme';
-import { ThemeColors } from '../../../app/theme/colors';
+import React from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
+import { spacing } from '../../../app/theme';
+import { DialogCard, DialogTone } from './DialogCard';
+import { ModalShell } from './ModalShell';
+
+type IconName = keyof typeof MaterialIcons.glyphMap;
 
 interface ConfirmDialogProps {
   visible: boolean;
@@ -10,8 +13,12 @@ interface ConfirmDialogProps {
   confirmLabel: string;
   cancelLabel: string;
   danger?: boolean; // Botón de confirmar en rojo
+  icon?: IconName;
+  confirmIcon?: IconName;
   onConfirm: () => void;
   onCancel: () => void;
+  // contenido extra bajo el mensaje
+  children?: React.ReactNode;
 }
 
 // Diálogo de confirmación (por ejemplo, antes de eliminar algo)
@@ -22,50 +29,28 @@ export function ConfirmDialog({
   confirmLabel,
   cancelLabel,
   danger = true,
+  icon,
+  confirmIcon,
   onConfirm,
   onCancel,
+  children,
 }: ConfirmDialogProps) {
-  const { colors } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
+  const tone: DialogTone = danger ? 'danger' : 'primary';
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
-      <View style={styles.backdrop}>
-        <View style={styles.card}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.message}>{message}</Text>
-
-          <View style={styles.buttons}>
-            <Pressable style={[styles.button, styles.cancelButton]} onPress={onCancel}>
-              <Text style={styles.cancelText}>{cancelLabel}</Text>
-            </Pressable>
-            <Pressable
-              style={[styles.button, { backgroundColor: danger ? colors.error : colors.primary }]}
-              onPress={onConfirm}
-            >
-              <Text style={styles.confirmText}>{confirmLabel}</Text>
-            </Pressable>
-          </View>
-        </View>
-      </View>
-    </Modal>
+    <ModalShell visible={visible} onRequestClose={onCancel} onBackdropPress={onCancel} padding={spacing.xl}>
+      <DialogCard
+        tone={tone}
+        icon={icon ?? (danger ? 'warning-amber' : 'help-outline')}
+        title={title}
+        message={message}
+        actions={[
+          { label: cancelLabel, onPress: onCancel, kind: 'cancel' },
+          { label: confirmLabel, onPress: onConfirm, kind: 'confirm', icon: confirmIcon },
+        ]}
+      >
+        {children}
+      </DialogCard>
+    </ModalShell>
   );
 }
-
-const createStyles = (colors: ThemeColors) =>
-  StyleSheet.create({
-    backdrop: {
-      flex: 1,
-      justifyContent: 'center',
-      padding: 24,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    card: { gap: 10, padding: 20, borderRadius: 22, backgroundColor: colors.card },
-    title: { fontSize: 18, fontWeight: '800', color: colors.text },
-    message: { fontSize: 14, lineHeight: 20, color: colors.textSecondary },
-    buttons: { flexDirection: 'row', gap: 12, marginTop: 8 },
-    button: { flex: 1, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
-    cancelButton: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
-    cancelText: { fontSize: 14, fontWeight: '700', color: colors.text },
-    confirmText: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
-  });

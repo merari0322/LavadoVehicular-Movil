@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
 import { ChartCard } from '../components/reports/ChartCard';
@@ -12,6 +12,7 @@ import { TotalRevenueCard } from '../components/reports/TotalRevenueCard';
 import { REPORT_TEXTS } from '../constants/reportTexts';
 import { ExportFormat } from '../models/reports';
 import { useReports } from '../viewmodels/useReports';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 export const AdminReportsScreen = () => {
   // vuelve a pintar la pantalla cuando cambia el idioma
@@ -27,9 +28,9 @@ export const AdminReportsScreen = () => {
 
     if (exported) {
       setExportVisible(false);
-      Alert.alert(texts.successTitle, texts.successMessage);
+      AppAlert.alert(texts.successTitle, texts.successMessage, undefined, { type: 'success' });
     } else {
-      Alert.alert(texts.errorTitle, texts.errorMessage);
+      AppAlert.alert(texts.errorTitle, texts.errorMessage, undefined, { type: 'error' });
     }
   };
 

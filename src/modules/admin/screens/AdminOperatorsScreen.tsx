@@ -1,14 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  Alert,
-  BackHandler,
-  Pressable,
-  ScrollView,
-  Share,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { BackHandler, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -31,6 +22,7 @@ import { TodayServicesCard } from '../components/operators/TodayServicesCard';
 import { OPERATOR_TEXTS } from '../constants/operatorTexts';
 import { AbsenceFormValues, AvailabilityDay, Operator, TodayService } from '../models/operator';
 import { useOperators } from '../viewmodels/useOperators';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 export const AdminOperatorsScreen = () => {
   const { colors } = useTheme();
@@ -77,7 +69,7 @@ export const AdminOperatorsScreen = () => {
 
   // los operarios son cuentas de security con rol Operario: se crean y editan en Gestión → Usuarios
   const goToUsers = () =>
-    Alert.alert(OPERATOR_TEXTS.newOperator, OPERATOR_TEXTS.manageInUsers, [
+    AppAlert.alert(OPERATOR_TEXTS.newOperator, OPERATOR_TEXTS.manageInUsers, [
       { text: 'OK', onPress: () => navigation.navigate('AdminManagement') },
     ]);
 
@@ -98,7 +90,7 @@ export const AdminOperatorsScreen = () => {
 
   // Muestra el resumen de un servicio del día
   const handleServiceOpen = (service: TodayService) =>
-    Alert.alert(
+    AppAlert.alert(
       `${service.code} · ${service.vehicle}`,
       [
         service.service,

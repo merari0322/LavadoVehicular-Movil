@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { RootStackParamList } from '../../../core/navigation/types';
 import { AuthScreenLayout } from '../components/AuthScreenLayout';
@@ -11,6 +11,7 @@ import { PasswordRequirements } from '../../../shared/components/forms/PasswordR
 import { PrimaryButton } from '../../../shared/components/ui/PrimaryButton';
 import { useTheme } from '../../../app/theme';
 import { useRegisterViewModel } from '../viewmodels/useRegisterViewModel';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -23,9 +24,9 @@ export function RegisterScreen({ navigation }: Props) {
   const handleSubmit = async () => {
     const success = await vm.submit();
     if (success) {
-      Alert.alert(t('REGISTER.SUCCESS_TITLE'), t('REGISTER.SUCCESS_MESSAGE'), [
+      AppAlert.alert(t('REGISTER.SUCCESS_TITLE'), t('REGISTER.SUCCESS_MESSAGE'), [
         { text: t('REGISTER.SUCCESS_BUTTON'), onPress: () => navigation.replace('Login') },
-      ]);
+      ], { type: 'success' });
     }
   };
 

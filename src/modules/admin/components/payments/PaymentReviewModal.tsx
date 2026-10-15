@@ -1,16 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  Share,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
@@ -27,6 +16,8 @@ import {
 } from '../../utils/paymentUtils';
 import { PaymentStatusBadge } from './PaymentBadges';
 import { PaymentReceipt } from './PaymentReceipt';
+import { ModalCloseButton } from '../../../../shared/components/feedback/ModalCloseButton';
+import { ModalShell } from '../../../../shared/components/feedback/ModalShell';
 
 interface PaymentReviewModalProps {
   payment: Payment | null; // null = modal cerrado
@@ -202,196 +193,183 @@ export function PaymentReviewModal({ payment, onClose, onApprove, onReject, onRe
   };
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <KeyboardAvoidingView
-        style={styles.backdrop}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <View style={styles.sheet}>
-          {/* Encabezado: título, estado y descripción */}
-          <View style={styles.header}>
-            <View style={styles.flex}>
-              <Text style={styles.title}>
-                {isPending ? texts.reviewTitle(payment.code) : texts.detailTitle(payment.code)}
-              </Text>
-              <View style={styles.badgeWrapper}>
-                <PaymentStatusBadge status={payment.status} />
-              </View>
-              <Text style={styles.subtitle}>{texts.subtitle}</Text>
+    <ModalShell visible={true} onRequestClose={onClose} keyboardAvoiding>
+      <View style={styles.sheet}>
+        {/* Encabezado: título, estado y descripción */}
+        <View style={styles.header}>
+          <View style={styles.flex}>
+            <Text style={styles.title}>
+              {isPending ? texts.reviewTitle(payment.code) : texts.detailTitle(payment.code)}
+            </Text>
+            <View style={styles.badgeWrapper}>
+              <PaymentStatusBadge status={payment.status} />
             </View>
-            <Pressable onPress={onClose} hitSlop={10}>
-              <MaterialIcons name="close" size={22} color={colors.text} />
-            </Pressable>
+            <Text style={styles.subtitle}>{texts.subtitle}</Text>
+          </View>
+          <ModalCloseButton onPress={onClose} />
+        </View>
+
+        <ScrollView
+          style={styles.body}
+          contentContainerStyle={styles.bodyContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Comprobante */}
+          <Text style={styles.sectionLabel}>{texts.attachment}</Text>
+          <PaymentReceipt payment={payment} />
+
+          {/* Cliente y cita vinculada */}
+          <View style={styles.customerBlock}>
+            <Text style={styles.customerName}>{payment.customerName}</Text>
+            {payment.reservationCode ? (
+              <View style={styles.linkChip}>
+                <Text style={styles.linkChipText}>
+                  {texts.linkedAppointment(payment.reservationCode)}
+                </Text>
+              </View>
+            ) : null}
+            <Text style={styles.infoDetail}>{contactLine}</Text>
+            {payment.document ? (
+              <Text style={styles.infoDetail}>
+                {texts.document}: {payment.document}
+              </Text>
+            ) : null}
           </View>
 
-          <ScrollView
-            style={styles.body}
-            contentContainerStyle={styles.bodyContent}
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* Comprobante */}
-            <Text style={styles.sectionLabel}>{texts.attachment}</Text>
-            <PaymentReceipt payment={payment} />
+          {/* Servicio y horario */}
+          <View style={styles.twoColumns}>
+            <InfoBlock label={texts.serviceVehicle} value={payment.serviceName} detail={vehicleLine} />
+            <InfoBlock label={texts.scheduleBay} value={schedule} detail={bayAndOperator} />
+          </View>
 
-            {/* Cliente y cita vinculada */}
-            <View style={styles.customerBlock}>
-              <Text style={styles.customerName}>{payment.customerName}</Text>
-              {payment.reservationCode ? (
-                <View style={styles.linkChip}>
-                  <Text style={styles.linkChipText}>
-                    {texts.linkedAppointment(payment.reservationCode)}
-                  </Text>
-                </View>
-              ) : null}
-              <Text style={styles.infoDetail}>{contactLine}</Text>
-              {payment.document ? (
-                <Text style={styles.infoDetail}>
-                  {texts.document}: {payment.document}
-                </Text>
-              ) : null}
+          {/* Conciliación bancaria */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, styles.flex]}>{texts.reconciliation}</Text>
+              <View style={styles.smallChip}>
+                <Text style={styles.smallChipText}>{isCash ? texts.cashVerified : texts.verified}</Text>
+              </View>
             </View>
-
-            {/* Servicio y horario */}
             <View style={styles.twoColumns}>
-              <InfoBlock label={texts.serviceVehicle} value={payment.serviceName} detail={vehicleLine} />
-              <InfoBlock label={texts.scheduleBay} value={schedule} detail={bayAndOperator} />
-            </View>
-
-            {/* Conciliación bancaria */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, styles.flex]}>{texts.reconciliation}</Text>
-                <View style={styles.smallChip}>
-                  <Text style={styles.smallChipText}>{isCash ? texts.cashVerified : texts.verified}</Text>
-                </View>
+              <View style={styles.flex}>
+                <Text style={styles.infoLabel}>{texts.method}</Text>
+                <Text style={styles.infoValue}>{PAYMENT_TEXTS.methods[payment.method]}</Text>
               </View>
-              <View style={styles.twoColumns}>
-                <View style={styles.flex}>
-                  <Text style={styles.infoLabel}>{texts.method}</Text>
-                  <Text style={styles.infoValue}>{PAYMENT_TEXTS.methods[payment.method]}</Text>
-                </View>
-                <View style={styles.flex}>
-                  <Text style={styles.infoLabel}>{texts.transactionRef}</Text>
-                  <Text style={styles.infoValue}>{payment.reference}</Text>
-                </View>
+              <View style={styles.flex}>
+                <Text style={styles.infoLabel}>{texts.transactionRef}</Text>
+                <Text style={styles.infoValue}>{payment.reference}</Text>
               </View>
             </View>
+          </View>
 
-            {/* Comparativa de montos */}
-            <AmountComparison payment={payment} />
+          {/* Comparativa de montos */}
+          <AmountComparison payment={payment} />
 
-            {/* Motivo del rechazo (solo si ya fue rechazado) */}
-            {isRejected && payment.rejectionReason ? (
-              <View style={[styles.reasonBox, { backgroundColor: colors.errorSoft }]}>
-                <Text style={[styles.sectionTitle, { color: colors.error }]}>{texts.rejectionSection}</Text>
-                <Text style={styles.reasonText}>{payment.rejectionReason}</Text>
-              </View>
-            ) : null}
+          {/* Motivo del rechazo (solo si ya fue rechazado) */}
+          {isRejected && payment.rejectionReason ? (
+            <View style={[styles.reasonBox, { backgroundColor: colors.errorSoft }]}>
+              <Text style={[styles.sectionTitle, { color: colors.error }]}>{texts.rejectionSection}</Text>
+              <Text style={styles.reasonText}>{payment.rejectionReason}</Text>
+            </View>
+          ) : null}
 
-            {/* Campo para escribir el motivo al rechazar */}
+          {/* Campo para escribir el motivo al rechazar */}
+          {rejecting ? (
+            <View style={styles.reasonInputWrapper}>
+              <Text style={styles.infoLabel}>{texts.reasonLabel}</Text>
+              <TextInput
+                style={[styles.reasonInput, reasonError && styles.reasonInputError]}
+                value={reason}
+                onChangeText={(text) => {
+                  setReason(text);
+                  setReasonError(false);
+                }}
+                placeholder={texts.reasonPlaceholder}
+                placeholderTextColor={colors.textMuted}
+                multiline
+                autoFocus
+              />
+              {reasonError ? <Text style={styles.errorText}>{texts.reasonError}</Text> : null}
+            </View>
+          ) : null}
+        </ScrollView>
+
+        {/* Pie: auditor y botones */}
+        <View style={styles.footer}>
+          <Text style={styles.auditText}>
+            {texts.auditedBy(payment.auditedBy || `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim())}
+          </Text>
+
+          <View style={styles.footerButtons}>
             {rejecting ? (
-              <View style={styles.reasonInputWrapper}>
-                <Text style={styles.infoLabel}>{texts.reasonLabel}</Text>
-                <TextInput
-                  style={[styles.reasonInput, reasonError && styles.reasonInputError]}
-                  value={reason}
-                  onChangeText={(text) => {
-                    setReason(text);
-                    setReasonError(false);
-                  }}
-                  placeholder={texts.reasonPlaceholder}
-                  placeholderTextColor={colors.textMuted}
-                  multiline
-                  autoFocus
-                />
-                {reasonError ? <Text style={styles.errorText}>{texts.reasonError}</Text> : null}
-              </View>
-            ) : null}
-          </ScrollView>
+              <>
+                <Pressable
+                  style={[styles.button, styles.outlineButton]}
+                  onPress={() => setRejecting(false)}
+                >
+                  <Text style={styles.outlineText}>{texts.back}</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.button, styles.dangerButton]}
+                  onPress={handleConfirmReject}
+                >
+                  <Text style={styles.filledText}>{texts.confirmReject}</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Pressable style={[styles.button, styles.outlineButton]} onPress={onClose}>
+                  <Text style={styles.outlineText}>{texts.close}</Text>
+                </Pressable>
 
-          {/* Pie: auditor y botones */}
-          <View style={styles.footer}>
-            <Text style={styles.auditText}>
-              {texts.auditedBy(payment.auditedBy || `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim())}
-            </Text>
-
-            <View style={styles.footerButtons}>
-              {rejecting ? (
-                <>
-                  <Pressable
-                    style={[styles.button, styles.outlineButton]}
-                    onPress={() => setRejecting(false)}
-                  >
-                    <Text style={styles.outlineText}>{texts.back}</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[styles.button, styles.dangerButton]}
-                    onPress={handleConfirmReject}
-                  >
-                    <Text style={styles.filledText}>{texts.confirmReject}</Text>
-                  </Pressable>
-                </>
-              ) : (
-                <>
-                  <Pressable style={[styles.button, styles.outlineButton]} onPress={onClose}>
-                    <Text style={styles.outlineText}>{texts.close}</Text>
-                  </Pressable>
-
-                  {isPending ? (
-                    <>
-                      <Pressable
-                        style={[styles.button, styles.rejectButton]}
-                        onPress={() => setRejecting(true)}
-                      >
-                        <Text style={styles.rejectText}>{texts.reject}</Text>
-                      </Pressable>
-                      <Pressable
-                        style={[styles.button, styles.approveButton]}
-                        onPress={() => onApprove(payment.id)}
-                      >
-                        <MaterialIcons name="check" size={18} color="#FFFFFF" />
-                        <Text style={styles.filledText}>{texts.approve}</Text>
-                      </Pressable>
-                    </>
-                  ) : null}
-
-                  {isApproved && onRefund ? (
+                {isPending ? (
+                  <>
                     <Pressable
                       style={[styles.button, styles.rejectButton]}
-                      onPress={() => onRefund(payment.id)}
+                      onPress={() => setRejecting(true)}
                     >
-                      <Text style={styles.rejectText}>{texts.refund}</Text>
+                      <Text style={styles.rejectText}>{texts.reject}</Text>
                     </Pressable>
-                  ) : null}
-
-                  {isApproved ? (
                     <Pressable
                       style={[styles.button, styles.approveButton]}
-                      onPress={handleShareReceipt}
+                      onPress={() => onApprove(payment.id)}
                     >
-                      <MaterialIcons name="share" size={18} color="#FFFFFF" />
-                      <Text style={styles.filledText}>{texts.shareReceipt}</Text>
+                      <MaterialIcons name="check" size={18} color="#FFFFFF" />
+                      <Text style={styles.filledText}>{texts.approve}</Text>
                     </Pressable>
-                  ) : null}
-                </>
-              )}
-            </View>
+                  </>
+                ) : null}
+
+                {isApproved && onRefund ? (
+                  <Pressable
+                    style={[styles.button, styles.rejectButton]}
+                    onPress={() => onRefund(payment.id)}
+                  >
+                    <Text style={styles.rejectText}>{texts.refund}</Text>
+                  </Pressable>
+                ) : null}
+
+                {isApproved ? (
+                  <Pressable
+                    style={[styles.button, styles.approveButton]}
+                    onPress={handleShareReceipt}
+                  >
+                    <MaterialIcons name="share" size={18} color="#FFFFFF" />
+                    <Text style={styles.filledText}>{texts.shareReceipt}</Text>
+                  </Pressable>
+                ) : null}
+              </>
+            )}
           </View>
         </View>
-      </KeyboardAvoidingView>
-    </Modal>
+      </View>
+    </ModalShell>
   );
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     flex: { flex: 1 },
-    backdrop: {
-      flex: 1,
-      justifyContent: 'center',
-      padding: 16,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
     sheet: {
       maxHeight: '94%',
       borderRadius: 24,

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ConfirmDialog } from '../../../shared/components/feedback/ConfirmDialog';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
@@ -15,6 +15,7 @@ import { SettingsTabs } from '../components/settings/SettingsTabs';
 import { SETTINGS_TEXTS } from '../constants/settingsTexts';
 import { HelpTopic, PaymentMethod, PaymentMethodFormValues } from '../models/settings';
 import { useSettings } from '../viewmodels/useSettings';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 // Estado de un modal de formulario: abierto/cerrado y el registro que se edita (null = crear)
 interface FormState<T> {
@@ -79,9 +80,9 @@ export const AdminSettingsScreen = () => {
     const texts = SETTINGS_TEXTS.business;
     const result = await settings.saveBusiness();
 
-    if (result.status === 'saved') Alert.alert(texts.savedTitle, texts.savedMessage);
-    else if (result.status === 'invalid') Alert.alert(texts.invalidTitle, texts.invalidMessage);
-    else Alert.alert(texts.invalidTitle, t(result.errorKey));
+    if (result.status === 'saved') AppAlert.alert(texts.savedTitle, texts.savedMessage, undefined, { type: 'success' });
+    else if (result.status === 'invalid') AppAlert.alert(texts.invalidTitle, texts.invalidMessage, undefined, { type: 'warning' });
+    else AppAlert.alert(texts.invalidTitle, t(result.errorKey), undefined, { type: 'warning' });
   };
 
   // ---------------------------------------------------------------
@@ -109,7 +110,7 @@ export const AdminSettingsScreen = () => {
   const handleReplaceQr = async (method: PaymentMethod) => {
     const result = await settings.replaceQr(method.id);
     if (result === 'error') {
-      Alert.alert(SETTINGS_TEXTS.payments.qr.errorTitle, SETTINGS_TEXTS.payments.qr.errorMessage);
+      AppAlert.alert(SETTINGS_TEXTS.payments.qr.errorTitle, SETTINGS_TEXTS.payments.qr.errorMessage, undefined, { type: 'error' });
     }
   };
 
