@@ -128,6 +128,20 @@ export interface RatingResponse {
 
 const base = { baseUrl: OPERATIONS_API_URL };
 
+// especialidad y habilidades del operario (ficha del operario)
+export type OperatorSkillLevel = 'CERTIFIED' | 'EXPERT' | 'ADVANCED';
+
+export interface OperatorSkillDto {
+  name: string;
+  level: OperatorSkillLevel;
+}
+
+export interface OperatorProfileResponse {
+  operatorId: number;
+  specialty: string | null;
+  skills: OperatorSkillDto[];
+}
+
 // operario que atiende una reserva del cliente (solo su primer nombre)
 export interface BookingOperatorResponse {
   bookingId: number;
@@ -155,6 +169,16 @@ export const operationsService = {
 
   operators(): Promise<OperatorResponse[]> {
     return request<OperatorResponse[]>('GET', '/admin/operators', base);
+  },
+
+  // especialidad y habilidades de todos los operarios
+  operatorProfiles(): Promise<OperatorProfileResponse[]> {
+    return request<OperatorProfileResponse[]>('GET', '/admin/operators/profiles', base);
+  },
+
+  // reemplaza la especialidad y la lista completa de habilidades
+  updateOperatorProfile(id: number, specialty: string | null, skills: OperatorSkillDto[]): Promise<OperatorProfileResponse> {
+    return request<OperatorProfileResponse>('PUT', `/admin/operators/${id}/profile`, { ...base, body: { specialty, skills } });
   },
 
   setActive(id: number, active: boolean): Promise<OperatorResponse> {

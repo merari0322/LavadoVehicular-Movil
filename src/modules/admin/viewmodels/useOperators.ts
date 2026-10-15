@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { apiErrorKey } from '../../../core/api/apiError';
 import {
   AbsenceResponse,
+  OperatorProfileResponse,
   OperatorResponse,
+  OperatorSkillDto,
   TeamSummaryResponse,
   operationsService,
 } from '../../../core/services/operations/OperationsService';
@@ -50,7 +52,7 @@ function absenceDays(a: AbsenceResponse): { start: string; end: string } {
   return { start: localISO(new Date(a.startsAt)), end: localISO(end) };
 }
 
-function toOperator(o: OperatorResponse, absences: AbsenceResponse[]): Operator {
+function toOperator(o: OperatorResponse, absences: AbsenceResponse[], specialty: string): Operator {
   const today = getTodayISO();
   const current = absences.map((a) => ({ ...absenceDays(a), reason: a.reason })).find((a) => a.start <= today && today <= a.end);
   const availability: AvailabilityDay[] = WEEK_DAYS.map((day, index) => {
@@ -61,7 +63,7 @@ function toOperator(o: OperatorResponse, absences: AbsenceResponse[]): Operator 
     id: String(o.id),
     code: `OP-${o.id}`,
     name: o.fullName || `Operario ${o.id}`,
-    specialty: '',
+    specialty,
     phone: o.phone ?? '',
     email: o.email ?? '',
     status: current ? 'absent' : 'available',
@@ -84,6 +86,8 @@ export function useOperators() {
   const [reservations] = useSharedState<Reservation[]>('admin.reservations', []);
   // tarjetas del resumen: las calcula operations-service; null mientras carga o si falla
   const [summary, setSummary] = useSharedState<TeamSummaryResponse | null>('admin.operatorsSummary', null);
+  // especialidad y habilidades por operario (operations-service)
+  const [profiles, setProfiles] = useSharedState<Record<string, OperatorProfileResponse>>('admin.operatorProfiles', {});
   const { services, bays } = useReservationCatalog();
   const [filter, setFilter] = useState<OperatorFilter>('all');
   const [search, setSearch] = useState('');
@@ -94,10 +98,19 @@ export function useOperators() {
   const reload = useCallback(async () => {
     operationsService.teamSummary().then(setSummary).catch(() => setSummary(null));
     const list = await operationsService.operators();
-    const absences = await Promise.all(list.map((o) => operationsService.absences(o.id).catch(() => [] as AbsenceResponse[])));
+    // sin perfiles (especialidad y habilidades) los operarios se muestran igual
+    const [absences, profileList] = await Promise.all([
+      Promise.all(list.map((o) => operationsService.absences(o.id).catch(() => [] as AbsenceResponse[]))),
+      operationsService.operatorProfiles().catch(() => [] as OperatorProfileResponse[]),
+    ]);
+    const byOperator: Record<string, OperatorProfileResponse> = {};
+    profileList.forEach((p) => {
+      byOperator[String(p.operatorId)] = p;
+    });
     list.forEach((o, i) => absencesByOperator.set(String(o.id), absences[i]));
-    setRaw(list.map((o, i) => toOperator(o, absences[i])));
-  }, [setRaw, setSummary]);
+    setProfiles(byOperator);
+    setRaw(list.map((o, i) => toOperator(o, absences[i], byOperator[String(o.id)]?.specialty ?? '')));
+  }, [setRaw, setSummary, setProfiles]);
 
   useEffect(() => {
     // se carga una vez (las tarjetas y selectores también usan el hook); las acciones recargan
@@ -176,8 +189,14 @@ export function useOperators() {
       });
   };
 
-  // no hay backend de habilidades
-  const getSkills = (_operatorId: string): Skill[] => [];
+  // habilidades guardadas en operations-service (el nivel viaja en mayúsculas)
+  const getSkills = (operatorId: string): Skill[] =>
+    (profiles[operatorId]?.skills ?? []).map((skill, index) => ({
+      id: `${operatorId}-${index}`,
+      operatorId,
+      name: skill.name,
+      level: skill.level.toLowerCase() as Skill['level'],
+    }));
 
   // turno semanal como bloques del calendario (lunes a sábado)
   const getCalendarBlocks = (operatorId: string): CalendarBlock[] => {
@@ -231,6 +250,21 @@ export function useOperators() {
     return run(Promise.all(current.map((a) => operationsService.removeAbsence(Number(id), a.id))));
   };
 
+  // especialidad y habilidades: guardar reemplaza la lista completa. Devuelve null o el error
+  const saveProfile = async (id: string, specialty: string, skills: Skill[]): Promise<string | null> => {
+    const payload: OperatorSkillDto[] = skills.map((skill) => ({
+      name: skill.name.trim(),
+      level: skill.level.toUpperCase() as OperatorSkillDto['level'],
+    }));
+    try {
+      await operationsService.updateOperatorProfile(Number(id), specialty.trim() || null, payload);
+      await reload();
+      return null;
+    } catch (error) {
+      return t(apiErrorKey(error));
+    }
+  };
+
   // dar de alta o de baja (no se borra: tiene servicios y calificaciones)
   const setActive = (id: string, active: boolean) => run(operationsService.setActive(Number(id), active));
 
@@ -247,6 +281,7 @@ export function useOperators() {
     getAvailableBays,
     getTodayServices,
     getSkills,
+    saveProfile,
     getCalendarBlocks,
     saveAvailability,
     registerAbsence,

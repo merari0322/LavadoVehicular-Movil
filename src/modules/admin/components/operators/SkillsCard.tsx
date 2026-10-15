@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
 import { withAlpha } from '../../../../shared/utils/color';
@@ -12,18 +13,26 @@ interface SkillsCardProps {
   bayName: string;
   skills: Skill[];
   onExport: () => void;
+  // abre la edición de la especialidad y las habilidades
+  onEdit: () => void;
 }
 
 const texts = OPERATOR_TEXTS.skills;
 
 // Tarjeta con habilidades, certificaciones y la regla operativa de bahías
-export function SkillsCard({ operator, bayName, skills, onExport }: SkillsCardProps) {
+export function SkillsCard({ operator, bayName, skills, onExport, onEdit }: SkillsCardProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>{texts.title}</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>{texts.title}</Text>
+        <Pressable onPress={onEdit} hitSlop={6} style={({ pressed }) => [styles.editChip, pressed && { opacity: 0.7 }]}>
+          <MaterialIcons name="edit" size={15} color={colors.primary} />
+          <Text style={styles.editText}>{OPERATOR_TEXTS.profile.edit}</Text>
+        </Pressable>
+      </View>
 
       {skills.length === 0 ? (
         <Text style={styles.empty}>{texts.empty}</Text>
@@ -60,7 +69,18 @@ const createStyles = (colors: ThemeColors) =>
       borderColor: colors.border,
       backgroundColor: colors.card,
     },
-    title: { fontSize: 18, fontWeight: '800', color: colors.text },
+    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+    title: { flex: 1, fontSize: 18, fontWeight: '800', color: colors.text },
+    editChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      borderRadius: 999,
+      backgroundColor: withAlpha(colors.primary, 0.14),
+    },
+    editText: { fontSize: 12, fontWeight: '700', color: colors.primary },
     empty: { paddingVertical: 12, fontSize: 14, color: colors.textSecondary },
     skillRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 12 },
     skillBorder: { borderTopWidth: 1, borderTopColor: colors.border },

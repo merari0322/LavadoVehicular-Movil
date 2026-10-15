@@ -10,6 +10,7 @@ import { useTheme } from '../../../app/theme';
 import { ConfirmDialog } from '../../../shared/components/feedback/ConfirmDialog';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
 import { AbsenceModal } from '../components/operators/AbsenceModal';
+import { OperatorProfileModal } from '../components/operators/OperatorProfileModal';
 import { AvailabilityModal } from '../components/operators/AvailabilityModal';
 import { OperatorCard } from '../components/operators/OperatorCard';
 import { OperatorFilters } from '../components/operators/OperatorFilters';
@@ -20,7 +21,7 @@ import { OperatorsSummaryCards } from '../components/operators/OperatorsSummaryC
 import { SkillsCard } from '../components/operators/SkillsCard';
 import { TodayServicesCard } from '../components/operators/TodayServicesCard';
 import { OPERATOR_TEXTS } from '../constants/operatorTexts';
-import { AbsenceFormValues, AvailabilityDay, Operator, TodayService } from '../models/operator';
+import { AbsenceFormValues, AvailabilityDay, Operator, Skill, TodayService } from '../models/operator';
 import { useOperators } from '../viewmodels/useOperators';
 import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
@@ -39,6 +40,7 @@ export const AdminOperatorsScreen = () => {
   // Modales
   const [availabilityVisible, setAvailabilityVisible] = useState(false);
   const [absenceVisible, setAbsenceVisible] = useState(false);
+  const [profileVisible, setProfileVisible] = useState(false);
   const [returnTarget, setReturnTarget] = useState<Operator | null>(null);
 
   // Con el botón atrás del celular el detalle vuelve a la lista
@@ -81,6 +83,19 @@ export const AdminOperatorsScreen = () => {
   const handleAbsenceSubmit = (values: AbsenceFormValues) => {
     if (selected) operators.registerAbsence(selected.id, values);
     setAbsenceVisible(false);
+  };
+
+  // guarda en operations-service; si falla, el modal queda abierto con el error
+  const handleProfileSubmit = async (specialty: string, skills: Skill[]) => {
+    if (!selected) return null;
+    const failure = await operators.saveProfile(selected.id, specialty, skills);
+    if (!failure) {
+      setProfileVisible(false);
+      AppAlert.alert(OPERATOR_TEXTS.profile.savedTitle, OPERATOR_TEXTS.profile.savedMessage(selected.name), undefined, {
+        type: 'success',
+      });
+    }
+    return failure;
   };
 
   const handleReturnConfirm = () => {
@@ -190,6 +205,7 @@ export const AdminOperatorsScreen = () => {
           bayName={bayName}
           skills={operators.getSkills(operator.id)}
           onExport={handleExportSheet}
+          onEdit={() => setProfileVisible(true)}
         />
 
         {/* Calendario de turnos del operario (operators/:id/calendar en la web) */}
@@ -228,6 +244,17 @@ export const AdminOperatorsScreen = () => {
         onClose={() => setAbsenceVisible(false)}
         onSubmit={handleAbsenceSubmit}
       />
+      {selected ? (
+        <OperatorProfileModal
+          visible={profileVisible}
+          operatorId={selected.id}
+          operatorName={selected.name}
+          specialty={selected.specialty}
+          skills={operators.getSkills(selected.id)}
+          onClose={() => setProfileVisible(false)}
+          onSubmit={handleProfileSubmit}
+        />
+      ) : null}
 
       {/* Confirmación de reingreso */}
       <ConfirmDialog
