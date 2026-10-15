@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'react-native';
 import { setAppLanguage } from '../../../app/config/i18n';
 import { ThemeName, useTheme } from '../../../app/theme';
 import { SETTINGS_TEXTS } from '../constants/settingsTexts';
@@ -116,6 +115,7 @@ function methodCodeFor(name: string, type: string): string {
 }
 import { displayToISO, isoToDisplay } from '../utils/reservationUtils';
 import { countDigits, isValidEmail } from '../utils/settingsUtils';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 // Resultado de validar los datos del negocio: un mensaje de error por campo
 export type BusinessErrors = Partial<Record<keyof BusinessData, string>>;
@@ -238,7 +238,7 @@ export function useSettings() {
       .then((saved) => setPreferences(toPreferences(saved)))
       .catch(() => {
         setPreferences(previous);
-        Alert.alert(t('COMMON.ERROR'), t('CONFIG.NOTIFICATIONS_SAVE_ERROR'));
+        AppAlert.alert(t('COMMON.ERROR'), t('CONFIG.NOTIFICATIONS_SAVE_ERROR'), undefined, { type: 'error' });
       });
   };
 

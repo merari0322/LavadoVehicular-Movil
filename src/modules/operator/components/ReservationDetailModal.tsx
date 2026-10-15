@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { fontSize, fontWeight, radius, spacing, useTheme } from '../../../app/theme';
 import { Pill } from '../../../shared/components/ui/Pill';
@@ -10,6 +9,8 @@ import { InfoRow } from '../../../shared/components/screen/InfoRow';
 import { isoToDisplay } from '../../../shared/utils/format';
 import { formatCOP } from '../../../shared/utils/format';
 import { OperatorReservation, statusIcon, statusLabel, statusTone, canStartNow, startFromLabel } from '../models/operator';
+import { ModalCloseButton } from '../../../shared/components/feedback/ModalCloseButton';
+import { ModalShell } from '../../../shared/components/feedback/ModalShell';
 
 interface ReservationDetailModalProps {
   // null = cerrado
@@ -44,61 +45,56 @@ export function ReservationDetailModal({
   };
 
   return (
-    <Modal visible={r !== null} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={[styles.card, { backgroundColor: colors.card }]}>
-          {r ? (
-            <ScrollView contentContainerStyle={styles.content}>
-              <View style={styles.header}>
-                <Pill label={t(statusLabel(r.status))} tone={statusTone(r.status)} icon={statusIcon(r.status)} />
-                <Text style={[styles.code, { color: colors.textMuted }]}>{r.code}</Text>
-                <Pressable onPress={onClose} hitSlop={10}>
-                  <MaterialIcons name="close" size={22} color={colors.text} />
-                </Pressable>
-              </View>
+    <ModalShell visible={r !== null} onRequestClose={onClose}>
+      <View style={[styles.card, { backgroundColor: colors.card }]}>
+        {r ? (
+          <ScrollView contentContainerStyle={styles.content}>
+            <View style={styles.header}>
+              <Pill label={t(statusLabel(r.status))} tone={statusTone(r.status)} icon={statusIcon(r.status)} />
+              <Text style={[styles.code, { color: colors.textMuted }]}>{r.code}</Text>
+              <ModalCloseButton onPress={onClose} />
+            </View>
 
-              <Text style={[styles.title, { color: colors.text }]}>
-                {r.service} — {r.client}
-              </Text>
+            <Text style={[styles.title, { color: colors.text }]}>
+              {r.service} — {r.client}
+            </Text>
 
-              <InfoRow icon="event" label={t('SCHEDULE.DETAIL.DATE')} value={`${isoToDisplay(r.date)} · ${r.time}`} />
-              <InfoRow icon="timer" label={t('SCHEDULE.DETAIL.DURATION')} value={`${r.durationMin} min`} />
-              <InfoRow icon="directions-car" label={t('SCHEDULE.DETAIL.VEHICLE')} value={`${r.vehicleName} · ${r.plate}`} />
-              <InfoRow icon="pin" label={t('BOOKING_DETAIL.PLATE')} value={r.plate} />
-              <InfoRow icon="payments" label={t('ASSIGNED_SERVICES.DETAIL.PAYMENT_METHOD')} value={r.paymentMethod ? t(`SERVICE_HISTORY.METHODS.${r.paymentMethod}`) : formatCOP(r.total ?? 0)} />
+            <InfoRow icon="event" label={t('SCHEDULE.DETAIL.DATE')} value={`${isoToDisplay(r.date)} · ${r.time}`} />
+            <InfoRow icon="timer" label={t('SCHEDULE.DETAIL.DURATION')} value={`${r.durationMin} min`} />
+            <InfoRow icon="directions-car" label={t('SCHEDULE.DETAIL.VEHICLE')} value={`${r.vehicleName} · ${r.plate}`} />
+            <InfoRow icon="pin" label={t('BOOKING_DETAIL.PLATE')} value={r.plate} />
+            <InfoRow icon="payments" label={t('ASSIGNED_SERVICES.DETAIL.PAYMENT_METHOD')} value={r.paymentMethod ? t(`SERVICE_HISTORY.METHODS.${r.paymentMethod}`) : formatCOP(r.total ?? 0)} />
 
-              {r.status !== 'finalizado' ? (
-                <Text style={[styles.section, { color: colors.textSecondary }]}>{t('ASSIGNED_SERVICES.DETAIL.PROGRESS_TITLE')}</Text>
-              ) : null}
-              {r.status === 'pendiente' ? (
-                <>
-                  <ActionButton icon="play-circle-outline" label={t('ASSIGNED_SERVICES.DETAIL.START')} disabled={!canStartNow(r)} onPress={then(onStart)} />
-                  {!canStartNow(r) ? (
-                    <Text style={[styles.section, { color: colors.textMuted }]}>
-                      {t('OPERATOR_WORK.START_FROM', { time: startFromLabel(r) })}
-                    </Text>
-                  ) : null}
-                </>
-              ) : null}
-              {r.status === 'en_progreso' ? (
-                <>
-                  <ActionButton variant="soft" icon="refresh" label={t('ASSIGNED_SERVICES.DETAIL.REPORT')} onPress={then(onReport)} />
-                  <ActionButton icon="flag" label={t('ASSIGNED_SERVICES.DETAIL.FINISH')} onPress={then(onFinish)} />
-                </>
-              ) : null}
+            {r.status !== 'finalizado' ? (
+              <Text style={[styles.section, { color: colors.textSecondary }]}>{t('ASSIGNED_SERVICES.DETAIL.PROGRESS_TITLE')}</Text>
+            ) : null}
+            {r.status === 'pendiente' ? (
+              <>
+                <ActionButton icon="play-circle-outline" label={t('ASSIGNED_SERVICES.DETAIL.START')} disabled={!canStartNow(r)} onPress={then(onStart)} />
+                {!canStartNow(r) ? (
+                  <Text style={[styles.section, { color: colors.textMuted }]}>
+                    {t('OPERATOR_WORK.START_FROM', { time: startFromLabel(r) })}
+                  </Text>
+                ) : null}
+              </>
+            ) : null}
+            {r.status === 'en_progreso' ? (
+              <>
+                <ActionButton variant="soft" icon="refresh" label={t('ASSIGNED_SERVICES.DETAIL.REPORT')} onPress={then(onReport)} />
+                <ActionButton icon="flag" label={t('ASSIGNED_SERVICES.DETAIL.FINISH')} onPress={then(onFinish)} />
+              </>
+            ) : null}
 
-              <Text style={[styles.section, { color: colors.textSecondary }]}>{t('ASSIGNED_SERVICES.DETAIL.EXTRA_TITLE')}</Text>
-              <ActionButton variant="outline" icon="phone" label={t('ASSIGNED_SERVICES.DETAIL.CONTACT')} onPress={then(onContact)} />
-            </ScrollView>
-          ) : null}
-        </View>
+            <Text style={[styles.section, { color: colors.textSecondary }]}>{t('ASSIGNED_SERVICES.DETAIL.EXTRA_TITLE')}</Text>
+            <ActionButton variant="outline" icon="phone" label={t('ASSIGNED_SERVICES.DETAIL.CONTACT')} onPress={then(onContact)} />
+          </ScrollView>
+        ) : null}
       </View>
-    </Modal>
+    </ModalShell>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, justifyContent: 'center', padding: spacing.lg, backgroundColor: 'rgba(0, 0, 0, 0.5)' },
   card: { maxHeight: '88%', borderRadius: radius.xl, overflow: 'hidden' },
   content: { gap: spacing.md, padding: 20 },
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../../app/theme';
@@ -20,6 +20,7 @@ import { getServiceById } from '../services/reservationCatalog';
 import { useOperators } from '../viewmodels/useOperators';
 import { useReservations } from '../viewmodels/useReservations';
 import { useServicesByOperator } from '../viewmodels/useServicesByOperator';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 // Escapa un valor para CSV (comillas dobles)
 const csvValue = (value: string): string => `"${value.replace(/"/g, '""')}"`;
@@ -53,7 +54,7 @@ export const AdminReservationsScreen = () => {
     setAssigning(null);
     if (!(await assignOperator(reservation.id, operatorId))) return;
     const name = operators.find((item) => item.id === operatorId)?.name ?? '';
-    setTimeout(() => Alert.alert(TEXTS.assign.successTitle, TEXTS.assign.successMessage(name, reservation.code)), 300);
+    setTimeout(() => AppAlert.alert(TEXTS.assign.successTitle, TEXTS.assign.successMessage(name, reservation.code), undefined, { type: 'success' }), 300);
   };
 
   // Modal de crear/editar
@@ -90,7 +91,7 @@ export const AdminReservationsScreen = () => {
       setFormVisible(false);
     } catch (error) {
       // si el backend rechaza (p. ej. placa sin vehículo registrado) se avisa sin cerrar
-      Alert.alert(TEXTS.form.createTitle, t(apiErrorKey(error)));
+      AppAlert.alert(TEXTS.form.createTitle, t(apiErrorKey(error)), undefined, { type: 'error' });
     }
   };
 

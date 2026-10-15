@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useTheme } from '../../app/theme';
+import { fontSize, fontWeight, radius, spacing, useTheme } from '../../app/theme';
 import { RootStackParamList } from '../../core/navigation/types';
 import { useSession } from '../../core/services/auth';
+import { ConfirmDialog } from '../components/feedback/ConfirmDialog';
+import { withAlpha } from '../utils/color';
 import { AdminBottomNav, BottomNavItem } from './AdminBottomNav';
 import { MoreMenuItem, MoreMenuPanel, MoreMenuUser } from './MoreMenuPanel';
 
@@ -42,6 +44,7 @@ export function RoleLayout({ menu, activeKey, children }: RoleLayoutProps) {
   const { colors } = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [moreVisible, setMoreVisible] = useState(false);
+  const [logoutVisible, setLogoutVisible] = useState(false);
   const { t } = useTranslation();
   const { user, signOut } = useSession();
 
@@ -60,10 +63,12 @@ export function RoleLayout({ menu, activeKey, children }: RoleLayoutProps) {
   // cierra la sesión en el servidor y en el celular; RootNavigator vuelve solo al login
   const confirmLogout = () => {
     setMoreVisible(false);
-    Alert.alert(t('LOGOUT.TITLE'), t('LOGOUT.MESSAGE'), [
-      { text: t('LOGOUT.CANCEL'), style: 'cancel' },
-      { text: t('LOGOUT.CONFIRM'), style: 'destructive', onPress: () => void signOut() },
-    ]);
+    setLogoutVisible(true);
+  };
+
+  const logout = () => {
+    setLogoutVisible(false);
+    void signOut();
   };
 
   const toBarItem = (option: RoleNavOption): BottomNavItem => ({
@@ -98,10 +103,53 @@ export function RoleLayout({ menu, activeKey, children }: RoleLayoutProps) {
         isMoreOpen={moreVisible}
         onToggleMore={() => setMoreVisible((prev) => !prev)}
       />
+      <ConfirmDialog
+        visible={logoutVisible}
+        icon="logout"
+        confirmIcon="logout"
+        title={t('LOGOUT.TITLE')}
+        message={t('LOGOUT.MESSAGE')}
+        confirmLabel={t('LOGOUT.CONFIRM')}
+        cancelLabel={t('LOGOUT.CANCEL')}
+        onConfirm={logout}
+        onCancel={() => setLogoutVisible(false)}
+      >
+        {/* cuenta que se va a cerrar */}
+        {user ? (
+          <View style={[styles.account, { backgroundColor: withAlpha(colors.primary, 0.08), borderColor: withAlpha(colors.primary, 0.2) }]}>
+            <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+              <Text style={[styles.avatarText, { color: colors.onPrimary }]}>{menuUser.initials}</Text>
+            </View>
+            <View style={styles.accountText}>
+              <Text style={[styles.accountName, { color: colors.text }]} numberOfLines={1}>
+                {menuUser.name}
+              </Text>
+              <Text style={[styles.accountEmail, { color: colors.textSecondary }]} numberOfLines={1}>
+                {menuUser.email}
+              </Text>
+            </View>
+          </View>
+        ) : null}
+      </ConfirmDialog>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  account: {
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginTop: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+  },
+  avatar: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: fontSize.body, fontWeight: fontWeight.bold },
+  accountText: { flex: 1 },
+  accountName: { fontSize: fontSize.body + 1, fontWeight: fontWeight.bold },
+  accountEmail: { marginTop: 2, fontSize: fontSize.small },
 });

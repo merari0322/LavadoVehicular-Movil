@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'react-native';
 
 import { apiErrorKey } from '../../core/api/apiError';
 import { AuthUser, useAuthService, useSession } from '../../core/services/auth';
@@ -9,6 +8,7 @@ import { ChangePasswordModal } from '../components/feedback/ChangePasswordModal'
 import { PasswordPromptModal } from '../components/feedback/PasswordPromptModal';
 import { ProfileCard, ProfileUser } from '../components/ui/ProfileCard';
 import { ProfileFormValues, getCountryByCode } from '../validators/profileValidators';
+import { AppAlert } from '../components/feedback/AppAlert';
 
 // la dirección todavía no la guarda el backend (ADR-010): se guarda en el celular por usuario
 const addressKey = (userId: string) => `@lavado_vehicular/address/${userId}`;
@@ -100,7 +100,7 @@ export function ProfileView() {
     setSaving(true);
     try {
       await saveProfile(values);
-      Alert.alert(t('PROFILE.SUCCESS_TITLE'), t('PROFILE.SUCCESS_MESSAGE'));
+      AppAlert.alert(t('PROFILE.SUCCESS_TITLE'), t('PROFILE.SUCCESS_MESSAGE'), undefined, { type: 'success' });
       return true;
     } catch (error) {
       setErrorMessage(t(apiErrorKey(error)));
@@ -117,14 +117,14 @@ export function ProfileView() {
         updateUser(changed);
         await saveProfile(pendingValues);
         finishEmailChange(true);
-        Alert.alert(t('PROFILE.SUCCESS_TITLE'), t('PROFILE.EMAIL_CHANGED_MESSAGE'));
+        AppAlert.alert(t('PROFILE.SUCCESS_TITLE'), t('PROFILE.EMAIL_CHANGED_MESSAGE'), undefined, { type: 'success' });
         return null;
       }
 
       if (pendingAction === 'delete') {
         await authService.deactivateAccount(password);
         setPendingAction(null);
-        Alert.alert(t('PROFILE.DELETE_SUCCESS_TITLE'), t('PROFILE.DELETE_SUCCESS_MESSAGE'));
+        AppAlert.alert(t('PROFILE.DELETE_SUCCESS_TITLE'), t('PROFILE.DELETE_SUCCESS_MESSAGE'), undefined, { type: 'success' });
         // la cuenta quedó desactivada: se limpia el celular y vuelve al login
         await endSessionLocally();
         return null;
@@ -139,7 +139,7 @@ export function ProfileView() {
     try {
       await authService.changePassword(currentPassword, newPassword);
       setPasswordModalVisible(false);
-      Alert.alert(t('PROFILE.PASSWORD_SUCCESS_TITLE'), t('PROFILE.PASSWORD_SUCCESS_MESSAGE'));
+      AppAlert.alert(t('PROFILE.PASSWORD_SUCCESS_TITLE'), t('PROFILE.PASSWORD_SUCCESS_MESSAGE'), undefined, { type: 'success' });
       return null;
     } catch (error) {
       return t(apiErrorKey(error));

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { apiErrorKey } from '../../../core/api/apiError';
 import {
@@ -25,6 +24,7 @@ import { OPERATOR_TEXTS } from '../constants/operatorTexts';
 import { useReservationCatalog } from '../services/reservationCatalog';
 import { normalizeText } from '../utils/managementUtils';
 import { getTodayISO } from '../utils/reservationUtils';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 // Operarios reales (operations-service). El nombre, el correo y el teléfono son de la cuenta en
 // security (se editan en Gestión → Usuarios); aquí se manejan el turno semanal, las ausencias y
@@ -88,7 +88,7 @@ export function useOperators() {
   const [filter, setFilter] = useState<OperatorFilter>('all');
   const [search, setSearch] = useState('');
 
-  const showError = useCallback((error: unknown) => Alert.alert(t('COMMON.ERROR'), t(apiErrorKey(error))), [t]);
+  const showError = useCallback((error: unknown) => AppAlert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)), undefined, { type: 'error' }), [t]);
 
   // pide los operarios y sus ausencias
   const reload = useCallback(async () => {

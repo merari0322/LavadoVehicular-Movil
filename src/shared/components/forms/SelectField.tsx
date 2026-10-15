@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../app/theme';
 import { ThemeColors } from '../../../app/theme/colors';
 import { withAlpha } from '../../utils/color';
+import { ModalShell } from '../feedback/ModalShell';
 
 export interface SelectOption {
   value: string;
@@ -45,29 +46,28 @@ export function SelectField({ value, options, onChange, placeholder = '', hasErr
       </Pressable>
 
       {/* Lista de opciones */}
-      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
-        <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
-          <Pressable style={styles.sheet} onPress={() => undefined}>
-            <ScrollView>
-              {options.map((option) => {
-                const active = option.value === value;
-                return (
-                  <Pressable
-                    key={option.value}
-                    style={[styles.option, active && styles.optionActive]}
-                    onPress={() => handleSelect(option.value)}
-                  >
-                    <Text style={[styles.optionText, active && styles.optionTextActive]}>
-                      {option.label}
-                    </Text>
-                    {active && <MaterialIcons name="check" size={20} color={colors.primary} />}
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <ModalShell visible={open} onRequestClose={() => setOpen(false)} onBackdropPress={() => setOpen(false)} padding={28}>
+        <View style={styles.sheet}>
+          {placeholder ? <Text style={styles.sheetTitle}>{placeholder}</Text> : null}
+          <ScrollView>
+            {options.map((option) => {
+              const active = option.value === value;
+              return (
+                <Pressable
+                  key={option.value}
+                  style={[styles.option, active && styles.optionActive]}
+                  onPress={() => handleSelect(option.value)}
+                >
+                  <Text style={[styles.optionText, active && styles.optionTextActive]}>
+                    {option.label}
+                  </Text>
+                  {active && <MaterialIcons name="check" size={20} color={colors.primary} />}
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+      </ModalShell>
     </>
   );
 }
@@ -89,17 +89,23 @@ const createStyles = (colors: ThemeColors) =>
     triggerError: { borderColor: colors.error },
     triggerText: { flex: 1, fontSize: 14, color: colors.text },
     placeholder: { color: colors.textMuted },
-    backdrop: {
-      flex: 1,
-      justifyContent: 'center',
-      padding: 28,
-      backgroundColor: 'rgba(0, 0, 0, 0.45)',
-    },
     sheet: {
       maxHeight: '70%',
       padding: 8,
-      borderRadius: 20,
+      borderRadius: 24,
+      borderWidth: 1,
+      borderColor: withAlpha(colors.primary, 0.14),
       backgroundColor: colors.card,
+    },
+    sheetTitle: {
+      paddingTop: 10,
+      paddingHorizontal: 14,
+      paddingBottom: 8,
+      fontSize: 12,
+      fontWeight: '700',
+      letterSpacing: 0.6,
+      textTransform: 'uppercase',
+      color: colors.textMuted,
     },
     option: {
       flexDirection: 'row',
@@ -107,7 +113,7 @@ const createStyles = (colors: ThemeColors) =>
       justifyContent: 'space-between',
       paddingVertical: 14,
       paddingHorizontal: 14,
-      borderRadius: 12,
+      borderRadius: 14,
     },
     optionActive: { backgroundColor: withAlpha(colors.primary, 0.12) },
     optionText: { fontSize: 15, color: colors.text },

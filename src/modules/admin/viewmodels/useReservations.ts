@@ -7,7 +7,6 @@ import { userAdminService } from '../../../core/services/users/UserAdminService'
 import { vehicleService } from '../../../core/services/vehicles/VehicleService';
 // quién tiene cada reserva (operations-service)
 import { AssignmentResponse, operationsService } from '../../../core/services/operations/OperationsService';
-import { Alert } from 'react-native';
 import { useSharedState } from '../../../shared/hooks/useSharedState';
 import {
   BayOption,
@@ -19,6 +18,7 @@ import {
 } from '../models/reservation';
 import { loadReservationCatalog, useReservationCatalog } from '../services/reservationCatalog';
 import { addDays, displayToISO, getTodayISO } from '../utils/reservationUtils';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 // estados del booking-service -> estados de la pantalla
 const STATUS_TO_LOCAL: Record<BookingStatusCode, Reservation['status']> = {
@@ -205,7 +205,7 @@ export function useReservations() {
       setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, operatorId } : item)));
       return true;
     } catch (error) {
-      Alert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)));
+      AppAlert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)), undefined, { type: 'error' });
       return false;
     }
   };

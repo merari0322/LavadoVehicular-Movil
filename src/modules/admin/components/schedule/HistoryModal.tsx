@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
 import { SCHEDULE_TEXTS } from '../../constants/scheduleTexts';
 import { HistoryEntry } from '../../models/schedule';
 import { isoToDisplay } from '../../utils/reservationUtils';
+import { ModalCloseButton } from '../../../../shared/components/feedback/ModalCloseButton';
+import { ModalShell } from '../../../../shared/components/feedback/ModalShell';
 
 interface HistoryModalProps {
   visible: boolean;
@@ -21,62 +22,52 @@ export function HistoryModal({ visible, entries, onClose }: HistoryModalProps) {
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.sheet}>
-          {/* Encabezado */}
-          <View style={styles.header}>
-            <View style={styles.flex}>
-              <Text style={styles.title}>{texts.title}</Text>
-              <Text style={styles.subtitle}>{texts.subtitle}</Text>
-            </View>
-            <Pressable onPress={onClose} hitSlop={10}>
-              <MaterialIcons name="close" size={22} color={colors.text} />
-            </Pressable>
+    <ModalShell visible={visible} onRequestClose={onClose}>
+      <View style={styles.sheet}>
+        {/* Encabezado */}
+        <View style={styles.header}>
+          <View style={styles.flex}>
+            <Text style={styles.title}>{texts.title}</Text>
+            <Text style={styles.subtitle}>{texts.subtitle}</Text>
           </View>
+          <ModalCloseButton onPress={onClose} />
+        </View>
 
-          {/* Movimientos, del más reciente al más antiguo */}
-          <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
-            {entries.length === 0 ? (
-              <Text style={styles.subtitle}>{texts.empty}</Text>
-            ) : (
-              entries.map((entry, index) => (
-                <View key={entry.id} style={[styles.entry, index > 0 && styles.entryBorder]}>
-                  <View style={styles.dot} />
-                  <View style={styles.flex}>
-                    <Text style={styles.entryTitle}>
-                      {entry.title}
-                      {entry.detail ? <Text style={styles.entryDetail}> · {entry.detail}</Text> : null}
-                    </Text>
-                    <Text style={styles.entryMeta}>
-                      {isoToDisplay(entry.date)} · {entry.author}
-                    </Text>
-                  </View>
+        {/* Movimientos, del más reciente al más antiguo */}
+        <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
+          {entries.length === 0 ? (
+            <Text style={styles.subtitle}>{texts.empty}</Text>
+          ) : (
+            entries.map((entry, index) => (
+              <View key={entry.id} style={[styles.entry, index > 0 && styles.entryBorder]}>
+                <View style={styles.dot} />
+                <View style={styles.flex}>
+                  <Text style={styles.entryTitle}>
+                    {entry.title}
+                    {entry.detail ? <Text style={styles.entryDetail}> · {entry.detail}</Text> : null}
+                  </Text>
+                  <Text style={styles.entryMeta}>
+                    {isoToDisplay(entry.date)} · {entry.author}
+                  </Text>
                 </View>
-              ))
-            )}
-          </ScrollView>
+              </View>
+            ))
+          )}
+        </ScrollView>
 
-          <View style={styles.footer}>
-            <Pressable style={styles.closeButton} onPress={onClose}>
-              <Text style={styles.closeText}>{SCHEDULE_TEXTS.common.close}</Text>
-            </Pressable>
-          </View>
+        <View style={styles.footer}>
+          <Pressable style={styles.closeButton} onPress={onClose}>
+            <Text style={styles.closeText}>{SCHEDULE_TEXTS.common.close}</Text>
+          </Pressable>
         </View>
       </View>
-    </Modal>
+    </ModalShell>
   );
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     flex: { flex: 1 },
-    backdrop: {
-      flex: 1,
-      justifyContent: 'center',
-      padding: 16,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
     sheet: {
       maxHeight: '85%',
       borderRadius: 24,
