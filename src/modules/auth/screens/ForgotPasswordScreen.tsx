@@ -1,5 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text } from 'react-native';
 
 import { RootStackParamList } from '../../../core/navigation/types';
@@ -9,17 +10,25 @@ import { EmailStep } from '../components/EmailStep';
 import { NewPasswordStep } from '../components/NewPasswordStep';
 import { VerificationStep } from '../components/VerificationStep';
 import { useForgotPasswordFlow } from '../viewmodels/useForgotPasswordFlow';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>;
 
 export function ForgotPasswordScreen({ navigation }: Props) {
   const flow = useForgotPasswordFlow();
+  const { t } = useTranslation();
 
   // al terminar vuelve al login para entrar con la contraseña nueva
   const handlePasswordUpdated = async (newPassword: string) => {
     const success = await flow.handlePasswordUpdated(newPassword);
     if (success) {
       navigation.replace('Login');
+      AppAlert.alert(
+        t('AUTH_FEEDBACK.PASSWORD_UPDATED_TITLE'),
+        t('AUTH_FEEDBACK.PASSWORD_UPDATED_MESSAGE'),
+        [{ text: t('AUTH_FEEDBACK.GO_TO_LOGIN') }],
+        { type: 'success', icon: 'lock-reset' },
+      );
     }
     return success;
   };

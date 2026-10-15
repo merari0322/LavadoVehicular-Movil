@@ -91,6 +91,11 @@ export function apiErrorKey(error: unknown): string {
   return error instanceof ApiError ? error.messageKey : 'API_ERRORS.UNEXPECTED';
 }
 
+// código estable del backend (ej. ACCOUNT_LOCKED), o null si no vino del backend
+export function apiErrorCode(error: unknown): string | null {
+  return error instanceof ApiError ? error.code : null;
+}
+
 // horas libres que el booking-service propone en el 409 SLOT_UNAVAILABLE (RF-006):
 // devuelve hasta 5 "HH:mm" del mismo día, o null si el error no es ese
 export function slotAlternatives(error: unknown): string[] | null {

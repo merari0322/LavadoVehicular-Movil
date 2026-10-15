@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthService } from '../../../core/services/auth';
 import { apiErrorKey } from '../../../core/api/apiError';
 import { ForgotPasswordStep } from '../types/auth.types';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 // mismo rol que ForgotPasswordComponent en la web: orquesta los 3 pasos contra el backend.
 // El código verificado en el paso 2 se guarda porque el backend lo pide de nuevo en el paso 3.
@@ -17,6 +18,12 @@ export function useForgotPasswordFlow() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // el error queda en el formulario y además se avisa con un modal
+  const showError = useCallback((title: string, message: string) => {
+    setErrorMessage(message);
+    AppAlert.alert(title, message, [{ text: t('AUTH_FEEDBACK.OK') }], { type: 'error' });
+  }, [t]);
+
   // el servidor responde igual exista o no la cuenta (no revela correos registrados)
   const handleEmailSent = useCallback(
     async (submittedEmail: string) => {
@@ -26,13 +33,19 @@ export function useForgotPasswordFlow() {
         await authService.requestPasswordReset(submittedEmail);
         setEmail(submittedEmail);
         setStep(2);
+        AppAlert.alert(
+          t('AUTH_FEEDBACK.CODE_SENT_TITLE'),
+          t('AUTH_FEEDBACK.CODE_SENT_MESSAGE', { email: submittedEmail }),
+          [{ text: t('AUTH_FEEDBACK.OK') }],
+          { type: 'info', icon: 'mark-email-read' },
+        );
       } catch (error) {
-        setErrorMessage(t(apiErrorKey(error)));
+        showError(t('AUTH_FEEDBACK.ERROR_TITLE'), t(apiErrorKey(error)));
       } finally {
         setSubmitting(false);
       }
     },
-    [authService, t]
+    [authService, showError, t]
   );
 
   const handleCodeVerified = useCallback(
@@ -45,13 +58,13 @@ export function useForgotPasswordFlow() {
         setStep(3);
         return true;
       } catch (error) {
-        setErrorMessage(t(apiErrorKey(error)));
+        showError(t('AUTH_FEEDBACK.CODE_ERROR_TITLE'), t(apiErrorKey(error)));
         return false;
       } finally {
         setSubmitting(false);
       }
     },
-    [authService, email, t]
+    [authService, email, showError]
   );
 
   // pide un código nuevo: el anterior deja de servir
@@ -59,12 +72,16 @@ export function useForgotPasswordFlow() {
     setErrorMessage(null);
     try {
       await authService.requestPasswordReset(email);
+      AppAlert.alert(t('AUTH_FEEDBACK.CODE_RESENT_TITLE'), t('FORGOT.VERIFICATION.RESENT'), [{ text: t('AUTH_FEEDBACK.OK') }], {
+        type: 'info',
+        icon: 'mark-email-read',
+      });
       return true;
     } catch (error) {
-      setErrorMessage(t(apiErrorKey(error)));
+      showError(t('AUTH_FEEDBACK.ERROR_TITLE'), t(apiErrorKey(error)));
       return false;
     }
-  }, [authService, email, t]);
+  }, [authService, email, showError, t]);
 
   const handlePasswordUpdated = useCallback(
     async (newPassword: string) => {
@@ -74,13 +91,14 @@ export function useForgotPasswordFlow() {
         await authService.resetPassword(email, verifiedCode, newPassword);
         return true;
       } catch (error) {
-        setErrorMessage(t(apiErrorKey(error)));
+        // ej. SAME_PASSWORD: la nueva contraseña no puede ser la que ya tenía
+        showError(t('AUTH_FEEDBACK.PASSWORD_ERROR_TITLE'), t(apiErrorKey(error)));
         return false;
       } finally {
         setSubmitting(false);
       }
     },
-    [authService, email, verifiedCode, t]
+    [authService, email, verifiedCode, showError, t]
   );
 
   return {
