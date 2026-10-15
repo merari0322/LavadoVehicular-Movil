@@ -80,9 +80,10 @@ export function SettingsView() {
       details: [
         // el negocio solo tiene un teléfono: es la línea de atención. Las novedades del servicio
         // le llegan al cliente por sus notificaciones y su correo
-        { label: t('CONFIG.HELP_MODAL.SUPPORT_LINE'), value: establishment.phone ?? '—' },
+        // línea de atención y horario de los datos del negocio; sin ellos, el teléfono y el horario general
+        { label: t('CONFIG.HELP_MODAL.SUPPORT_LINE'), value: establishment.supportLine || establishment.phone || '—' },
         { label: t('CONFIG.HELP_MODAL.EMAIL'), value: establishment.email ?? '—' },
-        { label: t('CONFIG.HELP_MODAL.HOURS'), value: t('CONFIG.HELP_MODAL.HOURS_VALUE') },
+        { label: t('CONFIG.HELP_MODAL.HOURS'), value: establishment.serviceHoursNote || t('CONFIG.HELP_MODAL.HOURS_VALUE') },
         { label: t('CONFIG.HELP_MODAL.ADDRESS'), value: establishment.address },
       ],
     });
