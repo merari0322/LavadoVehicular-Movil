@@ -20,11 +20,11 @@ export interface RoleNavOption {
   key: string;
   icon: IconName;
   route: ScreenName;
-  // llave de traducción del texto (solo se muestra en el menú "más")
+  // llave de traducción del nombre que se muestra bajo el ícono o en el menú "más"
   labelKey?: string;
 }
 
-// menú completo de un rol: 4 botones de la barra, el botón suelto (notificaciones)
+// menú completo de un rol: 3 botones de la barra, el botón suelto (notificaciones)
 // y las opciones del menú "más" (el botón de cerrar sesión se agrega solo)
 export interface RoleMenu {
   bar: RoleNavOption[];
@@ -74,6 +74,7 @@ export function RoleLayout({ menu, activeKey, children }: RoleLayoutProps) {
   const toBarItem = (option: RoleNavOption): BottomNavItem => ({
     key: option.key,
     icon: option.icon,
+    label: option.labelKey ? t(option.labelKey) : option.key,
     onPress: () => goTo(option.route),
   });
 
@@ -101,6 +102,8 @@ export function RoleLayout({ menu, activeKey, children }: RoleLayoutProps) {
         actionItem={toBarItem(menu.action)}
         activeKey={activeKey}
         isMoreOpen={moreVisible}
+        isMoreActive={menu.more.some((option) => option.key === activeKey)}
+        moreLabel={t('BOTTOM_NAV.MORE')}
         onToggleMore={() => setMoreVisible((prev) => !prev)}
       />
       <ConfirmDialog

@@ -1,14 +1,18 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useTheme } from '../../app/theme';
+import { fontWeight, useTheme } from '../../app/theme';
+import { ThemeColors } from '../../app/theme/colors';
 import { GlassSurface } from '../components/ui/GlassSurface';
+import { withAlpha } from '../utils/color';
 
 type IconName = keyof typeof MaterialIcons.glyphMap;
 
 export interface BottomNavItem {
   key: string;
   icon: IconName;
+  // nombre corto bajo el ícono (ya traducido)
+  label: string;
   onPress: () => void;
 }
 
@@ -17,48 +21,104 @@ interface AdminBottomNavProps {
   actionItem: BottomNavItem;
   activeKey: string;
   isMoreOpen: boolean;
+  // la pantalla abierta está en el menú "más": se marca ese botón
+  isMoreActive: boolean;
+  moreLabel: string;
   onToggleMore: () => void;
 }
 
-export function AdminBottomNav({ items, actionItem, activeKey, isMoreOpen, onToggleMore }: AdminBottomNavProps) {
+interface NavButtonProps {
+  icon: IconName;
+  label: string;
+  active: boolean;
+  onPress: () => void;
+  colors: ThemeColors;
+}
+
+// botón de la barra: ícono y nombre; el activo va sobre un fondo suave del color del tema
+function NavButton({ icon, label, active, onPress, colors }: NavButtonProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="tab"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: active }}
+      style={({ pressed }) => [
+        styles.item,
+        active && { backgroundColor: withAlpha(colors.primary, 0.14) },
+        pressed && styles.pressed,
+      ]}
+    >
+      <MaterialIcons name={icon} size={24} color={active ? colors.primary : colors.textSecondary} />
+      <Text
+        style={[styles.label, { color: active ? colors.primary : colors.textSecondary }, active && styles.labelActive]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.85}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+export function AdminBottomNav({
+  items,
+  actionItem,
+  activeKey,
+  isMoreOpen,
+  isMoreActive,
+  moreLabel,
+  onToggleMore,
+}: AdminBottomNavProps) {
   const { colors } = useTheme();
   const actionActive = actionItem.key === activeKey && !isMoreOpen;
 
   return (
     <View style={styles.wrapper} pointerEvents="box-none">
-      <GlassSurface radius={999} containerStyle={styles.pillContainer} contentStyle={styles.pillContent}>
-        {items.map((item) => {
-          const active = item.key === activeKey && !isMoreOpen;
-          return (
-            <TouchableOpacity
-              key={item.key}
-              onPress={item.onPress}
-              style={[styles.pillBtn, active && { backgroundColor: colors.primary }]}
-            >
-              <MaterialIcons name={item.icon} size={22} color={active ? colors.onPrimary : colors.textSecondary} />
-            </TouchableOpacity>
-          );
-        })}
-
-        <TouchableOpacity
+      <GlassSurface radius={26} containerStyle={styles.barContainer} contentStyle={styles.barContent}>
+        {items.map((item) => (
+          <NavButton
+            key={item.key}
+            icon={item.icon}
+            label={item.label}
+            active={item.key === activeKey && !isMoreOpen}
+            onPress={item.onPress}
+            colors={colors}
+          />
+        ))}
+        <NavButton
+          icon={isMoreOpen ? 'close' : 'apps'}
+          label={moreLabel}
+          active={isMoreOpen || isMoreActive}
           onPress={onToggleMore}
-          style={[styles.pillBtn, isMoreOpen && { backgroundColor: colors.primary }]}
-        >
-          <MaterialIcons name="apps" size={22} color={isMoreOpen ? colors.onPrimary : colors.textSecondary} />
-        </TouchableOpacity>
+          colors={colors}
+        />
       </GlassSurface>
 
-      <GlassSurface radius={28} containerStyle={styles.actionContainer} contentStyle={styles.actionContent}>
-        <TouchableOpacity
+      {/* notificaciones: botón aparte, relleno con el color del tema cuando está abierto */}
+      <GlassSurface radius={26} containerStyle={styles.actionContainer} contentStyle={styles.actionContent}>
+        <Pressable
           onPress={actionItem.onPress}
-          style={[styles.actionBtn, actionActive && { backgroundColor: colors.primary }]}
+          accessibilityRole="tab"
+          accessibilityLabel={actionItem.label}
+          accessibilityState={{ selected: actionActive }}
+          style={({ pressed }) => [
+            styles.action,
+            { backgroundColor: actionActive ? colors.primary : withAlpha(colors.primary, 0.14) },
+            pressed && styles.pressed,
+          ]}
         >
-          <MaterialIcons
-            name={actionItem.icon}
-            size={24}
-            color={actionActive ? colors.onPrimary : colors.primary}
-          />
-        </TouchableOpacity>
+          <MaterialIcons name={actionItem.icon} size={24} color={actionActive ? colors.onPrimary : colors.primary} />
+          <Text
+            style={[styles.label, styles.labelActive, { color: actionActive ? colors.onPrimary : colors.primary }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.85}
+          >
+            {actionItem.label}
+          </Text>
+        </Pressable>
       </GlassSurface>
     </View>
   );
@@ -68,23 +128,28 @@ const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',
     bottom: 20,
-    left: 16,
-    right: 16,
+    left: 14,
+    right: 14,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
     zIndex: 20,
   },
-  pillContainer: { flex: 1 },
-  pillContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+  barContainer: { flex: 1 },
+  barContent: { flexDirection: 'row', alignItems: 'center', gap: 4, padding: 6 },
+  item: {
+    flex: 1,
+    height: 54,
     alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 6,
+    justifyContent: 'center',
+    gap: 3,
+    paddingHorizontal: 2,
+    borderRadius: 20,
   },
-  pillBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
-  actionContainer: { width: 56, height: 56 },
-  actionContent: { width: 56, height: 56, alignItems: 'center', justifyContent: 'center' },
-  actionBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  label: { fontSize: 11, fontWeight: fontWeight.semibold, textAlign: 'center' },
+  labelActive: { fontWeight: fontWeight.bold },
+  pressed: { opacity: 0.7, transform: [{ scale: 0.96 }] },
+  actionContainer: { width: 72 },
+  actionContent: { padding: 6 },
+  action: { height: 54, alignItems: 'center', justifyContent: 'center', gap: 3, borderRadius: 20 },
 });
