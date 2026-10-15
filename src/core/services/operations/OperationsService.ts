@@ -128,6 +128,12 @@ export interface RatingResponse {
 
 const base = { baseUrl: OPERATIONS_API_URL };
 
+// operario que atiende una reserva del cliente (solo su primer nombre)
+export interface BookingOperatorResponse {
+  bookingId: number;
+  operatorName: string;
+}
+
 export const operationsService = {
   /* ---------- admin ---------- */
 
@@ -216,5 +222,10 @@ export const operationsService = {
 
   givenRatings(): Promise<RatingResponse[]> {
     return request<RatingResponse[]>('GET', '/ratings/me', base);
+  },
+
+  // solo trae las reservas que ya tienen operario asignado
+  myBookingOperators(): Promise<BookingOperatorResponse[]> {
+    return request<BookingOperatorResponse[]>('GET', '/operators/my-bookings', base);
   },
 };

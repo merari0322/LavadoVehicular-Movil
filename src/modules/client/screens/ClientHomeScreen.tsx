@@ -77,8 +77,7 @@ export function ClientHomeScreen({ navigation }: Props) {
         { label: t('RESERVE.SUMMARY.VEHICLE'), value: `${service.vehicle} · ${service.plate}`.trim() },
         { label: t('RESERVE.SUMMARY.DATE'), value: `${service.displayDate} · ${service.timeRange}` },
         { label: t('RESERVE.SUMMARY.LOCATION'), value: establishment.address },
-        // el booking-service todavía no asigna operario a la reserva
-        { label: t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED'), value: '—' },
+        { label: t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED'), value: service.operator ?? '—' },
         { label: t('DASHBOARD.NEXT_SERVICE.STATUS'), value: t(`STATUS.${service.status}`) },
         { label: t('DASHBOARD.NEXT_SERVICE.PROGRESS'), value: `${progress}%` },
       ],
@@ -137,8 +136,7 @@ export function ClientHomeScreen({ navigation }: Props) {
             <View style={styles.meta}>
               <MaterialIcons name="person" size={16} color={colors.textMuted} />
               <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-                {/* el booking-service todavía no asigna operario a la reserva */}
-                {t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED')}: —
+                {t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED')}: {service.operator ?? '—'}
               </Text>
             </View>
             <ProgressBar percentage={progress} label={t('DASHBOARD.NEXT_SERVICE.PROGRESS')} />
