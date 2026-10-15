@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -9,9 +8,7 @@ import { PasswordPromptModal } from '../components/feedback/PasswordPromptModal'
 import { ProfileCard, ProfileUser } from '../components/ui/ProfileCard';
 import { ProfileFormValues, getCountryByCode } from '../validators/profileValidators';
 import { AppAlert } from '../components/feedback/AppAlert';
-
-// la dirección todavía no la guarda el backend (ADR-010): se guarda en el celular por usuario
-const addressKey = (userId: string) => `@lavado_vehicular/address/${userId}`;
+import { addressService } from '../../core/services/users/AddressService';
 
 function roleKey(user: AuthUser): string {
   if (user.roles.includes('ADMIN')) return 'PROFILE.ROLE.ADMIN';
@@ -64,9 +61,10 @@ export function ProfileView() {
     authService.getProfile().then(updateUser).catch(() => undefined);
   }, [authService, updateUser]);
 
+  // la dirección vive en el security-service (ADR-010): la misma en la web y en el celular
   useEffect(() => {
     if (!user) return;
-    AsyncStorage.getItem(addressKey(user.id)).then((saved) => setAddress(saved ?? '')).catch(() => undefined);
+    addressService.get().then(setAddress).catch(() => undefined);
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const buildPhone = (values: ProfileFormValues) =>
@@ -79,9 +77,8 @@ export function ProfileView() {
       phone: buildPhone(values),
     });
     updateUser(saved);
-    if (user) await AsyncStorage.setItem(addressKey(user.id), values.address.trim());
-    setAddress(values.address.trim());
-  }, [authService, updateUser, user]);
+    setAddress(await addressService.update(values.address.trim()));
+  }, [authService, updateUser]);
 
   // si cambió el correo, primero se pide la contraseña (el modal hace el cambio y el guardado)
   const handleSave = async (values: ProfileFormValues): Promise<boolean> => {
