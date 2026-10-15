@@ -30,6 +30,8 @@ export interface ClientBookingItem {
   ratingComment?: string;
   // primer nombre del operario que lavó el vehículo (operations-service)
   ratingOperator?: string;
+  // primer nombre del operario asignado a la reserva (operations-service)
+  operator?: string;
 }
 
 /** @param payment estado del pago de la reserva según payment-service (null si no respondió) */
