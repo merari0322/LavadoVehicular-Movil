@@ -53,6 +53,17 @@
     "PAYMENTS": "Payments",
     "REPORTS": "Reports"
   },
+  "BOTTOM_NAV": {
+    "HOME": "Home",
+    "BOOKINGS": "Bookings",
+    "PAYMENTS": "Payments",
+    "BOOK": "Book",
+    "HISTORY": "History",
+    "ASSIGNED": "Assigned",
+    "SCHEDULE": "Schedule",
+    "MORE": "More",
+    "NOTIFICATIONS": "Alerts"
+  },
   "HISTORY": {
     "FILTERS": "Filters",
     "ALL": "All",

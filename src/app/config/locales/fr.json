@@ -53,6 +53,17 @@
     "PAYMENTS": "Paiements",
     "REPORTS": "Rapports"
   },
+  "BOTTOM_NAV": {
+    "HOME": "Accueil",
+    "BOOKINGS": "Réservations",
+    "PAYMENTS": "Paiements",
+    "BOOK": "Réserver",
+    "HISTORY": "Historique",
+    "ASSIGNED": "Assignés",
+    "SCHEDULE": "Agenda",
+    "MORE": "Plus",
+    "NOTIFICATIONS": "Alertes"
+  },
   "HISTORY": {
     "FILTERS": "Filtres",
     "ALL": "Tous",
