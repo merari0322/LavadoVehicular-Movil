@@ -21,10 +21,12 @@ interface PageResponse<T> {
   totalPages: number;
 }
 
-type BackendUser = Parameters<typeof toAuthUser>[0] & { lastLogin?: string | null };
+type BackendUser = Parameters<typeof toAuthUser>[0] & { lastLogin?: string | null; createdAt?: string | null };
 
 export interface AccountSummary extends AuthUser {
   lastLogin: string | null;
+  // fecha de registro de la cuenta
+  createdAt: string | null;
 }
 
 // gestión de cuentas del administrador contra el security-service (/admin/users).
@@ -32,7 +34,11 @@ export interface AccountSummary extends AuthUser {
 export const userAdminService = {
   async listAccounts(page = 0, size = 100): Promise<AccountSummary[]> {
     const response = await request<PageResponse<BackendUser>>('GET', '/admin/users', { query: { page, size } });
-    return response.items.map((user) => ({ ...toAuthUser(user), lastLogin: user.lastLogin ?? null }));
+    return response.items.map((user) => ({
+      ...toAuthUser(user),
+      lastLogin: user.lastLogin ?? null,
+      createdAt: user.createdAt ?? null,
+    }));
   },
 
   // crea una cuenta con la que la persona ya puede iniciar sesión (ej. un operario nuevo)
@@ -43,6 +49,6 @@ export const userAdminService = {
   // activa o desactiva; al desactivar, el backend también cierra todas sus sesiones
   async setActive(userId: string, active: boolean): Promise<AccountSummary> {
     const user = await request<BackendUser>('PATCH', `/admin/users/${userId}/status`, { body: { active } });
-    return { ...toAuthUser(user), lastLogin: user.lastLogin ?? null };
+    return { ...toAuthUser(user), lastLogin: user.lastLogin ?? null, createdAt: user.createdAt ?? null };
   },
 };
