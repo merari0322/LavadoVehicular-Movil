@@ -31,8 +31,7 @@ function toManagedUser(account: AccountSummary): ManagedUser {
     name: account.fullName,
     email: account.email,
     roleId: mainRole(account.roles),
-    // la base todavía no guarda la fecha de registro: se muestra el último ingreso
-    createdAt: account.lastLogin ? account.lastLogin.slice(0, 10) : '—',
+    createdAt: account.createdAt ? account.createdAt.slice(0, 10) : '—',
     invited: false,
     active: account.active,
   };
