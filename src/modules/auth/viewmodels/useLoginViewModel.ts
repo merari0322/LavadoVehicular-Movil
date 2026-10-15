@@ -2,8 +2,16 @@ import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useSession } from '../../../core/services/auth';
-import { apiErrorKey } from '../../../core/api/apiError';
+import { apiErrorCode, apiErrorKey } from '../../../core/api/apiError';
 import { isGmailEmail, isRequired, stripSpaces } from '../../../shared/validators/authValidators';
+
+export interface LoginResult {
+  success: boolean;
+  userName?: string;
+  // solo si el backend rechazó el inicio de sesión
+  errorCode?: string | null;
+  message?: string;
+}
 
 interface Touched {
   email?: boolean;
@@ -40,7 +48,8 @@ export function useLoginViewModel() {
   const markTouched = useCallback((field: keyof Touched) => setTouched((prev) => ({ ...prev, [field]: true })), []);
 
   // si inicia sesión bien, la navegación cambia sola al área de su rol (RootNavigator)
-  const submit = useCallback(async (): Promise<{ success: boolean; userName?: string }> => {
+  // devuelve el resultado para que la pantalla muestre el modal de éxito, error o bloqueo
+  const submit = useCallback(async (): Promise<LoginResult> => {
     setTouched({ email: true, password: true });
     setFormError(null);
 
@@ -52,8 +61,9 @@ export function useLoginViewModel() {
       return { success: true, userName: user.fullName };
     } catch (error) {
       // mensaje exacto del backend: credenciales, cuenta desactivada, sin conexión...
-      setFormError(t(apiErrorKey(error)));
-      return { success: false };
+      const message = t(apiErrorKey(error));
+      setFormError(message);
+      return { success: false, errorCode: apiErrorCode(error), message };
     } finally {
       setSubmitting(false);
     }

@@ -10,6 +10,7 @@ import { PasswordField } from '../../../shared/components/forms/PasswordField';
 import { PrimaryButton } from '../../../shared/components/ui/PrimaryButton';
 import { useTheme } from '../../../app/theme';
 import { useLoginViewModel } from '../viewmodels/useLoginViewModel';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -18,9 +19,34 @@ export function LoginScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const vm = useLoginViewModel();
 
-  // al iniciar sesión, RootNavigator muestra solo las pantallas del rol: no hay que navegar a mano
+  // al iniciar sesión, RootNavigator muestra solo las pantallas del rol: no hay que navegar a mano.
+  // AppAlert vive fuera de la navegación, así que el modal de éxito sigue visible en la pantalla del rol
   const handleSubmit = async () => {
-    await vm.submit();
+    const result = await vm.submit();
+    if (result.success) {
+      AppAlert.alert(
+        t('AUTH_FEEDBACK.LOGIN_SUCCESS_TITLE'),
+        t('AUTH_FEEDBACK.LOGIN_SUCCESS_MESSAGE', { name: result.userName ?? '' }),
+        undefined,
+        { type: 'success', icon: 'verified-user' },
+      );
+    } else if (result.errorCode === 'ACCOUNT_LOCKED') {
+      // 5 intentos fallidos: se ofrece recuperar la contraseña, que desbloquea la cuenta al instante
+      AppAlert.alert(
+        t('AUTH_FEEDBACK.LOCKED_TITLE'),
+        result.message,
+        [
+          { text: t('AUTH_FEEDBACK.OK'), style: 'cancel' },
+          { text: t('AUTH_FEEDBACK.RECOVER_BUTTON'), onPress: () => navigation.navigate('ForgotPassword') },
+        ],
+        { type: 'warning', icon: 'lock-clock' },
+      );
+    } else if (result.message) {
+      AppAlert.alert(t('AUTH_FEEDBACK.LOGIN_ERROR_TITLE'), result.message, [{ text: t('AUTH_FEEDBACK.OK') }], {
+        type: 'error',
+        icon: 'no-accounts',
+      });
+    }
   };
 
   return (
