@@ -30,6 +30,10 @@ const TRANSLATED_CODES = new Set([
   'INVALID_VEHICLE_TYPE',
   // booking-service
   'SLOT_UNAVAILABLE',
+  // motivo del 409 SLOT_UNAVAILABLE (campo reason del booking-service)
+  'SLOT_CLOSED_DAY',
+  'SLOT_OUTSIDE_HOURS',
+  'SLOT_TIME_PASSED',
   'VEHICLE_ALREADY_BOOKED',
   'SERVICE_NOT_AVAILABLE_FOR_VEHICLE',
   'INVALID_DATE',
@@ -80,8 +84,13 @@ export class ApiError extends Error {
     this.name = 'ApiError';
   }
 
-  // llave de traducción para mostrar al usuario (API_ERRORS.<CODE>)
+  // llave de traducción para mostrar al usuario (API_ERRORS.<CODE>). Una hora fuera del horario,
+  // un día cerrado o una hora pasada no se muestran como "ya no está disponible"
   get messageKey(): string {
+    const reason = (this.data as { reason?: unknown } | undefined)?.reason;
+    if (this.code === 'SLOT_UNAVAILABLE' && typeof reason === 'string' && TRANSLATED_CODES.has(`SLOT_${reason}`)) {
+      return `API_ERRORS.SLOT_${reason}`;
+    }
     return `API_ERRORS.${TRANSLATED_CODES.has(this.code) ? this.code : 'UNEXPECTED'}`;
   }
 }
