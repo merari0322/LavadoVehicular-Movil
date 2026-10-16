@@ -37,7 +37,8 @@ import { useClientBookings } from '../viewmodels/useClientBookings';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientPayment'>;
 type MethodId = 'NEQUI' | 'DAVIPLATA' | 'TRANSFER' | 'CASH';
-type FlowStep = 'PENDING' | 'VERIFYING';
+// PENDING: falta pagar · VERIFYING: el admin lo está revisando · APPROVED: el admin lo aprobó
+type FlowStep = 'PENDING' | 'VERIFYING' | 'APPROVED';
 type IconName = keyof typeof MaterialIcons.glyphMap;
 
 const METHODS: { id: MethodId; icon: IconName }[] = [
@@ -110,15 +111,18 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
 
   const total = Math.max(0, (booking?.total ?? 0) - (couponResult?.discountAmount ?? 0));
   const isVerifying = flowStep === 'VERIFYING';
+  const isApproved = flowStep === 'APPROVED';
+  // con el pago enviado (en revisión o aprobado) ya no se puede cambiar ni volver a pagar
+  const isLocked = isVerifying || isApproved;
   const isReferenceValid = REFERENCE_REGEX.test(reference);
   const paidAmount = paidAmountText === null ? total : Number(paidAmountText);
   const isPaidAmountValid = Number.isFinite(paidAmount) && paidAmount > 0;
   const canConfirm =
-    !sending && !isVerifying && (method === 'CASH' || (receipt !== null && isReferenceValid && isPaidAmountValid));
+    !sending && !isLocked && (method === 'CASH' || (receipt !== null && isReferenceValid && isPaidAmountValid));
   // lo que le falta al cliente para poder confirmar: se muestra debajo del botón deshabilitado
   // para que no quede bloqueado sin explicación
   const missingRequirements: string[] =
-    isVerifying || method === 'CASH'
+    isLocked || method === 'CASH'
       ? []
       : [
           ...(receipt ? [] : ['PAYMENT.CONFIRM.MISSING.RECEIPT']),
@@ -138,13 +142,13 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
       .accounts()
       .then((list) => {
         setAccounts(list);
-        if (!isVerifying && list.length > 0) setMethod(methodIdOf(list[0].methodCode));
+        if (!isLocked && list.length > 0) setMethod(methodIdOf(list[0].methodCode));
       })
       .catch(() => undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // si ya hay un pago reportado para esta reserva, la pantalla queda en revisión
+  // el estado del pago lo dice payment-service: aprobado, en revisión o sin pagar (o rechazado)
   useEffect(() => {
     if (!booking) return;
     paymentService
@@ -152,8 +156,13 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
       .then((payments) => {
         // payment-service los devuelve del más reciente al más antiguo: el primero es el vigente
         const current = payments.find((payment) => payment.booking?.id === booking.id);
-        const open = !!current && ['PENDING', 'IN_REVIEW', 'APPROVED'].includes(current.status);
-        setFlowStep(open ? 'VERIFYING' : 'PENDING');
+        setFlowStep(
+          current?.status === 'APPROVED'
+            ? 'APPROVED'
+            : current && ['PENDING', 'IN_REVIEW'].includes(current.status)
+              ? 'VERIFYING'
+              : 'PENDING',
+        );
         setLastRejectionReason(current?.status === 'REJECTED' ? (current.rejectionReason ?? '—') : null);
       })
       .catch(() => undefined);
@@ -169,7 +178,8 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
           return AsyncStorage.setItem(storageKey(booking.code), JSON.stringify(fresh));
         }
         const saved = JSON.parse(raw) as SavedPayment;
-        setFlowStep(saved.flowStep);
+        // solo el método: el paso lo decide payment-service (si se leía de aquí, podía llegar
+        // después de la respuesta y volver a mostrar "en verificación" un pago ya aprobado)
         setMethod(saved.method);
       })
       .catch(() => undefined);
@@ -184,7 +194,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   };
 
   const selectMethod = (id: MethodId) => {
-    if (isVerifying) return;
+    if (isLocked) return;
     setMethod(id);
     save({ method: id });
   };
@@ -203,7 +213,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
     setReceipt({ name: file.name, size: file.size ?? 0, uri: file.uri, mimeType: file.mimeType ?? 'image/jpeg' });
   };
 
-  const canRedeemCoupon = !isVerifying && !couponResult && !redeemingCoupon && couponCode.trim().length >= 3;
+  const canRedeemCoupon = !isLocked && !couponResult && !redeemingCoupon && couponCode.trim().length >= 3;
 
   const redeemCoupon = async () => {
     if (!canRedeemCoupon || !booking) return;
@@ -309,8 +319,19 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
         <Pill label={`${t('PAYMENT.STEP')} · #${booking.code}`} tone="primary" icon="check-circle" />
         <PageHeader title={t('PAYMENT.TITLE')} subtitle={t('PAYMENT.SUBTITLE')} />
 
+        {/* el administrador ya aprobó el pago: no hay nada más que hacer */}
+        {isApproved ? (
+          <View style={[styles.hint, { backgroundColor: colors.successSoft }]} accessibilityRole="summary">
+            <MaterialIcons name="verified" size={20} color={colors.success} />
+            <View style={styles.flex}>
+              <Text style={[styles.strong, { color: colors.success }]}>{t('PAYMENT.SUMMARY.APPROVED_TITLE')}</Text>
+              <Text style={[styles.hintText, { color: colors.text }]}>{t('PAYMENT.SUMMARY.APPROVED_MESSAGE')}</Text>
+            </View>
+          </View>
+        ) : null}
+
         {/* el último pago de esta reserva fue rechazado: se explica por qué antes de reportar otro */}
-        {lastRejectionReason && !isVerifying ? (
+        {lastRejectionReason && !isLocked ? (
           <View style={[styles.hint, { backgroundColor: colors.errorSoft }]}>
             <MaterialIcons name="error-outline" size={20} color={colors.error} />
             <View style={styles.flex}>
@@ -334,7 +355,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
                     styles.method,
                     { borderColor: active ? colors.primary : colors.border },
                     active && { backgroundColor: withAlpha(colors.primary, 0.08) },
-                    isVerifying && !active && { opacity: 0.5 },
+                    isLocked && !active && { opacity: 0.5 },
                   ]}
                 >
                   {active ? (
@@ -385,7 +406,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
             <SectionCard title={t('PAYMENT.CONFIRM.TITLE')} icon="fact-check">
               <Pressable
                 onPress={pickReceipt}
-                disabled={isVerifying}
+                disabled={isLocked}
                 style={[styles.dropzone, { borderColor: colors.primary, backgroundColor: withAlpha(colors.primary, 0.05) }]}
               >
                 <MaterialIcons name={receipt ? 'check-circle' : 'cloud-upload'} size={30} color={receipt ? colors.success : colors.primary} />
@@ -406,7 +427,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
                 autoCapitalize="characters"
                 autoCorrect={false}
                 maxLength={12}
-                editable={!isVerifying}
+                editable={!isLocked}
               />
               <Text style={[styles.muted, { color: isReferenceValid ? colors.success : colors.textMuted }]}>
                 {t('PAYMENT.CONFIRM.REFERENCE_HINT')}
@@ -419,7 +440,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
                 value={paidAmountText ?? String(total)}
                 onChangeText={(text) => setPaidAmountText(text.replace(/[^0-9]/g, ''))}
                 keyboardType="number-pad"
-                editable={!isVerifying}
+                editable={!isLocked}
               />
               <Text style={[styles.muted, { color: isPaidAmountValid ? colors.textMuted : colors.error }]}>
                 {t('PAYMENT.CONFIRM.AMOUNT_HINT')}
@@ -457,7 +478,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
                 {t('PAYMENT.COUPON.APPLIED', { name: couponResult.promotionName })}
               </Text>
               <Text style={[styles.strong, { color: colors.success }]}>-{formatCOP(couponResult.discountAmount)} COP</Text>
-              <Pressable onPress={removeCoupon} disabled={isVerifying} hitSlop={6}>
+              <Pressable onPress={removeCoupon} disabled={isLocked} hitSlop={6}>
                 <MaterialIcons name="close" size={18} color={colors.success} />
               </Pressable>
             </View>
@@ -469,7 +490,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
                 onChangeText={setCouponCode}
                 placeholder={t('PAYMENT.COUPON.PLACEHOLDER')}
                 autoCapitalize="characters"
-                editable={!isVerifying}
+                editable={!isLocked}
               />
               <Pressable
                 onPress={redeemCoupon}
@@ -492,13 +513,15 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
 
           <ActionButton
             label={t(
-              isVerifying
-                ? 'PAYMENT.SUMMARY.VERIFYING_BUTTON'
-                : method === 'CASH'
+              isApproved
+                ? 'PAYMENT.SUMMARY.APPROVED_BUTTON'
+                : isVerifying
+                  ? 'PAYMENT.SUMMARY.VERIFYING_BUTTON'
+                  : method === 'CASH'
                   ? 'PAYMENT.SUMMARY.CASH_BUTTON'
                   : 'PAYMENT.SUMMARY.PAY_BUTTON',
             )}
-            icon={isVerifying ? 'hourglass-top' : 'verified-user'}
+            icon={isApproved ? 'verified' : isVerifying ? 'hourglass-top' : 'verified-user'}
             disabled={!canConfirm}
             onPress={confirmPayment}
           />
