@@ -1,8 +1,9 @@
 // modelos del módulo cliente
 
-// avance del servicio según su estado (Confirmado → En lavado → Listo → Finalizado)
+// avance del servicio según su estado (Confirmado → En lavado → Listo → Finalizado).
+// Confirmado va en 0 %: el lavado todavía no ha empezado
 export const PROGRESS_BY_STATUS: Record<string, number> = {
-  CONFIRMED: 25,
+  CONFIRMED: 0,
   IN_WASH: 50,
   READY: 75,
   COMPLETED: 100,
