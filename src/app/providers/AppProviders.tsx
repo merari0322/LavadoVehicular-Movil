@@ -6,6 +6,7 @@ import { AuthServiceProvider } from '../../core/services/auth';
 import { ThemeProvider } from '../theme';
 import { AccountPreferencesSync } from './AccountPreferencesSync';
 import { PushNotificationsSync } from './PushNotificationsSync';
+import { AppUpdatesCheck } from './AppUpdatesCheck';
 import { AppAlertHost } from '../../shared/components/feedback/AppAlert';
 
 interface AppProvidersProps {
@@ -31,6 +32,8 @@ export function AppProviders({ children }: AppProvidersProps) {
           <AccountPreferencesSync />
           {/* push del celular: registro, cierre de sesión y abrir la pantalla al tocarlas */}
           <PushNotificationsSync />
+          {/* avisos de versión nueva: APK publicado en el servidor y actualización por internet */}
+          <AppUpdatesCheck />
           {children}
           {/* alertas de la app (AppAlert.alert), encima de todas las pantallas */}
           <AppAlertHost />

@@ -48,6 +48,14 @@
         "projectId": "1101bcf3-0db0-4a0d-9c85-40e586e33e08"
       }
     },
-    "owner": "brayanestiven08"
+    "owner": "brayanestiven08",
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1101bcf3-0db0-4a0d-9c85-40e586e33e08",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    }
   }
 }

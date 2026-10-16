@@ -305,6 +305,15 @@
     "DELETED_MESSAGE": "A notificação foi excluída com sucesso.",
     "ADMIN_SUBTITLE": "Aqui você pode visualizar as notificações administrativas: pagamentos a verificar, reservas sem operador, novidades da equipe e do sistema."
   },
+  "APP_UPDATE": {
+    "NEW_VERSION_TITLE": "Há uma versão nova",
+    "NEW_VERSION_MESSAGE": "Baixe a versão nova do LavaRapidoVehicular e instale por cima desta: você não perde sua conta nem seus dados.",
+    "DOWNLOAD": "Baixar",
+    "LATER": "Mais tarde",
+    "READY_TITLE": "Atualização pronta",
+    "READY_MESSAGE": "Melhorias para o app foram baixadas. Reinicie para vê-las agora, ou elas serão aplicadas na próxima vez que você abrir.",
+    "RESTART": "Reiniciar agora"
+  },
   "PUSH_CHANNELS": {
     "REMINDER": "Lembretes",
     "PROMOTION": "Promoções e pontos",

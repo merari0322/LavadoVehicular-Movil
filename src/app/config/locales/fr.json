@@ -305,6 +305,15 @@
     "DELETED_MESSAGE": "La notification a été supprimée avec succès.",
     "ADMIN_SUBTITLE": "Vous pouvez consulter ici les notifications administratives : paiements à vérifier, réservations sans opérateur, nouveautés de l'équipe et du système."
   },
+  "APP_UPDATE": {
+    "NEW_VERSION_TITLE": "Une nouvelle version est disponible",
+    "NEW_VERSION_MESSAGE": "Téléchargez la nouvelle version de LavaRapidoVehicular et installez-la par-dessus celle-ci : vous gardez votre compte et vos données.",
+    "DOWNLOAD": "Télécharger",
+    "LATER": "Plus tard",
+    "READY_TITLE": "Mise à jour prête",
+    "READY_MESSAGE": "Des améliorations ont été téléchargées. Redémarrez l'application pour les voir maintenant, sinon elles s'appliqueront à la prochaine ouverture.",
+    "RESTART": "Redémarrer"
+  },
   "PUSH_CHANNELS": {
     "REMINDER": "Rappels",
     "PROMOTION": "Promotions et points",
