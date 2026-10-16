@@ -64,6 +64,8 @@ export function AuthServiceProvider({ service = defaultAuthService, children }: 
   sessionRef.current = session;
 
   const applySession = useCallback(async (next: Session | null) => {
+    // al instante, sin esperar el siguiente render: un 401 tardío ya ve la sesión cerrada
+    sessionRef.current = next;
     setSession(next);
     if (next) {
       await saveSession(next);
@@ -77,6 +79,8 @@ export function AuthServiceProvider({ service = defaultAuthService, children }: 
   }, []);
 
   const expire = useCallback(() => {
+    // sin sesión (ya se cerró) el 401 es de una petición que quedó en curso: no es "sesión vencida"
+    if (!sessionRef.current) return;
     setExpired(true);
     void applySession(null);
   }, [applySession]);
