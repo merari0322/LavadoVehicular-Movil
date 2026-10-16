@@ -53,7 +53,7 @@ function toReservation(s: OperatorServiceResponse): OperatorReservation {
     time: s.startTime.slice(0, 5),
     service: s.services,
     // el nombre y el teléfono del cliente los da security-service solo al admin
-    client: s.plate || '—',
+    client: s.clientName || '—',
     phone: '—',
     vehicle: '',
     vehicleName: s.vehicle,
