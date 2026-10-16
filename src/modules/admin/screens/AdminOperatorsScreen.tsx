@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { BackHandler, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { RootStackParamList } from '../../../core/navigation/types';
@@ -32,6 +32,15 @@ export const AdminOperatorsScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const operators = useOperators();
   const scrollRef = useRef<ScrollView>(null);
+
+  // la lista se comparte entre pantallas y se cargaba una sola vez por sesión: un operario creado
+  // después en Gestión → Usuarios no aparecía. Se recarga cada vez que se abre esta pantalla
+  const { reload } = operators;
+  useFocusEffect(
+    useCallback(() => {
+      reload().catch(() => undefined);
+    }, [reload]),
+  );
 
   // Operario abierto en el detalle (null = se ve la lista)
   const [selectedId, setSelectedId] = useState<string | null>(null);
