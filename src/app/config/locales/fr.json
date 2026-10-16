@@ -305,6 +305,14 @@
     "DELETED_MESSAGE": "La notification a été supprimée avec succès.",
     "ADMIN_SUBTITLE": "Vous pouvez consulter ici les notifications administratives : paiements à vérifier, réservations sans opérateur, nouveautés de l'équipe et du système."
   },
+  "PUSH_CHANNELS": {
+    "REMINDER": "Rappels",
+    "PROMOTION": "Promotions et points",
+    "CONFIRMATION": "Confirmations",
+    "CANCELLATION": "Annulations",
+    "MESSAGE": "Messages du service",
+    "SYSTEM": "Système"
+  },
   "PAYMENTS": {
     "TITLE": "Gestion des Paiements",
     "SUBTITLE": "Gérez et vérifiez les paiements reçus",

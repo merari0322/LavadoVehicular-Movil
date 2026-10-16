@@ -305,6 +305,14 @@
     "DELETED_MESSAGE": "The notification was deleted successfully.",
     "ADMIN_SUBTITLE": "Here you can view administrative notifications: payments to verify, unassigned bookings, team updates and system alerts."
   },
+  "PUSH_CHANNELS": {
+    "REMINDER": "Reminders",
+    "PROMOTION": "Promotions and points",
+    "CONFIRMATION": "Confirmations",
+    "CANCELLATION": "Cancellations",
+    "MESSAGE": "Service messages",
+    "SYSTEM": "System"
+  },
   "PAYMENTS": {
     "TITLE": "Payment Management",
     "SUBTITLE": "Manage and verify received payments",

@@ -5,6 +5,7 @@ import { restoreSavedLanguage } from '../config/i18n';
 import { AuthServiceProvider } from '../../core/services/auth';
 import { ThemeProvider } from '../theme';
 import { AccountPreferencesSync } from './AccountPreferencesSync';
+import { PushNotificationsSync } from './PushNotificationsSync';
 import { AppAlertHost } from '../../shared/components/feedback/AppAlert';
 
 interface AppProvidersProps {
@@ -28,6 +29,8 @@ export function AppProviders({ children }: AppProvidersProps) {
         <AuthServiceProvider>
           {/* tema e idioma por cuenta (security-service) */}
           <AccountPreferencesSync />
+          {/* push del celular: registro, cierre de sesión y abrir la pantalla al tocarlas */}
+          <PushNotificationsSync />
           {children}
           {/* alertas de la app (AppAlert.alert), encima de todas las pantallas */}
           <AppAlertHost />

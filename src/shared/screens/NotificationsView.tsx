@@ -19,6 +19,7 @@ import { displayToISO, isoToDisplay } from '../utils/format';
 // bandeja real del usuario (notification-service)
 import { notificationService, toRoleNotification } from '../../core/services/notifications/NotificationService';
 import { apiErrorKey } from '../../core/api/apiError';
+import { inboxEvents } from '../../core/services/notifications/inboxEvents';
 
 type ReadFilter = 'all' | 'read' | 'unread';
 
@@ -64,6 +65,9 @@ export function NotificationsView({ role }: NotificationsViewProps) {
   useEffect(() => {
     load();
   }, [load]);
+
+  // llegó una push o se tocó una: la bandeja se recarga sola
+  useEffect(() => inboxEvents.subscribe(load), [load]);
   const [tab, setTab] = useState<NotificationTab>('all');
   const [readFilter, setReadFilter] = useState<ReadFilter>('all');
   const [dateFrom, setDateFrom] = useState('');

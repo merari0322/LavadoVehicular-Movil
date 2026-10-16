@@ -27,6 +27,26 @@ interface SessionContextValue {
 
 const SessionContext = createContext<SessionContextValue | null>(null);
 
+// tareas que necesitan el token antes de cerrar sesión (ej. quitar el celular de las push).
+// Se registran desde fuera, así la sesión no depende de quién las pide.
+type BeforeSignOutHook = () => Promise<void>;
+const beforeSignOutHooks = new Set<BeforeSignOutHook>();
+// cerrar sesión nunca debe quedarse esperando a un servidor que no responde
+const BEFORE_SIGN_OUT_TIMEOUT_MS = 4000;
+
+export function onBeforeSignOut(hook: BeforeSignOutHook): () => void {
+  beforeSignOutHooks.add(hook);
+  return () => {
+    beforeSignOutHooks.delete(hook);
+  };
+}
+
+async function runBeforeSignOut(): Promise<void> {
+  const all = Promise.all([...beforeSignOutHooks].map((hook) => hook().catch(() => undefined)));
+  const timeout = new Promise<void>((resolve) => setTimeout(resolve, BEFORE_SIGN_OUT_TIMEOUT_MS));
+  await Promise.race([all, timeout]);
+}
+
 interface AuthServiceProviderProps {
   service?: IAuthService;
   children: React.ReactNode;
@@ -96,6 +116,8 @@ export function AuthServiceProvider({ service = defaultAuthService, children }: 
   }, [service, applySession]);
 
   const signOut = useCallback(async () => {
+    // con el token todavía vigente
+    await runBeforeSignOut();
     await service.logout();
     setExpired(false);
     await applySession(null);
@@ -107,6 +129,7 @@ export function AuthServiceProvider({ service = defaultAuthService, children }: 
   }, [applySession]);
 
   const endSessionLocally = useCallback(async () => {
+    await runBeforeSignOut();
     setExpired(false);
     await applySession(null);
   }, [applySession]);

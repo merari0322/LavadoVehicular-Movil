@@ -3,7 +3,8 @@ import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useTheme } from '../../app/theme';
-import { UserRole, useSession } from '../services/auth';
+import { useSession } from '../services/auth';
+import { mainRole } from './mainRole';
 import { ForgotPasswordScreen, LoginScreen, RegisterScreen } from '../../modules/auth';
 import { ClientHistoryScreen } from '../../modules/client/screens/ClientHistoryScreen';
 import { ClientHomeScreen } from '../../modules/client/screens/ClientHomeScreen';
@@ -35,13 +36,6 @@ import { AdminReservationsScreen } from '../../modules/admin/screens/AdminReserv
 import { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
-// si tiene varios roles, entra al de más privilegios
-function mainRole(roles: UserRole[]): UserRole {
-  if (roles.includes('ADMIN')) return 'ADMIN';
-  if (roles.includes('OPERATOR')) return 'OPERATOR';
-  return 'CLIENT';
-}
 
 // cada rol solo tiene registradas sus pantallas: así no puede navegar al área de otro.
 // Al iniciar o cerrar sesión cambia el grupo de pantallas solo (no hace falta navegar a mano).

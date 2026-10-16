@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1044089740072",
+    "project_id": "vehiclecarwash-60b6a",
+    "storage_bucket": "vehiclecarwash-60b6a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1044089740072:android:844e0bd98e13a35c604e1d",
+        "android_client_info": {
+          "package_name": "com.vehiclecarwash.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5socY7OIhi5m0IyM_IB4i6NPMQbYw0ag"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

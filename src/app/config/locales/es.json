@@ -305,6 +305,14 @@
     "DELETED_MESSAGE": "La notificación se eliminó correctamente.",
     "ADMIN_SUBTITLE": "Aquí puedes ver las notificaciones administrativas: pagos por verificar, reservas sin operario, novedades del equipo y del sistema."
   },
+  "PUSH_CHANNELS": {
+    "REMINDER": "Recordatorios",
+    "PROMOTION": "Promociones y puntos",
+    "CONFIRMATION": "Confirmaciones",
+    "CANCELLATION": "Cancelaciones",
+    "MESSAGE": "Mensajes del servicio",
+    "SYSTEM": "Sistema"
+  },
   "PAYMENTS": {
     "TITLE": "Gestión de Pagos",
     "SUBTITLE": "Administra y verifica los pagos recibidos",

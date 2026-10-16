@@ -9,6 +9,7 @@ import {
   NotificationResponse,
   notificationService,
 } from '../../../core/services/notifications/NotificationService';
+import { inboxEvents } from '../../../core/services/notifications/inboxEvents';
 import { getDatePart } from '../utils/notificationUtils';
 import { displayToISO } from '../utils/reservationUtils';
 
@@ -57,6 +58,9 @@ export function useNotifications() {
   useEffect(() => {
     reload();
   }, [reload]);
+
+  // llegó una push o se tocó una: la bandeja se recarga sola
+  useEffect(() => inboxEvents.subscribe(reload), [reload]);
   const [tab, setTab] = useState<NotificationTab>('all');
   const [filters, setFilters] = useState<NotificationFilters>(EMPTY_FILTERS);
 
