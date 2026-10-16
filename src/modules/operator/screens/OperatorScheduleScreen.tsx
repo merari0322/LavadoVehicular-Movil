@@ -146,7 +146,6 @@ export function OperatorScheduleScreen() {
         onClose={() => setDetail(null)}
         onStart={vm.start}
         onFinish={vm.finish}
-        onReport={vm.reportProgress}
         onContact={vm.contactClient}
       />
       {vm.modals}
