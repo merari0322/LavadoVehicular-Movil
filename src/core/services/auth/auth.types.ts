@@ -26,6 +26,9 @@ export interface RegisterPayload {
   email: string;
   phone: string;
   password: string;
+  // casillas de los Términos y de la Política de Tratamiento de Datos (security-service guarda la fecha)
+  acceptsTerms: boolean;
+  acceptsDataPolicy: boolean;
 }
 
 export interface UpdateProfilePayload {
