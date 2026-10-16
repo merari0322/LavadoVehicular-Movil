@@ -28,6 +28,7 @@ import { ScreenScroll } from '../../../shared/components/screen/ScreenScroll';
 import { SectionCard } from '../../../shared/components/screen/SectionCard';
 import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { ClientLayout } from '../../../shared/layouts/ClientLayout';
+import { useEstablishment } from '../../../shared/services/establishmentCatalog';
 import { withAlpha } from '../../../shared/utils/color';
 import { formatCOP } from '../../../shared/utils/format';
 import { ClientBookingItem } from '../models/booking-view';
@@ -87,6 +88,8 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   const { t } = useTranslation();
   const feedback = useFeedback();
   const vm = useClientBookings();
+  // línea de soporte del negocio (la misma que el admin edita en los datos del negocio)
+  const establishment = useEstablishment();
   // cuentas activas del lavadero; el efectivo siempre está
   const [accounts, setAccounts] = useState<PaymentAccount[]>([]);
   const [sending, setSending] = useState(false);
@@ -550,7 +553,8 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
             <View style={styles.flex}>
               <Text style={[styles.strong, { color: colors.text }]}>{t('PAYMENT.HELP.TITLE')}</Text>
               <Text style={[styles.muted, { color: colors.textSecondary }]}>
-                {t('PAYMENT.HELP.DESC')} <Text style={{ fontWeight: fontWeight.bold }}>01 8000 942 000</Text>
+                {t('PAYMENT.HELP.DESC')}{' '}
+                <Text style={{ fontWeight: fontWeight.bold }}>{establishment.supportLine || establishment.phone}</Text>
               </Text>
             </View>
           </View>
