@@ -19,6 +19,7 @@ import { ReservationDetailModal } from '../components/ReservationDetailModal';
 import { OperatorReservation } from '../models/operator';
 // no leídas reales (notification-service) y promedio de calificaciones (operations-service)
 import { notificationService } from '../../../core/services/notifications/NotificationService';
+import { inboxEvents } from '../../../core/services/notifications/inboxEvents';
 import { operationsService } from '../../../core/services/operations/OperationsService';
 import { useOperatorReservations } from '../viewmodels/useOperatorReservations';
 
@@ -33,7 +34,10 @@ export function OperatorHomeScreen({ navigation }: Props) {
   // no leídas reales; 0 si notification-service no responde
   const [unread, setUnread] = useState(0);
   useEffect(() => {
-    notificationService.unreadCount().then(setUnread).catch(() => setUnread(0));
+    const load = () => notificationService.unreadCount().then(setUnread).catch(() => setUnread(0));
+    load();
+    // si llega una push, el contador se actualiza sin salir de la pantalla
+    return inboxEvents.subscribe(() => void load());
   }, []);
   // promedio de sus calificaciones; '—' si aún no tiene o el servicio no responde
   const [average, setAverage] = useState<number | string>('—');

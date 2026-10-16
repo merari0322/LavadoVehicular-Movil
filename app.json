@@ -25,7 +25,13 @@
       "expo-font",
       "expo-status-bar",
       "expo-sharing",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#2ec4b6"
+        }
+      ]
     ]
   }
 }
