@@ -14,11 +14,12 @@ const [notes = '', buildId] = process.argv.slice(2);
 const host = process.env.DEPLOY_HOST ?? 'azureuser@64.236.160.129';
 const key = process.env.DEPLOY_SSH_KEY ?? join(homedir(), '.ssh', 'lavarapido_azure');
 
-const eas = (args) => JSON.parse(execFileSync('eas', [...args, '--json', '--non-interactive'], { encoding: 'utf8', shell: true }));
+const eas = (args) => JSON.parse(execFileSync('eas', [...args, '--json'], { encoding: 'utf8', shell: true }));
 
+// build:view no acepta --non-interactive (build:list sí)
 const build = buildId
   ? eas(['build:view', buildId])
-  : eas(['build:list', '--platform', 'android', '--build-profile', 'preview', '--status', 'finished', '--limit', '1'])[0];
+  : eas(['build:list', '--platform', 'android', '--build-profile', 'preview', '--status', 'finished', '--limit', '1', '--non-interactive'])[0];
 if (!build) throw new Error('No hay un build preview de Android terminado');
 
 const url = build.artifacts?.applicationArchiveUrl ?? build.artifacts?.buildUrl;
