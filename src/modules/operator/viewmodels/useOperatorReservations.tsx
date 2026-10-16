@@ -135,21 +135,6 @@ export function useOperatorReservations() {
     [advance, feedback, t],
   );
 
-  const reportProgress = useCallback(
-    (r: OperatorReservation) =>
-      feedback.askConfirm({
-        title: t('ASSIGNED_SERVICES.DETAIL.REPORT_TITLE'),
-        message: t('ASSIGNED_SERVICES.DETAIL.REPORT_MESSAGE', { code: r.code }),
-        confirmLabel: t('ASSIGNED_SERVICES.DETAIL.REPORT_CONFIRM'),
-        onConfirm: () =>
-          feedback.showStatus({
-            title: t('ASSIGNED_SERVICES.DETAIL.REPORTED_TITLE'),
-            message: t('ASSIGNED_SERVICES.DETAIL.REPORTED_MESSAGE', { code: r.code }),
-          }),
-      }),
-    [feedback, t],
-  );
-
   // datos del vehículo para reconocerlo al llegar
   const contactClient = useCallback(
     (r: OperatorReservation) =>
@@ -166,5 +151,5 @@ export function useOperatorReservations() {
 
   const modals: React.ReactNode = feedback.modals;
 
-  return { reservations: list, start, finish, reportProgress, contactClient, reload, modals };
+  return { reservations: list, start, finish, contactClient, reload, modals };
 }

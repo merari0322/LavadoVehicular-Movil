@@ -18,7 +18,6 @@ interface ReservationDetailModalProps {
   onClose: () => void;
   onStart: (reservation: OperatorReservation) => void;
   onFinish: (reservation: OperatorReservation) => void;
-  onReport: (reservation: OperatorReservation) => void;
   onContact: (reservation: OperatorReservation) => void;
 }
 
@@ -29,7 +28,6 @@ export function ReservationDetailModal({
   onClose,
   onStart,
   onFinish,
-  onReport,
   onContact,
 }: ReservationDetailModalProps) {
   const { colors } = useTheme();
@@ -80,7 +78,6 @@ export function ReservationDetailModal({
             ) : null}
             {r.status === 'en_progreso' ? (
               <>
-                <ActionButton variant="soft" icon="refresh" label={t('ASSIGNED_SERVICES.DETAIL.REPORT')} onPress={then(onReport)} />
                 <ActionButton icon="flag" label={t('ASSIGNED_SERVICES.DETAIL.FINISH')} onPress={then(onFinish)} />
               </>
             ) : null}
