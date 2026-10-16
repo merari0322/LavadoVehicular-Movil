@@ -305,6 +305,15 @@
     "DELETED_MESSAGE": "The notification was deleted successfully.",
     "ADMIN_SUBTITLE": "Here you can view administrative notifications: payments to verify, unassigned bookings, team updates and system alerts."
   },
+  "APP_UPDATE": {
+    "NEW_VERSION_TITLE": "A new version is available",
+    "NEW_VERSION_MESSAGE": "Download the new version of LavaRapidoVehicular and install it over this one: you keep your account and data.",
+    "DOWNLOAD": "Download",
+    "LATER": "Later",
+    "READY_TITLE": "Update ready",
+    "READY_MESSAGE": "Improvements for the app were downloaded. Restart it to see them now, or they will apply the next time you open it.",
+    "RESTART": "Restart now"
+  },
   "PUSH_CHANNELS": {
     "REMINDER": "Reminders",
     "PROMOTION": "Promotions and points",
