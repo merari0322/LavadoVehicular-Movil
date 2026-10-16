@@ -1,6 +1,9 @@
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Linking } from 'react-native';
 
+import { API_BASE_URL } from '../../core/api/config';
+import { siteUrlOf } from '../../core/services/appUpdates/publishedApk';
 import { mainRole } from '../../core/navigation/mainRole';
 import { navigationRef, whenNavigationReady } from '../../core/navigation/navigationRef';
 import { onBeforeSignOut, useSession } from '../../core/services/auth';
@@ -37,6 +40,9 @@ export function PushNotificationsSync() {
         tokens: pushTokenStorage,
         inbox: notificationService,
         signals: inboxEvents,
+        opener: { openUrl: (url) => Linking.openURL(url) },
+        // misma dirección fija que el botón de la web
+        appDownloadUrl: `${siteUrlOf(API_BASE_URL)}/app/LavaRapidoVehicular.apk`,
         navigator: {
           async navigate(route) {
             if (await whenNavigationReady()) {
