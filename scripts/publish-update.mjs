@@ -15,5 +15,8 @@ const preview = JSON.parse(readFileSync(new URL('../eas.json', import.meta.url),
 const env = { ...process.env, ...preview.env };
 console.log(`Backend de la actualización: ${env.EXPO_PUBLIC_API_URL}`);
 
-execFileSync('eas', ['update', '--channel', preview.channel, '--message', JSON.stringify(message), '--non-interactive'],
+// sin preguntas, eas-cli exige el entorno; "preview" no tiene variables guardadas en EAS, así que
+// la dirección del backend sale de eas.json (la de arriba)
+execFileSync('eas', ['update', '--channel', preview.channel, '--environment', 'preview', '--message',
+  JSON.stringify(message), '--non-interactive'],
   { stdio: 'inherit', env, shell: true });
