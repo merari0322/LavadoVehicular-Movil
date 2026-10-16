@@ -20,8 +20,8 @@ interface LegalDocumentModalProps {
   onClose: () => void;
 }
 
-// Términos y Condiciones / Política de Datos solo para consulta (el usuario ya los aceptó
-// al registrarse). Los textos salen de LEGAL.* en las traducciones, igual que en la web.
+// Términos y Condiciones / Política de Datos: se abren desde las casillas del registro y desde
+// Configuración. Los textos salen de LEGAL.* en las traducciones, igual que en la web.
 export function LegalDocumentModal({ type, onClose }: LegalDocumentModalProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();

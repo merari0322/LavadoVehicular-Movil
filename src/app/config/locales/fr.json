@@ -594,7 +594,12 @@
     "LAST_NAMES_MIN": "Doit contenir au moins 2 caractères",
     "SUCCESS_TITLE": "Inscription réussie !",
     "SUCCESS_MESSAGE": "Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.",
-    "SUCCESS_BUTTON": "Aller à la connexion"
+    "SUCCESS_BUTTON": "Aller à la connexion",
+    "ACCEPT_TERMS": "J'ai lu et j'accepte les",
+    "ACCEPT_PRIVACY": "J'ai lu et j'accepte la",
+    "TERMS_LINK": "Conditions Générales",
+    "PRIVACY_LINK": "Politique de Traitement des Données Personnelles",
+    "TERMS_REQUIRED": "Vous devez accepter les Conditions et la Politique de Données pour continuer"
   },
   "FORGOT": {
     "BACK_LOGIN": "Retour à la Connexion",

@@ -38,6 +38,10 @@ export function useRegisterViewModel() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  // Ley 1581 de 2012: sin aceptar los Términos y la Política de Datos no se crea la cuenta (igual que la web)
+  const [acceptsTerms, setAcceptsTerms] = useState(false);
+  const [acceptsDataPolicy, setAcceptsDataPolicy] = useState(false);
+  const [triedSubmit, setTriedSubmit] = useState(false);
   const [touched, setTouched] = useState<Touched>({});
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -101,7 +105,11 @@ export function useRegisterViewModel() {
     isColombianPhone(phone) &&
     isPasswordStrong(strength) &&
     confirmPassword === password &&
-    isRequired(confirmPassword);
+    isRequired(confirmPassword) &&
+    acceptsTerms &&
+    acceptsDataPolicy;
+
+  const consentError = triedSubmit && !(acceptsTerms && acceptsDataPolicy) ? t('REGISTER.TERMS_REQUIRED') : undefined;
 
   // la cédula solo admite dígitos (quita puntos y espacios si la pegan)
   const handleDocumentChange = useCallback(
@@ -122,6 +130,7 @@ export function useRegisterViewModel() {
       password: true,
       confirmPassword: true,
     });
+    setTriedSubmit(true);
     setFormError(null);
 
     if (!isValid) return false;
@@ -135,6 +144,8 @@ export function useRegisterViewModel() {
         email,
         phone,
         password,
+        acceptsTerms,
+        acceptsDataPolicy,
       });
       return true;
     } catch (error) {
@@ -144,7 +155,8 @@ export function useRegisterViewModel() {
     } finally {
       setSubmitting(false);
     }
-  }, [authService, documentNumber, firstName, lastName, email, phone, password, isValid, t]);
+  }, [authService, documentNumber, firstName, lastName, email, phone, password, acceptsTerms, acceptsDataPolicy,
+    isValid, t]);
 
   return {
     documentNumber,
@@ -162,6 +174,11 @@ export function useRegisterViewModel() {
     phoneError,
     passwordError,
     confirmPasswordError,
+    acceptsTerms,
+    acceptsDataPolicy,
+    setAcceptsTerms,
+    setAcceptsDataPolicy,
+    consentError,
     formError,
     submitting,
     isValid,
