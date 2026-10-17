@@ -1,3 +1,5 @@
+import type { ReservationStatus } from '../../modules/admin/models/reservation';
+
 export type RootStackParamList = {
   // sin sesión
   Login: undefined;
@@ -35,4 +37,19 @@ export type RootStackParamList = {
   AdminPayments: undefined;
   AdminProfile: undefined;
   AdminReservations: undefined;
+  // reporte de inspección de una reserva (reservations/:id/inspection en la web); el resumen
+  // pinta el encabezado mientras responde operations-service
+  AdminInspection: { bookingId: string; summary: InspectionBookingSummary };
 };
+
+// datos de la reserva que ya tiene la pantalla de reservas al abrir la inspección
+export interface InspectionBookingSummary {
+  code: string;
+  plate: string;
+  vehicle: string;
+  customerName: string;
+  service: string;
+  dateLabel: string;
+  duration: number;
+  status: ReservationStatus;
+}

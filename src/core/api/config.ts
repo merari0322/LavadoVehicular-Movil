@@ -41,5 +41,13 @@ export const OPERATIONS_API_URL = clean(process.env.EXPO_PUBLIC_OPERATIONS_API_U
 export const PAYMENT_API_URL = clean(process.env.EXPO_PUBLIC_PAYMENT_API_URL ?? API_BASE_URL);
 export const NOTIFICATION_API_URL = clean(process.env.EXPO_PUBLIC_NOTIFICATION_API_URL ?? API_BASE_URL);
 
+// dirección de la web, para los enlaces públicos (ej. el reporte de inspección: /report/{token}).
+// EXPO_PUBLIC_WEB_URL la fija a mano; si no, es el mismo equipo del gateway con el puerto de la web
+const WEB_PORT = 4200;
+export const WEB_URL = clean(
+  process.env.EXPO_PUBLIC_WEB_URL ||
+    API_BASE_URL.replace(/\/api\/v1$/, '').replace(new RegExp(`:${GATEWAY_PORT}$`), `:${WEB_PORT}`),
+);
+
 // tiempo máximo de espera de una petición antes de dar "sin conexión"
 export const REQUEST_TIMEOUT_MS = 15000;

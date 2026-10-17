@@ -33,6 +33,7 @@ import { AdminManagementScreen } from '../../modules/admin/screens/AdminManageme
 import { AdminPaymentsScreen } from '../../modules/admin/screens/AdminPaymentsScreen';
 import { AdminProfileScreen } from '../../modules/admin/screens/AdminProfileScreen';
 import { AdminReservationsScreen } from '../../modules/admin/screens/AdminReservationsScreen';
+import { AdminInspectionScreen } from '../../modules/admin/screens/AdminInspectionScreen';
 import { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -102,6 +103,7 @@ export function RootNavigator() {
           <Stack.Screen name="AdminPayments" component={AdminPaymentsScreen} />
           <Stack.Screen name="AdminProfile" component={AdminProfileScreen} />
           <Stack.Screen name="AdminReservations" component={AdminReservationsScreen} />
+          <Stack.Screen name="AdminInspection" component={AdminInspectionScreen} />
         </>
       )}
     </Stack.Navigator>

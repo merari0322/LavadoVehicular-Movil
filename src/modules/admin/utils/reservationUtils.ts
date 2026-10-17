@@ -1,3 +1,5 @@
+import { LONG_SERVICE_MIN_MINUTES } from '../../../core/services/operations/InspectionService';
+import { Reservation } from '../models/reservation';
 import { TEXTS } from '../constants/reservationTexts';
 
 // Funciones de ayuda para fechas, horas y textos de reservas
@@ -75,3 +77,10 @@ export const getInitials = (name: string): string =>
     .slice(0, 2)
     .map((part) => part[0].toUpperCase())
     .join('');
+
+// Solo decide si el detalle de la reserva muestra el botón "Inspección" (como supportsInspection en
+// la web); al abrir la pantalla operations-service vuelve a aplicar la regla y es quien dice si se
+// puede iniciar o editar el reporte
+export const supportsInspection = (reservation: Pick<Reservation, 'duration' | 'status'>): boolean =>
+  reservation.duration >= LONG_SERVICE_MIN_MINUTES &&
+  ['confirmed', 'in_progress', 'completed'].includes(reservation.status);

@@ -8,7 +8,8 @@ import { TEXTS } from '../../constants/reservationTexts';
 import { Reservation } from '../../models/reservation';
 import { useOperatorDirectory } from '../../viewmodels/useOperatorDirectory';
 import { getBayById, getServiceById, useReservationCatalog } from '../../services/reservationCatalog';
-import { addMinutes, formatDateLabel } from '../../utils/reservationUtils';
+import { addMinutes, formatDateLabel, supportsInspection } from '../../utils/reservationUtils';
+import { INSPECTION_TEXTS } from '../../constants/inspectionTexts';
 import { StatusBadge } from '../common/StatusBadge';
 import { ModalCloseButton } from '../../../../shared/components/feedback/ModalCloseButton';
 import { ModalShell } from '../../../../shared/components/feedback/ModalShell';
@@ -19,6 +20,8 @@ interface ReservationDetailModalProps {
   reservation: Reservation | null; // null = modal cerrado
   onClose: () => void;
   onEdit: (reservation: Reservation) => void;
+  // abre el reporte de inspección (solo servicios largos en el lavadero)
+  onInspect?: (reservation: Reservation) => void;
 }
 
 interface DetailRowProps {
@@ -46,7 +49,7 @@ function DetailRow({ icon, label, value }: DetailRowProps) {
 }
 
 // Modal de solo lectura con toda la información de la reserva (el "ojito")
-export function ReservationDetailModal({ reservation, onClose, onEdit }: ReservationDetailModalProps) {
+export function ReservationDetailModal({ reservation, onClose, onEdit, onInspect }: ReservationDetailModalProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -97,6 +100,17 @@ export function ReservationDetailModal({ reservation, onClose, onEdit }: Reserva
           <Text style={styles.sectionTitle}>{detail.notesSection}</Text>
           <DetailRow icon="notes" label={detail.notesSection} value={reservation.notes || detail.noNotes} />
         </ScrollView>
+
+        {/* Reporte de inspección (servicios largos), como el botón "Inspección" de la web */}
+        {onInspect && supportsInspection(reservation) ? (
+          <Pressable
+            style={({ pressed }) => [styles.inspectButton, pressed && styles.pressed]}
+            onPress={() => onInspect(reservation)}
+          >
+            <MaterialIcons name="fact-check" size={20} color={colors.primary} />
+            <Text style={styles.inspectText}>{INSPECTION_TEXTS.openFromDetail}</Text>
+          </Pressable>
+        ) : null}
 
         {/* Botones */}
         <View style={styles.footer}>
@@ -164,4 +178,19 @@ const createStyles = (colors: ThemeColors) =>
     closeText: { fontSize: 14, fontWeight: '700', color: colors.text },
     editButton: { backgroundColor: colors.primary },
     editText: { fontSize: 14, fontWeight: '700', color: colors.onPrimary },
+    inspectButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      height: 46,
+      marginHorizontal: 16,
+      marginTop: 12,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.primary,
+      backgroundColor: withAlpha(colors.primary, 0.08),
+    },
+    inspectText: { fontSize: 14, fontWeight: '700', color: colors.primary },
+    pressed: { opacity: 0.85 },
   });
