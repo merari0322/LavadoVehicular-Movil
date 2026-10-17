@@ -380,8 +380,8 @@
     "PASSWORD_DESC": "Se recomienda una contraseña segura",
     "CHANGE": "Cambiar",
     "ACCOUNT": "Cuenta",
-    "DELETE": "Eliminar cuenta",
-    "DELETE_DESC": "Eliminar permanentemente tu cuenta y todos tus datos",
+    "DELETE": "Desactivar mi cuenta",
+    "DELETE_DESC": "Ya no podrás iniciar sesión; tu historial de reservas y pagos se conserva",
     "SAVED_MODE": "Modo visualización",
     "EDIT_MODE": "Modo edición",
     "VALIDATION": {
@@ -406,11 +406,11 @@
     "SUCCESS_MESSAGE": "Tus datos se guardaron correctamente.",
     "PASSWORD_SUCCESS_TITLE": "¡Contraseña actualizada!",
     "PASSWORD_SUCCESS_MESSAGE": "Tu contraseña se cambió correctamente.",
-    "DELETE_CONFIRM_TITLE": "¿Eliminar tu cuenta?",
+    "DELETE_CONFIRM_TITLE": "¿Desactivar tu cuenta?",
     "DELETE_CONFIRM_MESSAGE": "Tu cuenta se desactivará y ya no podrás iniciar sesión. Tu historial de reservas y pagos se conserva. Escribe tu contraseña para confirmar.",
-    "DELETE_CONFIRM_BUTTON": "Sí, eliminar",
-    "DELETE_SUCCESS_TITLE": "Cuenta eliminada",
-    "DELETE_SUCCESS_MESSAGE": "Tu cuenta fue eliminada y se cerró la sesión en todos tus dispositivos. Gracias por usar nuestro servicio.",
+    "DELETE_CONFIRM_BUTTON": "Sí, desactivar",
+    "DELETE_SUCCESS_TITLE": "Cuenta desactivada",
+    "DELETE_SUCCESS_MESSAGE": "Tu cuenta fue desactivada y se cerró la sesión en todos tus dispositivos. Gracias por usar nuestro servicio.",
     "EMAIL_CHANGED_MESSAGE": "Tu correo se actualizó. Desde ahora inicias sesión con el correo nuevo."
   },
   "RATINGS": {
