@@ -17,10 +17,20 @@ export function registerAuthHooks(hooks: AuthHooks): void {
   authHooks = hooks;
 }
 
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+// encabezado con el token, para lo que no pasa por request() (ej. una <Image> que exige sesión)
+export function authorizationHeader(): Record<string, string> {
+  const token = authHooks.getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+type HttpMethod ='GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 interface RequestOptions {
   body?: unknown;
+  // formulario con archivos (ej. fotos): fetch arma solo el multipart y su boundary
+  form?: FormData;
+  // espera máxima propia (subir fotos tarda más que una petición normal)
+  timeoutMs?: number;
   query?: Record<string, string | number | undefined>;
   // endpoints públicos (login, registro, recuperación): un 401 ahí no es "sesión vencida"
   isPublic?: boolean;
@@ -34,7 +44,7 @@ export async function request<T>(method: HttpMethod, path: string, options: Requ
   const url = buildUrl(options.baseUrl ?? API_BASE_URL, path, options.query);
   const headers: Record<string, string> = { Accept: 'application/json' };
 
-  if (options.body !== undefined) {
+  if (options.body !== undefined && !options.form) {
     headers['Content-Type'] = 'application/json';
   }
 
@@ -44,14 +54,14 @@ export async function request<T>(method: HttpMethod, path: string, options: Requ
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? REQUEST_TIMEOUT_MS);
 
   let response: Response;
   try {
     response = await fetch(url, {
       method,
       headers,
-      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+      body: options.form ?? (options.body !== undefined ? JSON.stringify(options.body) : undefined),
       signal: controller.signal,
     });
   } catch {
