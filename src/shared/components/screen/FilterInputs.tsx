@@ -68,9 +68,14 @@ export function DateInput({ value, onChange, hasError = false }: DateInputProps)
 }
 
 const styles = StyleSheet.create({
+  // sin flex: 1 (parte de alto 0): en una columna la caja se aplastaba; así crece en las filas
+  // (ej. el rango de fechas) y siempre conserva sus 46 px de alto
   box: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
+    minWidth: 0,
     height: 46,
+    minHeight: 46,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -78,5 +83,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
   },
-  input: { flex: 1, height: 46, fontSize: fontSize.body },
+  // minWidth 0: sin él un <input> de la versión web no se encoge y el segundo campo de fecha se sale
+  input: { flex: 1, minWidth: 0, height: 46, fontSize: fontSize.body },
 });
