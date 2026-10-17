@@ -2,7 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { RootStackParamList } from '../../../core/navigation/types';
+import { formatDateLabel } from '../utils/reservationUtils';
 import { useTheme } from '../../../app/theme';
 import { ThemeColors } from '../../../app/theme/colors';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
@@ -25,7 +28,9 @@ import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 // Escapa un valor para CSV (comillas dobles)
 const csvValue = (value: string): string => `"${value.replace(/"/g, '""')}"`;
 
-export const AdminReservationsScreen = () => {
+type Props = NativeStackScreenProps<RootStackParamList, 'AdminReservations'>;
+
+export const AdminReservationsScreen = ({ navigation }: Props) => {
   // vuelve a pintar la pantalla cuando cambia el idioma
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -68,6 +73,24 @@ export const AdminReservationsScreen = () => {
   const handleNew = () => {
     setEditingReservation(null);
     setFormVisible(true);
+  };
+
+  // Cierra el detalle y abre el reporte de inspección de la reserva
+  const handleInspectFromDetail = (reservation: Reservation) => {
+    setSelectedReservation(null);
+    navigation.navigate('AdminInspection', {
+      bookingId: reservation.id,
+      summary: {
+        code: reservation.code,
+        plate: reservation.plate,
+        vehicle: reservation.vehicle,
+        customerName: reservation.customerName,
+        service: getServiceById(reservation.serviceId)?.name ?? '',
+        dateLabel: `${formatDateLabel(reservation.date)} · ${reservation.time}`,
+        duration: reservation.duration,
+        status: reservation.status,
+      },
+    });
   };
 
   // Cierra el detalle y abre el formulario de edición
@@ -188,6 +211,7 @@ export const AdminReservationsScreen = () => {
         reservation={selectedReservation}
         onClose={() => setSelectedReservation(null)}
         onEdit={handleEditFromDetail}
+        onInspect={handleInspectFromDetail}
       />
     </AdminLayout>
   );
