@@ -41,6 +41,14 @@
             "usesCleartextTraffic": true
           }
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "La app usa la cámara para tomar las fotos del reporte de inspección del vehículo.",
+          "photosPermission": "La app usa tus fotos para adjuntarlas al reporte de inspección del vehículo.",
+          "microphonePermission": false
+        }
       ]
     ],
     "extra": {
