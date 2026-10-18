@@ -127,14 +127,23 @@ interface ActionIconButtonProps {
   icon: IconName;
   onPress: () => void;
   danger?: boolean;
+  disabled?: boolean;
+  accessibilityLabel?: string;
 }
 
-export function ActionIconButton({ icon, onPress, danger = false }: ActionIconButtonProps) {
+export function ActionIconButton({ icon, onPress, danger = false, disabled = false, accessibilityLabel }: ActionIconButtonProps) {
   const { colors, styles } = useStyles();
 
   return (
-    <Pressable style={styles.iconButton} onPress={onPress} hitSlop={4}>
-      <MaterialIcons name={icon} size={20} color={danger ? colors.error : colors.textSecondary} />
+    <Pressable
+      style={[styles.iconButton, disabled && { opacity: 0.4 }]}
+      onPress={onPress}
+      disabled={disabled}
+      hitSlop={4}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled }}>
+      <MaterialIcons name={icon} size={20} color={danger && !disabled ? colors.error : colors.textSecondary} />
     </Pressable>
   );
 }

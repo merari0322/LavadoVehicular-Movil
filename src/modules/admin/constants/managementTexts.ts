@@ -46,6 +46,7 @@ const es = {
     loadError: 'No se pudieron cargar los usuarios',
     retry: 'Reintentar',
     statusError: 'No se pudo cambiar el estado',
+    ownAccount: 'No puedes desactivar tu propia cuenta',
     disableTitle: 'Desactivar cuenta',
     disableMessage: (name: string) =>
       `${name} ya no podrá iniciar sesión y se cerrarán sus sesiones abiertas. Sus reservas y pagos se conservan.`,
@@ -249,6 +250,7 @@ const en: typeof es = {
     loadError: 'Users could not be loaded',
     retry: 'Retry',
     statusError: 'The status could not be changed',
+    ownAccount: 'You cannot disable your own account',
     disableTitle: 'Deactivate account',
     disableMessage: (name: string) =>
       `${name} will no longer be able to sign in and their open sessions will be closed. Their bookings and payments are kept.`,
@@ -416,6 +418,7 @@ const fr: typeof es = {
     loadError: 'Impossible de charger les utilisateurs',
     retry: 'Réessayer',
     statusError: 'Impossible de changer le statut',
+    ownAccount: 'Vous ne pouvez pas désactiver votre propre compte',
     disableTitle: 'Désactiver le compte',
     disableMessage: (name: string) =>
       `${name} ne pourra plus se connecter et ses sessions ouvertes seront fermées. Ses réservations et paiements sont conservés.`,
@@ -583,6 +586,7 @@ const pt: typeof es = {
     loadError: 'Não foi possível carregar os usuários',
     retry: 'Tentar novamente',
     statusError: 'Não foi possível mudar o status',
+    ownAccount: 'Você não pode desativar sua própria conta',
     disableTitle: 'Desativar conta',
     disableMessage: (name: string) =>
       `${name} não poderá mais entrar e suas sessões abertas serão encerradas. Suas reservas e pagamentos são mantidos.`,
