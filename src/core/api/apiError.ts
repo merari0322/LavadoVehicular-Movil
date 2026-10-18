@@ -30,6 +30,7 @@ const TRANSLATED_CODES = new Set([
   'INVALID_VEHICLE_TYPE',
   // booking-service
   'SLOT_UNAVAILABLE',
+  'BAY_NEW_IN_MAINTENANCE',
   // motivo del 409 SLOT_UNAVAILABLE (campo reason del booking-service)
   'SLOT_CLOSED_DAY',
   'SLOT_OUTSIDE_HOURS',

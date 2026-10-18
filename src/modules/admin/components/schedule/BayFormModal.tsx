@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { StyleSheet, Text } from 'react-native';
+import { useTheme } from '../../../../app/theme';
 import { LabeledInput } from '../../../../shared/components/forms/LabeledInput';
 import { LabeledSelect } from '../../../../shared/components/forms/LabeledSelect';
 import { SelectOption } from '../../../../shared/components/forms/SelectField';
@@ -22,11 +24,15 @@ const STATUS_OPTIONS: SelectOption[] = BAY_STATUSES.map((status) => ({
   label: SCHEDULE_TEXTS.bays.status[status],
 }));
 
+// una bahía nueva nace activa o inactiva: mantenimiento solo se pone cuando ya existe
+const CREATE_STATUS_OPTIONS = STATUS_OPTIONS.filter((option) => option.value !== 'maintenance');
+
 // Modal para agregar o editar una bahía. Sin selector de operario (ADR-015 reafirma ADR-010):
 // el operario no queda fijo en una bahía por turno, el par operario-bahía es por reserva (se
 // asigna en Reservas, no aquí).
 export function BayFormModal({ visible, bay, isNameTaken, onClose, onSubmit }: BayFormModalProps) {
   const isEditing = bay !== null;
+  const { colors } = useTheme();
 
   const [name, setName] = useState('');
   const [status, setStatus] = useState<BayStatus>('active');
@@ -81,9 +87,14 @@ export function BayFormModal({ visible, bay, isNameTaken, onClose, onSubmit }: B
       <LabeledSelect
         label={texts.status}
         value={status}
-        options={STATUS_OPTIONS}
+        options={isEditing ? STATUS_OPTIONS : CREATE_STATUS_OPTIONS}
         onChange={(value) => setStatus(value as BayStatus)}
       />
+      {isEditing ? null : <Text style={[styles.hint, { color: colors.textSecondary }]}>{texts.createStatusHint}</Text>}
     </FormModal>
   );
 }
+
+const styles = StyleSheet.create({
+  hint: { fontSize: 12, lineHeight: 17, marginTop: -4 },
+});

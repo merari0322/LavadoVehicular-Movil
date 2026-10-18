@@ -1136,6 +1136,7 @@
     "NETWORK_ERROR": "Não foi possível conectar ao servidor. Tente novamente em instantes.",
     "UNEXPECTED": "Ocorreu um erro inesperado. Tente novamente.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "Você não pode desativar sua própria conta",
+    "BAY_NEW_IN_MAINTENANCE": "Uma baia nova não pode começar em manutenção. Crie-a e depois mude seu status.",
     "UNKNOWN_PERMISSION": "Uma das permissões escolhidas não existe mais. Recarregue a página e tente novamente.",
     "SERVICE_TOO_EARLY": "Você ainda não pode iniciar este serviço: ele é liberado 15 minutos antes do horário da reserva.",
     "BOOKING_IN_PAST": "Esta reserva já passou: não pode ser atribuída. Marque-a como não compareceu ou cancele-a.",

@@ -1136,6 +1136,7 @@
     "NETWORK_ERROR": "Impossible de joindre le serveur. Réessayez dans un instant.",
     "UNEXPECTED": "Une erreur inattendue est survenue. Réessayez.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "Vous ne pouvez pas désactiver votre propre compte",
+    "BAY_NEW_IN_MAINTENANCE": "Une nouvelle baie ne peut pas commencer en maintenance. Créez-la puis changez son statut.",
     "UNKNOWN_PERMISSION": "L’une des autorisations choisies n’existe plus. Rechargez la page et réessayez.",
     "SERVICE_TOO_EARLY": "Vous ne pouvez pas encore démarrer ce service : il s'ouvre 15 minutes avant l'heure de la réservation.",
     "BOOKING_IN_PAST": "Cette réservation est déjà passée : elle ne peut pas être attribuée. Marquez-la comme absence ou annulez-la.",
