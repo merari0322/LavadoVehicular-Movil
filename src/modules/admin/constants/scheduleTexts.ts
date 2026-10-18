@@ -131,7 +131,8 @@ const es = {
     form: {
       createTitle: 'Agregar bahía',
       editTitle: 'Editar bahía',
-      subtitle: 'Registra una nueva bahía o actualiza su estado y operario.',
+      subtitle: 'Registra una nueva bahía o actualiza su nombre y estado.',
+      createStatusHint: 'Una bahía nueva empieza activa o inactiva. Para ponerla en mantenimiento, créala y después cambia su estado.',
       name: 'Nombre de la bahía',
       namePlaceholder: 'Ej. Bahía 5',
       status: 'Estado',
@@ -253,7 +254,8 @@ const en: typeof es = {
     form: {
       createTitle: 'Add bay',
       editTitle: 'Edit bay',
-      subtitle: 'Register a new bay or update its status and operator.',
+      subtitle: 'Register a new bay or update its name and status.',
+      createStatusHint: 'A new bay starts active or inactive. To put it in maintenance, create it and then change its status.',
       name: 'Bay name',
       namePlaceholder: 'E.g. Bay 5',
       status: 'Status',
@@ -365,7 +367,8 @@ const fr: typeof es = {
     form: {
       createTitle: 'Ajouter une baie',
       editTitle: 'Modifier la baie',
-      subtitle: 'Enregistrez une nouvelle baie ou modifiez son statut et son opérateur.',
+      subtitle: 'Enregistrez une nouvelle baie ou modifiez son nom et son statut.',
+      createStatusHint: 'Une nouvelle baie commence active ou inactive. Pour la mettre en maintenance, créez-la puis changez son statut.',
       name: 'Nom de la baie',
       namePlaceholder: 'Ex. Baie 5',
       status: 'Statut',
@@ -477,7 +480,8 @@ const pt: typeof es = {
     form: {
       createTitle: 'Adicionar baia',
       editTitle: 'Editar baia',
-      subtitle: 'Cadastre uma nova baia ou atualize seu status e operador.',
+      subtitle: 'Cadastre uma nova baia ou atualize seu nome e status.',
+      createStatusHint: 'Uma baia nova começa ativa ou inativa. Para colocá-la em manutenção, crie-a e depois mude seu status.',
       name: 'Nome da baia',
       namePlaceholder: 'Ex. Baia 5',
       status: 'Status',

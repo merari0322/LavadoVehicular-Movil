@@ -31,6 +31,7 @@ import { useSystemRoles, useUserAccounts } from '../viewmodels/useUserAccounts';
 import { CreateAccountPayload } from '../../../core/services/users/UserAdminService';
 import { apiErrorKey } from '../../../core/api/apiError';
 import { AppAlert } from '../../../shared/components/feedback/AppAlert';
+import { useSession } from '../../../core/services/auth';
 
 // Estado de un modal de formulario: abierto/cerrado y el registro que se edita (null = crear)
 interface FormState<T> {
@@ -58,6 +59,7 @@ export const AdminManagementScreen = () => {
   const styles = useMemo(() => createStyles(), []);
   const management = useManagement();
   const accounts = useUserAccounts();
+  const session = useSession();
 
   // usuarios reales por rol (cuentas del security-service) para la pestaña de roles
   const roleUserCounts = useMemo(() => {
@@ -109,6 +111,10 @@ export const AdminManagementScreen = () => {
     const user = accounts.users.find((item) => item.id === id);
     if (!user) return;
     const texts = MANAGEMENT_TEXTS.users;
+    if (user.active && user.id === session.user?.id) {
+      AppAlert.alert(texts.statusError, texts.ownAccount, undefined, { type: 'error' });
+      return;
+    }
     setConfirm({
       title: user.active ? texts.disableTitle : texts.enableTitle,
       message: user.active ? texts.disableMessage(user.name) : texts.enableMessage(user.name),
@@ -205,6 +211,7 @@ export const AdminManagementScreen = () => {
               onRetry={accounts.reload}
               onCreate={() => setUserFormVisible(true)}
               onToggle={handleUserToggle}
+              currentUserId={session.user?.id ?? null}
             />
           ) : null}
 

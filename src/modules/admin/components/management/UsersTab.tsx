@@ -17,6 +17,8 @@ interface UsersTabProps {
   // editar/eliminar son opcionales: con cuentas reales se reemplazan por desactivar (ADR-010)
   onEdit?: (user: ManagedUser) => void;
   onToggle: (id: string) => void;
+  // la cuenta con sesión abierta: no se puede desactivar a sí misma
+  currentUserId?: string | null;
   onDelete?: (user: ManagedUser) => void;
   loading?: boolean;
   loadError?: string | null;
@@ -33,6 +35,7 @@ export function UsersTab({
   onCreate,
   onEdit,
   onToggle,
+  currentUserId = null,
   onDelete,
   loading = false,
   loadError = null,
@@ -153,6 +156,8 @@ export function UsersTab({
               <ActionIconButton
                 icon={user.active ? 'block' : 'check-circle'}
                 danger={user.active && !onDelete}
+                disabled={user.active && user.id === currentUserId}
+                accessibilityLabel={user.active && user.id === currentUserId ? texts.ownAccount : undefined}
                 onPress={() => onToggle(user.id)}
               />
               {onDelete ? <ActionIconButton icon="delete" danger onPress={() => onDelete(user)} /> : null}
