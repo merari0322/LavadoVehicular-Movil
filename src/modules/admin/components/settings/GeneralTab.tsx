@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
+import { AppVersionLabel } from '../../../../shared/components/ui/AppVersionLabel';
 import { withAlpha } from '../../../../shared/utils/color';
 import { SETTINGS_TEXTS } from '../../constants/settingsTexts';
 import {
@@ -56,6 +57,7 @@ export function GeneralTab({
         onChangeTheme={onChangeTheme}
         onChangeLanguage={onChangeLanguage}
       />
+      <AppVersionLabel />
     </View>
   );
 }
