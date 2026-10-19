@@ -204,7 +204,7 @@ export function useOperators() {
     if (!operator) return [];
     return operator.availability
       .map((d, index) => ({ d, index }))
-      .filter(({ d, index }) => d.enabled && index <= 5)
+      .filter(({ d }) => d.enabled)
       .map(({ d, index }) => ({
         day: index,
         start: d.start,
@@ -238,6 +238,15 @@ export function useOperators() {
     const end = new Date(`${values.end}T00:00:00`);
     end.setDate(end.getDate() + 1);
     return run(operationsService.addAbsence(Number(id), `${values.start}T00:00:00`, `${localISO(end)}T00:00:00`, values.reason));
+  };
+
+  // ausencia que cubre una fecha (aaaa-mm-dd), para pintarla en el calendario
+  const getAbsenceOn = (operatorId: string, iso: string): { reason: string } | null => {
+    const found = (absencesByOperator.get(operatorId) ?? []).find((a) => {
+      const days = absenceDays(a);
+      return days.start <= iso && iso <= days.end;
+    });
+    return found ? { reason: found.reason } : null;
   };
 
   // reingreso: se borra la ausencia que cubre hoy
@@ -283,6 +292,7 @@ export function useOperators() {
     getSkills,
     saveProfile,
     getCalendarBlocks,
+    getAbsenceOn,
     saveAvailability,
     registerAbsence,
     registerReturn,

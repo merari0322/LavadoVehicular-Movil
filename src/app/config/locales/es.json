@@ -1129,6 +1129,7 @@
     "SERVICE_NOT_COMPLETED": "Solo puedes calificar un servicio finalizado.",
     "ALREADY_RATED": "Este servicio ya fue calificado.",
     "ABSENCE_OVERLAP": "Ya existe una ausencia en esas fechas.",
+    "ABSENCE_IN_PAST": "La ausencia no puede empezar antes de hoy.",
     "OPERATOR_NOT_FOUND": "No se encontró el operario.",
     "BOOKING_NOT_FOUND": "No se encontró la reserva.",
     "BOOKING_SERVICE_UNAVAILABLE": "El servicio de reservas no responde. Intenta de nuevo en un momento.",

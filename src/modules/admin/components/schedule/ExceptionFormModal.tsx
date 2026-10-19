@@ -13,7 +13,7 @@ import {
   ExceptionType,
   ScheduleException,
 } from '../../models/schedule';
-import { displayToISO, getTodayISO, isValidTime, isoToDisplay, maskDate } from '../../utils/reservationUtils';
+import { DATE_ERRORS, displayToISO, getTodayISO, isValidTime, isoToDisplay, maskDate } from '../../utils/reservationUtils';
 import { TimeField } from '../common/TimeField';
 
 interface ExceptionFormModalProps {
@@ -67,7 +67,9 @@ export function ExceptionFormModal({ visible, exception, isDateTaken, onClose, o
   const dateError =
     date.length === 10 && !dateISO
       ? texts.errors.date
-      : dateISO && isDateTaken(dateISO, exception?.id)
+      : dateISO && dateISO < getTodayISO()
+        ? DATE_ERRORS.past
+        : dateISO && isDateTaken(dateISO, exception?.id)
         ? texts.errors.duplicate
         : undefined;
 

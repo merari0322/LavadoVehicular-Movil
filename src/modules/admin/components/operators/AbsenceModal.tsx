@@ -4,7 +4,7 @@ import { FormModal } from '../../../../shared/components/feedback/FormModal';
 import { LabeledInput } from '../../../../shared/components/forms/LabeledInput';
 import { OPERATOR_TEXTS } from '../../constants/operatorTexts';
 import { AbsenceFormValues } from '../../models/operator';
-import { displayToISO, getTodayISO, isoToDisplay, maskDate } from '../../utils/reservationUtils';
+import { DATE_ERRORS, displayToISO, getTodayISO, isoToDisplay, maskDate } from '../../utils/reservationUtils';
 
 interface AbsenceModalProps {
   visible: boolean;
@@ -33,7 +33,13 @@ export function AbsenceModal({ visible, onClose, onSubmit }: AbsenceModalProps) 
   const endISO = displayToISO(end);
 
   // Errores en vivo (las fechas solo se validan cuando están completas)
-  const startError = start.length === 10 && !startISO ? texts.errors.date : undefined;
+  // una ausencia se registra de hoy en adelante (operations-service también lo exige)
+  const startError =
+    start.length === 10 && !startISO
+      ? texts.errors.date
+      : startISO && startISO < getTodayISO()
+        ? DATE_ERRORS.past
+        : undefined;
   const endError =
     end.length === 10 && !endISO
       ? texts.errors.date
@@ -42,7 +48,7 @@ export function AbsenceModal({ visible, onClose, onSubmit }: AbsenceModalProps) 
         : undefined;
 
   // El botón se habilita cuando todo es válido
-  const isValid = Boolean(startISO) && Boolean(endISO) && !endError && reason.trim().length >= 3;
+  const isValid = Boolean(startISO) && Boolean(endISO) && !startError && !endError && reason.trim().length >= 3;
 
   const handleSubmit = () => {
     if (!isValid || !startISO || !endISO) return;
