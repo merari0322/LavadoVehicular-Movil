@@ -76,7 +76,7 @@ export function ClientHomeScreen({ navigation }: Props) {
         { label: t('RESERVE.SUMMARY.SERVICE'), value: service.services.join(', ') },
         { label: t('RESERVE.SUMMARY.VEHICLE'), value: `${service.vehicle} · ${service.plate}`.trim() },
         { label: t('RESERVE.SUMMARY.DATE'), value: `${service.displayDate} · ${service.timeRange}` },
-        { label: t('RESERVE.SUMMARY.LOCATION'), value: establishment.address },
+        { label: t('RESERVE.SUMMARY.CAR_WASH'), value: establishment.address },
         { label: t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED'), value: service.operator ?? '—' },
         { label: t('DASHBOARD.NEXT_SERVICE.STATUS'), value: t(`STATUS.${service.status}`) },
         { label: t('DASHBOARD.NEXT_SERVICE.PROGRESS'), value: `${progress}%` },
