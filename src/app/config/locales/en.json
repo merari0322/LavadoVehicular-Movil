@@ -471,7 +471,8 @@
       "TOTAL": "Total",
       "SUBMIT": "Book Now",
       "NOTE": "We'll notify you when the washer is on the way. You can pay online or in cash.",
-      "LOCATION": "Location"
+      "LOCATION": "Location",
+      "CAR_WASH": "Car Wash"
     },
     "LOCATION": {
       "TITLE": "Service location"

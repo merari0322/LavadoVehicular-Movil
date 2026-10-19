@@ -439,7 +439,7 @@ export function ClientReserveScreen({ navigation }: Props) {
           <InfoRow label={t('RESERVE.SUMMARY.DURATION')} value={selectedService ? `${duration} min` : '—'} />
           <InfoRow label={t('RESERVE.SUMMARY.DATE')} value={date ? isoToDisplay(date) : '—'} />
           <InfoRow label={t('RESERVE.SUMMARY.TIME')} value={time || '—'} />
-          <InfoRow label={t('RESERVE.SUMMARY.LOCATION')} value={establishment.tradeName} />
+          <InfoRow label={t('RESERVE.SUMMARY.CAR_WASH')} value={establishment.tradeName} />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <InfoRow label={t('RESERVE.SUMMARY.TOTAL')} value={total ? formatCOP(total) : '$—'} strong />
           <ActionButton
