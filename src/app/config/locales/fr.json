@@ -30,7 +30,8 @@
     },
     "LEGAL_SECTION": "Mentions légales",
     "VIEW_TERMS": "Voir les Conditions Générales",
-    "VIEW_PRIVACY": "Voir la Politique de Données"
+    "VIEW_PRIVACY": "Voir la Politique de Données",
+    "APP_VERSION": "Version {{version}}"
   },
   "SIDEBAR": {
     "PAYMENT": "Payer le service",

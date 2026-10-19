@@ -14,6 +14,7 @@ import { LegalDocumentModal, LegalDocumentType } from '../components/feedback/Le
 import { PageHeader } from '../components/screen/PageHeader';
 import { ScreenScroll } from '../components/screen/ScreenScroll';
 import { SectionCard } from '../components/screen/SectionCard';
+import { AppVersionLabel } from '../components/ui/AppVersionLabel';
 import { useEstablishment } from '../services/establishmentCatalog';
 import { useFeedback } from '../hooks/useFeedback';
 import { withAlpha } from '../utils/color';
@@ -191,6 +192,8 @@ export function SettingsView() {
           {divider}
           {helpRow('privacy-tip', 'CONFIG.VIEW_PRIVACY', () => setLegal('privacy'))}
         </SectionCard>
+
+        <AppVersionLabel />
       </ScreenScroll>
 
       <LegalDocumentModal type={legal} onClose={() => setLegal(null)} />
