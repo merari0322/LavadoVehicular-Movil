@@ -32,7 +32,7 @@ function toManagedUser(account: AccountSummary): ManagedUser {
     email: account.email,
     roleId: mainRole(account.roles),
     createdAt: account.createdAt ? account.createdAt.slice(0, 10) : '—',
-    invited: false,
+    lastLogin: account.lastLogin ? account.lastLogin.slice(0, 10) : null,
     active: account.active,
   };
 }
@@ -64,7 +64,8 @@ export function useUserAccounts() {
 
   const counts = useMemo<Record<UserFilter, number>>(() => ({
     enabled: users.filter((user) => user.active).length,
-    registered: users.filter((user) => user.invited).length,
+    // Registrados = todas las cuentas (habilitadas y deshabilitadas)
+    registered: users.length,
     disabled: users.filter((user) => !user.active).length,
   }), [users]);
 

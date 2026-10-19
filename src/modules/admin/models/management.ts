@@ -47,7 +47,7 @@ export interface ManagedUser {
   email: string;
   roleId: string;
   createdAt: string; // Formato ISO: YYYY-MM-DD
-  invited: boolean; // Se le envió invitación por correo
+  lastLogin: string | null; // aaaa-mm-dd del último inicio de sesión; null = nunca entró
   active: boolean; // false = inhabilitado
 }
 
