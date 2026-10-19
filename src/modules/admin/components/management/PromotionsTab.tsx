@@ -6,7 +6,6 @@ import { ThemeColors } from '../../../../app/theme/colors';
 import { withAlpha } from '../../../../shared/utils/color';
 import { MANAGEMENT_TEXTS } from '../../constants/managementTexts';
 import { Promotion, PromotionMetrics, PromotionStatus } from '../../models/management';
-import { formatPercent } from '../../utils/managementUtils';
 import { formatCurrency, formatThousands } from '../../utils/paymentUtils';
 import {
   ActionIconButton,
@@ -138,10 +137,6 @@ export function PromotionsTab({
           <Text style={styles.metricValue} numberOfLines={1} adjustsFontSizeToFit>
             {formatCurrency(metrics.savings)}
           </Text>
-        </View>
-        <View style={styles.metric}>
-          <Text style={styles.metricLabel}>{texts.metrics.conversion}</Text>
-          <Text style={styles.metricValue}>{formatPercent(metrics.conversion)}</Text>
         </View>
       </View>
     </View>

@@ -46,10 +46,6 @@ export function ManagementTabs({ active, onChange }: ManagementTabsProps) {
         })}
       </ScrollView>
 
-      <View style={styles.statusRow}>
-        <View style={styles.dot} />
-        <Text style={styles.statusText}>{MANAGEMENT_TEXTS.online}</Text>
-      </View>
     </View>
   );
 }
@@ -69,7 +65,4 @@ const createStyles = (colors: ThemeColors) =>
     },
     tabActive: { borderBottomColor: colors.primary },
     tabText: { fontSize: 15, fontWeight: '700' },
-    statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingBottom: 8, paddingHorizontal: 4 },
-    dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primaryHover },
-    statusText: { fontSize: 12, color: colors.textSecondary },
   });
