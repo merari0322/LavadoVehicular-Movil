@@ -1,6 +1,7 @@
 import { LONG_SERVICE_MIN_MINUTES } from '../../../core/services/operations/InspectionService';
 import { Reservation } from '../models/reservation';
 import { TEXTS } from '../constants/reservationTexts';
+import { localized } from '../../../shared/i18n/localized';
 
 // Funciones de ayuda para fechas, horas y textos de reservas
 
@@ -25,6 +26,14 @@ export const isoToDisplay = (iso: string): string => {
   const [year, month, day] = iso.split('-');
   return `${day}/${month}/${year}`;
 };
+
+// Mensajes de fecha compartidos por los formularios del admin (los calendarios no aceptan días pasados)
+export const DATE_ERRORS = localized({
+  es: { past: 'La fecha no puede ser anterior a hoy', tooFar: (days: number) => `Máximo ${days} días desde hoy` },
+  en: { past: 'The date cannot be earlier than today', tooFar: (days: number) => `At most ${days} days from today` },
+  fr: { past: "La date ne peut pas être antérieure à aujourd'hui", tooFar: (days: number) => `${days} jours maximum à partir d'aujourd'hui` },
+  pt: { past: 'A data não pode ser anterior a hoje', tooFar: (days: number) => `No máximo ${days} dias a partir de hoje` },
+});
 
 // Visual (28/09/2026) -> ISO (2026-09-28). Devuelve null si la fecha no es válida
 export const displayToISO = (display: string): string | null => {

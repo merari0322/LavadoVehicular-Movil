@@ -1129,6 +1129,7 @@
     "SERVICE_NOT_COMPLETED": "Só é possível avaliar um serviço concluído.",
     "ALREADY_RATED": "Este serviço já foi avaliado.",
     "ABSENCE_OVERLAP": "Já existe uma ausência nessas datas.",
+    "ABSENCE_IN_PAST": "A ausência não pode começar antes de hoje.",
     "OPERATOR_NOT_FOUND": "Operador não encontrado.",
     "BOOKING_NOT_FOUND": "Reserva não encontrada.",
     "BOOKING_SERVICE_UNAVAILABLE": "O serviço de reservas não responde. Tente novamente em instantes.",

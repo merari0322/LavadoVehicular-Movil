@@ -10,7 +10,7 @@ import { withAlpha } from '../../../../shared/utils/color';
 import { MANAGEMENT_TEXTS } from '../../constants/managementTexts';
 import { TEXTS as RESERVATION_TEXTS } from '../../constants/reservationTexts';
 import { PROMOTION_ICONS, Promotion, PromotionFormValues, PromotionIcon } from '../../models/management';
-import { displayToISO, getTodayISO, isoToDisplay, maskDate } from '../../utils/reservationUtils';
+import { DATE_ERRORS, displayToISO, getTodayISO, isoToDisplay, maskDate } from '../../utils/reservationUtils';
 import { ReservationField } from '../reservations/ReservationField';
 
 interface PromotionFormModalProps {
@@ -79,7 +79,10 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
     if (name.trim().length < 2) found.name = errorTexts.name;
     if (coupon.trim().length < 4) found.coupon = errorTexts.coupon;
     if (!description.trim()) found.description = errorTexts.description;
-    if (!displayToISO(startDate)) found.startDate = errorTexts.startDate;
+    const startISO = displayToISO(startDate);
+    const minStart = promotion?.startDate && promotion.startDate < getTodayISO() ? promotion.startDate : getTodayISO();
+    if (!startISO) found.startDate = errorTexts.startDate;
+    else if (startISO < minStart) found.startDate = DATE_ERRORS.past;
     const discountValue = Number(discountPercent);
     if (!(discountValue >= 1 && discountValue <= 100)) found.discountPercent = errorTexts.discountPercent;
 

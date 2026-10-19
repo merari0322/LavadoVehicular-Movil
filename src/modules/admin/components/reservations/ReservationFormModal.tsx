@@ -15,6 +15,8 @@ import {
 } from '../../models/reservation';
 import { useOperatorDirectory } from '../../viewmodels/useOperatorDirectory';
 import {
+  addDays,
+  DATE_ERRORS,
   displayToISO,
   getTodayISO,
   isValidTime,
@@ -25,6 +27,9 @@ import {
 import { ReservationField } from './ReservationField';
 import { ModalCloseButton } from '../../../../shared/components/feedback/ModalCloseButton';
 import { ModalShell } from '../../../../shared/components/feedback/ModalShell';
+
+// booking-service acepta reservas de hoy a 60 días (igual que la web y la pantalla del cliente)
+const MAX_DAYS_AHEAD = 60;
 
 interface ReservationFormModalProps {
   visible: boolean;
@@ -116,7 +121,10 @@ const validate = (state: FormState): FormErrors => {
   if (!state.vehicle.trim()) errors.vehicle = messages.vehicle;
   if (!state.plate.trim()) errors.plate = messages.plate;
   if (!state.serviceId) errors.serviceId = messages.service;
-  if (!displayToISO(state.date)) errors.date = messages.date;
+  const dateISO = displayToISO(state.date);
+  if (!dateISO) errors.date = messages.date;
+  else if (dateISO < getTodayISO()) errors.date = DATE_ERRORS.past;
+  else if (dateISO > addDays(MAX_DAYS_AHEAD)) errors.date = DATE_ERRORS.tooFar(MAX_DAYS_AHEAD);
   if (!isValidTime(state.time)) errors.time = messages.time;
 
   const duration = Number(state.duration);

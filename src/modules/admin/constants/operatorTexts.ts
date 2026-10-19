@@ -252,6 +252,7 @@ const es = {
     free: 'Disponible',
     lunch: 'Almuerzo',
     dayOff: 'No trabaja este día',
+    off: 'No trabaja',
     blocks: (total: number) => (total === 1 ? '1 bloque' : `${total} bloques`),
   },
 };
@@ -446,6 +447,7 @@ const en: typeof es = {
     free: 'Available',
     lunch: 'Lunch',
     dayOff: 'Does not work this day',
+    off: 'Day off',
     blocks: (total: number) => (total === 1 ? '1 block' : `${total} blocks`),
   },
 };
@@ -641,6 +643,7 @@ const fr: typeof es = {
     free: 'Disponible',
     lunch: 'Déjeuner',
     dayOff: 'Ne travaille pas ce jour',
+    off: 'Ne travaille pas',
     blocks: (total: number) => (total === 1 ? '1 créneau' : `${total} créneaux`),
   },
 };
@@ -836,6 +839,7 @@ const pt: typeof es = {
     free: 'Disponível',
     lunch: 'Almoço',
     dayOff: 'Não trabalha neste dia',
+    off: 'Não trabalha',
     blocks: (total: number) => (total === 1 ? '1 bloco' : `${total} blocos`),
   },
 };

@@ -15,13 +15,15 @@ import { SCHEDULE_TEXTS } from '../constants/scheduleTexts';
 import { CalendarBlock, CalendarBlockType, CalendarView } from '../models/operator';
 import { WEEK_DAYS } from '../models/schedule';
 import { useOperators } from '../viewmodels/useOperators';
+import { getTodayISO, toISODate } from '../utils/reservationUtils';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminOperatorCalendar'>;
 
-// días de la grilla: lunes a sábado (igual que la web)
-const DAY_INDEXES = [0, 1, 2, 3, 4, 5];
+// la semana completa, de lunes a domingo (igual que la web)
+const DAY_INDEXES = [0, 1, 2, 3, 4, 5, 6];
 const VIEWS: CalendarView[] = ['week', 'day', 'month'];
-const LEGEND: CalendarBlockType[] = ['available', 'service', 'leave', 'lunch'];
+// solo lo que el calendario realmente pinta
+const LEGEND: CalendarBlockType[] = ['available', 'leave'];
 
 // lunes de la semana actual movido "offset" semanas
 function mondayOf(offset: number): Date {
@@ -35,8 +37,8 @@ function mondayOf(offset: number): Date {
 function isoWeek(monday: Date): number {
   const thursday = new Date(monday);
   thursday.setDate(thursday.getDate() + 3);
-  const firstThursday = new Date(thursday.getFullYear(), 0, 4);
-  return Math.ceil(((thursday.getTime() - firstThursday.getTime()) / 86400000 + 1) / 7);
+  const firstOfYear = new Date(thursday.getFullYear(), 0, 1);
+  return Math.ceil((Math.round((thursday.getTime() - firstOfYear.getTime()) / 86400000) + 1) / 7);
 }
 
 // calendario de turnos de un operario (operator-calendar de la web): vista semana, día y mes.
@@ -45,7 +47,7 @@ export function AdminOperatorCalendarScreen({ route, navigation }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   useTranslation();
-  const { operators, getCalendarBlocks } = useOperators();
+  const { operators, getCalendarBlocks, getAbsenceOn } = useOperators();
   const texts = OPERATOR_TEXTS.calendar;
   const locale = DASHBOARD_TEXTS.dateLocale;
 
@@ -55,7 +57,8 @@ export function AdminOperatorCalendarScreen({ route, navigation }: Props) {
 
   const [view, setView] = useState<CalendarView>('week');
   const [weekOffset, setWeekOffset] = useState(0);
-  const [dayIndex, setDayIndex] = useState(Math.min(5, (new Date().getDay() + 6) % 7));
+  const [dayIndex, setDayIndex] = useState((new Date().getDay() + 6) % 7);
+  const todayISO = getTodayISO();
   const [month, setMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1));
 
   const monday = mondayOf(weekOffset);
@@ -68,8 +71,25 @@ export function AdminOperatorCalendarScreen({ route, navigation }: Props) {
     date.toLocaleDateString(locale, withYear ? { day: 'numeric', month: 'short', year: 'numeric' } : { day: 'numeric', month: 'short' });
 
   const dayName = (index: number) => SCHEDULE_TEXTS.days[WEEK_DAYS[index]];
-  const blocksFor = (index: number) =>
-    blocks.filter((block) => block.day === index).sort((a, b) => a.start.localeCompare(b.start));
+  // lo que tiene el operario en una fecha: su ausencia, o los turnos de ese día de la semana
+  const blocksOn = (date: Date): CalendarBlock[] => {
+    const weekday = (date.getDay() + 6) % 7;
+    const absence = getAbsenceOn(route.params.operatorId, toISODate(date));
+    if (absence) {
+      return [{ day: weekday, start: '', end: '', type: 'leave', label: absence.reason || texts.legend.leave }];
+    }
+    return blocks.filter((block) => block.day === weekday).sort((a, b) => a.start.localeCompare(b.start));
+  };
+  const blocksFor = (index: number) => blocksOn(dateOf(index));
+  const isPastDay = (index: number) => toISODate(dateOf(index)) < todayISO;
+  const isTodayDay = (index: number) => toISODate(dateOf(index)) === todayISO;
+
+  // "Hoy" vuelve a la semana, el día y el mes actuales
+  const goToToday = () => {
+    setWeekOffset(0);
+    setDayIndex((new Date().getDay() + 6) % 7);
+    setMonth(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  };
 
   // jornada: primera hora de inicio y última de fin de su disponibilidad semanal
   const enabled = operator?.availability.filter((item) => item.enabled) ?? [];
@@ -92,9 +112,11 @@ export function AdminOperatorCalendarScreen({ route, navigation }: Props) {
         key={`${block.day}-${block.start}`}
         style={[styles.block, { backgroundColor: withAlpha(color, 0.12), borderLeftColor: color }]}
       >
-        <Text style={[styles.blockTime, { color }]}>
-          {block.start} - {block.end}
-        </Text>
+        {block.start ? (
+          <Text style={[styles.blockTime, { color }]}>
+            {block.start} - {block.end}
+          </Text>
+        ) : null}
         <Text style={styles.blockLabel}>{block.label}</Text>
         {block.bay ? <Text style={styles.blockBay}>{block.bay}</Text> : null}
       </View>
@@ -102,8 +124,8 @@ export function AdminOperatorCalendarScreen({ route, navigation }: Props) {
   };
 
   const renderFree = () => (
-    <View style={[styles.block, { backgroundColor: withAlpha(colors.success, 0.12), borderLeftColor: colors.success }]}>
-      <Text style={styles.blockLabel}>{texts.free}</Text>
+    <View style={[styles.block, { backgroundColor: withAlpha(colors.textMuted, 0.08), borderLeftColor: colors.border }]}>
+      <Text style={[styles.blockLabel, { color: colors.textMuted }]}>{texts.off}</Text>
     </View>
   );
 
@@ -171,7 +193,7 @@ export function AdminOperatorCalendarScreen({ route, navigation }: Props) {
                 </Pressable>
               </View>
               <View style={styles.navFooter}>
-                <Pressable onPress={() => setWeekOffset(0)} style={styles.todayBtn}>
+                <Pressable onPress={goToToday} style={styles.todayBtn}>
                   <Text style={styles.todayText}>{texts.today}</Text>
                 </Pressable>
                 <View style={styles.fullDay}>
@@ -190,15 +212,19 @@ export function AdminOperatorCalendarScreen({ route, navigation }: Props) {
                 <Text style={styles.legendText}>{texts.legend[type]}</Text>
               </View>
             ))}
+            <View style={styles.legendItem}>
+              <View style={[styles.legendDot, { backgroundColor: colors.border }]} />
+              <Text style={styles.legendText}>{texts.off}</Text>
+            </View>
           </View>
 
           {view === 'week'
             ? DAY_INDEXES.map((index) => {
                 const dayBlocks = blocksFor(index);
                 return (
-                  <View key={index} style={styles.card}>
+                  <View key={index} style={[styles.card, isTodayDay(index) && styles.cardToday, isPastDay(index) && styles.past]}>
                     <View style={styles.dayHeader}>
-                      <Text style={styles.dayName}>{dayName(index)}</Text>
+                      <Text style={[styles.dayName, isTodayDay(index) && styles.todayColor]}>{dayName(index)}</Text>
                       <Text style={styles.dayDate}>{shortDate(dateOf(index))}</Text>
                     </View>
                     {dayBlocks.length > 0 ? dayBlocks.map(renderBlock) : renderFree()}
@@ -213,7 +239,11 @@ export function AdminOperatorCalendarScreen({ route, navigation }: Props) {
                 {DAY_INDEXES.map((index) => {
                   const active = index === dayIndex;
                   return (
-                    <Pressable key={index} onPress={() => setDayIndex(index)} style={[styles.dayChip, active && styles.dayChipActive]}>
+                    <Pressable
+                      key={index}
+                      onPress={() => setDayIndex(index)}
+                      style={[styles.dayChip, !active && isTodayDay(index) && styles.dayChipToday, !active && isPastDay(index) && styles.past, active && styles.dayChipActive]}
+                    >
                       <Text style={[styles.dayChipName, active && styles.dayChipTextActive]}>{dayName(index)}</Text>
                       <Text style={[styles.dayChipDate, active && styles.dayChipTextActive]}>{shortDate(dateOf(index))}</Text>
                     </Pressable>
@@ -224,8 +254,8 @@ export function AdminOperatorCalendarScreen({ route, navigation }: Props) {
                 blocksFor(dayIndex).map(renderBlock)
               ) : (
                 <View style={styles.dayEmpty}>
-                  <MaterialIcons name="event-available" size={32} color={colors.success} />
-                  <Text style={styles.legendText}>{texts.free}</Text>
+                  <MaterialIcons name="event-busy" size={32} color={colors.textMuted} />
+                  <Text style={styles.legendText}>{texts.off}</Text>
                 </View>
               )}
             </View>
@@ -244,10 +274,7 @@ export function AdminOperatorCalendarScreen({ route, navigation }: Props) {
                   <MaterialIcons name="chevron-right" size={26} color={colors.primary} />
                 </Pressable>
               </View>
-              <Pressable
-                onPress={() => setMonth(new Date(new Date().getFullYear(), new Date().getMonth(), 1))}
-                style={[styles.todayBtn, styles.centered]}
-              >
+              <Pressable onPress={goToToday} style={[styles.todayBtn, styles.centered]}>
                 <Text style={styles.todayText}>{texts.today}</Text>
               </Pressable>
               <View style={styles.monthGrid}>
@@ -257,14 +284,17 @@ export function AdminOperatorCalendarScreen({ route, navigation }: Props) {
                   </Text>
                 ))}
                 {monthCells.map((day, index) => {
-                  // columna 0..6 = lunes..domingo: los bloques son por día de la semana
-                  const count = day === null ? 0 : blocksFor(index % 7).length;
+                  // cada celda es una fecha real: ausencia (rojo), turno (verde) o no trabaja (gris)
+                  const date = day === null ? null : new Date(month.getFullYear(), month.getMonth(), day);
+                  const iso = date ? toISODate(date) : '';
+                  const dayBlocks = date ? blocksOn(date) : [];
+                  const dotColor = dayBlocks.length === 0 ? colors.border : blockColor[dayBlocks[0].type];
                   return (
-                    <View key={`cell-${index}`} style={styles.monthCell}>
+                    <View key={`cell-${index}`} style={[styles.monthCell, iso !== '' && iso < todayISO && styles.past]}>
                       {day !== null ? (
                         <>
-                          <Text style={styles.monthDay}>{day}</Text>
-                          {count > 0 ? <View style={[styles.monthDot, { backgroundColor: colors.primary }]} /> : <View style={styles.monthDotSpace} />}
+                          <Text style={[styles.monthDay, iso === todayISO && styles.monthToday]}>{day}</Text>
+                          <View style={[styles.monthDot, { backgroundColor: dotColor }]} />
                         </>
                       ) : null}
                     </View>
@@ -294,6 +324,10 @@ const createStyles = (colors: ThemeColors) =>
     toggleText: { fontSize: 13, fontWeight: '600', color: colors.textSecondary },
     toggleTextActive: { color: colors.primary, fontWeight: '800' },
     card: { gap: 10, padding: 16, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+    // hoy resaltado; los días que ya pasaron, atenuados (solo consulta)
+    cardToday: { borderColor: colors.primary, borderWidth: 2 },
+    todayColor: { color: colors.primary },
+    past: { opacity: 0.5 },
     navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
     navLabel: { flex: 1, fontSize: 14, fontWeight: '700', color: colors.text, textAlign: 'center' },
     capitalize: { textTransform: 'capitalize' },
@@ -317,6 +351,7 @@ const createStyles = (colors: ThemeColors) =>
     dayChips: { gap: 8 },
     dayChip: { alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: colors.border },
     dayChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+    dayChipToday: { borderColor: colors.primary },
     dayChipName: { fontSize: 12, fontWeight: '700', color: colors.text },
     dayChipDate: { fontSize: 11, color: colors.textSecondary },
     dayChipTextActive: { color: colors.onPrimary },
@@ -325,6 +360,14 @@ const createStyles = (colors: ThemeColors) =>
     monthCell: { width: `${100 / 7}%`, alignItems: 'center', paddingVertical: 6 },
     monthWeekday: { fontSize: 11, fontWeight: '700', color: colors.textMuted },
     monthDay: { fontSize: 13, color: colors.text },
+    monthToday: {
+      color: colors.onPrimary,
+      backgroundColor: colors.primary,
+      fontWeight: '800',
+      minWidth: 26,
+      textAlign: 'center',
+      borderRadius: 13,
+      overflow: 'hidden',
+    },
     monthDot: { width: 6, height: 6, borderRadius: 3, marginTop: 3 },
-    monthDotSpace: { height: 9 },
   });
