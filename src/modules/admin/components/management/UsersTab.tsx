@@ -55,7 +55,6 @@ export function UsersTab({
 
     return users.filter((user) => {
       if (filter === 'enabled' && !user.active) return false;
-      if (filter === 'registered' && !user.invited) return false;
       if (filter === 'disabled' && user.active) return false;
       if (!query) return true;
 
@@ -146,8 +145,7 @@ export function UsersTab({
                 {texts.createdAt}: <Text style={styles.strong}>{user.createdAt}</Text>
               </Text>
               <Text style={styles.secondary}>
-                {texts.invited}:{' '}
-                <Text style={styles.strong}>{user.invited ? MANAGEMENT_TEXTS.common.yes : MANAGEMENT_TEXTS.common.no}</Text>
+                {texts.lastLogin}: <Text style={styles.strong}>{user.lastLogin ?? texts.never}</Text>
               </Text>
             </View>
 
