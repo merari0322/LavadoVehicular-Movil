@@ -105,7 +105,13 @@ const es = {
   // ---------------- Pestaña Datos del negocio ----------------
   business: {
     title: 'Datos del Negocio',
-    badge: 'EMPRESA ACTIVA',
+    unsaved: 'Cambios sin guardar',
+    pending: 'Por completar',
+    noticeTitle: 'Datos para completar con el negocio real',
+    noticeMessage:
+      'Cuando el sistema se implemente para una empresa o un proyecto real, toda esta información se llena con los datos del negocio y luego se pulsa «Guardar cambios».',
+    fiscalNote: 'Se llena con los datos tributarios del negocio real (régimen, CIIU y resolución de facturación de la DIAN) cuando se implemente.',
+    channelsNote: 'Se llena con las redes, la línea de atención y el horario oficiales del negocio real cuando se implemente.',
     fallbackName: 'tu negocio',
     subtitle: (name: string) =>
       `Administra la información fiscal, corporativa y canales oficiales de atención de ${name}.`,
@@ -275,7 +281,13 @@ const en: typeof es = {
   },
   business: {
     title: 'Business Data',
-    badge: 'ACTIVE COMPANY',
+    unsaved: 'Unsaved changes',
+    pending: 'To be completed',
+    noticeTitle: 'Data to fill in with the real business',
+    noticeMessage:
+      "When the system is deployed for a real company or project, all this information is filled in with the business's data and then “Save changes” is pressed.",
+    fiscalNote: "Filled in with the real business's tax data (regime, CIIU and DIAN invoicing resolution) when deployed.",
+    channelsNote: "Filled in with the real business's official social networks, support line and hours when deployed.",
     fallbackName: 'your business',
     subtitle: (name: string) => `Manage the tax, corporate information and official support channels of ${name}.`,
     discard: 'Discard',
@@ -416,7 +428,13 @@ const fr: typeof es = {
   },
   business: {
     title: "Données de l'entreprise",
-    badge: 'ENTREPRISE ACTIVE',
+    unsaved: 'Modifications non enregistrées',
+    pending: 'À compléter',
+    noticeTitle: "Données à compléter avec l'entreprise réelle",
+    noticeMessage:
+      'Lorsque le système sera déployé pour une entreprise ou un projet réel, toutes ces informations seront remplies avec ses données, puis on appuie sur « Enregistrer les modifications ».',
+    fiscalNote: "Rempli avec les données fiscales de l'entreprise réelle (régime, CIIU et résolution de facturation DIAN) lors du déploiement.",
+    channelsNote: "Rempli avec les réseaux, la ligne d'assistance et les horaires officiels de l'entreprise réelle lors du déploiement.",
     fallbackName: 'votre entreprise',
     subtitle: (name: string) => `Gérez les informations fiscales, l'entreprise et les canaux officiels de ${name}.`,
     discard: 'Annuler',
@@ -557,7 +575,13 @@ const pt: typeof es = {
   },
   business: {
     title: 'Dados do Negócio',
-    badge: 'EMPRESA ATIVA',
+    unsaved: 'Alterações não salvas',
+    pending: 'A completar',
+    noticeTitle: 'Dados a completar com o negócio real',
+    noticeMessage:
+      'Quando o sistema for implantado para uma empresa ou projeto real, todas estas informações são preenchidas com os dados do negócio e depois se toca em “Salvar alterações”.',
+    fiscalNote: 'Preenchido com os dados tributários do negócio real (regime, CIIU e resolução de faturamento da DIAN) na implantação.',
+    channelsNote: 'Preenchido com as redes, a linha de atendimento e o horário oficiais do negócio real na implantação.',
     fallbackName: 'seu negócio',
     subtitle: (name: string) => `Gerencie as informações fiscais, corporativas e os canais oficiais de atendimento de ${name}.`,
     discard: 'Descartar',

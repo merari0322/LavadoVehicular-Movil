@@ -10,6 +10,7 @@ import { maskDate } from '../../utils/reservationUtils';
 import { BusinessErrors } from '../../viewmodels/useSettings';
 import { Pill } from '../../../../shared/components/ui/Pill';
 import { SettingsSectionCard } from './SettingsSectionCard';
+import { withAlpha } from '../../../../shared/utils/color';
 
 interface BusinessTabProps {
   businessName: string; // Nombre guardado, para el subtítulo
@@ -44,7 +45,7 @@ export function BusinessTab({ businessName, data, errors, isDirty, onChange, onD
       label={texts.fields[name]}
       value={data[name]}
       onChangeText={(text) => onChange({ [name]: options.isDate ? maskDate(text) : text })}
-      placeholder={options.isDate ? texts.datePlaceholder : undefined}
+      placeholder={options.isDate ? texts.datePlaceholder : texts.pending}
       error={errors[name]}
       keyboardType={options.isDate ? 'number-pad' : options.keyboardType}
       autoCapitalize={options.autoCapitalize}
@@ -58,10 +59,10 @@ export function BusinessTab({ businessName, data, errors, isDirty, onChange, onD
       <View style={styles.header}>
         <View style={styles.titleRow}>
           <Text style={styles.title}>{texts.title}</Text>
-          <Pill label={texts.badge} tone="primary" />
+          {isDirty ? <Pill label={texts.unsaved} tone="warning" /> : null}
         </View>
         <Text style={styles.subtitle}>
-          {texts.subtitle(businessName.trim() || texts.fallbackName)}
+          {texts.subtitle(businessName.trim().replace(/\.$/, '') || texts.fallbackName)}
         </Text>
 
         <View style={styles.buttons}>
@@ -80,6 +81,15 @@ export function BusinessTab({ businessName, data, errors, isDirty, onChange, onD
             <MaterialIcons name="check" size={18} color={colors.onPrimary} />
             <Text style={styles.saveText}>{texts.save}</Text>
           </Pressable>
+        </View>
+      </View>
+
+      {/* todo lo de esta pestaña se llena con los datos del negocio real cuando se implemente */}
+      <View style={styles.notice}>
+        <MaterialIcons name="storefront" size={22} color={colors.primary} />
+        <View style={styles.flex}>
+          <Text style={styles.noticeTitle}>{texts.noticeTitle}</Text>
+          <Text style={styles.noticeText}>{texts.noticeMessage}</Text>
         </View>
       </View>
 
@@ -117,6 +127,10 @@ export function BusinessTab({ businessName, data, errors, isDirty, onChange, onD
         title={texts.sections.fiscal.title}
         subtitle={texts.sections.fiscal.subtitle}
       >
+        <View style={styles.note}>
+          <MaterialIcons name="info" size={16} color={colors.warning} />
+          <Text style={styles.noteText}>{texts.fiscalNote}</Text>
+        </View>
         {renderField('taxRegime')}
         {renderField('ciiuActivity')}
         {renderField('dianResolution')}
@@ -132,6 +146,10 @@ export function BusinessTab({ businessName, data, errors, isDirty, onChange, onD
         title={texts.sections.channels.title}
         subtitle={texts.sections.channels.subtitle}
       >
+        <View style={styles.note}>
+          <MaterialIcons name="info" size={16} color={colors.warning} />
+          <Text style={styles.noteText}>{texts.channelsNote}</Text>
+        </View>
         {renderField('instagram', { autoCapitalize: 'none' })}
         {renderField('facebook')}
         {renderField('supportLine', { keyboardType: 'phone-pad' })}
@@ -165,4 +183,23 @@ const createStyles = (colors: ThemeColors) =>
     saveText: { fontSize: 14, fontWeight: '700', color: colors.onPrimary },
     disabled: { opacity: 0.45 },
     row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+    notice: {
+      flexDirection: 'row',
+      gap: 10,
+      padding: 14,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: colors.primary,
+      backgroundColor: withAlpha(colors.primary, 0.1),
+    },
+    noticeTitle: { fontSize: 14, fontWeight: '800', color: colors.text },
+    noticeText: { marginTop: 2, fontSize: 13, lineHeight: 18, color: colors.textSecondary },
+    note: {
+      flexDirection: 'row',
+      gap: 6,
+      padding: 10,
+      borderRadius: 10,
+      backgroundColor: withAlpha(colors.warning, 0.12),
+    },
+    noteText: { flex: 1, fontSize: 12, lineHeight: 17, color: colors.text },
   });
