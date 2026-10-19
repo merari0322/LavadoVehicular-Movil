@@ -157,7 +157,8 @@ export function ProfileView() {
         errorMessage={errorMessage}
         onSave={handleSave}
         onChangePassword={() => setPasswordModalVisible(true)}
-        onDeleteAccount={() => setPendingAction('delete')}
+        // el administrador no puede cerrar su propia cuenta (security-service también lo rechaza)
+        onDeleteAccount={user.roles.includes('ADMIN') ? undefined : () => setPendingAction('delete')}
       />
 
       <ChangePasswordModal

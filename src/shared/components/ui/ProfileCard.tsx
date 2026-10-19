@@ -454,16 +454,19 @@ export const ProfileCard = ({
         onPress={onChangePassword}
       />
 
-      <ActionCard
-        headerIcon="person"
-        headerTitle={tr('profile.account')}
-        rowIcon="delete"
-        rowTitle={tr('profile.delete')}
-        rowDescription={tr('profile.deleteDesc')}
-        buttonLabel={tr('profile.delete')}
-        danger
-        onPress={onDeleteAccount}
-      />
+      {/* sin onDeleteAccount (administrador) no se ofrece cerrar la cuenta */}
+      {onDeleteAccount ? (
+        <ActionCard
+          headerIcon="person"
+          headerTitle={tr('profile.account')}
+          rowIcon="delete"
+          rowTitle={tr('profile.delete')}
+          rowDescription={tr('profile.deleteDesc')}
+          buttonLabel={tr('profile.delete')}
+          danger
+          onPress={onDeleteAccount}
+        />
+      ) : null}
     </ScrollView>
   );
 };
