@@ -217,7 +217,7 @@ export function ClientReserveScreen({ navigation }: Props) {
             { label: t('RESERVE.SUMMARY.SERVICE'), value: selectedService.name },
             { label: t('RESERVE.SUMMARY.DATE'), value: isoToDisplay(booking.date) },
             { label: t('RESERVE.SUMMARY.TIME'), value: booking.startTime },
-            { label: t('RESERVE.SUMMARY.LOCATION'), value: establishment.address },
+            { label: t('RESERVE.SUMMARY.CAR_WASH'), value: establishment.address },
             { label: t('RESERVE.SUMMARY.TOTAL'), value: formatCOP(booking.total) },
           ],
         },
