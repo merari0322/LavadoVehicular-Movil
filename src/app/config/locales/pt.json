@@ -471,7 +471,8 @@
       "TOTAL": "Total",
       "SUBMIT": "Reservar Agora",
       "NOTE": "Avisaremos quando o lavador estiver a caminho. Você pode pagar online ou em dinheiro.",
-      "LOCATION": "Local"
+      "LOCATION": "Local",
+      "CAR_WASH": "Lava-jato"
     },
     "LOCATION": {
       "TITLE": "Local do serviço"

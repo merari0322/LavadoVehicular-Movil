@@ -471,7 +471,8 @@
       "TOTAL": "Total",
       "SUBMIT": "Réserver maintenant",
       "NOTE": "Nous vous préviendrons quand le laveur sera en route. Vous pouvez payer en ligne ou en espèces.",
-      "LOCATION": "Lieu"
+      "LOCATION": "Lieu",
+      "CAR_WASH": "Station de lavage"
     },
     "LOCATION": {
       "TITLE": "Lieu du service"

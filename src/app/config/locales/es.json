@@ -471,7 +471,8 @@
       "TOTAL": "Total",
       "SUBMIT": "Reservar Ahora",
       "NOTE": "Te notificaremos cuando el lavador esté en camino. Puedes pagar en línea o en efectivo.",
-      "LOCATION": "Lugar"
+      "LOCATION": "Lugar",
+      "CAR_WASH": "Lavado Vehicular"
     },
     "LOCATION": {
       "TITLE": "Lugar del servicio"
