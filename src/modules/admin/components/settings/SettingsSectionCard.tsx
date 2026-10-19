@@ -1,5 +1,5 @@
 import React, { ReactNode, useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
@@ -12,10 +12,13 @@ interface SettingsSectionCardProps {
   title: string;
   subtitle?: string;
   children: ReactNode;
+  // lápiz para editar la sección (si no viene, no se muestra)
+  onEdit?: () => void;
+  editLabel?: string;
 }
 
 // Tarjeta con icono y título que agrupa una sección de la configuración
-export function SettingsSectionCard({ icon, title, subtitle, children }: SettingsSectionCardProps) {
+export function SettingsSectionCard({ icon, title, subtitle, children, onEdit, editLabel }: SettingsSectionCardProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -29,6 +32,17 @@ export function SettingsSectionCard({ icon, title, subtitle, children }: Setting
           <Text style={styles.title}>{title}</Text>
           {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
         </View>
+        {onEdit ? (
+          <Pressable
+            onPress={onEdit}
+            hitSlop={8}
+            style={({ pressed }) => [styles.editButton, pressed && styles.editButtonPressed]}
+            accessibilityRole="button"
+            accessibilityLabel={editLabel ? `${editLabel} — ${title}` : title}
+          >
+            <MaterialIcons name="edit" size={20} color={colors.primary} />
+          </Pressable>
+        ) : null}
       </View>
 
       <View style={styles.body}>{children}</View>
@@ -58,5 +72,16 @@ const createStyles = (colors: ThemeColors) =>
     },
     title: { fontSize: 18, fontWeight: '800', color: colors.text },
     subtitle: { marginTop: 2, fontSize: 13, color: colors.textSecondary },
+    editButton: {
+      width: 40,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+    },
+    editButtonPressed: { backgroundColor: withAlpha(colors.primary, 0.12), borderColor: colors.primary },
     body: { gap: 12 },
   });
