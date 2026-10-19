@@ -116,5 +116,4 @@ export type PromotionFormValues = Omit<Promotion, 'id' | 'redemptions' | 'status
 export interface PromotionMetrics {
   redemptions: number;
   savings: number; // COP
-  conversion: number; // Porcentaje
 }

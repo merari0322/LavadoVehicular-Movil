@@ -10,7 +10,6 @@ import {
 
 // Textos de la pantalla de gestión en los 4 idiomas de la app
 const es = {
-  online: 'Sistema en línea · Sucursal Central',
 
   tabs: {
     users: 'Usuarios',
@@ -202,7 +201,6 @@ const es = {
     metrics: {
       redemptions: 'Total canjes',
       savings: 'Ahorro a clientes',
-      conversion: 'Conversión de cupones',
     },
     deleteTitle: 'Eliminar promoción',
     deleteMessage: (name: string) =>
@@ -242,7 +240,6 @@ const es = {
 };
 
 const en: typeof es = {
-  online: 'System online · Main branch',
   tabs: { users: 'Users', roles: 'Roles', services: 'Services', promotions: 'Promotions' },
   common: { cancel: 'Cancel', delete: 'Delete', yes: 'Yes', no: 'No', saveError: "Couldn't save changes" },
   users: {
@@ -381,7 +378,7 @@ const en: typeof es = {
     status: { active: 'Active', paused: 'Paused', scheduled: 'Scheduled' },
     action: { active: 'Pause', paused: 'Resume', scheduled: 'Start now' },
     icons: { 'directions-car': 'Car', 'water-drop': 'Drop', 'auto-awesome': 'Shine' },
-    metrics: { redemptions: 'Total redemptions', savings: 'Customer savings', conversion: 'Coupon conversion' },
+    metrics: { redemptions: 'Total redemptions', savings: 'Customer savings' },
     deleteTitle: 'Delete promotion',
     deleteMessage: (name: string) => `Are you sure you want to delete the promotion ${name}? This action cannot be undone.`,
     form: {
@@ -419,7 +416,6 @@ const en: typeof es = {
 };
 
 const fr: typeof es = {
-  online: 'Système en ligne · Agence centrale',
   tabs: { users: 'Utilisateurs', roles: 'Rôles', services: 'Services', promotions: 'Promotions' },
   common: { cancel: 'Annuler', delete: 'Supprimer', yes: 'Oui', no: 'Non', saveError: "Impossible d'enregistrer" },
   users: {
@@ -558,7 +554,7 @@ const fr: typeof es = {
     status: { active: 'Active', paused: 'En pause', scheduled: 'Programmée' },
     action: { active: 'Mettre en pause', paused: 'Reprendre', scheduled: 'Commencer maintenant' },
     icons: { 'directions-car': 'Voiture', 'water-drop': 'Goutte', 'auto-awesome': 'Brillance' },
-    metrics: { redemptions: 'Utilisations totales', savings: 'Économies clients', conversion: 'Conversion des coupons' },
+    metrics: { redemptions: 'Utilisations totales', savings: 'Économies clients' },
     deleteTitle: 'Supprimer la promotion',
     deleteMessage: (name: string) => `Voulez-vous vraiment supprimer la promotion ${name} ? Cette action est irréversible.`,
     form: {
@@ -596,7 +592,6 @@ const fr: typeof es = {
 };
 
 const pt: typeof es = {
-  online: 'Sistema on-line · Filial Central',
   tabs: { users: 'Usuários', roles: 'Funções', services: 'Serviços', promotions: 'Promoções' },
   common: { cancel: 'Cancelar', delete: 'Excluir', yes: 'Sim', no: 'Não', saveError: 'Não foi possível salvar' },
   users: {
@@ -735,7 +730,7 @@ const pt: typeof es = {
     status: { active: 'Ativa', paused: 'Pausada', scheduled: 'Programada' },
     action: { active: 'Pausar', paused: 'Retomar', scheduled: 'Começar agora' },
     icons: { 'directions-car': 'Carro', 'water-drop': 'Gota', 'auto-awesome': 'Brilho' },
-    metrics: { redemptions: 'Total de resgates', savings: 'Economia dos clientes', conversion: 'Conversão de cupons' },
+    metrics: { redemptions: 'Total de resgates', savings: 'Economia dos clientes' },
     deleteTitle: 'Excluir promoção',
     deleteMessage: (name: string) => `Tem certeza de que deseja excluir a promoção ${name}? Esta ação não pode ser desfeita.`,
     form: {

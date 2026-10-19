@@ -186,7 +186,6 @@ export function useManagement() {
   const [promotionMetrics, setPromotionMetrics] = useState<PromotionMetrics>({
     redemptions: 0,
     savings: 0,
-    conversion: 0,
   });
 
   const reloadPromotions = useCallback(async () => {

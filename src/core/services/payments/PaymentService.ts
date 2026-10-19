@@ -89,7 +89,6 @@ export interface PromotionView {
 export interface PromotionMetrics {
   redemptions: number;
   savings: number;
-  conversion: number;
 }
 
 export interface SavePromotionRequest {
