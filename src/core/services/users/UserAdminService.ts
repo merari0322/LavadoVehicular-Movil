@@ -46,6 +46,12 @@ export const userAdminService = {
     return toAuthUser(await request<BackendUser>('POST', '/admin/users', { body: payload }));
   },
 
+  // cambia el tipo de usuario; el backend cierra sus sesiones para que entre con el rol nuevo
+  async setRole(userId: string, role: UserRole): Promise<AccountSummary> {
+    const user = await request<BackendUser>('PATCH', `/admin/users/${userId}/role`, { body: { role } });
+    return { ...toAuthUser(user), lastLogin: user.lastLogin ?? null, createdAt: user.createdAt ?? null };
+  },
+
   // activa o desactiva; al desactivar, el backend también cierra todas sus sesiones
   async setActive(userId: string, active: boolean): Promise<AccountSummary> {
     const user = await request<BackendUser>('PATCH', `/admin/users/${userId}/status`, { body: { active } });

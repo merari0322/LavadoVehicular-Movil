@@ -47,6 +47,14 @@ const es = {
     retry: 'Reintentar',
     statusError: 'No se pudo cambiar el estado',
     ownAccount: 'No puedes desactivar tu propia cuenta',
+    adminAccount: 'Una cuenta de administrador no se puede desactivar. Cambia primero su tipo de usuario.',
+    userType: 'Tipo de usuario',
+    roleChangeTitle: '¿Cambiar el tipo de usuario?',
+    roleChangeMessage: (name: string, role: string) =>
+      `${name} pasará a ser ${role}. Se cerrarán sus sesiones abiertas y deberá iniciar sesión de nuevo.`,
+    roleChangedTitle: 'Tipo de usuario actualizado',
+    roleChangedMessage: (name: string, role: string) => `${name} ahora es ${role}.`,
+    roleChangeError: 'No se pudo cambiar el tipo de usuario',
     disableTitle: 'Desactivar cuenta',
     disableMessage: (name: string) =>
       `${name} ya no podrá iniciar sesión y se cerrarán sus sesiones abiertas. Sus reservas y pagos se conservan.`,
@@ -252,6 +260,14 @@ const en: typeof es = {
     retry: 'Retry',
     statusError: 'The status could not be changed',
     ownAccount: 'You cannot disable your own account',
+    adminAccount: 'An administrator account cannot be disabled. Change its user type first.',
+    userType: 'User type',
+    roleChangeTitle: 'Change the user type?',
+    roleChangeMessage: (name: string, role: string) =>
+      `${name} will become ${role}. Their open sessions will be closed and they must sign in again.`,
+    roleChangedTitle: 'User type updated',
+    roleChangedMessage: (name: string, role: string) => `${name} is now ${role}.`,
+    roleChangeError: 'The user type could not be changed',
     disableTitle: 'Deactivate account',
     disableMessage: (name: string) =>
       `${name} will no longer be able to sign in and their open sessions will be closed. Their bookings and payments are kept.`,
@@ -421,6 +437,14 @@ const fr: typeof es = {
     retry: 'Réessayer',
     statusError: 'Impossible de changer le statut',
     ownAccount: 'Vous ne pouvez pas désactiver votre propre compte',
+    adminAccount: "Un compte administrateur ne peut pas être désactivé. Changez d'abord son type d'utilisateur.",
+    userType: "Type d'utilisateur",
+    roleChangeTitle: "Changer le type d'utilisateur ?",
+    roleChangeMessage: (name: string, role: string) =>
+      `${name} deviendra ${role}. Ses sessions ouvertes seront fermées et il devra se reconnecter.`,
+    roleChangedTitle: "Type d'utilisateur mis à jour",
+    roleChangedMessage: (name: string, role: string) => `${name} est maintenant ${role}.`,
+    roleChangeError: "Impossible de changer le type d'utilisateur",
     disableTitle: 'Désactiver le compte',
     disableMessage: (name: string) =>
       `${name} ne pourra plus se connecter et ses sessions ouvertes seront fermées. Ses réservations et paiements sont conservés.`,
@@ -590,6 +614,14 @@ const pt: typeof es = {
     retry: 'Tentar novamente',
     statusError: 'Não foi possível mudar o status',
     ownAccount: 'Você não pode desativar sua própria conta',
+    adminAccount: 'Uma conta de administrador não pode ser desativada. Mude primeiro o tipo de usuário.',
+    userType: 'Tipo de usuário',
+    roleChangeTitle: 'Mudar o tipo de usuário?',
+    roleChangeMessage: (name: string, role: string) =>
+      `${name} passará a ser ${role}. As sessões abertas serão encerradas e será preciso entrar de novo.`,
+    roleChangedTitle: 'Tipo de usuário atualizado',
+    roleChangedMessage: (name: string, role: string) => `${name} agora é ${role}.`,
+    roleChangeError: 'Não foi possível mudar o tipo de usuário',
     disableTitle: 'Desativar conta',
     disableMessage: (name: string) =>
       `${name} não poderá mais entrar e suas sessões abertas serão encerradas. Suas reservas e pagamentos são mantidos.`,

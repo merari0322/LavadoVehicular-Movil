@@ -31,7 +31,7 @@ import { useSystemRoles, useUserAccounts } from '../viewmodels/useUserAccounts';
 import { CreateAccountPayload } from '../../../core/services/users/UserAdminService';
 import { apiErrorKey } from '../../../core/api/apiError';
 import { AppAlert } from '../../../shared/components/feedback/AppAlert';
-import { useSession } from '../../../core/services/auth';
+import { UserRole, useSession } from '../../../core/services/auth';
 
 // Estado de un modal de formulario: abierto/cerrado y el registro que se edita (null = crear)
 interface FormState<T> {
@@ -60,6 +60,8 @@ export const AdminManagementScreen = () => {
   const management = useManagement();
   const accounts = useUserAccounts();
   const session = useSession();
+  // el id de la sesión se compara como texto (las cuentas de la lista llegan con id de texto)
+  const currentUserId = session.user ? String(session.user.id) : null;
 
   // usuarios reales por rol (cuentas del security-service) para la pestaña de roles
   const roleUserCounts = useMemo(() => {
@@ -111,8 +113,13 @@ export const AdminManagementScreen = () => {
     const user = accounts.users.find((item) => item.id === id);
     if (!user) return;
     const texts = MANAGEMENT_TEXTS.users;
-    if (user.active && user.id === session.user?.id) {
+    if (user.active && user.id === currentUserId) {
       AppAlert.alert(texts.statusError, texts.ownAccount, undefined, { type: 'error' });
+      return;
+    }
+    // un administrador no se desactiva: primero se le cambia el tipo de usuario
+    if (user.active && user.roleId === 'ADMIN') {
+      AppAlert.alert(texts.statusError, texts.adminAccount, undefined, { type: 'error' });
       return;
     }
     setConfirm({
@@ -124,6 +131,25 @@ export const AdminManagementScreen = () => {
         setConfirm(null);
         const failure = await accounts.toggleActive(id);
         if (failure) AppAlert.alert(texts.statusError, failure, undefined, { type: 'error' });
+      },
+    });
+  };
+
+  // cambiar el tipo de usuario de otra cuenta, tras confirmar
+  const handleRoleChange = (user: ManagedUser, roleId: string) => {
+    if (roleId === user.roleId || user.id === currentUserId) return;
+    const texts = MANAGEMENT_TEXTS.users;
+    const roleName = t(`PROFILE.ROLE.${roleId}`);
+    setConfirm({
+      title: texts.roleChangeTitle,
+      message: texts.roleChangeMessage(user.name, roleName),
+      confirmLabel: texts.confirm,
+      danger: false,
+      onConfirm: async () => {
+        setConfirm(null);
+        const failure = await accounts.changeRole(user.id, roleId as UserRole);
+        if (failure) AppAlert.alert(texts.roleChangeError, failure, undefined, { type: 'error' });
+        else AppAlert.alert(texts.roleChangedTitle, texts.roleChangedMessage(user.name, roleName), undefined, { type: 'success' });
       },
     });
   };
@@ -211,7 +237,8 @@ export const AdminManagementScreen = () => {
               onRetry={accounts.reload}
               onCreate={() => setUserFormVisible(true)}
               onToggle={handleUserToggle}
-              currentUserId={session.user?.id ?? null}
+              onRoleChange={handleRoleChange}
+              currentUserId={currentUserId}
             />
           ) : null}
 
