@@ -1139,6 +1139,8 @@
     "NETWORK_ERROR": "Não foi possível conectar ao servidor. Tente novamente em instantes.",
     "UNEXPECTED": "Ocorreu um erro inesperado. Tente novamente.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "Você não pode desativar sua própria conta",
+    "ADMIN_CANNOT_BE_DISABLED": "Uma conta de administrador não pode ser desativada. Mude primeiro o tipo de usuário.",
+    "CANNOT_CHANGE_OWN_ROLE": "Você não pode mudar o tipo de usuário da sua própria conta.",
     "BAY_NEW_IN_MAINTENANCE": "Uma baia nova não pode começar em manutenção. Crie-a e depois mude seu status.",
     "UNKNOWN_PERMISSION": "Uma das permissões escolhidas não existe mais. Recarregue a página e tente novamente.",
     "SERVICE_TOO_EARLY": "Você ainda não pode iniciar este serviço: ele é liberado 15 minutos antes do horário da reserva.",
