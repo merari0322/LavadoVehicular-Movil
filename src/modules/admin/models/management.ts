@@ -38,8 +38,8 @@ export interface RoleFormValues {
 // Usuarios
 // ---------------------------------------------------------------
 
-export type UserFilter = 'enabled' | 'registered' | 'disabled';
-export const USER_FILTERS: UserFilter[] = ['enabled', 'registered', 'disabled'];
+export type UserFilter = 'enabled' | 'disabled';
+export const USER_FILTERS: UserFilter[] = ['enabled', 'disabled'];
 
 export interface ManagedUser {
   id: string;

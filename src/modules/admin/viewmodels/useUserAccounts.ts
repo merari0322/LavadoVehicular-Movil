@@ -64,8 +64,6 @@ export function useUserAccounts() {
 
   const counts = useMemo<Record<UserFilter, number>>(() => ({
     enabled: users.filter((user) => user.active).length,
-    // Registrados = todas las cuentas (habilitadas y deshabilitadas)
-    registered: users.length,
     disabled: users.filter((user) => !user.active).length,
   }), [users]);
 
