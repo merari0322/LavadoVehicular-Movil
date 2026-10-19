@@ -1,15 +1,14 @@
-import React, { useMemo } from 'react';
-import { KeyboardTypeOptions, Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
-import { LabeledInput } from '../../../../shared/components/forms/LabeledInput';
 import { SETTINGS_TEXTS } from '../../constants/settingsTexts';
 import { BusinessData } from '../../models/settings';
-import { maskDate } from '../../utils/reservationUtils';
 import { BusinessErrors } from '../../viewmodels/useSettings';
 import { Pill } from '../../../../shared/components/ui/Pill';
 import { SettingsSectionCard } from './SettingsSectionCard';
+import { BusinessField, BusinessSectionModal } from './BusinessSectionModal';
 import { withAlpha } from '../../../../shared/utils/color';
 
 interface BusinessTabProps {
@@ -22,36 +21,86 @@ interface BusinessTabProps {
   onSave: () => void;
 }
 
-// Opciones extra de cada campo
-interface FieldOptions {
-  keyboardType?: KeyboardTypeOptions;
-  autoCapitalize?: 'none' | 'sentences';
-  isDate?: boolean;
-  inRow?: boolean; // Comparte fila con otro campo
-}
+type SectionId = 'general' | 'location' | 'fiscal' | 'channels';
+type IconName = keyof typeof MaterialIcons.glyphMap;
+
+// Las cuatro secciones: cada una se ve en solo lectura y se edita con su lápiz.
+// Son constantes del módulo para que el modal no se reinicie en cada render.
+const SECTIONS: { id: SectionId; icon: IconName; note?: 'fiscalNote' | 'channelsNote'; fields: BusinessField[] }[] = [
+  {
+    id: 'general',
+    icon: 'apartment',
+    fields: [
+      { name: 'legalName' },
+      { name: 'taxId' },
+      { name: 'businessType' },
+      { name: 'foundedAt', isDate: true },
+      { name: 'legalRepresentative' },
+      { name: 'legalDocument' },
+    ],
+  },
+  {
+    id: 'location',
+    icon: 'place',
+    fields: [
+      { name: 'address' },
+      { name: 'phone', keyboardType: 'phone-pad' },
+      { name: 'email', keyboardType: 'email-address', autoCapitalize: 'none' },
+      { name: 'website', keyboardType: 'url', autoCapitalize: 'none' },
+    ],
+  },
+  {
+    id: 'fiscal',
+    icon: 'receipt-long',
+    note: 'fiscalNote',
+    fields: [
+      { name: 'taxRegime' },
+      { name: 'ciiuActivity' },
+      { name: 'dianResolution' },
+      { name: 'invoicePrefix' },
+      { name: 'invoiceRange' },
+    ],
+  },
+  {
+    id: 'channels',
+    icon: 'share',
+    note: 'channelsNote',
+    fields: [
+      { name: 'instagram', autoCapitalize: 'none' },
+      { name: 'facebook' },
+      { name: 'supportLine', keyboardType: 'phone-pad' },
+      { name: 'schedule' },
+    ],
+  },
+];
 
 const texts = SETTINGS_TEXTS.business;
+const NO_FIELDS: BusinessField[] = [];
 
 // Pestaña de datos del negocio: cuatro tarjetas de formulario con guardar y descartar
 export function BusinessTab({ businessName, data, errors, isDirty, onChange, onDiscard, onSave }: BusinessTabProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  // Dibuja un campo del formulario a partir de su nombre
-  const renderField = (name: keyof BusinessData, options: FieldOptions = {}) => (
-    <LabeledInput
-      key={name}
-      containerStyle={options.inRow ? styles.flex : undefined}
-      label={texts.fields[name]}
-      value={data[name]}
-      onChangeText={(text) => onChange({ [name]: options.isDate ? maskDate(text) : text })}
-      placeholder={options.isDate ? texts.datePlaceholder : texts.pending}
-      error={errors[name]}
-      keyboardType={options.isDate ? 'number-pad' : options.keyboardType}
-      autoCapitalize={options.autoCapitalize}
-      maxLength={options.isDate ? 10 : undefined}
-    />
-  );
+  // sección abierta en el modal del lápiz (null = ninguna)
+  const [editing, setEditing] = useState<SectionId | null>(null);
+  const editingSection = SECTIONS.find((section) => section.id === editing) ?? null;
+
+  // Una fila de solo lectura: etiqueta, valor (o "Por completar") y el error si al guardar quedó mal
+  const renderValue = (name: keyof BusinessData) => {
+    const value = data[name].trim();
+    return (
+      <View key={name} style={styles.valueRow}>
+        <Text style={styles.valueLabel}>{texts.fields[name]}</Text>
+        {value ? (
+          <Text style={styles.value}>{value}</Text>
+        ) : (
+          <Text style={[styles.value, styles.pending]}>{texts.pending}</Text>
+        )}
+        {errors[name] ? <Text style={styles.valueError}>{errors[name]}</Text> : null}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -93,68 +142,37 @@ export function BusinessTab({ businessName, data, errors, isDirty, onChange, onD
         </View>
       </View>
 
-      {/* Información general */}
-      <SettingsSectionCard
-        icon="apartment"
-        title={texts.sections.general.title}
-        subtitle={texts.sections.general.subtitle}
-      >
-        {renderField('legalName')}
-        {renderField('taxId')}
-        {renderField('businessType')}
-        {renderField('foundedAt', { isDate: true })}
-        <View style={styles.row}>
-          {renderField('legalRepresentative', { inRow: true })}
-          {renderField('legalDocument', { inRow: true })}
-        </View>
-      </SettingsSectionCard>
+      {SECTIONS.map((section) => (
+        <SettingsSectionCard
+          key={section.id}
+          icon={section.icon}
+          title={texts.sections[section.id].title}
+          subtitle={texts.sections[section.id].subtitle}
+          onEdit={() => setEditing(section.id)}
+          editLabel={texts.edit}
+        >
+          {section.note ? (
+            <View style={styles.note}>
+              <MaterialIcons name="info" size={16} color={colors.warning} />
+              <Text style={styles.noteText}>{texts[section.note]}</Text>
+            </View>
+          ) : null}
+          {section.fields.map((field) => renderValue(field.name))}
+        </SettingsSectionCard>
+      ))}
 
-      {/* Ubicación y contacto */}
-      <SettingsSectionCard
-        icon="place"
-        title={texts.sections.location.title}
-        subtitle={texts.sections.location.subtitle}
-      >
-        {renderField('address')}
-        {renderField('phone', { keyboardType: 'phone-pad' })}
-        {renderField('email', { keyboardType: 'email-address', autoCapitalize: 'none' })}
-        {renderField('website', { keyboardType: 'url', autoCapitalize: 'none' })}
-      </SettingsSectionCard>
-
-      {/* Información fiscal */}
-      <SettingsSectionCard
-        icon="receipt-long"
-        title={texts.sections.fiscal.title}
-        subtitle={texts.sections.fiscal.subtitle}
-      >
-        <View style={styles.note}>
-          <MaterialIcons name="info" size={16} color={colors.warning} />
-          <Text style={styles.noteText}>{texts.fiscalNote}</Text>
-        </View>
-        {renderField('taxRegime')}
-        {renderField('ciiuActivity')}
-        {renderField('dianResolution')}
-        <View style={styles.row}>
-          {renderField('invoicePrefix', { inRow: true })}
-          {renderField('invoiceRange', { inRow: true })}
-        </View>
-      </SettingsSectionCard>
-
-      {/* Canales oficiales */}
-      <SettingsSectionCard
-        icon="share"
-        title={texts.sections.channels.title}
-        subtitle={texts.sections.channels.subtitle}
-      >
-        <View style={styles.note}>
-          <MaterialIcons name="info" size={16} color={colors.warning} />
-          <Text style={styles.noteText}>{texts.channelsNote}</Text>
-        </View>
-        {renderField('instagram', { autoCapitalize: 'none' })}
-        {renderField('facebook')}
-        {renderField('supportLine', { keyboardType: 'phone-pad' })}
-        {renderField('schedule')}
-      </SettingsSectionCard>
+      <BusinessSectionModal
+        visible={editingSection !== null}
+        title={editingSection ? texts.sections[editingSection.id].title : ''}
+        subtitle={editingSection ? texts.sections[editingSection.id].subtitle : ''}
+        fields={editingSection?.fields ?? NO_FIELDS}
+        values={data}
+        onClose={() => setEditing(null)}
+        onApply={(partial) => {
+          onChange(partial);
+          setEditing(null);
+        }}
+      />
     </View>
   );
 }
@@ -182,7 +200,11 @@ const createStyles = (colors: ThemeColors) =>
     saveButton: { backgroundColor: colors.primary },
     saveText: { fontSize: 14, fontWeight: '700', color: colors.onPrimary },
     disabled: { opacity: 0.45 },
-    row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+    valueRow: { gap: 2, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: colors.border },
+    valueLabel: { fontSize: 12, color: colors.textSecondary },
+    value: { fontSize: 15, fontWeight: '600', color: colors.text },
+    pending: { fontStyle: 'italic', fontWeight: '400', color: colors.textMuted },
+    valueError: { fontSize: 12, color: colors.error },
     notice: {
       flexDirection: 'row',
       gap: 10,

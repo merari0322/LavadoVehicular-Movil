@@ -124,7 +124,7 @@ export type BusinessErrors = Partial<Record<keyof BusinessData, string>>;
 const REQUIRED_FIELDS: (keyof BusinessData)[] = ['legalName', 'taxId', 'address', 'phone'];
 
 // Valida obligatorios, teléfonos, correo y fecha de constitución
-const validateBusiness = (data: BusinessData): BusinessErrors => {
+export const validateBusiness = (data: BusinessData): BusinessErrors => {
   const messages = SETTINGS_TEXTS.business.errors;
   const errors: BusinessErrors = {};
 

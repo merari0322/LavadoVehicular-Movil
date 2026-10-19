@@ -122,6 +122,9 @@ const es = {
     invalidTitle: 'Revisa los datos',
     invalidMessage: 'Corrige los campos marcados en rojo antes de guardar.',
     datePlaceholder: 'dd/mm/aaaa',
+    edit: 'Editar',
+    apply: 'Aplicar',
+    modalHint: 'Los cambios se aplican en la pantalla; recuerda pulsar «Guardar cambios» para guardarlos.',
 
     sections: {
       general: {
@@ -297,6 +300,9 @@ const en: typeof es = {
     invalidTitle: 'Check the data',
     invalidMessage: 'Fix the fields marked in red before saving.',
     datePlaceholder: 'dd/mm/yyyy',
+    edit: 'Edit',
+    apply: 'Apply',
+    modalHint: 'Changes are applied on screen; remember to press “Save changes” to keep them.',
     sections: {
       general: { title: 'General information', subtitle: 'Corporate data and legal representation' },
       location: { title: 'Location and contact', subtitle: 'Headquarters address and official contact data' },
@@ -444,6 +450,9 @@ const fr: typeof es = {
     invalidTitle: 'Vérifiez les données',
     invalidMessage: "Corrigez les champs marqués en rouge avant d'enregistrer.",
     datePlaceholder: 'jj/mm/aaaa',
+    edit: 'Modifier',
+    apply: 'Appliquer',
+    modalHint: "Les modifications s'appliquent à l'écran ; pensez à appuyer sur « Enregistrer les modifications ».",
     sections: {
       general: { title: 'Informations générales', subtitle: "Données de l'entreprise et représentation légale" },
       location: { title: 'Adresse et contact', subtitle: 'Adresse du siège et coordonnées officielles' },
@@ -591,6 +600,9 @@ const pt: typeof es = {
     invalidTitle: 'Revise os dados',
     invalidMessage: 'Corrija os campos marcados em vermelho antes de salvar.',
     datePlaceholder: 'dd/mm/aaaa',
+    edit: 'Editar',
+    apply: 'Aplicar',
+    modalHint: 'As alterações são aplicadas na tela; lembre-se de tocar em “Salvar alterações”.',
     sections: {
       general: { title: 'Informações gerais', subtitle: 'Dados corporativos e representação legal' },
       location: { title: 'Localização e contato', subtitle: 'Endereço da sede e dados oficiais de contato' },
