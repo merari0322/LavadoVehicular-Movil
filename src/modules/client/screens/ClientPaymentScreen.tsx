@@ -344,6 +344,9 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
           </View>
         ) : null}
 
+        {/* con el pago aprobado ya no se elige método ni se reporta nada: solo queda el resumen */}
+        {isApproved ? null : (
+        <>
         {/* Método de pago */}
         <SectionCard title={t('PAYMENT.METHOD.TITLE')} icon="credit-card">
           <Text style={[styles.muted, { color: colors.textMuted }]}>{t('PAYMENT.METHOD.NO_FEES')}</Text>
@@ -456,6 +459,8 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
             </SectionCard>
           </>
         )}
+        </>
+        )}
 
         {/* Resumen de la reserva */}
         <SectionCard title={t('PAYMENT.SUMMARY.TITLE')} icon="receipt" right={<Pill label={booking.code} />}>
@@ -481,11 +486,14 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
                 {t('PAYMENT.COUPON.APPLIED', { name: couponResult.promotionName })}
               </Text>
               <Text style={[styles.strong, { color: colors.success }]}>-{formatCOP(couponResult.discountAmount)} COP</Text>
-              <Pressable onPress={removeCoupon} disabled={isLocked} hitSlop={6}>
-                <MaterialIcons name="close" size={18} color={colors.success} />
-              </Pressable>
+              {/* con el pago enviado o aprobado el cupón ya no se puede quitar */}
+              {isLocked ? null : (
+                <Pressable onPress={removeCoupon} hitSlop={6}>
+                  <MaterialIcons name="close" size={18} color={colors.success} />
+                </Pressable>
+              )}
             </View>
-          ) : (
+          ) : isApproved ? null : (
             <View style={styles.couponRow}>
               <LabeledInput
                 containerStyle={styles.flex}
@@ -514,20 +522,21 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
           <InfoRow label={t('PAYMENT.SUMMARY.TOTAL')} value={`${formatCOP(total)} COP`} strong />
           <Text style={[styles.muted, { color: colors.textMuted }]}>{t('PAYMENT.SUMMARY.TAX')}</Text>
 
+          {/* aprobado: no hay nada que pagar, solo se puede cancelar la reserva */}
+          {isApproved ? null : (
           <ActionButton
             label={t(
-              isApproved
-                ? 'PAYMENT.SUMMARY.APPROVED_BUTTON'
-                : isVerifying
+              isVerifying
                   ? 'PAYMENT.SUMMARY.VERIFYING_BUTTON'
                   : method === 'CASH'
                   ? 'PAYMENT.SUMMARY.CASH_BUTTON'
                   : 'PAYMENT.SUMMARY.PAY_BUTTON',
             )}
-            icon={isApproved ? 'verified' : isVerifying ? 'hourglass-top' : 'verified-user'}
+            icon={isVerifying ? 'hourglass-top' : 'verified-user'}
             disabled={!canConfirm}
             onPress={confirmPayment}
           />
+          )}
           {/* por qué el botón sigue bloqueado: lo que falta completar */}
           {missingRequirements.length > 0 ? (
             <View style={[styles.missingBox, { backgroundColor: colors.warningSoft }]}>
