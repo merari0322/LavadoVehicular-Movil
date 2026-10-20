@@ -1447,5 +1447,13 @@
     "PASSWORD_ERROR_TITLE": "Não foi possível alterar a senha",
     "GO_TO_LOGIN": "Ir para o login",
     "ERROR_TITLE": "Algo deu errado"
+  },
+  "GO_TO": {
+    "HOME": "Ir para o início",
+    "HISTORY": "Ir para o histórico",
+    "ASSIGNED": "Ir para serviços atribuídos",
+    "RESERVATIONS": "Ir para reservas",
+    "PAYMENT": "Ir para o pagamento",
+    "RATINGS": "Ir para avaliações"
   }
 }

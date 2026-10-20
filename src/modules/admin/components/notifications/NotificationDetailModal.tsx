@@ -15,12 +15,15 @@ import { ModalShell } from '../../../../shared/components/feedback/ModalShell';
 interface NotificationDetailModalProps {
   notification: AppNotification | null; // null = modal cerrado
   onClose: () => void;
+  // botón "Ir a..." hacia el apartado de donde viene el aviso (si no viene, solo "Cerrar")
+  goToLabel?: string;
+  onGoTo?: () => void;
 }
 
 const texts = NOTIFICATION_TEXTS.detail;
 
 // Modal de solo lectura con el detalle de una notificación
-export function NotificationDetailModal({ notification, onClose }: NotificationDetailModalProps) {
+export function NotificationDetailModal({ notification, onClose, goToLabel, onGoTo }: NotificationDetailModalProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -73,9 +76,23 @@ export function NotificationDetailModal({ notification, onClose }: NotificationD
             <Text style={styles.infoText}>{notification.read ? texts.read : texts.unread}</Text>
           </View>
 
-          <Pressable style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeText}>{NOTIFICATION_TEXTS.common.close}</Text>
-          </Pressable>
+          <View style={styles.buttons}>
+            {goToLabel && onGoTo ? (
+              <>
+                <Pressable style={[styles.closeButton, styles.secondaryButton]} onPress={onClose}>
+                  <Text style={[styles.closeText, { color: colors.text }]}>{NOTIFICATION_TEXTS.common.close}</Text>
+                </Pressable>
+                <Pressable style={[styles.closeButton, styles.goButton]} onPress={onGoTo} accessibilityRole="button">
+                  <Text style={styles.closeText}>{goToLabel}</Text>
+                  <MaterialIcons name="arrow-forward" size={18} color={colors.onPrimary} />
+                </Pressable>
+              </>
+            ) : (
+              <Pressable style={styles.closeButton} onPress={onClose}>
+                <Text style={styles.closeText}>{NOTIFICATION_TEXTS.common.close}</Text>
+              </Pressable>
+            )}
+          </View>
         </View>
       ) : null}
     </ModalShell>
@@ -121,4 +138,7 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: colors.primary,
     },
     closeText: { fontSize: 14, fontWeight: '700', color: colors.onPrimary },
+    buttons: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 10 },
+    secondaryButton: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+    goButton: { flexDirection: 'row', gap: 6 },
   });

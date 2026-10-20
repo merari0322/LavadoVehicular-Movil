@@ -18,6 +18,8 @@ export const READ_FILTERS: ReadFilter[] = ['all', 'unread', 'read'];
 // Se llama AppNotification para no chocar con el tipo global Notification del navegador
 export interface AppNotification {
   id: string;
+  // tipo del backend (ej. ADMIN_BOOKING_CREATED): decide a dónde lleva "Ir a..."
+  code: string;
   category: NotificationCategory;
   title: string;
   message: string;

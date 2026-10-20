@@ -1447,5 +1447,13 @@
     "PASSWORD_ERROR_TITLE": "Impossible de changer le mot de passe",
     "GO_TO_LOGIN": "Aller à la connexion",
     "ERROR_TITLE": "Une erreur est survenue"
+  },
+  "GO_TO": {
+    "HOME": "Aller à l'accueil",
+    "HISTORY": "Aller à l'historique",
+    "ASSIGNED": "Aller aux services assignés",
+    "RESERVATIONS": "Aller aux réservations",
+    "PAYMENT": "Aller au paiement",
+    "RATINGS": "Aller aux évaluations"
   }
 }

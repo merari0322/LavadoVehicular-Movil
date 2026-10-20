@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { fontSize, fontWeight, radius, spacing, useTheme } from '../../../app/theme';
 
@@ -12,14 +12,21 @@ interface SectionCardProps {
   right?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
+  // si viene, toda la tarjeta se puede tocar (ej. abrir el detalle)
+  onPress?: () => void;
+  accessibilityLabel?: string;
 }
 
 // tarjeta blanca con borde (".card" de la web) y título opcional con ícono
-export function SectionCard({ title, icon, right, style, children }: SectionCardProps) {
+export function SectionCard({ title, icon, right, style, children, onPress, accessibilityLabel }: SectionCardProps) {
   const { colors } = useTheme();
+  const Container = onPress ? Pressable : View;
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }, style]}>
+    <Container
+      style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }, style]}
+      {...(onPress ? { onPress, accessibilityRole: 'button' as const, accessibilityLabel } : {})}
+    >
       {title ? (
         <View style={styles.header}>
           <View style={styles.titleRow}>
@@ -30,7 +37,7 @@ export function SectionCard({ title, icon, right, style, children }: SectionCard
         </View>
       ) : null}
       {children}
-    </View>
+    </Container>
   );
 }
 

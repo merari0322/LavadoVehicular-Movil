@@ -94,5 +94,5 @@ function localParts(iso: string): { date: string; time: string } {
 // notificación del backend -> modelo que pintan las pantallas (el texto ya viene escrito)
 export function toRoleNotification(n: NotificationResponse): RoleNotification {
   const type = TYPE_BY_CATEGORY[n.category] ?? 'sistema';
-  return { id: n.id, icon: ICON_BY_TYPE[type], type, title: n.title, desc: n.message, read: n.read, ...localParts(n.sentAt) };
+  return { id: n.id, code: n.type, icon: ICON_BY_TYPE[type], type, title: n.title, desc: n.message, read: n.read, ...localParts(n.sentAt) };
 }

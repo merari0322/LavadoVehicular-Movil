@@ -1447,5 +1447,13 @@
     "PASSWORD_ERROR_TITLE": "Could not change the password",
     "GO_TO_LOGIN": "Go to sign in",
     "ERROR_TITLE": "Something went wrong"
+  },
+  "GO_TO": {
+    "HOME": "Go to home",
+    "HISTORY": "Go to history",
+    "ASSIGNED": "Go to assigned services",
+    "RESERVATIONS": "Go to bookings",
+    "PAYMENT": "Go to payment",
+    "RATINGS": "Go to ratings"
   }
 }

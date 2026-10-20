@@ -29,7 +29,13 @@ export function NotificationItem({ notification, onToggleRead, onView, onDelete 
   const toneColor = getToneColor(colors, CATEGORY_TONE[category]);
 
   return (
-    <View style={[styles.card, !read && styles.cardUnread]}>
+    // tocar la notificación = ver el detalle (y queda leída)
+    <Pressable
+      style={[styles.card, !read && styles.cardUnread]}
+      onPress={onView}
+      accessibilityRole="button"
+      accessibilityLabel={notification.title}
+    >
       <View style={styles.topRow}>
         <View style={[styles.iconBox, { backgroundColor: withAlpha(toneColor, 0.15) }]}>
           <MaterialIcons name={CATEGORY_ICON[category]} size={24} color={toneColor} />
@@ -72,7 +78,7 @@ export function NotificationItem({ notification, onToggleRead, onView, onDelete 
 
         <IconButton icon="delete" danger onPress={onDelete} />
       </View>
-    </View>
+    </Pressable>
   );
 }
 

@@ -32,6 +32,7 @@ function toAppNotification(n: NotificationResponse): AppNotification {
         : n.category === 'CONFIRMATION' ? 'confirmation' : 'other';
   return {
     id: String(n.id),
+    code: n.type,
     category,
     title: n.title,
     message: n.message,
@@ -149,6 +150,16 @@ export function useNotifications() {
       .catch(() => undefined);
   };
 
+  // al abrir el detalle la notificación queda leída
+  const markRead = (id: string) => {
+    const current = notifications.find((item) => item.id === id);
+    if (!current || current.read) return;
+    notificationService
+      .markRead(Number(id))
+      .then(() => setNotifications((prev) => prev.map((item) => (item.id === id ? { ...item, read: true } : item))))
+      .catch(() => undefined);
+  };
+
   const markAllRead = () =>
     notificationService
       .markAllRead()
@@ -172,6 +183,7 @@ export function useNotifications() {
     notifications: visibleNotifications,
     unreadByTab,
     toggleRead,
+    markRead,
     markAllRead,
     deleteNotification,
     loading,
