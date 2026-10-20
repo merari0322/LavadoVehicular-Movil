@@ -66,6 +66,8 @@
     "NOTIFICATIONS": "Alerts"
   },
   "HISTORY": {
+    "DETAIL_TITLE": "Booking details",
+    "TOTAL": "Total",
     "FILTERS": "Filters",
     "ALL": "All",
     "ACTIVE": "Active",

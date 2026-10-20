@@ -60,8 +60,42 @@ export function ClientHistoryScreen({ navigation }: Props) {
         return haystack.includes(text);
       }
       return true;
-    });
+    })
+      // de la más nueva a la más antigua (fecha y hora de la reserva)
+      .sort((a, b) => `${b.date} ${b.timeRange}`.localeCompare(`${a.date} ${a.timeRange}`));
   }, [vm.bookings, filter, dateFrom, dateTo, search, t]);
+
+  // tocar la tarjeta: detalle de la reserva con el botón "Ir al pago"
+  const openDetail = (booking: ClientBookingItem) => {
+    const finished = booking.status === 'CANCELLED' || booking.status === 'NO_SHOW';
+    feedback.showStatus({
+      type: 'info',
+      icon: 'receipt-long',
+      title: `${t('HISTORY.DETAIL_TITLE')} · ${booking.code}`,
+      message: booking.services.join(' / '),
+      buttonText: t('COMMON.CLOSE'),
+      details: [
+        { label: t('HISTORY_CARD.STATUS'), value: t(`STATUS.${booking.status}`) },
+        { label: t('HISTORY.DATE'), value: `${booking.displayDate} · ${booking.timeRange}` },
+        { label: t('HISTORY_CARD.VEHICLE'), value: `${booking.vehicle || '—'}${booking.plate ? ` · ${booking.plate}` : ''}` },
+        { label: t('HISTORY.TOTAL'), value: formatCOP(booking.total) },
+        ...(booking.paymentStatus
+          ? [{ label: t('HISTORY_CARD.PAYMENT'), value: t(`HISTORY_CARD.PAYMENT_STATUS.${booking.paymentStatus}`) }]
+          : []),
+        ...(booking.rating
+          ? [{ label: t('HISTORY_CARD.RATED'), value: `★ ${booking.rating}${booking.ratingComment ? ` · "${booking.ratingComment}"` : ''}` }]
+          : []),
+      ],
+      // una reserva cancelada ya no tiene pago que ver
+      action: finished
+        ? undefined
+        : {
+            label: t('GO_TO.PAYMENT'),
+            icon: 'arrow-forward',
+            onPress: () => navigation.navigate('ClientPayment', { bookingId: booking.id }),
+          },
+    });
+  };
 
   const requestCancel = (booking: ClientBookingItem) =>
     feedback.askConfirm({
@@ -137,7 +171,7 @@ export function ClientHistoryScreen({ navigation }: Props) {
           <EmptyState icon="search-off" title={t('HISTORY.EMPTY')} />
         ) : (
           visible.map((booking) => (
-            <SectionCard key={booking.id}>
+            <SectionCard key={booking.id} onPress={() => openDetail(booking)} accessibilityLabel={booking.code}>
               <View style={styles.header}>
                 <MaterialIcons name="receipt-long" size={26} color={colors.primary} />
                 <View style={styles.flex}>
