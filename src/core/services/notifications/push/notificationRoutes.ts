@@ -33,6 +33,8 @@ const OPERATOR: RouteTable = {
   USER_WELCOME: 'OperatorHome',
   OPERATOR_ASSIGNED: 'OperatorAssigned',
   OPERATOR_SERVICE_RESCHEDULED: 'OperatorAssigned',
+  OPERATOR_SERVICE_CANCELLED: 'OperatorAssigned',
+  OPERATOR_SERVICE_UNASSIGNED: 'OperatorAssigned',
   BOOKING_REMINDER: 'OperatorAssigned',
 };
 
@@ -56,4 +58,25 @@ const INBOX: Record<UserRole, keyof RootStackParamList> = {
 export function routeForNotification(role: UserRole, type: string | null): NotificationRoute {
   const screen = (type && TABLES[role][type]) || INBOX[role];
   return { screen };
+}
+
+// texto del botón "Ir a..." de cada pantalla destino (llaves GO_TO.*)
+const GO_TO_LABEL: Partial<Record<keyof RootStackParamList, string>> = {
+  ClientHome: 'GO_TO.HOME',
+  ClientHistory: 'GO_TO.HISTORY',
+  OperatorHome: 'GO_TO.HOME',
+  OperatorAssigned: 'GO_TO.ASSIGNED',
+  AdminDashboard: 'GO_TO.HOME',
+  AdminReservations: 'GO_TO.RESERVATIONS',
+};
+
+// botón "Ir a..." del detalle de una notificación: la pantalla de donde viene el aviso.
+// null = no tiene apartado propio (mensajes del sistema) y el detalle solo trae "Cerrar"
+export function goToForNotification(
+  role: UserRole,
+  type: string | null,
+): { screen: keyof RootStackParamList; label: string } | null {
+  const screen = type ? TABLES[role][type] : undefined;
+  const label = screen ? GO_TO_LABEL[screen] : undefined;
+  return screen && label ? { screen, label } : null;
 }

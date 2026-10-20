@@ -5,6 +5,8 @@ export type NotificationType = 'recordatorio' | 'promocion' | 'confirmacion' | '
 
 export interface RoleNotification {
   id: number;
+  // tipo del backend (ej. PAYMENT_CONFIRMED): decide a dónde lleva "Ir a..."
+  code: string;
   icon: keyof typeof MaterialIcons.glyphMap;
   type: NotificationType;
   // llaves de traducción

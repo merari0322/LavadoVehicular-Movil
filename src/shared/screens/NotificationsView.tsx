@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { fontSize, fontWeight, radius, spacing, useTheme } from '../../app/theme';
 import { Pill, PillTone } from '../components/ui/Pill';
@@ -20,6 +22,8 @@ import { displayToISO, isoToDisplay } from '../utils/format';
 import { notificationService, toRoleNotification } from '../../core/services/notifications/NotificationService';
 import { apiErrorKey } from '../../core/api/apiError';
 import { inboxEvents } from '../../core/services/notifications/inboxEvents';
+import { goToForNotification } from '../../core/services/notifications/push/notificationRoutes';
+import { RootStackParamList } from '../../core/navigation/types';
 
 type ReadFilter = 'all' | 'read' | 'unread';
 
@@ -47,6 +51,7 @@ export function NotificationsView({ role }: NotificationsViewProps) {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const feedback = useFeedback();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [items, setItems] = useState<RoleNotification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,9 +115,11 @@ export function NotificationsView({ role }: NotificationsViewProps) {
     setDateTo('');
   };
 
-  // al ver el detalle queda leída
+  // al ver el detalle (tocar la notificación o "Ver detalle") queda leída; el detalle trae
+  // el botón "Ir a..." hacia el apartado de donde viene el aviso
   const viewDetail = (n: RoleNotification) => {
-    setRead(n.id, true);
+    if (!n.read) setRead(n.id, true);
+    const goTo = goToForNotification(role, n.code);
     feedback.showStatus({
       type: 'info',
       icon: n.icon,
@@ -122,7 +129,16 @@ export function NotificationsView({ role }: NotificationsViewProps) {
       details: [
         { label: t('HISTORY.DATE'), value: `${isoToDisplay(n.date)} - ${n.time}` },
         { label: t('HISTORY_CARD.STATUS'), value: t(`NOTIFICATIONS.TYPE_LABEL.${n.type.toUpperCase()}`) },
+        { label: t('NOTIFICATIONS.FILTERS.READ_STATE'), value: t('NOTIFICATIONS.READ') },
       ],
+      action: goTo
+        ? {
+            label: t(goTo.label),
+            icon: 'arrow-forward',
+            // cada rol solo tiene registradas sus pantallas: la ruta ya viene elegida por rol
+            onPress: () => (navigation.navigate as (screen: string) => void)(goTo.screen),
+          }
+        : undefined,
     });
   };
 
@@ -202,6 +218,8 @@ export function NotificationsView({ role }: NotificationsViewProps) {
             return (
               <SectionCard
                 key={n.id}
+                onPress={() => viewDetail(n)}
+                accessibilityLabel={t(n.title)}
                 style={!n.read ? { borderColor: withAlpha(colors.primary, 0.5), backgroundColor: withAlpha(colors.primary, 0.04) } : undefined}
               >
                 <View style={styles.itemTop}>

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,6 +14,8 @@ import { NotificationsList } from '../components/notifications/NotificationsList
 import { NOTIFICATION_TEXTS } from '../constants/notificationTexts';
 import { AppNotification } from '../models/notifications';
 import { useNotifications } from '../viewmodels/useNotifications';
+import { RootStackParamList } from '../../../core/navigation/types';
+import { goToForNotification } from '../../../core/services/notifications/push/notificationRoutes';
 
 // Datos del diálogo de confirmación
 interface ConfirmState {
@@ -22,11 +26,19 @@ interface ConfirmState {
 
 export const AdminNotificationsScreen = () => {
   // vuelve a pintar la pantalla cuando cambia el idioma
-  useTranslation();
+  const { t } = useTranslation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const inbox = useNotifications();
 
   // Notificación que se muestra en el modal de detalle (null = cerrado)
   const [detail, setDetail] = useState<AppNotification | null>(null);
+  const goTo = detail ? goToForNotification('ADMIN', detail.code) : null;
+
+  // al abrir el detalle la notificación queda leída
+  const openDetail = (notification: AppNotification) => {
+    inbox.markRead(notification.id);
+    setDetail({ ...notification, read: true });
+  };
 
   // Diálogo de confirmación para eliminar
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
@@ -69,14 +81,26 @@ export const AdminNotificationsScreen = () => {
             notifications={inbox.notifications}
             hasFilters={inbox.hasActiveFilters}
             onToggleRead={inbox.toggleRead}
-            onView={setDetail}
+            onView={openDetail}
             onDelete={handleDelete}
           />
         </ScrollView>
       </SafeAreaView>
 
       {/* Modal de detalle */}
-      <NotificationDetailModal notification={detail} onClose={() => setDetail(null)} />
+      <NotificationDetailModal
+        notification={detail}
+        onClose={() => setDetail(null)}
+        goToLabel={goTo ? t(goTo.label) : undefined}
+        onGoTo={
+          goTo
+            ? () => {
+                setDetail(null);
+                (navigation.navigate as (screen: string) => void)(goTo.screen);
+              }
+            : undefined
+        }
+      />
 
       {/* Confirmación al eliminar */}
       <ConfirmDialog

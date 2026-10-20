@@ -1447,5 +1447,13 @@
     "PASSWORD_ERROR_TITLE": "No se pudo cambiar la contraseña",
     "GO_TO_LOGIN": "Ir a iniciar sesión",
     "ERROR_TITLE": "Algo salió mal"
+  },
+  "GO_TO": {
+    "HOME": "Ir al inicio",
+    "HISTORY": "Ir al historial",
+    "ASSIGNED": "Ir a servicios asignados",
+    "RESERVATIONS": "Ir a reservas",
+    "PAYMENT": "Ir al pago",
+    "RATINGS": "Ir a calificaciones"
   }
 }

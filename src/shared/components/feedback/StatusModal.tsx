@@ -21,6 +21,8 @@ export interface StatusModalData {
   message?: string;
   details?: StatusDetail[];
   buttonText?: string;
+  // botón extra (ej. "Ir al historial"): cierra el modal y hace la acción
+  action?: { label: string; icon?: IconName; onPress: () => void };
 }
 
 interface StatusModalProps {
@@ -53,7 +55,23 @@ export function StatusModal({ data, onClose }: StatusModalProps) {
         icon={data?.icon ?? DEFAULT_ICON[type]}
         title={data?.title ?? ''}
         message={data?.message}
-        actions={[{ label: data?.buttonText ?? 'OK', onPress: onClose, kind: 'confirm' }]}
+        actions={
+          data?.action
+            ? [
+                { label: data.buttonText ?? 'OK', onPress: onClose, kind: 'cancel' },
+                {
+                  label: data.action.label,
+                  icon: data.action.icon,
+                  kind: 'confirm',
+                  onPress: () => {
+                    const run = data.action?.onPress;
+                    onClose();
+                    run?.();
+                  },
+                },
+              ]
+            : [{ label: data?.buttonText ?? 'OK', onPress: onClose, kind: 'confirm' }]
+        }
       >
         {data?.details && data.details.length > 0 ? (
           <ScrollView
