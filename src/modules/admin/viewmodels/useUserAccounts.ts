@@ -91,16 +91,5 @@ export function useUserAccounts() {
     }
   }, [users, t]);
 
-  // devuelve el mensaje de error, o null si se cambió el tipo de usuario
-  const changeRole = useCallback(async (id: string, role: UserRole): Promise<string | null> => {
-    try {
-      const updated = await userAdminService.setRole(id, role);
-      setUsers((prev) => prev.map((item) => (item.id === id ? toManagedUser(updated) : item)));
-      return null;
-    } catch (error) {
-      return t(apiErrorKey(error));
-    }
-  }, [t]);
-
-  return { users, counts, loading, loadError, reload, createAccount, toggleActive, changeRole };
+  return { users, counts, loading, loadError, reload, createAccount, toggleActive };
 }

@@ -7,7 +7,6 @@ import { withAlpha } from '../../../../shared/utils/color';
 import { MANAGEMENT_TEXTS } from '../../constants/managementTexts';
 import { ManagedUser, Role, USER_FILTERS, UserFilter } from '../../models/management';
 import { normalizeText } from '../../utils/managementUtils';
-import { LabeledSelect } from '../../../../shared/components/forms/LabeledSelect';
 import { ActionIconButton, EmptyState, ManagementCard, Pill, SectionHeader } from './ManagementParts';
 
 interface UsersTabProps {
@@ -18,8 +17,6 @@ interface UsersTabProps {
   // editar/eliminar son opcionales: con cuentas reales se reemplazan por desactivar (ADR-010)
   onEdit?: (user: ManagedUser) => void;
   onToggle: (id: string) => void;
-  // el admin cambia aquí el tipo de usuario (no el suyo propio)
-  onRoleChange?: (user: ManagedUser, roleId: string) => void;
   // la cuenta con sesión abierta: no se puede desactivar a sí misma
   currentUserId?: string | null;
   onDelete?: (user: ManagedUser) => void;
@@ -38,7 +35,6 @@ export function UsersTab({
   onCreate,
   onEdit,
   onToggle,
-  onRoleChange,
   currentUserId = null,
   onDelete,
   loading = false,
@@ -52,8 +48,6 @@ export function UsersTab({
   const [search, setSearch] = useState('');
 
   const getRoleName = (roleId: string) => roles.find((role) => role.id === roleId)?.name ?? texts.noRole;
-  const roleOptions = roles.map((role) => ({ value: role.id, label: role.name }));
-
   // por qué no se puede desactivar esta cuenta (null = sí se puede); el backend aplica lo mismo
   const disableBlocked = (user: ManagedUser): string | null => {
     if (!user.active) return null;
@@ -145,17 +139,8 @@ export function UsersTab({
               </View>
             </View>
 
-            {onRoleChange && user.id !== currentUserId ? (
-              <LabeledSelect
-                label={texts.userType}
-                value={user.roleId}
-                options={roleOptions}
-                onChange={(value) => onRoleChange(user, value)}
-              />
-            ) : null}
-
             <View style={styles.pills}>
-              {onRoleChange && user.id !== currentUserId ? null : <Pill label={getRoleName(user.roleId)} />}
+              <Pill label={getRoleName(user.roleId)} />
               <Pill
                 label={user.active ? texts.active : texts.inactive}
                 tone={user.active ? 'success' : 'neutral'}
