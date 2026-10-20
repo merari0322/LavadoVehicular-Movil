@@ -2,6 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../core/navigation/types';
 
 import { fontSize, fontWeight, spacing, useTheme } from '../../../app/theme';
 import { Pill } from '../../../shared/components/ui/Pill';
@@ -30,6 +33,7 @@ export function OperatorHistoryScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const feedback = useFeedback();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const vm = useOperatorReservations();
   const services: ServiceHistoryItem[] = useMemo(
     () =>
@@ -80,7 +84,9 @@ export function OperatorHistoryScreen() {
         );
       }
       return true;
-    });
+    })
+      // de la más nueva a la más antigua
+      .sort((a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`));
   }, [services, tab, date, type, search]);
 
   // nombres de servicio del historial (salen de los datos)
@@ -108,6 +114,11 @@ export function OperatorHistoryScreen() {
         ...(s.rating !== null ? [{ label: t('SERVICE_HISTORY.DETAIL.RATING'), value: `★ ${s.rating}${s.comment ? ` · "${s.comment}"` : ''}` }] : []),
         ...(s.reason ? [{ label: t('SERVICE_HISTORY.DETAIL.REASON'), value: s.reason }] : []),
       ],
+      // con calificación: lleva a Calificaciones, donde se ve junto a las demás
+      action:
+        s.rating !== null
+          ? { label: t('GO_TO.RATINGS'), icon: 'arrow-forward', onPress: () => navigation.navigate('OperatorRatings') }
+          : undefined,
     });
 
   return (
