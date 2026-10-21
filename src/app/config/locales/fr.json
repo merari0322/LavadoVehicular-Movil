@@ -315,7 +315,9 @@
     "LATER": "Plus tard",
     "READY_TITLE": "Mise à jour prête",
     "READY_MESSAGE": "Des améliorations ont été téléchargées. Redémarrez l'application pour les voir maintenant, sinon elles s'appliqueront à la prochaine ouverture.",
-    "RESTART": "Redémarrer"
+    "RESTART": "Redémarrer",
+    "REQUIRED_TITLE": "Mettez à jour l'application pour continuer",
+    "REQUIRED_HINT": "Une fois le téléchargement terminé, ouvrez le fichier et installez-le."
   },
   "PUSH_CHANNELS": {
     "REMINDER": "Rappels",
@@ -876,7 +878,8 @@
       "ACCOUNT_TYPE": "Type de compte",
       "ACCOUNT_TYPE_VALUE": "Clé / Compte d'épargne associé",
       "AMOUNT": "Montant à payer",
-      "HINT": "Ouvrez votre app, scannez le code et confirmez le paiement du montant exact."
+      "HINT": "Ouvrez votre app, scannez le code et confirmez le paiement du montant exact.",
+      "ZOOM": "Agrandir le QR"
     },
     "CASH": {
       "TITLE": "Paiement en espèces",
@@ -885,7 +888,7 @@
     "CONFIRM": {
       "TITLE": "Confirmez votre paiement",
       "DROP": "Glissez votre justificatif ici ou cliquez pour parcourir",
-      "FORMATS": "Formats acceptés : JPG ou PNG (max. 10 Mo)",
+      "FORMATS": "Formats acceptés : JPG ou PNG. L'image est réduite sous 2 Mo avant l'envoi.",
       "REFERENCE": "Référence de la transaction",
       "REFERENCE_HINT": "Numéro de 8 à 12 caractères émis par votre banque",
       "AMOUNT": "Montant payé",
@@ -906,7 +909,9 @@
     "RECEIPT_CHANGE": "Changer le justificatif",
     "EMPTY": "Aucun paiement en attente",
     "CASH_INFO_TITLE": "Vous payez sur place",
-    "CASH_INFO_MESSAGE": "Payez en espèces lorsque vous récupérez votre véhicule. L'administrateur enregistrera le paiement et vous recevrez la notification de paiement approuvé."
+    "CASH_INFO_MESSAGE": "Payez en espèces lorsque vous récupérez votre véhicule. L'administrateur enregistrera le paiement et vous recevrez la notification de paiement approuvé.",
+    "RECEIPT_COMPRESSING": "Préparation du justificatif...",
+    "RECEIPT_TOO_LARGE": "Impossible de réduire l'image sous 2 Mo. Essayez avec une capture d'écran du justificatif."
   },
   "VEHICLES": {
     "TITLE": "Mes Véhicules",
@@ -1456,5 +1461,11 @@
     "RESERVATIONS": "Aller aux réservations",
     "PAYMENT": "Aller au paiement",
     "RATINGS": "Aller aux évaluations"
+  },
+  "IMAGE_ZOOM": {
+    "ZOOM_IN": "Zoom avant",
+    "ZOOM_OUT": "Zoom arrière",
+    "HINT": "Utilisez la loupe ou touchez deux fois l'image pour l'agrandir. Une fois agrandie, faites-la glisser pour la déplacer.",
+    "DOUBLE_TAP": "Touchez deux fois pour agrandir ou réduire"
   }
 }
