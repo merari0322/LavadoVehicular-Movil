@@ -71,6 +71,8 @@ export function RoleFormModal({ visible, role, roles, permissionsCatalog, onClos
     >
       <LabeledSelect label={texts.roleSelectLabel} value={selectedRole} options={roleOptions} onChange={onRoleChange} />
 
+      <Text style={[permissionsStyles.label, { fontWeight: '400' }]}>{texts.referenceNote}</Text>
+
       <View>
         <Text style={permissionsStyles.label}>{texts.permissions}</Text>
         <View style={styles.permissions}>
