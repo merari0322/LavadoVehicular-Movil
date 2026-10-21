@@ -182,7 +182,11 @@ export function ClientHomeScreen({ navigation }: Props) {
           )}
           <ProgressBar
             percentage={loyalty.percentage}
-            label={`${t('DASHBOARD.BENEFITS.LOYALTY_PROGRESS')} (${t('DASHBOARD.BENEFITS.POINTS_OF', { current: loyalty.points, goal: loyalty.goal })})`}
+            label={
+              loyalty.allUnlocked
+                ? t('DASHBOARD.BENEFITS.ALL_UNLOCKED', { points: loyalty.points })
+                : `${t('DASHBOARD.BENEFITS.LOYALTY_PROGRESS')} (${t('DASHBOARD.BENEFITS.POINTS_OF', { current: loyalty.points, goal: loyalty.goal })})`
+            }
           />
         </SectionCard>
       </ScreenScroll>

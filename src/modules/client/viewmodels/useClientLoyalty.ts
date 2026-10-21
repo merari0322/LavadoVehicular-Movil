@@ -38,14 +38,17 @@ export function useClientLoyalty() {
   }, [reload]);
 
   const locked = promotions.filter((p) => !p.unlocked).sort((a, b) => a.requiredPoints - b.requiredPoints);
-  const goal = locked[0]?.requiredPoints ?? (points || 1);
-  const percentage = Math.min(100, Math.round((points / goal) * 100));
+  // sin promociones por desbloquear no hay meta: la barra queda completa (igual que la web)
+  const allUnlocked = locked.length === 0;
+  const goal = allUnlocked ? points : locked[0].requiredPoints;
+  const percentage = allUnlocked ? 100 : Math.min(100, Math.round((points / Math.max(goal, 1)) * 100));
 
   const benefits: ClientBenefit[] = promotions.map((p) => ({
-    title: `${p.name} · ${p.discountPercent}% OFF`,
+    // una promoción sin porcentaje no muestra "0% OFF"
+    title: p.discountPercent > 0 ? `${p.name} · ${p.discountPercent}% OFF` : p.name,
     description: p.unlocked ? '' : `${p.requiredPoints - points}`,
     unlocked: p.unlocked,
   }));
 
-  return { points, goal, percentage, benefits, loading, reload };
+  return { points, goal, percentage, allUnlocked, benefits, loading, reload };
 }

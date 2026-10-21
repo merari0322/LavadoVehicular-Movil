@@ -216,6 +216,7 @@
       "TITLE": "Seus benefícios e promoções",
       "LOYALTY_PROGRESS": "Progresso de fidelidade",
       "POINTS_OF": "{{current}} de {{goal}} pontos",
+      "ALL_UNLOCKED": "Você desbloqueou todas as promoções · {{points}} pontos",
       "UNLOCKED": "Já desbloqueada! Resgate ao pagar.",
       "LOCKED": "Faltam {{points}} pontos para desbloquear",
       "EMPTY": "Ainda não há promoções disponíveis."

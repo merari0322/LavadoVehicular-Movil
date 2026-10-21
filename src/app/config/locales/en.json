@@ -216,6 +216,7 @@
       "TITLE": "Your benefits and promotions",
       "LOYALTY_PROGRESS": "Loyalty progress",
       "POINTS_OF": "{{current}} of {{goal}} points",
+      "ALL_UNLOCKED": "You unlocked every promotion · {{points}} points",
       "UNLOCKED": "Unlocked! Redeem it when you pay.",
       "LOCKED": "{{points}} points to go to unlock it",
       "EMPTY": "No promotions available yet."
