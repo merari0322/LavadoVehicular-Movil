@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
 import { MANAGEMENT_TEXTS } from '../../constants/managementTexts';
@@ -25,6 +26,10 @@ export function RolesTab({ roles, userCounts, error, onRetry, onEdit }: RolesTab
   return (
     <View style={styles.container}>
       <SectionHeader title={texts.title} subtitle={texts.subtitle} />
+      <View style={styles.note}>
+        <MaterialIcons name="info-outline" size={16} color={colors.primary} />
+        <Text style={styles.noteText}>{texts.fixedNote}</Text>
+      </View>
 
       {error ? (
         <Pressable onPress={onRetry}>
@@ -62,6 +67,15 @@ export function RolesTab({ roles, userCounts, error, onRetry, onEdit }: RolesTab
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { gap: 14 },
+    note: {
+      flexDirection: 'row',
+      gap: 8,
+      alignItems: 'flex-start',
+      padding: 12,
+      borderRadius: 10,
+      backgroundColor: colors.primarySoft,
+    },
+    noteText: { flex: 1, fontSize: 13, lineHeight: 18, color: colors.text },
     name: { fontSize: 17, fontWeight: '800', color: colors.text },
     description: { fontSize: 14, lineHeight: 20, color: colors.textSecondary },
     pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },

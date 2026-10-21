@@ -102,6 +102,8 @@ const es = {
     emptyHint: 'Edita un rol para asignarle permisos',
     noPermissions: 'Sin permisos',
     retryHint: 'Toca para intentar de nuevo',
+    // lo que cada persona puede hacer lo decide su rol: la tabla es solo de referencia (igual que la web)
+    fixedNote: 'Lo que cada persona puede hacer lo decide su rol en el sistema. Los permisos de esta tabla se guardan como referencia del equipo, pero todavía no cambian el acceso.',
     // se deja como fallback de visualización; el catálogo real viene de security-service
     permissions: {
       view_panels: 'Ver paneles',
@@ -115,6 +117,7 @@ const es = {
       roleSelectLabel: 'Rol',
       permissions: 'Permisos habilitados',
       save: 'Guardar cambios',
+      referenceNote: 'Estos permisos se guardan como referencia; el acceso real lo sigue decidiendo el rol.',
     },
   },
 
@@ -303,6 +306,7 @@ const en: typeof es = {
     emptyHint: 'Edit a role to assign it permissions',
     noPermissions: 'No permissions',
     retryHint: 'Tap to try again',
+    fixedNote: 'What each person can do is decided by their role in the system. The permissions in this table are saved as a reference for the team, but they do not change access yet.',
     permissions: { view_panels: 'View panels', create_records: 'Create records', edit_data: 'Edit data', delete: 'Delete' },
     form: {
       editTitle: 'Role permissions',
@@ -310,6 +314,7 @@ const en: typeof es = {
       roleSelectLabel: 'Role',
       permissions: 'Enabled permissions',
       save: 'Save changes',
+      referenceNote: 'These permissions are saved as a reference; the role still decides the real access.',
     },
   },
   services: {
@@ -472,6 +477,7 @@ const fr: typeof es = {
     emptyHint: 'Modifiez un rôle pour lui attribuer des permissions',
     noPermissions: 'Aucune permission',
     retryHint: 'Touchez pour réessayer',
+    fixedNote: 'Ce que chaque personne peut faire dépend de son rôle dans le système. Les permissions de ce tableau sont enregistrées comme référence pour l’équipe, mais elles ne changent pas encore l’accès.',
     permissions: { view_panels: 'Voir les panneaux', create_records: 'Créer des registres', edit_data: 'Modifier les données', delete: 'Supprimer' },
     form: {
       editTitle: 'Permissions du rôle',
@@ -479,6 +485,7 @@ const fr: typeof es = {
       roleSelectLabel: 'Rôle',
       permissions: 'Permissions activées',
       save: 'Enregistrer',
+      referenceNote: 'Ces permissions sont enregistrées comme référence ; le rôle décide toujours l’accès réel.',
     },
   },
   services: {
@@ -641,6 +648,7 @@ const pt: typeof es = {
     emptyHint: 'Edite uma função para atribuir permissões',
     noPermissions: 'Sem permissões',
     retryHint: 'Toque para tentar novamente',
+    fixedNote: 'O que cada pessoa pode fazer é decidido pelo seu perfil no sistema. As permissões desta tabela são salvas como referência da equipe, mas ainda não mudam o acesso.',
     permissions: { view_panels: 'Ver painéis', create_records: 'Criar registros', edit_data: 'Editar dados', delete: 'Excluir' },
     form: {
       editTitle: 'Permissões da função',
@@ -648,6 +656,7 @@ const pt: typeof es = {
       roleSelectLabel: 'Função',
       permissions: 'Permissões habilitadas',
       save: 'Salvar alterações',
+      referenceNote: 'Essas permissões são salvas como referência; o perfil continua decidindo o acesso real.',
     },
   },
   services: {
