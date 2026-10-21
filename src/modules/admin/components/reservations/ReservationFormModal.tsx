@@ -62,8 +62,8 @@ type FormErrors = Partial<Record<keyof FormState, string>>;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Opciones de los selectores
-const STATUS_OPTIONS: SelectOption[] = RESERVATION_STATUSES.map((status) => ({
+// Opciones de los selectores ("rescheduled" era de las pantallas de ejemplo: el backend no lo tiene)
+const STATUS_OPTIONS: SelectOption[] = RESERVATION_STATUSES.filter((status) => status !== 'rescheduled').map((status) => ({
   value: status,
   label: TEXTS.status[status],
 }));

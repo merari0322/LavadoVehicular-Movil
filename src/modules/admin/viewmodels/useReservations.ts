@@ -176,24 +176,43 @@ export function useReservations() {
     const owned = found[0];
     if (!owned) throw new ApiError('VEHICLE_NOT_FOUND', 404);
 
-    await bookingService.adminCreateBooking({
+    const created = await bookingService.adminCreateBooking({
       vehicleId: owned.vehicle.id,
       serviceIds: [Number(values.serviceId)],
       date: values.date,
       time: values.time,
       notes: values.notes.trim() || null,
     });
-    await reload();
+    try {
+      // si el admin eligió operario, ese queda (si no, operations asigna uno solo)
+      if (values.operatorId) await operationsService.assign(created.id, Number(values.operatorId));
+    } finally {
+      await reload();
+    }
   };
 
-  // El backend solo reprograma fecha/hora y notas; los demás campos son de la pantalla
+  // Guarda lo que cambió en el formulario: fecha/hora/notas en booking (reprogramar), el operario en
+  // operations y el estado en booking. Antes el operario y el estado se descartaban sin avisar.
   const updateReservation = async (id: string, values: ReservationFormValues) => {
-    await bookingService.adminReschedule(Number(id), {
-      date: values.date,
-      time: values.time,
-      notes: values.notes.trim() || null,
-    });
-    await reload();
+    const current = reservations.find((item) => item.id === id);
+    const notes = values.notes.trim();
+    try {
+      // solo se reprograma si cambió: una reserva pasada no se puede reprogramar
+      if (!current || values.date !== current.date || values.time !== current.time || notes !== current.notes.trim()) {
+        await bookingService.adminReschedule(Number(id), { date: values.date, time: values.time, notes: notes || null });
+      }
+      if (values.operatorId && values.operatorId !== current?.operatorId) {
+        await operationsService.assign(Number(id), Number(values.operatorId));
+      }
+      if (current && values.status !== current.status && values.status !== 'rescheduled') {
+        // el admin cancela con el motivo OTHER, igual que en la web
+        await bookingService.adminChangeStatus(Number(id), values.status.toUpperCase() as BookingStatusCode,
+          values.status === 'cancelled' ? 'OTHER' : undefined);
+      }
+    } finally {
+      // aunque un paso falle, la lista muestra lo que sí quedó guardado
+      await reload();
+    }
   };
 
   // Asigna (o cambia) el operario de una reserva; operations valida turno, ausencias y cruces.
