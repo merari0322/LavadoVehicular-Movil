@@ -130,7 +130,7 @@ export function OperatorHistoryScreen() {
           <StatTile icon="water-drop" value={completed.length} label={t('HISTORY_STATS.DONE')} />
           <StatTile icon="cancel" value={services.length - completed.length} label={t('HISTORY_STATS.CANCELED')} />
           <StatTile icon="payments" value={formatCOP(totalGenerated)} label={t('HISTORY_STATS.TOTAL')} />
-          <StatTile icon="star" value={averageRating} label={t('HISTORY_STATS.RATING')} />
+          <StatTile icon="star" value={rated.length === 0 ? '—' : averageRating} label={t('HISTORY_STATS.RATING')} />
         </StatGrid>
 
         <SectionCard>

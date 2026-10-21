@@ -216,6 +216,7 @@
       "TITLE": "Tus beneficios y promociones",
       "LOYALTY_PROGRESS": "Progreso de fidelidad",
       "POINTS_OF": "{{current}} de {{goal}} puntos",
+      "ALL_UNLOCKED": "Desbloqueaste todas las promociones · {{points}} puntos",
       "UNLOCKED": "¡Ya la desbloqueaste! Cánjala al pagar.",
       "LOCKED": "Te faltan {{points}} puntos para desbloquearla",
       "EMPTY": "Aún no hay promociones disponibles."
@@ -707,12 +708,11 @@
     "SUBTITLE": "Tienes {{count}} servicios pendientes para hoy",
     "BTN_SERVICES": "Ver servicios asignados",
     "PROGRESS_LABEL": "Servicios completados hoy",
-    "IN_PROGRESS": "En Progreso",
     "PENDING": "Pendientes",
     "RESERVATIONS_TITLE": "Reservas Pendientes",
     "BTN_START": "Iniciar",
     "STATS": {
-      "ASSIGNED": "Reservas Asignadas",
+      "ASSIGNED": "Reservas asignadas",
       "VEHICLES": "Vehículos",
       "NOTIFICATIONS": "Notificaciones",
       "RATING": "Calificación",

@@ -93,12 +93,8 @@ export function OperatorHomeScreen({ navigation }: Props) {
             {completed} / {total}
           </Text>
           <ProgressBar percentage={total === 0 ? 0 : (completed / total) * 100} />
+          {/* "en progreso" ya está en las tarjetas de arriba: aquí solo lo pendiente */}
           <View style={styles.counters}>
-            <View style={styles.counter}>
-              <Text style={[styles.counterValue, { color: colors.primary }]}>{inProgress}</Text>
-              <Text style={[styles.counterLabel, { color: colors.textSecondary }]}>{t('OPERATOR_HOME.IN_PROGRESS')}</Text>
-            </View>
-            <View style={[styles.separator, { backgroundColor: colors.border }]} />
             <View style={styles.counter}>
               <Text style={[styles.counterValue, { color: colors.warning }]}>{pending}</Text>
               <Text style={[styles.counterLabel, { color: colors.textSecondary }]}>{t('OPERATOR_HOME.PENDING')}</Text>
@@ -134,6 +130,5 @@ const styles = StyleSheet.create({
   counter: { flex: 1, alignItems: 'center', gap: 2 },
   counterValue: { fontSize: fontSize.pageTitle, fontWeight: fontWeight.extrabold },
   counterLabel: { fontSize: fontSize.caption, fontWeight: fontWeight.semibold },
-  separator: { width: 1, height: 36 },
   sectionTitle: { fontSize: fontSize.cardTitle, fontWeight: fontWeight.bold },
 });
