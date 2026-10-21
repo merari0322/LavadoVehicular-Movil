@@ -80,6 +80,19 @@ export interface AssignmentResponse {
   status: ExecutionStatusCode;
 }
 
+// reservas que todavía necesitan operario: la regla vive en operations, igual en la web y la app
+export interface UnassignedResponse {
+  count: number;
+  bookingIds: number[];
+}
+
+// reserva con operario que terminó y nadie registró: NOT_STARTED (nadie le dio Iniciar) o NOT_FINISHED
+export interface ToCloseResponse {
+  bookingId: number;
+  reason: 'NOT_STARTED' | 'NOT_FINISHED';
+  operatorId: number;
+}
+
 // operario candidato para una reserva: available false trae el código del motivo
 export interface CandidateResponse {
   operatorId: number;
@@ -216,6 +229,20 @@ export const operationsService = {
 
   assign(bookingId: number, operatorId: number): Promise<AssignmentResponse> {
     return request<AssignmentResponse>('PUT', `/admin/assignments/${bookingId}`, { ...base, body: { operatorId } });
+  },
+
+  unassigned(from: string, to: string): Promise<UnassignedResponse> {
+    return request<UnassignedResponse>('GET', '/admin/assignments/unassigned', { ...base, query: { from, to } });
+  },
+
+  // sin fechas: la última semana hasta hoy
+  toClose(): Promise<ToCloseResponse[]> {
+    return request<ToCloseResponse[]>('GET', '/admin/assignments/to-close', base);
+  },
+
+  // el admin confirma que sí se atendió: queda completada con su operario
+  closeAsAttended(bookingId: number): Promise<void> {
+    return request<void>('POST', `/admin/assignments/${bookingId}/attended`, base);
   },
 
   /* ---------- operario ---------- */

@@ -35,6 +35,8 @@ const OPERATOR: RouteTable = {
   OPERATOR_SERVICE_RESCHEDULED: 'OperatorAssigned',
   OPERATOR_SERVICE_CANCELLED: 'OperatorAssigned',
   OPERATOR_SERVICE_UNASSIGNED: 'OperatorAssigned',
+  // terminó sin registrarse: en sus servicios lo puede iniciar y finalizar tarde
+  OPERATOR_SERVICE_NOT_REGISTERED: 'OperatorAssigned',
   BOOKING_REMINDER: 'OperatorAssigned',
 };
 
@@ -44,6 +46,8 @@ const ADMIN: RouteTable = {
   ADMIN_BOOKING_RESCHEDULED: 'AdminReservations',
   ADMIN_BOOKING_CANCELLED: 'AdminReservations',
   ADMIN_BOOKING_UNASSIGNED: 'AdminReservations',
+  // se cierra desde la tarjeta "Por cerrar" del inicio
+  ADMIN_SERVICE_NOT_REGISTERED: 'AdminDashboard',
 };
 
 const TABLES: Record<UserRole, RouteTable> = { CLIENT, OPERATOR, ADMIN };

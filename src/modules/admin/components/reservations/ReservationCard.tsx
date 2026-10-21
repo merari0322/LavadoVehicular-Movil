@@ -16,10 +16,12 @@ interface ReservationCardProps {
   onView: (reservation: Reservation) => void; // Se ejecuta al tocar el ojito
   // abre el modal "Asignar operario" (solo se muestra si la reserva no tiene operario)
   onAssign?: (reservation: Reservation) => void;
+  // la reserva todavía necesita operario (regla de operations): si no, una sin operario muestra "—"
+  needsOperator?: boolean;
 }
 
 // Tarjeta de una reserva (en móvil reemplaza a la fila de la tabla)
-export function ReservationCard({ reservation, onView, onAssign }: ReservationCardProps) {
+export function ReservationCard({ reservation, onView, onAssign, needsOperator = true }: ReservationCardProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -84,7 +86,10 @@ export function ReservationCard({ reservation, onView, onAssign }: ReservationCa
               </View>
             ) : null}
           </View>
-        ) : onAssign && reservation.status !== 'cancelled' && reservation.status !== 'completed' ? (
+        ) : !needsOperator ? (
+          // pasada, cancelada, terminada o no asistió: ya no se asigna
+          <Text style={[styles.unassignedText, { color: colors.textSecondary }]}>—</Text>
+        ) : onAssign ? (
           <Pressable style={styles.assignButton} onPress={() => onAssign(reservation)} hitSlop={6}>
             <MaterialIcons name="person-add" size={16} color={colors.onPrimary} />
             <Text style={styles.assignText}>{TEXTS.list.assign}</Text>

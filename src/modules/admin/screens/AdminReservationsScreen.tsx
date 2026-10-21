@@ -48,6 +48,7 @@ export const AdminReservationsScreen = ({ navigation }: Props) => {
     assignOperator,
     serviceOptions,
     bayOptions,
+    isUnassigned,
   } = useReservations();
   const { operators } = useOperators();
 
@@ -185,7 +186,13 @@ export const AdminReservationsScreen = ({ navigation }: Props) => {
             </View>
           ) : (
             filteredReservations.map((item) => (
-              <ReservationCard key={item.id} reservation={item} onView={setSelectedReservation} onAssign={setAssigning} />
+              <ReservationCard
+                key={item.id}
+                reservation={item}
+                onView={setSelectedReservation}
+                onAssign={setAssigning}
+                needsOperator={isUnassigned(item)}
+              />
             ))
           )}
         </ScrollView>

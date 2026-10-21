@@ -12,6 +12,7 @@ import { RevenueChart } from '../components/dashboard/RevenueChart';
 import { OperatorsStatusCard } from '../components/dashboard/OperatorsStatusCard';
 import { PendingPaymentsCard } from '../components/dashboard/PendingPaymentsCard';
 import { UnassignedBookingsCard } from '../components/dashboard/UnassignedBookingsCard';
+import { ToCloseCard } from '../components/dashboard/ToCloseCard';
 import { PaymentReviewModal } from '../components/payments/PaymentReviewModal';
 import { AssignOperatorModal } from '../components/reservations/AssignOperatorModal';
 import { DASHBOARD_TEXTS } from '../constants/dashboardTexts';
@@ -50,6 +51,28 @@ export function AdminDashboardScreen({ navigation }: Props) {
       300,
     );
   };
+
+  // por cerrar: se confirma antes y se avisa el resultado (los errores los muestra el viewmodel)
+  const operatorName = (operatorId: string) => vm.operatorsFull.find((item) => item.id === operatorId)?.name ?? '—';
+  const confirmThen = (message: string, destructive: boolean, action: () => Promise<boolean>, done: string) =>
+    AppAlert.alert(texts.toClose.title, message, [
+      { text: texts.toClose.cancel, style: 'cancel' },
+      {
+        text: texts.toClose.accept,
+        style: destructive ? 'destructive' : 'default',
+        onPress: async () => {
+          if (await action()) {
+            setTimeout(() => AppAlert.alert(texts.toClose.title, done, undefined, { type: 'success' }), 300);
+          }
+        },
+      },
+    ]);
+  const handleAttended = (reservation: Reservation, operator: string) =>
+    confirmThen(texts.toClose.attendedConfirm(reservation.code, operator), false,
+      () => vm.closeAsAttended(reservation.id), texts.toClose.attendedDone(reservation.code));
+  const handleNoShow = (reservation: Reservation) =>
+    confirmThen(texts.toClose.noShowConfirm(reservation.code), true,
+      () => vm.markNoShow(reservation.id), texts.toClose.noShowDone(reservation.code));
 
   return (
     <AdminLayout activeKey="dashboard">
@@ -112,6 +135,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
           statusLabel={vm.statusLabel}
           onManageShifts={() => navigation.navigate('AdminOperators')}
         />
+        <ToCloseCard items={vm.toClose} operatorName={operatorName} onAttended={handleAttended} onNoShow={handleNoShow} />
         <PendingPaymentsCard
           payments={vm.pendingPayments}
           onReview={setReviewing}
