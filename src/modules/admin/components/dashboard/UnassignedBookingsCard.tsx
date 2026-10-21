@@ -5,6 +5,7 @@ import { useTheme } from '../../../../app/theme';
 import { DASHBOARD_TEXTS } from '../../constants/dashboardTexts';
 import { Reservation } from '../../models/reservation';
 import { getBayById, getServiceById, useReservationCatalog } from '../../services/reservationCatalog';
+import { getTodayISO } from '../../utils/reservationUtils';
 import { CardLink } from './CardLink';
 
 // cuántas reservas se muestran en el inicio (el resto está en la pantalla de reservas)
@@ -49,15 +50,18 @@ export function UnassignedBookingsCard({ bookings, onAssign, onViewAll }: Unassi
       {bookings.length === 0 ? <Text style={[styles.empty, { color: colors.textSecondary }]}>{texts.empty}</Text> : null}
 
       {bookings.slice(0, VISIBLE).map((r) => {
+        // ahora la lista trae también días siguientes: la fecha se muestra si no es hoy
+        const isToday = r.date === getTodayISO();
         const minutes = minutesUntil(r.time);
-        const upcoming = minutes >= 0 && minutes <= UPCOMING_MINUTES;
+        const upcoming = isToday && minutes >= 0 && minutes <= UPCOMING_MINUTES;
+        const [, month, day] = r.date.split('-');
         return (
           <View key={r.id} style={[styles.row, { borderTopColor: colors.border }]}>
             <View style={{ flex: 1 }}>
               <View style={styles.rowTop}>
                 <View style={[styles.tag, { backgroundColor: colors.primarySoft }]}>
                   <Text style={[styles.tagText, { color: colors.primary }]}>
-                    {r.time} · {getBayById(r.bayId)?.name ?? texts.noBay}
+                    {isToday ? '' : `${day}/${month} · `}{r.time} · {getBayById(r.bayId)?.name ?? texts.noBay}
                   </Text>
                 </View>
                 {upcoming ? <Text style={[styles.muted, { color: colors.warning }]}>{texts.upcoming}</Text> : null}

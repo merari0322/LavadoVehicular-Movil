@@ -33,7 +33,7 @@ const STATUS_BY_OPERATOR: Record<string, OperatorStatusValue> = {
 export function useAdminDashboardViewModel() {
   const { t, i18n } = useTranslation();
   const { user } = useSession();
-  const { reservations, assignOperator } = useReservations();
+  const { reservations, assignOperator, unassigned } = useReservations();
   const { payments, stats: paymentStats, approvePayment, rejectPayment } = usePayments();
   const { operators, getBayName } = useOperators();
   // bahías reales (las carga useReservations con loadReservationCatalog)
@@ -63,14 +63,8 @@ export function useAdminDashboardViewModel() {
 
   const todays = useMemo(() => reservations.filter((item) => item.date === todayISO), [reservations, todayISO]);
 
-  // reservas de hoy que todavía no tienen operario, en orden de hora
-  const unassignedBookings = useMemo(
-    () =>
-      todays
-        .filter((item) => !item.operatorId && item.status !== 'cancelled' && item.status !== 'completed')
-        .sort((a, b) => a.time.localeCompare(b.time)),
-    [todays],
-  );
+  // reservas que todavía necesitan operario (la misma regla y el mismo número que en la web)
+  const unassignedBookings = unassigned;
 
   const pendingPayments = useMemo(
     () =>

@@ -80,6 +80,12 @@ export interface AssignmentResponse {
   status: ExecutionStatusCode;
 }
 
+// reservas que todavía necesitan operario: la regla vive en operations, igual en la web y la app
+export interface UnassignedResponse {
+  count: number;
+  bookingIds: number[];
+}
+
 // operario candidato para una reserva: available false trae el código del motivo
 export interface CandidateResponse {
   operatorId: number;
@@ -216,6 +222,10 @@ export const operationsService = {
 
   assign(bookingId: number, operatorId: number): Promise<AssignmentResponse> {
     return request<AssignmentResponse>('PUT', `/admin/assignments/${bookingId}`, { ...base, body: { operatorId } });
+  },
+
+  unassigned(from: string, to: string): Promise<UnassignedResponse> {
+    return request<UnassignedResponse>('GET', '/admin/assignments/unassigned', { ...base, query: { from, to } });
   },
 
   /* ---------- operario ---------- */
