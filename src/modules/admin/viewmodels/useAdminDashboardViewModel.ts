@@ -33,7 +33,7 @@ const STATUS_BY_OPERATOR: Record<string, OperatorStatusValue> = {
 export function useAdminDashboardViewModel() {
   const { t, i18n } = useTranslation();
   const { user } = useSession();
-  const { reservations, assignOperator, unassigned } = useReservations();
+  const { reservations, assignOperator, unassigned, toClose, closeAsAttended, markNoShow } = useReservations();
   const { payments, stats: paymentStats, approvePayment, rejectPayment } = usePayments();
   const { operators, getBayName } = useOperators();
   // bahías reales (las carga useReservations con loadReservationCatalog)
@@ -150,6 +150,9 @@ export function useAdminDashboardViewModel() {
     statusLabel,
     pendingPayments,
     unassignedBookings,
+    toClose,
+    closeAsAttended,
+    markNoShow,
     reservations,
     approvePayment,
     rejectPayment,

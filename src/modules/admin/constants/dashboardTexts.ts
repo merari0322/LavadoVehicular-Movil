@@ -57,6 +57,23 @@ const es = {
     viewAll: 'Ver todas las reservas',
     noBay: 'Sin bahía',
   },
+
+  toClose: {
+    title: 'Por cerrar',
+    subtitle: 'Terminaron con operario y nadie las registró. El sistema no decide solo: confirma qué pasó.',
+    badge: (total: number) => `${total} por cerrar`,
+    notStarted: (operator: string) => `${operator} no le dio Iniciar`,
+    notFinished: (operator: string) => `${operator} la inició y no la finalizó`,
+    attended: 'Se atendió',
+    noShow: 'No asistió',
+    attendedConfirm: (code: string, operator: string) =>
+      `La reserva ${code} quedará completada con ${operator}: cuenta en reportes y en sus servicios. ¿Se atendió?`,
+    noShowConfirm: (code: string) => `La reserva ${code} quedará como "No asistió". ¿El cliente no llegó?`,
+    attendedDone: (code: string) => `La reserva ${code} quedó completada.`,
+    noShowDone: (code: string) => `La reserva ${code} quedó como "No asistió".`,
+    cancel: 'Cancelar',
+    accept: 'Aceptar',
+  },
 };
 
 const en: typeof es = {
@@ -107,6 +124,23 @@ const en: typeof es = {
     empty: 'All bookings have an operator',
     viewAll: 'View all bookings',
     noBay: 'No bay',
+  },
+
+  toClose: {
+    title: 'To close',
+    subtitle: 'They ended with an operator and nobody registered them. The system does not decide alone: confirm what happened.',
+    badge: (total: number) => `${total} to close`,
+    notStarted: (operator: string) => `${operator} did not press Start`,
+    notFinished: (operator: string) => `${operator} started it and did not finish it`,
+    attended: 'Attended',
+    noShow: 'No-show',
+    attendedConfirm: (code: string, operator: string) =>
+      `Booking ${code} will be completed by ${operator}: it counts in reports and in their services. Was it attended?`,
+    noShowConfirm: (code: string) => `Booking ${code} will be marked as "No-show". Did the client not come?`,
+    attendedDone: (code: string) => `Booking ${code} is now completed.`,
+    noShowDone: (code: string) => `Booking ${code} is now marked as "No-show".`,
+    cancel: 'Cancel',
+    accept: 'Accept',
   },
 };
 
@@ -159,6 +193,23 @@ const fr: typeof es = {
     viewAll: 'Voir toutes les réservations',
     noBay: 'Sans baie',
   },
+
+  toClose: {
+    title: 'À clôturer',
+    subtitle: "Elles se sont terminées avec un opérateur et personne ne les a enregistrées. Le système ne décide pas seul : confirmez ce qui s'est passé.",
+    badge: (total: number) => `${total} à clôturer`,
+    notStarted: (operator: string) => `${operator} n'a pas appuyé sur Démarrer`,
+    notFinished: (operator: string) => `${operator} l'a démarrée sans la terminer`,
+    attended: 'Effectué',
+    noShow: 'Absent',
+    attendedConfirm: (code: string, operator: string) =>
+      `La réservation ${code} sera terminée par ${operator} : elle compte dans les rapports et dans ses services. A-t-elle été effectuée ?`,
+    noShowConfirm: (code: string) => `La réservation ${code} sera marquée « Absent ». Le client n'est-il pas venu ?`,
+    attendedDone: (code: string) => `La réservation ${code} est terminée.`,
+    noShowDone: (code: string) => `La réservation ${code} est marquée « Absent ».`,
+    cancel: 'Annuler',
+    accept: 'Accepter',
+  },
 };
 
 const pt: typeof es = {
@@ -209,6 +260,23 @@ const pt: typeof es = {
     empty: 'Todas as reservas têm operador',
     viewAll: 'Ver todas as reservas',
     noBay: 'Sem baia',
+  },
+
+  toClose: {
+    title: 'Para fechar',
+    subtitle: 'Terminaram com operador e ninguém as registrou. O sistema não decide sozinho: confirme o que aconteceu.',
+    badge: (total: number) => `${total} para fechar`,
+    notStarted: (operator: string) => `${operator} não tocou em Iniciar`,
+    notFinished: (operator: string) => `${operator} iniciou e não finalizou`,
+    attended: 'Atendido',
+    noShow: 'Não compareceu',
+    attendedConfirm: (code: string, operator: string) =>
+      `A reserva ${code} ficará concluída por ${operator}: conta nos relatórios e nos serviços dele. Foi atendida?`,
+    noShowConfirm: (code: string) => `A reserva ${code} ficará como "Não compareceu". O cliente não veio?`,
+    attendedDone: (code: string) => `A reserva ${code} foi concluída.`,
+    noShowDone: (code: string) => `A reserva ${code} ficou como "Não compareceu".`,
+    cancel: 'Cancelar',
+    accept: 'Aceitar',
   },
 };
 

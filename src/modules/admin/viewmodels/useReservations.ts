@@ -8,6 +8,7 @@ import { vehicleService } from '../../../core/services/vehicles/VehicleService';
 // quién tiene cada reserva (operations-service)
 import {
   AssignmentResponse,
+  ToCloseResponse,
   UnassignedResponse,
   operationsService,
 } from '../../../core/services/operations/OperationsService';
@@ -49,6 +50,13 @@ function needsOperatorLocally(item: Reservation): boolean {
   const end = new Date(`${item.date}T00:00:00`);
   end.setHours(hours, minutes + item.duration, 0, 0);
   return end.getTime() > Date.now();
+}
+
+/** reserva con operario que terminó y nadie registró (la cierra el admin) */
+export interface ToCloseItem {
+  reservation: Reservation;
+  reason: ToCloseResponse['reason'];
+  operatorId: string;
 }
 
 // Filtros sin ningún valor aplicado
@@ -100,8 +108,9 @@ export function useReservations() {
   const { t } = useTranslation();
   // compartido con el inicio del admin (asignar operario desde el dashboard)
   const [reservations, setReservations] = useSharedState<Reservation[]>('admin.reservations', []);
-  // las que necesitan operario (regla de operations), compartidas con el inicio
+  // las que necesitan operario (regla de operations) y las que quedaron por cerrar, compartidas con el inicio
   const [unassignedIds, setUnassignedIds] = useSharedState<string[]>('admin.unassignedIds', []);
+  const [toCloseList, setToCloseList] = useSharedState<ToCloseResponse[]>('admin.toClose', []);
   const [filters, setFilters] = useState<ReservationFilters>(EMPTY_FILTERS);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -112,12 +121,13 @@ export function useReservations() {
     setLoading(true);
     setLoadError(null);
     try {
-      const [bookings, accounts, assignments, unassigned] = await Promise.all([
+      const [bookings, accounts, assignments, unassigned, toClose] = await Promise.all([
         bookingService.adminBookings(addDays(-DAYS_BACK), addDays(DAYS_AHEAD)),
         userAdminService.listAccounts(0, 200).catch(() => []),
         // si operations no responde, las reservas igual se muestran (sin operario)
         operationsService.assignments(addDays(-DAYS_BACK), addDays(DAYS_AHEAD)).catch(() => [] as AssignmentResponse[]),
         operationsService.unassigned(getTodayISO(), addDays(DAYS_AHEAD)).catch(() => null as UnassignedResponse | null),
+        operationsService.toClose().catch(() => [] as ToCloseResponse[]),
       ]);
       operatorAssignments.clear();
       assignments.forEach((a) => operatorAssignments.set(String(a.bookingId), String(a.operatorId)));
@@ -135,12 +145,13 @@ export function useReservations() {
       setUnassignedIds(unassigned
         ? unassigned.bookingIds.map(String)
         : list.filter(needsOperatorLocally).map((item) => item.id));
+      setToCloseList(toClose);
     } catch (error) {
       setLoadError(t(apiErrorKey(error)));
     } finally {
       setLoading(false);
     }
-  }, [setReservations, setUnassignedIds, t]);
+  }, [setReservations, setUnassignedIds, setToCloseList, t]);
 
   useEffect(() => {
     void reload();
@@ -153,6 +164,22 @@ export function useReservations() {
   const unassigned = useMemo(
     () => reservations.filter(isUnassigned).sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`)),
     [reservations, isUnassigned],
+  );
+
+  // por cerrar: terminaron con operario y nadie las registró
+  const toClose = useMemo<ToCloseItem[]>(
+    () =>
+      toCloseList
+        .map((item) => ({
+          reservation: reservations.find((r) => r.id === String(item.bookingId)),
+          reason: item.reason,
+          operatorId: String(item.operatorId),
+        }))
+        .filter((item): item is ToCloseItem => item.reservation !== undefined)
+        .sort((a, b) =>
+          `${a.reservation.date}${a.reservation.time}`.localeCompare(`${b.reservation.date}${b.reservation.time}`),
+        ),
+    [toCloseList, reservations],
   );
 
   // Reservas que cumplen los filtros, ordenadas por fecha y hora
@@ -262,6 +289,32 @@ export function useReservations() {
     }
   };
 
+  // "Se atendió": la reserva queda completada con su operario. Devuelve true si se cerró.
+  const closeAsAttended = async (id: string): Promise<boolean> => {
+    try {
+      await operationsService.closeAsAttended(Number(id));
+      setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, status: 'completed' } : item)));
+      setToCloseList((prev) => prev.filter((item) => String(item.bookingId) !== id));
+      return true;
+    } catch (error) {
+      AppAlert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)), undefined, { type: 'error' });
+      return false;
+    }
+  };
+
+  // "No asistió": solo para una que nunca se inició (el backend lo valida)
+  const markNoShow = async (id: string): Promise<boolean> => {
+    try {
+      await bookingService.adminChangeStatus(Number(id), 'NO_SHOW');
+      setReservations((prev) => prev.map((item) => (item.id === id ? { ...item, status: 'no_show' } : item)));
+      setToCloseList((prev) => prev.filter((item) => String(item.bookingId) !== id));
+      return true;
+    } catch (error) {
+      AppAlert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)), undefined, { type: 'error' });
+      return false;
+    }
+  };
+
   // opciones reales para el formulario de crear/editar
   const serviceOptions = useMemo<ServiceOption[]>(
     () =>
@@ -292,6 +345,9 @@ export function useReservations() {
     assignOperator,
     isUnassigned,
     unassigned,
+    toClose,
+    closeAsAttended,
+    markNoShow,
     serviceOptions,
     bayOptions,
   };
