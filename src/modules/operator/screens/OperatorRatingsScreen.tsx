@@ -113,7 +113,8 @@ export function OperatorRatingsScreen() {
         <PageHeader title={t('QUALIFICATIONS.TITLE')} subtitle={t('QUALIFICATIONS.SUBTITLE')} />
 
         <StatGrid>
-          <StatTile icon="star" value={average} label={t('QUALIFICATION_STATS.AVG_RATING')} />
+          {/* sin calificaciones todavía se muestra "—", como en la web y en el inicio */}
+          <StatTile icon="star" value={ratings.length === 0 ? '—' : average} label={t('QUALIFICATION_STATS.AVG_RATING')} />
           <StatTile icon="chat" value={ratings.length} label={t('QUALIFICATION_STATS.TOTAL')} />
         </StatGrid>
         <SectionCard title={t('QUALIFICATION_STATS.SATISFACTION_LEVEL')} icon="sentiment-satisfied-alt">
