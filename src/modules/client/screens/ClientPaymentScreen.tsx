@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system/legacy';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +16,9 @@ import {
   paymentService,
   RedeemPromotionResult,
 } from '../../../core/services/payments/PaymentService';
+import { compressReceipt } from '../../../core/services/payments/receiptImage';
 import { apiErrorKey } from '../../../core/api/apiError';
+import { ImageZoomModal } from '../../../shared/components/feedback/ImageZoomModal';
 import { LabeledInput } from '../../../shared/components/forms/LabeledInput';
 import { Pill } from '../../../shared/components/ui/Pill';
 import { ActionButton } from '../../../shared/components/screen/ActionButton';
@@ -51,7 +52,8 @@ const METHODS: { id: MethodId; icon: IconName }[] = [
 
 // la referencia debe tener entre 8 y 12 caracteres alfanuméricos
 const REFERENCE_REGEX = /^[A-Za-z0-9]{8,12}$/;
-const MAX_RECEIPT_BYTES = 10 * 1024 * 1024;
+// lo que se deja elegir; antes de enviarlo se comprime a máximo 2 MB (receiptImage)
+const MAX_PICKED_BYTES = 10 * 1024 * 1024;
 
 // medio de la pantalla para el código de payment-service
 function methodIdOf(code: string): MethodId {
@@ -90,15 +92,18 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   const vm = useClientBookings();
   // línea de soporte del negocio (la misma que el admin edita en los datos del negocio)
   const establishment = useEstablishment();
-  // cuentas activas del lavadero; el efectivo siempre está
+  // cuentas activas del lavadero; el efectivo aparece solo si el admin tiene activa su cuenta
   const [accounts, setAccounts] = useState<PaymentAccount[]>([]);
   const [sending, setSending] = useState(false);
+  const [compressing, setCompressing] = useState(false);
+  const [qrZoomOpen, setQrZoomOpen] = useState(false);
 
   const booking = useMemo(() => pickBooking(vm.bookings, route.params?.bookingId), [vm.bookings, route.params?.bookingId]);
 
   const [method, setMethod] = useState<MethodId>('NEQUI');
   const [flowStep, setFlowStep] = useState<FlowStep>('PENDING');
-  const [receipt, setReceipt] = useState<{ name: string; size: number; uri: string; mimeType: string } | null>(null);
+  // comprobante ya comprimido: dataUrl es lo que se envía a payment-service
+  const [receipt, setReceipt] = useState<{ name: string; size: number; dataUrl: string } | null>(null);
   const [reference, setReference] = useState('');
   // monto que el cliente pagó según su comprobante (solo dígitos); null = no lo ha cambiado, se asume el total
   const [paidAmountText, setPaidAmountText] = useState<string | null>(null);
@@ -121,7 +126,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   const paidAmount = paidAmountText === null ? total : Number(paidAmountText);
   const isPaidAmountValid = Number.isFinite(paidAmount) && paidAmount > 0;
   const canConfirm =
-    !sending && !isLocked && (method === 'CASH' || (receipt !== null && isReferenceValid && isPaidAmountValid));
+    !sending && !compressing && !isLocked && (method === 'CASH' || (receipt !== null && isReferenceValid && isPaidAmountValid));
   // lo que le falta al cliente para poder confirmar: se muestra debajo del botón deshabilitado
   // para que no quede bloqueado sin explicación
   const missingRequirements: string[] =
@@ -133,11 +138,19 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
           ...(isPaidAmountValid ? [] : ['PAYMENT.CONFIRM.MISSING.AMOUNT']),
         ];
 
+  // solo los medios con una cuenta activa (payment-service ya filtra las inactivas, efectivo incluido)
   const methods = useMemo(
-    () => METHODS.filter((item) => item.id === 'CASH' || accounts.some((a) => methodIdOf(a.methodCode) === item.id)),
+    () => METHODS.filter((item) => accounts.some((a) => methodIdOf(a.methodCode) === item.id)),
     [accounts],
   );
   const account = accounts.find((a) => methodIdOf(a.methodCode) === method) ?? null;
+
+  // el método guardado (o el de antes) puede ya no estar activo, por ejemplo si el admin apagó el
+  // efectivo: se pasa al primero disponible. Con el pago enviado no se toca
+  useEffect(() => {
+    if (isLocked || methods.length === 0 || methods.some((item) => item.id === method)) return;
+    setMethod(methods[0].id);
+  }, [methods, method, isLocked]);
 
   // cuentas reales del lavadero (las configura el admin, con su QR)
   useEffect(() => {
@@ -208,12 +221,25 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
 
     const file = result.assets[0];
     const validType = !file.mimeType || ALLOWED_IMAGE_TYPES.includes(file.mimeType);
-    const validSize = (file.size ?? 0) <= MAX_RECEIPT_BYTES;
+    const validSize = (file.size ?? 0) <= MAX_PICKED_BYTES;
     if (!validType || !validSize) {
       feedback.showStatus({ type: 'error', title: t('PAYMENT.INVALID_FILE_TITLE'), message: t('PAYMENT.INVALID_FILE_MESSAGE') });
       return;
     }
-    setReceipt({ name: file.name, size: file.size ?? 0, uri: file.uri, mimeType: file.mimeType ?? 'image/jpeg' });
+    // se comprime al elegirlo para mostrar ya el peso real que se va a enviar
+    setCompressing(true);
+    try {
+      const compressed = await compressReceipt(file.uri);
+      if (!compressed) {
+        feedback.showStatus({ type: 'error', title: t('PAYMENT.INVALID_FILE_TITLE'), message: t('PAYMENT.RECEIPT_TOO_LARGE') });
+        return;
+      }
+      setReceipt({ name: file.name, size: compressed.size, dataUrl: compressed.dataUrl });
+    } catch {
+      feedback.showStatus({ type: 'error', title: t('PAYMENT.INVALID_FILE_TITLE'), message: t('PAYMENT.INVALID_FILE_MESSAGE') });
+    } finally {
+      setCompressing(false);
+    }
   };
 
   const canRedeemCoupon = !isLocked && !couponResult && !redeemingCoupon && couponCode.trim().length >= 3;
@@ -251,10 +277,9 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
 
     setSending(true);
     try {
-      // el comprobante viaja como imagen; el monto a cobrar lo pone payment-service y paidAmount
-      // es lo que el cliente dice haber pagado (el admin compara ambos)
-      const base64 = await FileSystem.readAsStringAsync(receipt.uri, { encoding: FileSystem.EncodingType.Base64 });
-      await paymentService.report(booking.id, account.id, reference, `data:${receipt.mimeType};base64,${base64}`, paidAmount);
+      // el comprobante viaja como imagen (ya comprimida); el monto a cobrar lo pone payment-service
+      // y paidAmount es lo que el cliente dice haber pagado (el admin compara ambos)
+      await paymentService.report(booking.id, account.id, reference, receipt.dataUrl, paidAmount);
       setFlowStep('VERIFYING');
       setLastRejectionReason(null);
       save({ flowStep: 'VERIFYING' });
@@ -389,11 +414,27 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
             >
               <View style={[styles.qrBox, { borderColor: colors.border }]}>
                 {account?.qrImageUrl ? (
-                  <Image source={{ uri: account.qrImageUrl }} style={{ width: 180, height: 180 }} resizeMode="contain" />
+                  // tocar el QR lo abre en pantalla completa con lupa
+                  <Pressable
+                    onPress={() => setQrZoomOpen(true)}
+                    accessibilityRole="imagebutton"
+                    accessibilityLabel={t('PAYMENT.QR.ZOOM')}
+                  >
+                    <Image source={{ uri: account.qrImageUrl }} style={styles.qrImage} resizeMode="contain" />
+                    <View style={[styles.qrLens, { backgroundColor: colors.primary }]}>
+                      <MaterialIcons name="zoom-in" size={22} color={colors.onPrimary} />
+                    </View>
+                  </Pressable>
                 ) : (
                   <MaterialIcons name="qr-code-2" size={150} color={colors.text} />
                 )}
                 <Text style={[styles.muted, { color: colors.textMuted }]}>{t('PAYMENT.QR.SCAN_HINT')}</Text>
+                {account?.qrImageUrl ? (
+                  <Pressable onPress={() => setQrZoomOpen(true)} hitSlop={6} style={styles.row}>
+                    <MaterialIcons name="search" size={16} color={colors.primary} />
+                    <Text style={[styles.zoomLink, { color: colors.primary }]}>{t('PAYMENT.QR.ZOOM')}</Text>
+                  </Pressable>
+                ) : null}
               </View>
               <View style={styles.row}>
                 <Text style={[styles.strong, { color: colors.text }]}>{account?.accountHolder ?? ''}</Text>
@@ -412,12 +453,16 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
             <SectionCard title={t('PAYMENT.CONFIRM.TITLE')} icon="fact-check">
               <Pressable
                 onPress={pickReceipt}
-                disabled={isLocked}
+                disabled={isLocked || compressing}
                 style={[styles.dropzone, { borderColor: colors.primary, backgroundColor: withAlpha(colors.primary, 0.05) }]}
               >
-                <MaterialIcons name={receipt ? 'check-circle' : 'cloud-upload'} size={30} color={receipt ? colors.success : colors.primary} />
+                <MaterialIcons
+                  name={compressing ? 'hourglass-top' : receipt ? 'check-circle' : 'cloud-upload'}
+                  size={30}
+                  color={receipt && !compressing ? colors.success : colors.primary}
+                />
                 <Text style={[styles.strong, { color: colors.text }]}>
-                  {receipt ? receipt.name : t('PAYMENT.RECEIPT_PICK')}
+                  {compressing ? t('PAYMENT.RECEIPT_COMPRESSING') : receipt ? receipt.name : t('PAYMENT.RECEIPT_PICK')}
                 </Text>
                 <Text style={[styles.muted, { color: colors.textMuted }]}>
                   {receipt ? `${(receipt.size / (1024 * 1024)).toFixed(1)}MB · ${t('PAYMENT.RECEIPT_CHANGE')}` : t('PAYMENT.CONFIRM.FORMATS')}
@@ -570,6 +615,12 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
         </SectionCard>
       </ScreenScroll>
       {feedback.modals}
+      <ImageZoomModal
+        visible={qrZoomOpen}
+        uri={account?.qrImageUrl ?? null}
+        title={`${t('PAYMENT.QR.VIA')} ${t(`PAYMENT.METHOD.${method}`)}`}
+        onClose={() => setQrZoomOpen(false)}
+      />
     </ClientLayout>
   );
 }
@@ -586,6 +637,18 @@ const styles = StyleSheet.create({
   methodLabel: { fontSize: fontSize.body, fontWeight: fontWeight.bold },
   methodDesc: { fontSize: fontSize.caption },
   qrBox: { alignItems: 'center', gap: 4, paddingVertical: spacing.md, borderWidth: 1, borderRadius: radius.md },
+  qrImage: { width: 220, height: 220 },
+  qrLens: {
+    position: 'absolute',
+    right: -6,
+    bottom: -6,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  zoomLink: { fontSize: fontSize.small, fontWeight: fontWeight.bold },
   hint: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, padding: spacing.md, borderRadius: radius.md },
   hintText: { flex: 1, fontSize: fontSize.small, lineHeight: 18 },
   dropzone: { alignItems: 'center', gap: 4, padding: spacing.lg, borderWidth: 1.5, borderStyle: 'dashed', borderRadius: radius.md },

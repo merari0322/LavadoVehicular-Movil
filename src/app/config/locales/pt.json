@@ -315,7 +315,9 @@
     "LATER": "Mais tarde",
     "READY_TITLE": "Atualização pronta",
     "READY_MESSAGE": "Melhorias para o app foram baixadas. Reinicie para vê-las agora, ou elas serão aplicadas na próxima vez que você abrir.",
-    "RESTART": "Reiniciar agora"
+    "RESTART": "Reiniciar agora",
+    "REQUIRED_TITLE": "Atualize o app para continuar",
+    "REQUIRED_HINT": "Quando o download terminar, abra o arquivo e instale-o."
   },
   "PUSH_CHANNELS": {
     "REMINDER": "Lembretes",
@@ -876,7 +878,8 @@
       "ACCOUNT_TYPE": "Tipo de conta",
       "ACCOUNT_TYPE_VALUE": "Chave / Conta poupança vinculada",
       "AMOUNT": "Valor a pagar",
-      "HINT": "Abra seu app, escaneie o código e confirme o pagamento pelo valor exato."
+      "HINT": "Abra seu app, escaneie o código e confirme o pagamento pelo valor exato.",
+      "ZOOM": "Ampliar QR"
     },
     "CASH": {
       "TITLE": "Pagamento em dinheiro",
@@ -885,7 +888,7 @@
     "CONFIRM": {
       "TITLE": "Confirme seu pagamento",
       "DROP": "Arraste seu comprovante aqui ou clique para procurar",
-      "FORMATS": "Formatos permitidos: JPG ou PNG (máx. 10MB)",
+      "FORMATS": "Formatos permitidos: JPG ou PNG. A imagem é reduzida para menos de 2 MB antes do envio.",
       "REFERENCE": "Referência da transação",
       "REFERENCE_HINT": "Número de 8 a 12 caracteres emitido pelo seu banco",
       "AMOUNT": "Valor pago",
@@ -906,7 +909,9 @@
     "RECEIPT_CHANGE": "Trocar comprovante",
     "EMPTY": "Você não tem pagamentos pendentes",
     "CASH_INFO_TITLE": "Você paga no local",
-    "CASH_INFO_MESSAGE": "Pague em dinheiro quando buscar seu veículo. O administrador registrará o pagamento e você receberá a notificação de pagamento aprovado."
+    "CASH_INFO_MESSAGE": "Pague em dinheiro quando buscar seu veículo. O administrador registrará o pagamento e você receberá a notificação de pagamento aprovado.",
+    "RECEIPT_COMPRESSING": "Preparando o comprovante...",
+    "RECEIPT_TOO_LARGE": "Não conseguimos reduzir a imagem para menos de 2 MB. Tente uma captura de tela do comprovante."
   },
   "VEHICLES": {
     "TITLE": "Meus Veículos",
@@ -1456,5 +1461,11 @@
     "RESERVATIONS": "Ir para reservas",
     "PAYMENT": "Ir para o pagamento",
     "RATINGS": "Ir para avaliações"
+  },
+  "IMAGE_ZOOM": {
+    "ZOOM_IN": "Aproximar",
+    "ZOOM_OUT": "Afastar",
+    "HINT": "Use a lupa ou toque duas vezes na imagem para ampliá-la. Com zoom, arraste-a para movê-la.",
+    "DOUBLE_TAP": "Toque duas vezes para ampliar ou reduzir"
   }
 }
