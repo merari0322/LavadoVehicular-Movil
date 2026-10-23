@@ -11,6 +11,7 @@ import { MANAGEMENT_TEXTS } from '../../constants/managementTexts';
 import { TEXTS as RESERVATION_TEXTS } from '../../constants/reservationTexts';
 import { PROMOTION_ICONS, Promotion, PromotionFormValues, PromotionIcon } from '../../models/management';
 import { DATE_ERRORS, displayToISO, getTodayISO, isoToDisplay, maskDate } from '../../utils/reservationUtils';
+import { isValidDiscountPercent } from '../../utils/managementUtils';
 import { ReservationField } from '../reservations/ReservationField';
 
 interface PromotionFormModalProps {
@@ -58,7 +59,7 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
     setStartDate(isoToDisplay(promotion?.startDate ?? getTodayISO()));
     setFeatured(promotion?.featured ?? false);
     setBenefits(promotion?.benefits ?? []);
-    setDiscountPercent(promotion ? String(promotion.discountPercent) : '100');
+    setDiscountPercent(promotion ? String(promotion.discountPercent) : '10');
     setRequiredPoints(promotion ? String(promotion.requiredPoints) : '0');
     setErrors({});
   }, [visible, promotion]);
@@ -84,7 +85,7 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
     if (!startISO) found.startDate = errorTexts.startDate;
     else if (startISO < minStart) found.startDate = DATE_ERRORS.past;
     const discountValue = Number(discountPercent);
-    if (!(discountValue >= 1 && discountValue <= 100)) found.discountPercent = errorTexts.discountPercent;
+    if (!isValidDiscountPercent(discountValue)) found.discountPercent = errorTexts.discountPercent;
 
     if (Object.keys(found).length > 0) {
       setErrors(found);
