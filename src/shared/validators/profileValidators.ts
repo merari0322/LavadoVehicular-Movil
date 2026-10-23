@@ -1,4 +1,5 @@
 // Validaciones y datos del formulario de perfil (equivalente a los validators de Angular)
+import { isAllowedEmail } from './authValidators';
 
 export interface PhoneCountry {
   code: string;
@@ -47,9 +48,12 @@ const validateName = (value: string): string | undefined => {
   return undefined;
 };
 
-const validateEmail = (value: string): string | undefined => {
+// A-01: un correo nuevo debe ser de un dominio permitido; el que ya tenía la cuenta se respeta
+const validateEmail = (value: string, currentEmail?: string): string | undefined => {
   if (!value.trim()) return 'profile.validation.emailRequired';
   if (!EMAIL_PATTERN.test(value)) return 'profile.validation.emailInvalid';
+  const unchanged = !!currentEmail && value.trim().toLowerCase() === currentEmail.trim().toLowerCase();
+  if (!unchanged && !isAllowedEmail(value)) return 'profile.validation.emailInvalid';
   return undefined;
 };
 
@@ -69,10 +73,10 @@ const validateAddress = (value: string): string | undefined => {
 };
 
 // Valida todo el formulario y devuelve los errores por campo
-export const validateProfile = (values: ProfileFormValues): ProfileErrors => ({
+export const validateProfile = (values: ProfileFormValues, currentEmail?: string): ProfileErrors => ({
   firstName: validateName(values.firstName),
   lastName: validateName(values.lastName),
-  email: validateEmail(values.email),
+  email: validateEmail(values.email, currentEmail),
   phoneNumber: validatePhone(values.phoneNumber, values.phoneCountry),
   address: validateAddress(values.address),
 });

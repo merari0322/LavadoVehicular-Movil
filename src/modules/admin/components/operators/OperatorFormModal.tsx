@@ -16,7 +16,7 @@ import {
   OperatorStatus,
   WorkBay,
 } from '../../models/operator';
-import { isValidEmail } from '../../utils/managementUtils';
+import { isValidAccountEmail, isValidEmail } from '../../utils/managementUtils';
 // al crear, la cuenta del operario se crea de verdad en el security-service
 import { apiErrorKey } from '../../../../core/api/apiError';
 import { userAdminService } from '../../../../core/services/users/UserAdminService';
@@ -122,7 +122,7 @@ export function OperatorFormModal({ visible, operator, bays, onClose, onSubmit }
       if (!DOCUMENT_REGEX.test(documentNumber)) found.documentNumber = texts.errors.document;
       if (!PASSWORD_REGEX.test(password)) found.password = texts.errors.password;
       // al crear, el correo es obligatorio: es con el que el operario inicia sesión
-      if (!isValidEmail(email.trim())) found.email = texts.errors.email;
+      if (!isValidAccountEmail(email.trim())) found.email = texts.errors.email;
     }
     if (specialty.trim().length < 3) found.specialty = texts.errors.specialty;
     if (phone.replace(/\D/g, '').length < 7) found.phone = texts.errors.phone;

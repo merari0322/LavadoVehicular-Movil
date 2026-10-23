@@ -187,7 +187,7 @@ const es = {
       password: 'Mínimo 8 caracteres, una mayúscula, un número y un carácter especial',
       specialty: 'Ingresa la especialidad',
       phone: 'Ingresa un teléfono válido',
-      email: 'El correo no es válido',
+      email: 'Solo se permiten correos @gmail.com',
     },
   },
 
@@ -397,7 +397,7 @@ const en: typeof es = {
       password: 'At least 8 characters, one uppercase letter, one number and one special character',
       specialty: 'Enter the specialty',
       phone: 'Enter a valid phone number',
-      email: 'The email is not valid',
+      email: 'Only @gmail.com emails are allowed',
     },
   },
   assign: {
@@ -593,7 +593,7 @@ const fr: typeof es = {
       password: '8 caractères minimum, une majuscule, un chiffre et un caractère spécial',
       specialty: 'Saisissez la spécialité',
       phone: 'Saisissez un téléphone valide',
-      email: "L'e-mail n'est pas valide",
+      email: 'Seuls les e-mails @gmail.com sont acceptés',
     },
   },
   assign: {
@@ -789,7 +789,7 @@ const pt: typeof es = {
       password: 'Mínimo 8 caracteres, uma maiúscula, um número e um caractere especial',
       specialty: 'Informe a especialidade',
       phone: 'Informe um telefone válido',
-      email: 'O e-mail não é válido',
+      email: 'Só são aceitos e-mails @gmail.com',
     },
   },
   assign: {

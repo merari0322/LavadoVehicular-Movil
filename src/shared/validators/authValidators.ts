@@ -1,6 +1,9 @@
 // reglas puras y componibles: agregar una regla nueva no obliga a tocar las existentes (OCP)
 
-export const GMAIL_REGEX = /^[^\s@]+@gmail\.com$/;
+// A-01: los mismos dominios que ALLOWED_EMAIL_DOMAINS de security-service (por defecto gmail.com).
+// La pantalla avisa antes de enviar; quien decide es el servidor (EMAIL_DOMAIN_NOT_ALLOWED)
+export const ALLOWED_EMAIL_DOMAINS = ['gmail.com'];
+const EMAIL_FORMAT = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
 export const COLOMBIAN_PHONE_REGEX = /^3\d{9}$/;
 export const SPECIAL_CHAR_REGEX = /[!@#$%^&*(),.?":{}|<>]/;
 
@@ -8,8 +11,10 @@ export function isRequired(value: string): boolean {
   return value.trim().length > 0;
 }
 
-export function isGmailEmail(value: string): boolean {
-  return GMAIL_REGEX.test(value);
+// formato válido y dominio permitido (comparación exacta: gmail.com.co no es gmail.com)
+export function isAllowedEmail(value: string): boolean {
+  const email = value.trim().toLowerCase();
+  return EMAIL_FORMAT.test(email) && ALLOWED_EMAIL_DOMAINS.includes(email.slice(email.indexOf('@') + 1));
 }
 
 export function isColombianPhone(value: string): boolean {

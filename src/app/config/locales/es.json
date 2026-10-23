@@ -1083,7 +1083,7 @@
       "nameMin": "El nombre debe tener mínimo 3 caracteres",
       "nameInvalid": "El nombre solo puede contener letras",
       "emailRequired": "El correo es obligatorio",
-      "emailInvalid": "El correo no es válido",
+      "emailInvalid": "Ingresa un correo válido @gmail.com",
       "phoneRequired": "El teléfono es obligatorio",
       "phoneInvalid": "El teléfono no es válido para este país",
       "addressRequired": "La dirección es obligatoria",
