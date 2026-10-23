@@ -2,7 +2,7 @@
 import {
   getPasswordStrength,
   isColombianPhone,
-  isGmailEmail,
+  isAllowedEmail,
   isPasswordStrong,
   isRequired,
   sanitizeColombianPhoneInput,
@@ -10,10 +10,10 @@ import {
 } from './authValidators';
 
 describe('authValidators', () => {
-  it('acepta solo correos @gmail.com', () => {
-    expect(isGmailEmail('ana.perez@gmail.com')).toBe(true);
-    expect(isGmailEmail('ana@hotmail.com')).toBe(false);
-    expect(isGmailEmail('ana@gmail.com.co')).toBe(false);
+  it('A-01: acepta solo los dominios permitidos (gmail.com)', () => {
+    expect(isAllowedEmail(' Ana.Perez@Gmail.com ')).toBe(true);
+    expect(isAllowedEmail('ana@hotmail.com')).toBe(false);
+    expect(isAllowedEmail('ana@gmail.com.co')).toBe(false);
   });
 
   it('valida el celular colombiano (10 dígitos que empiezan por 3)', () => {
