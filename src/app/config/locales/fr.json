@@ -1143,6 +1143,8 @@
     "PROMOTION_NOT_FOUND": "Ce coupon n'existe pas.",
     "PROMOTION_NOT_REDEEMABLE": "Ce coupon n'est pas valide, ou vous n'avez pas encore assez de points.",
     "PROMOTION_ALREADY_REDEEMED": "Vous avez déjà utilisé ce coupon sur cette réservation.",
+    "PROMOTION_ONE_PER_BOOKING": "Cette réservation a déjà un coupon. Retirez-le pour en utiliser un autre.",
+    "PROMOTION_REDEMPTION_NOT_FOUND": "Cette réservation n'a plus ce coupon. Rechargez l'écran.",
     "NETWORK_ERROR": "Impossible de joindre le serveur. Réessayez dans un instant.",
     "UNEXPECTED": "Une erreur inattendue est survenue. Réessayez.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "Vous ne pouvez pas désactiver votre propre compte",

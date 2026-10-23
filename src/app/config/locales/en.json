@@ -1143,6 +1143,8 @@
     "PROMOTION_NOT_FOUND": "That coupon doesn't exist.",
     "PROMOTION_NOT_REDEEMABLE": "That coupon isn't active, or you haven't reached the points it needs yet.",
     "PROMOTION_ALREADY_REDEEMED": "You already redeemed this coupon on this booking.",
+    "PROMOTION_ONE_PER_BOOKING": "This booking already has a coupon. Remove it if you want to use another one.",
+    "PROMOTION_REDEMPTION_NOT_FOUND": "This booking no longer has that coupon. Reload the screen.",
     "NETWORK_ERROR": "Cannot reach the server. Please try again in a moment.",
     "UNEXPECTED": "An unexpected error occurred. Please try again.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "You cannot disable your own account",

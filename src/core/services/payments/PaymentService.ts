@@ -258,4 +258,9 @@ export const paymentService = {
   redeemCoupon(bookingId: number, code: string): Promise<RedeemPromotionResult> {
     return request<RedeemPromotionResult>('POST', '/loyalty/redeem', { ...base, body: { bookingId, code } });
   },
+
+  // "Quitar cupón" (E-08): anula el canje en el servidor y devuelve lo que ahora falta por pagar
+  removeCoupon(bookingId: number, promotionId: number): Promise<AmountDue> {
+    return request<AmountDue>('DELETE', `/loyalty/redemptions/${bookingId}/${promotionId}`, base);
+  },
 };
