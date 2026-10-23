@@ -1,4 +1,4 @@
-# Revisa los tipos de TypeScript de toda la app en cada push o pull request a develop/main.
+# Revisa los tipos de TypeScript y corre las pruebas (jest-expo) en cada push o pull request a develop/main.
 # El APK se sigue generando con EAS (eas build); aquí solo se valida el código.
 name: CI
 
@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   check:
-    name: Revisar tipos
+    name: Revisar tipos y pruebas
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -33,3 +33,7 @@ jobs:
 
       - name: TypeScript
         run: npx tsc --noEmit -p .
+
+      # F-01: validadores y servicios de reserva, pago y login
+      - name: Pruebas
+        run: npm test -- --ci

@@ -17,6 +17,7 @@ npx expo start            # escanear el QR con Expo Go (mismo wifi que el comput
 npm run android           # emulador de Android
 npm run web               # navegador, en http://localhost:8081
 npx tsc --noEmit          # revisión de tipos
+npm test                  # pruebas con jest-expo (validadores y servicios de reserva, pago y login)
 ```
 
 Con Expo Go la app usa sola la IP del computador que corre Expo; el firewall de Windows debe dejar
