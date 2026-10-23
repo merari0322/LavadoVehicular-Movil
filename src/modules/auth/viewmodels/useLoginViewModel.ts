@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useSession } from '../../../core/services/auth';
 import { apiErrorCode, apiErrorKey } from '../../../core/api/apiError';
-import { isGmailEmail, isRequired, stripSpaces } from '../../../shared/validators/authValidators';
+import { isAllowedEmail, isRequired, stripSpaces } from '../../../shared/validators/authValidators';
 
 export interface LoginResult {
   success: boolean;
@@ -32,7 +32,7 @@ export function useLoginViewModel() {
   const emailError = useMemo(() => {
     if (!touched.email) return undefined;
     if (!isRequired(email)) return t('LOGIN.EMAIL_REQUIRED');
-    if (!isGmailEmail(email)) return t('LOGIN.EMAIL_INVALID');
+    if (!isAllowedEmail(email)) return t('LOGIN.EMAIL_INVALID');
     return undefined;
   }, [email, touched.email, t]);
 
@@ -42,7 +42,7 @@ export function useLoginViewModel() {
     return undefined;
   }, [password, touched.password, t]);
 
-  const isValid = isRequired(email) && isGmailEmail(email) && isRequired(password);
+  const isValid = isRequired(email) && isAllowedEmail(email) && isRequired(password);
 
   const handleEmailChange = useCallback((value: string) => setEmail(stripSpaces(value)), []);
   const markTouched = useCallback((field: keyof Touched) => setTouched((prev) => ({ ...prev, [field]: true })), []);

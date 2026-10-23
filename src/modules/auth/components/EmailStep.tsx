@@ -7,7 +7,7 @@ import { FormField } from '../../../shared/components/forms/FormField';
 import { PrimaryButton } from '../../../shared/components/ui/PrimaryButton';
 import { StepIcon } from '../../../shared/components/ui/StepIcon';
 import { useTheme } from '../../../app/theme';
-import { isGmailEmail, isRequired, stripSpaces } from '../../../shared/validators/authValidators';
+import { isAllowedEmail, isRequired, stripSpaces } from '../../../shared/validators/authValidators';
 
 interface EmailStepProps {
   submitting: boolean;
@@ -22,8 +22,8 @@ export function EmailStep({ submitting, onEmailSent }: EmailStepProps) {
   const [email, setEmail] = useState('');
   const [touched, setTouched] = useState(false);
 
-  const error = touched && email.length > 0 && !isGmailEmail(email) ? t('FORGOT.EMAIL.INVALID') : undefined;
-  const canSubmit = isRequired(email) && isGmailEmail(email);
+  const error = touched && email.length > 0 && !isAllowedEmail(email) ? t('FORGOT.EMAIL.INVALID') : undefined;
+  const canSubmit = isRequired(email) && isAllowedEmail(email);
 
   return (
     <View style={styles.container}>

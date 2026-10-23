@@ -73,7 +73,7 @@ const DEFAULT_TEXTS: Record<string, string> = {
   'profile.validation.nameMin': 'El nombre debe tener mínimo 3 caracteres',
   'profile.validation.nameInvalid': 'El nombre solo puede contener letras',
   'profile.validation.emailRequired': 'El correo es obligatorio',
-  'profile.validation.emailInvalid': 'El correo no es válido',
+  'profile.validation.emailInvalid': 'Ingresa un correo válido @gmail.com',
   'profile.validation.phoneRequired': 'El teléfono es obligatorio',
   'profile.validation.phoneInvalid': 'El teléfono no es válido para este país',
   'profile.validation.addressRequired': 'La dirección es obligatoria',
@@ -243,7 +243,7 @@ export const ProfileCard = ({
     }
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const errors = validateProfile(values);
+  const errors = validateProfile(values, user.email);
   const selectedCountry = getCountryByCode(values.phoneCountry);
 
   // El error solo se muestra cuando el campo ya fue tocado

@@ -10,7 +10,7 @@ import { UserRole } from '../../../../core/services/auth';
 import { CreateAccountPayload } from '../../../../core/services/users/UserAdminService';
 import { MANAGEMENT_TEXTS } from '../../constants/managementTexts';
 import { Role } from '../../models/management';
-import { isValidEmail } from '../../utils/managementUtils';
+import { isValidAccountEmail } from '../../utils/managementUtils';
 import { ReservationField } from '../reservations/ReservationField';
 
 interface UserFormModalProps {
@@ -71,7 +71,7 @@ export function UserFormModal({ visible, roles, onClose, onSubmit }: UserFormMod
     if (!DOCUMENT_REGEX.test(documentNumber)) found.documentNumber = texts.errors.document;
     if (firstName.trim().length < 2) found.firstName = texts.errors.name;
     if (lastName.trim().length < 2) found.lastName = texts.errors.lastName;
-    if (!isValidEmail(email.trim())) found.email = texts.errors.email;
+    if (!isValidAccountEmail(email.trim())) found.email = texts.errors.email;
     if (!PASSWORD_REGEX.test(password)) found.password = texts.errors.password;
 
     if (Object.keys(found).length > 0) {

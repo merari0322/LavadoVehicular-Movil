@@ -6,7 +6,7 @@ import { apiErrorKey } from '../../../core/api/apiError';
 import {
   getPasswordStrength,
   hasMinLength,
-  isGmailEmail,
+  isAllowedEmail,
   isColombianPhone,
   isPasswordStrong,
   isRequired,
@@ -72,7 +72,7 @@ export function useRegisterViewModel() {
   const emailError = useMemo(() => {
     if (!touched.email) return undefined;
     if (!isRequired(email)) return t('REGISTER.EMAIL_REQUIRED');
-    if (!isGmailEmail(email)) return t('REGISTER.EMAIL_INVALID');
+    if (!isAllowedEmail(email)) return t('REGISTER.EMAIL_INVALID');
     return undefined;
   }, [email, touched.email, t]);
 
@@ -101,7 +101,7 @@ export function useRegisterViewModel() {
     DOCUMENT_REGEX.test(documentNumber) &&
     hasMinLength(firstName.trim(), 3) &&
     hasMinLength(lastName.trim(), 2) &&
-    isGmailEmail(email) &&
+    isAllowedEmail(email) &&
     isColombianPhone(phone) &&
     isPasswordStrong(strength) &&
     confirmPassword === password &&
