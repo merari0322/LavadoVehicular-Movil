@@ -117,7 +117,9 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [redeemingCoupon, setRedeemingCoupon] = useState(false);
 
-  const total = Math.max(0, (booking?.total ?? 0) - (couponResult?.discountAmount ?? 0));
+  // lo que falta por pagar según payment-service tras canjear o quitar un cupón (manda sobre el cálculo local)
+  const [serverAmountDue, setServerAmountDue] = useState<number | null>(null);
+  const total = serverAmountDue ?? Math.max(0, (booking?.total ?? 0) - (couponResult?.discountAmount ?? 0));
   const isVerifying = flowStep === 'VERIFYING';
   const isApproved = flowStep === 'APPROVED';
   // con el pago enviado (en revisión o aprobado) ya no se puede cambiar ni volver a pagar
@@ -251,6 +253,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
     try {
       const result = await paymentService.redeemCoupon(booking.id, couponCode.trim().toUpperCase());
       setCouponResult(result);
+      setServerAmountDue(result.newTotal);
     } catch (error) {
       setCouponError(t(apiErrorKey(error)));
     } finally {
@@ -258,10 +261,27 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
     }
   };
 
-  const removeCoupon = () => {
-    setCouponResult(null);
-    setCouponCode('');
+  // E-08: el canje se anula en payment-service (antes solo desaparecía de la pantalla y el descuento
+  // seguía aplicado); con un pago en revisión o aprobado el servidor responde 409 y el cupón sigue
+  const removeCoupon = async () => {
+    if (!booking || !couponResult) {
+      setCouponCode('');
+      setCouponError(null);
+      return;
+    }
+    if (redeemingCoupon) return;
+    setRedeemingCoupon(true);
     setCouponError(null);
+    try {
+      const due = await paymentService.removeCoupon(booking.id, couponResult.promotionId);
+      setCouponResult(null);
+      setCouponCode('');
+      setServerAmountDue(due.amountDue);
+    } catch (error) {
+      setCouponError(t(apiErrorKey(error)));
+    } finally {
+      setRedeemingCoupon(false);
+    }
   };
 
   const confirmPayment = async () => {

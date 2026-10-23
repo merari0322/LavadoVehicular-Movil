@@ -1143,6 +1143,8 @@
     "PROMOTION_NOT_FOUND": "Esse cupom não existe.",
     "PROMOTION_NOT_REDEEMABLE": "Esse cupom não está vigente ou você ainda não tem os pontos necessários.",
     "PROMOTION_ALREADY_REDEEMED": "Você já resgatou esse cupom nesta reserva.",
+    "PROMOTION_ONE_PER_BOOKING": "Esta reserva já tem um cupom. Remova-o se quiser usar outro.",
+    "PROMOTION_REDEMPTION_NOT_FOUND": "Esta reserva não tem mais esse cupom. Recarregue a tela.",
     "NETWORK_ERROR": "Não foi possível conectar ao servidor. Tente novamente em instantes.",
     "UNEXPECTED": "Ocorreu um erro inesperado. Tente novamente.",
     "CANNOT_DISABLE_OWN_ACCOUNT": "Você não pode desativar sua própria conta",
