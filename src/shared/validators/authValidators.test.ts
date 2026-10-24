@@ -3,6 +3,7 @@ import {
   getPasswordStrength,
   isColombianPhone,
   isAllowedEmail,
+  isValidEmailFormat,
   isPasswordStrong,
   isRequired,
   sanitizeColombianPhoneInput,
@@ -14,6 +15,14 @@ describe('authValidators', () => {
     expect(isAllowedEmail(' Ana.Perez@Gmail.com ')).toBe(true);
     expect(isAllowedEmail('ana@hotmail.com')).toBe(false);
     expect(isAllowedEmail('ana@gmail.com.co')).toBe(false);
+  });
+
+  it('A-01: el inicio de sesión y la recuperación solo revisan el formato, no el dominio', () => {
+    // las cuentas que ya existen con otro dominio deben poder entrar y recuperar su contraseña
+    expect(isValidEmailFormat('ana@hotmail.com')).toBe(true);
+    expect(isValidEmailFormat(' Ana.Perez@Gmail.com ')).toBe(true);
+    expect(isValidEmailFormat('ana@')).toBe(false);
+    expect(isValidEmailFormat('ana.gmail.com')).toBe(false);
   });
 
   it('valida el celular colombiano (10 dígitos que empiezan por 3)', () => {

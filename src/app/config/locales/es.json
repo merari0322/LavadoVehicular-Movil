@@ -546,7 +546,7 @@
     "PASSWORD": "Contraseña",
     "PASSWORD_PLACEHOLDER": "********",
     "EMAIL_REQUIRED": "El correo es obligatorio",
-    "EMAIL_INVALID": "Debe ingresar un correo válido @gmail.com",
+    "EMAIL_INVALID": "Debe ingresar un correo válido",
     "PASSWORD_REQUIRED": "La contraseña es obligatoria",
     "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
     "BUTTON": "Iniciar Sesión",
@@ -616,7 +616,7 @@
       "DESCRIPTION": "Ingresa tu correo para recibir un código de verificación",
       "LABEL": "Correo Electrónico",
       "PLACEHOLDER": "usuario@gmail.com",
-      "INVALID": "Debe ingresar un correo válido @gmail.com",
+      "INVALID": "Debe ingresar un correo válido",
       "BUTTON": "Enviar Código"
     },
     "VERIFICATION": {
