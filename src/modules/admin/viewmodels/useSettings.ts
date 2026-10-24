@@ -166,13 +166,18 @@ export function useSettings() {
   const language = i18n.language as AppLanguage;
   const setLanguage = (code: AppLanguage) => void setAppLanguage(code);
 
-  // interruptores de la cuenta; sin respuesta se quedan los valores por defecto (todos activos)
-  useEffect(() => {
-    preferencesService
-      .get()
-      .then((prefs) => setPreferences(toPreferences(prefs)))
-      .catch(() => undefined);
+  // interruptores de la cuenta. Mientras no se lean no se deja cambiar ninguno: se guardan los
+  // tres juntos y, con los valores por defecto, se pisarían los reales (MOV-07)
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+  const loadPreferences = useCallback(async () => {
+    setPreferences(toPreferences(await preferencesService.get()));
+    setPreferencesLoaded(true);
   }, []);
+
+  useEffect(() => {
+    // si falla, se vuelve a intentar (y se avisa) cuando se toque un interruptor
+    loadPreferences().catch(() => undefined);
+  }, [loadPreferences]);
 
   // Datos del negocio: lo guardado en booking-service y el borrador que se está editando.
   // businessLoaded queda en false hasta que responde: así no se guarda un formulario vacío.
@@ -189,9 +194,6 @@ export function useSettings() {
     setBusinessLoaded(true);
   }, []);
 
-  useEffect(() => {
-    loadBusiness().catch(() => undefined);
-  }, [loadBusiness]);
 
   // Métodos de pago: cuentas reales del lavadero (payment-service)
   const [payments, setPayments] = useState<PaymentMethod[]>([]);
@@ -203,9 +205,24 @@ export function useSettings() {
     setPayments(list.map(toMethod));
   }, []);
 
+  // datos del negocio y cuentas de pago; si alguno no carga se avisa con opción de reintentar
+  // (antes la pestaña quedaba vacía sin decir por qué)
+  const [loadErrorKey, setLoadErrorKey] = useState<string | null>(null);
+  const loadAll = useCallback(async () => {
+    const results = await Promise.allSettled([loadBusiness(), reloadPayments()]);
+    const failed = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+    setLoadErrorKey(failed ? apiErrorKey(failed.reason) : null);
+  }, [loadBusiness, reloadPayments]);
+
   useEffect(() => {
-    reloadPayments().catch(() => undefined);
-  }, [reloadPayments]);
+    void loadAll();
+  }, [loadAll]);
+
+  // una acción sobre las cuentas de pago que payment-service rechaza se avisa con su mensaje
+  const runPaymentAction = (action: () => Promise<unknown>): Promise<void> =>
+    action()
+      .then(() => undefined)
+      .catch((error) => AppAlert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)), undefined, { type: 'error' }));
 
   // guarda una cuenta con los cambios indicados y recarga
   const saveAccount = async (id: string, changes: Partial<SaveAccountRequest>) => {
@@ -230,6 +247,12 @@ export function useSettings() {
   // Enciende o apaga una preferencia de notificaciones y la guarda en la cuenta; si no se guarda,
   // vuelve como estaba y avisa
   const togglePreference = (key: NotificationPreferenceKey) => {
+    if (!preferencesLoaded) {
+      loadPreferences().catch((error) =>
+        AppAlert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)), undefined, { type: 'error' }),
+      );
+      return;
+    }
     const previous = preferences;
     const next = { ...preferences, [key]: !preferences[key] };
     setPreferences(next);
@@ -312,8 +335,8 @@ export function useSettings() {
     );
 
   const createPaymentMethod = (values: PaymentMethodFormValues) =>
-    paymentService
-      .createAccount({
+    runPaymentAction(() =>
+      paymentService.createAccount({
         methodCode: methodCodeFor(values.name, values.type),
         // el titular es obligatorio en payment-service; si no lo escriben, va el nombre del medio
         accountHolder: values.holder || values.name,
@@ -321,24 +344,25 @@ export function useSettings() {
         qrImageUrl: null,
         instructions: null,
         active: true,
-      })
-      .then(reloadPayments)
-      .catch(() => undefined);
+      }).then(reloadPayments),
+    );
 
   const updatePaymentMethod = (id: string, values: PaymentMethodFormValues) =>
-    saveAccount(id, {
-      methodCode: methodCodeFor(values.name, values.type),
-      accountHolder: values.holder || values.name,
-      accountNumber: values.account || null,
-    }).catch(() => undefined);
+    runPaymentAction(() =>
+      saveAccount(id, {
+        methodCode: methodCodeFor(values.name, values.type),
+        accountHolder: values.holder || values.name,
+        accountNumber: values.account || null,
+      }),
+    );
 
   const togglePaymentActive = (id: string) => {
     const current = accounts.find((a) => String(a.id) === id);
-    if (current) saveAccount(id, { active: !current.active }).catch(() => undefined);
+    if (current) void runPaymentAction(() => saveAccount(id, { active: !current.active }));
   };
 
   // las cuentas no se borran (hay pagos que las usan): se desactivan
-  const deletePaymentMethod = (id: string) => saveAccount(id, { active: false }).catch(() => undefined);
+  const deletePaymentMethod = (id: string) => runPaymentAction(() => saveAccount(id, { active: false }));
 
   // Elige una imagen y la guarda como QR del método
   const replaceQr = async (id: string): Promise<QrPickResult> => {
@@ -375,6 +399,9 @@ export function useSettings() {
     businessLoaded,
     savingBusiness,
     reloadBusiness: loadBusiness,
+    // no cargaron los datos del negocio o las cuentas de pago (llave de traducción) y cómo reintentar
+    loadErrorKey,
+    retryLoad: loadAll,
     // Métodos de pago
     payments,
     activePayments,

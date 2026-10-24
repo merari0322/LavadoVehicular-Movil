@@ -31,7 +31,8 @@
     "LEGAL_SECTION": "Legal e privacidade",
     "VIEW_TERMS": "Ver Termos e Condições",
     "VIEW_PRIVACY": "Ver Política de Dados",
-    "APP_VERSION": "Versão {{version}}"
+    "APP_VERSION": "Versão {{version}}",
+    "LOAD_ERROR": "Não foi possível carregar os dados do negócio ou os meios de pagamento."
   },
   "SIDEBAR": {
     "PAYMENT": "Pagar serviço",

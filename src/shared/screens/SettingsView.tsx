@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import {
   preferencesService,
   toNotificationChannels,
 } from '../../core/services/users/PreferencesService';
+import { apiErrorKey } from '../../core/api/apiError';
 import { ThemeName, fontSize, fontWeight, radius, spacing, useTheme } from '../../app/theme';
 import { LegalDocumentModal, LegalDocumentType } from '../components/feedback/LegalDocumentModal';
 import { PageHeader } from '../components/screen/PageHeader';
@@ -50,15 +51,25 @@ export function SettingsView() {
   const [settings, setSettings] = useState<NotificationChannels>(DEFAULT_SETTINGS);
   const [legal, setLegal] = useState<LegalDocumentType | null>(null);
 
-  useEffect(() => {
-    preferencesService
-      .get()
-      .then((prefs) => setSettings(toNotificationChannels(prefs)))
-      .catch(() => undefined);
+  // mientras no se lean los de la cuenta no se deja cambiar ninguno: se guardan los tres juntos y,
+  // con los valores por defecto, se pisarían los reales (MOV-07)
+  const [loaded, setLoaded] = useState(false);
+  const load = useCallback(async () => {
+    setSettings(toNotificationChannels(await preferencesService.get()));
+    setLoaded(true);
   }, []);
+
+  useEffect(() => {
+    // si falla, se vuelve a intentar (y se avisa) cuando se toque un interruptor
+    load().catch(() => undefined);
+  }, [load]);
 
   // se ve el cambio de una vez; si la cuenta no lo guarda, vuelve como estaba y avisa
   const toggle = (key: keyof NotificationChannels) => {
+    if (!loaded) {
+      load().catch((error) => feedback.showError(t(apiErrorKey(error))));
+      return;
+    }
     const previous = settings;
     const next = { ...settings, [key]: !settings[key] };
     setSettings(next);
