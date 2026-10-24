@@ -104,10 +104,6 @@ export const bookingService = {
     return request<BookingResponse>('POST', `/bookings/${id}/cancel`, { ...base, body: {} });
   },
 
-  rescheduleMyBooking(id: number, body: RescheduleBookingRequest): Promise<BookingResponse> {
-    return request<BookingResponse>('PUT', `/bookings/${id}`, { ...base, body });
-  },
-
   cancellationReasons(): Promise<{ code: string; name: string }[]> {
     return request<{ code: string; name: string }[]>('GET', '/bookings/cancellation-reasons', base);
   },
