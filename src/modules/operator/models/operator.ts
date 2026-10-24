@@ -24,16 +24,29 @@ export interface OperatorReservation {
   // calificación del cliente cuando ya terminó (operations-service)
   rating?: number | null;
   comment?: string | null;
+  // hasta cuándo se puede iniciar (lo calcula operations-service); después ya es tarde
+  startableUntil?: string | null;
   // desde cuándo se puede iniciar (lo calcula operations-service)
   startableAt?: string | null;
 }
 
+// ventana para iniciar: antes de startableAt es temprano y después de startableUntil ya es tarde
+export type StartWindow = 'early' | 'open' | 'late';
+
 /**
- * Si el botón "Iniciar" ya se puede usar. La regla (15 minutos antes de la reserva) la decide
- * operations-service en startableAt; aquí solo se compara con la hora actual.
+ * En qué punto de la ventana para iniciar está el servicio. Las reglas (15 minutos antes de la
+ * reserva y hasta 4 h después de la hora de fin) las decide operations-service en startableAt y
+ * startableUntil; aquí solo se compara con la hora actual.
  */
+export function startWindow(r: OperatorReservation, now: number = Date.now()): StartWindow {
+  if (r.startableAt && now < Date.parse(r.startableAt)) return 'early';
+  if (r.startableUntil && now > Date.parse(r.startableUntil)) return 'late';
+  return 'open';
+}
+
+/** Si el botón "Iniciar" ya se puede usar. */
 export function canStartNow(r: OperatorReservation): boolean {
-  return !r.startableAt || Date.now() >= Date.parse(r.startableAt);
+  return startWindow(r) === 'open';
 }
 
 /** Hora local (HH:mm) desde la que se podrá iniciar, para el aviso junto al botón. */

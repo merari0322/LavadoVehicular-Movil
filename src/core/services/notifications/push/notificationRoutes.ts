@@ -14,6 +14,8 @@ const CLIENT: RouteTable = {
   BOOKING_CREATED: 'ClientHistory',
   BOOKING_CONFIRMED: 'ClientHistory',
   BOOKING_CANCELLED: 'ClientHistory',
+  // A-11: el admin la marcó como no asistida; se ve igual que una cancelada
+  BOOKING_NO_SHOW: 'ClientHistory',
   BOOKING_REMINDER: 'ClientHistory',
   OPERATOR_ASSIGNED: 'ClientHistory',
   SERVICE_STARTED: 'ClientHistory',

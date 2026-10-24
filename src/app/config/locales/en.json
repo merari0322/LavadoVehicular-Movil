@@ -1312,7 +1312,11 @@
     "TRANSACTION_REFERENCE_REUSED": "That reference was already used in another payment. Check your receipt number.",
     "UNKNOWN_NOTIFICATION_TYPE": "The notification type does not exist.",
     "VEHICLE_HAS_ACTIVE_BOOKINGS": "This vehicle has active or upcoming bookings. Cancel them before removing it.",
-    "VEHICLE_REQUIRED": "Choose the vehicle."
+    "VEHICLE_REQUIRED": "Choose the vehicle.",
+    "SERVICE_TOO_LATE": "This service can no longer be started: more than 4 hours have passed since its end time. Let the administrator know.",
+    "NOTIFICATION_NOT_SENT": "The notification could not be sent. Try again in a moment.",
+    "SECURITY_SERVICE_UNAVAILABLE": "The accounts service is not responding. Try again in a moment.",
+    "DATABASE_UNAVAILABLE": "The database is not responding. Try again in a few minutes."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Change password",
@@ -1593,7 +1597,8 @@
     "OPERATOR_BUSY": "Busy at that time"
   },
   "OPERATOR_WORK": {
-    "START_FROM": "You can start it from {{time}} (15 minutes before the booking)."
+    "START_FROM": "You can start it from {{time}} (15 minutes before the booking).",
+    "START_TOO_LATE": "It can no longer be started: more than 4 hours have passed since the end time."
   },
   "AUTH_FEEDBACK": {
     "LOGIN_SUCCESS_TITLE": "Signed in successfully!",

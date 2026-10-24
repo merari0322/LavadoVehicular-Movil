@@ -8,7 +8,7 @@ import { ActionButton } from '../../../shared/components/screen/ActionButton';
 import { InfoRow } from '../../../shared/components/screen/InfoRow';
 import { isoToDisplay } from '../../../shared/utils/format';
 import { formatCOP } from '../../../shared/utils/format';
-import { OperatorReservation, statusIcon, statusLabel, statusTone, canStartNow, startFromLabel } from '../models/operator';
+import { OperatorReservation, statusIcon, statusLabel, statusTone, canStartNow, startFromLabel, startWindow } from '../models/operator';
 import { ModalCloseButton } from '../../../shared/components/feedback/ModalCloseButton';
 import { ModalShell } from '../../../shared/components/feedback/ModalShell';
 
@@ -69,10 +69,14 @@ export function ReservationDetailModal({
             {r.status === 'pendiente' ? (
               <>
                 <ActionButton icon="play-circle-outline" label={t('ASSIGNED_SERVICES.DETAIL.START')} disabled={!canStartNow(r)} onPress={then(onStart)} />
-                {!canStartNow(r) ? (
+                {startWindow(r) === 'early' ? (
                   <Text style={[styles.section, { color: colors.textMuted }]}>
                     {t('OPERATOR_WORK.START_FROM', { time: startFromLabel(r) })}
                   </Text>
+                ) : null}
+                {/* pasaron más de 4 h de la hora de fin: operations-service ya no deja iniciarlo */}
+                {startWindow(r) === 'late' ? (
+                  <Text style={[styles.section, { color: colors.error }]}>{t('OPERATOR_WORK.START_TOO_LATE')}</Text>
                 ) : null}
               </>
             ) : null}

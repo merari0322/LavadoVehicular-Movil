@@ -72,6 +72,10 @@ const TYPE_BY_CATEGORY: Record<NotificationCategory, NotificationType> = {
   SYSTEM: 'sistema',
 };
 
+// tipos nuevos que se tratan como su pariente si llegaran sin categoría (BOOKING_NO_SHOW es una
+// cancelación); cualquier otro tipo desconocido cae en "sistema" y la bandeja no se rompe
+const CATEGORY_BY_TYPE: Partial<Record<string, NotificationCategory>> = { BOOKING_NO_SHOW: 'CANCELLATION' };
+
 const ICON_BY_TYPE: Record<NotificationType, keyof typeof MaterialIcons.glyphMap> = {
   recordatorio: 'schedule',
   promocion: 'sell',
@@ -93,6 +97,6 @@ function localParts(iso: string): { date: string; time: string } {
 
 // notificación del backend -> modelo que pintan las pantallas (el texto ya viene escrito)
 export function toRoleNotification(n: NotificationResponse): RoleNotification {
-  const type = TYPE_BY_CATEGORY[n.category] ?? 'sistema';
+  const type = TYPE_BY_CATEGORY[n.category] ?? TYPE_BY_CATEGORY[CATEGORY_BY_TYPE[n.type] ?? 'SYSTEM'];
   return { id: n.id, code: n.type, icon: ICON_BY_TYPE[type], type, title: n.title, desc: n.message, read: n.read, ...localParts(n.sentAt) };
 }
