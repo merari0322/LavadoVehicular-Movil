@@ -20,6 +20,8 @@ import {
   ReservationFormValues,
   ReservationStatsData,
   ServiceOption,
+  isReschedulable,
+  nextStatuses,
 } from '../models/reservation';
 import { loadReservationCatalog, useReservationCatalog } from '../services/reservationCatalog';
 import { addDays, displayToISO, getTodayISO } from '../utils/reservationUtils';
@@ -251,25 +253,45 @@ export function useReservations() {
   };
 
   // Guarda lo que cambió en el formulario: fecha/hora/notas en booking (reprogramar), el operario en
-  // operations y el estado en booking. Antes el operario y el estado se descartaban sin avisar.
+  // operations y el estado en booking. MOV-05: todo se revisa antes de llamar al backend y, si un paso
+  // falla después de reprogramar, la fecha vuelve a la de antes, para que no quede guardado a medias
   const updateReservation = async (id: string, values: ReservationFormValues) => {
     const current = reservations.find((item) => item.id === id);
     const notes = values.notes.trim();
+    const statusChanged = !!current && values.status !== current.status && values.status !== 'rescheduled';
+    if (current && statusChanged && !nextStatuses(current.status, Boolean(current.bayId)).includes(values.status)) {
+      throw new ApiError('INVALID_STATUS_TRANSITION', 409);
+    }
+    // cancelar o marcar no asistida cierra la reserva: la fecha y el operario ya no aplican
+    const closing = statusChanged && (values.status === 'cancelled' || values.status === 'no_show');
+    const reschedule =
+      !closing && (!current || values.date !== current.date || values.time !== current.time || notes !== current.notes.trim());
+    if (reschedule && current && !isReschedulable(current.status)) {
+      throw new ApiError('BOOKING_NOT_CHANGEABLE', 409);
+    }
+    const assign = !closing && !!values.operatorId && values.operatorId !== current?.operatorId;
+
     try {
-      // solo se reprograma si cambió: una reserva pasada no se puede reprogramar
-      if (!current || values.date !== current.date || values.time !== current.time || notes !== current.notes.trim()) {
+      if (reschedule) {
         await bookingService.adminReschedule(Number(id), { date: values.date, time: values.time, notes: notes || null });
       }
-      if (values.operatorId && values.operatorId !== current?.operatorId) {
-        await operationsService.assign(Number(id), Number(values.operatorId));
-      }
-      if (current && values.status !== current.status && values.status !== 'rescheduled') {
-        // el admin cancela con el motivo OTHER, igual que en la web
-        await bookingService.adminChangeStatus(Number(id), values.status.toUpperCase() as BookingStatusCode,
-          values.status === 'cancelled' ? 'OTHER' : undefined);
+      try {
+        if (assign) await operationsService.assign(Number(id), Number(values.operatorId));
+        if (statusChanged) {
+          // el admin cancela con el motivo OTHER, igual que en la web
+          await bookingService.adminChangeStatus(Number(id), values.status.toUpperCase() as BookingStatusCode,
+            values.status === 'cancelled' ? 'OTHER' : undefined);
+        }
+      } catch (error) {
+        if (reschedule && current) {
+          // se deshace la reprogramación; si tampoco se puede, la lista recargada muestra lo que quedó
+          await bookingService
+            .adminReschedule(Number(id), { date: current.date, time: current.time, notes: current.notes.trim() || null })
+            .catch(() => undefined);
+        }
+        throw error;
       }
     } finally {
-      // aunque un paso falle, la lista muestra lo que sí quedó guardado
       await reload();
     }
   };

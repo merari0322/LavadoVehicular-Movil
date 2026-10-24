@@ -7,11 +7,11 @@ import { withAlpha } from '../../../../shared/utils/color';
 import { TEXTS } from '../../constants/reservationTexts';
 import {
   BayOption,
-  RESERVATION_STATUSES,
   Reservation,
   ReservationFormValues,
   ReservationStatus,
   ServiceOption,
+  nextStatuses,
 } from '../../models/reservation';
 import { useOperatorDirectory } from '../../viewmodels/useOperatorDirectory';
 import {
@@ -62,11 +62,14 @@ type FormErrors = Partial<Record<keyof FormState, string>>;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Opciones de los selectores ("rescheduled" era de las pantallas de ejemplo: el backend no lo tiene)
-const STATUS_OPTIONS: SelectOption[] = RESERVATION_STATUSES.filter((status) => status !== 'rescheduled').map((status) => ({
-  value: status,
-  label: TEXTS.status[status],
-}));
+// Estados que se pueden elegir: el actual y los que el backend permite desde él (MOV-05). Una
+// reserva nueva siempre nace programada
+const statusOptionsFor = (reservation: Reservation | null): SelectOption[] => {
+  const statuses: ReservationStatus[] = reservation
+    ? [reservation.status, ...nextStatuses(reservation.status, Boolean(reservation.bayId))]
+    : ['scheduled'];
+  return statuses.map((status) => ({ value: status, label: TEXTS.status[status] }));
+};
 
 // Valores iniciales: los de la reserva (editar) o unos por defecto (crear)
 const buildInitialState = (
@@ -151,6 +154,7 @@ export function ReservationFormModal({
   );
 
   const isEditing = reservation !== null;
+  const statusOptions = useMemo(() => statusOptionsFor(reservation), [reservation]);
   const [state, setState] = useState<FormState>(() => buildInitialState(reservation, serviceOptions));
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -358,7 +362,7 @@ export function ReservationFormModal({
           <ReservationField label={TEXTS.form.status}>
             <SelectField
               value={state.status}
-              options={STATUS_OPTIONS}
+              options={statusOptions}
               onChange={(value) => setField('status', value as ReservationStatus)}
             />
           </ReservationField>
