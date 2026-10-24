@@ -125,6 +125,8 @@ export interface OperatorServiceResponse {
   startableAt: string | null;
   // primer nombre del cliente (vacío si security-service no respondió)
   clientName?: string;
+  // B-01: indicaciones que dejó el admin al asignar (null si no dejó; un backend viejo no la manda)
+  notes?: string | null;
 }
 
 export interface RatingResponse {

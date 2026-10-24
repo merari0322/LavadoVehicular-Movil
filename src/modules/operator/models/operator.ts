@@ -26,6 +26,8 @@ export interface OperatorReservation {
   comment?: string | null;
   // desde cuándo se puede iniciar (lo calcula operations-service)
   startableAt?: string | null;
+  // B-01: indicaciones del admin al asignar el servicio (null si no dejó)
+  notes?: string | null;
 }
 
 /**

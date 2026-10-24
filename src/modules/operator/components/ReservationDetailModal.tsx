@@ -62,6 +62,10 @@ export function ReservationDetailModal({
             <InfoRow icon="directions-car" label={t('SCHEDULE.DETAIL.VEHICLE')} value={`${r.vehicleName} · ${r.plate}`} />
             <InfoRow icon="pin" label={t('BOOKING_DETAIL.PLATE')} value={r.plate} />
             <InfoRow icon="payments" label={t('ASSIGNED_SERVICES.DETAIL.PAYMENT_METHOD')} value={r.paymentMethod ? t(`SERVICE_HISTORY.METHODS.${r.paymentMethod}`) : formatCOP(r.total ?? 0)} />
+            {/* B-01: lo que el admin le pidió al operario al asignarle el servicio */}
+            {r.notes ? (
+              <InfoRow icon="notes" label={t('ASSIGNED_SERVICES.DETAIL.NOTES')} value={r.notes} />
+            ) : null}
 
             {r.status !== 'finalizado' ? (
               <Text style={[styles.section, { color: colors.textSecondary }]}>{t('ASSIGNED_SERVICES.DETAIL.PROGRESS_TITLE')}</Text>

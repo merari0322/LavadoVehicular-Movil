@@ -700,7 +700,8 @@
       "STARTED_MESSAGE": "O serviço {{code}} já está em andamento.",
       "FINISHED_TITLE": "Serviço finalizado!",
       "FINISHED_MESSAGE": "O serviço {{code}} foi marcado como concluído.",
-      "CONTACT_MESSAGE": "Entre em contato com o cliente por qualquer um destes meios."
+      "CONTACT_MESSAGE": "Entre em contato com o cliente por qualquer um destes meios.",
+      "NOTES": "Orientações do administrador"
     }
   },
   "OPERATOR_HOME": {

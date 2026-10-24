@@ -45,7 +45,7 @@ function minutes(time: string): number {
   return h * 60 + m;
 }
 
-function toReservation(s: OperatorServiceResponse): OperatorReservation {
+export function toReservation(s: OperatorServiceResponse): OperatorReservation {
   return {
     id: s.bookingId,
     code: s.code,
@@ -65,6 +65,7 @@ function toReservation(s: OperatorServiceResponse): OperatorReservation {
     rating: s.rating,
     comment: s.comment,
     startableAt: s.startableAt,
+    notes: s.notes?.trim() || null,
   };
 }
 
