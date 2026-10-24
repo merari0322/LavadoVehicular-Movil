@@ -1,5 +1,6 @@
 import { PAYMENT_API_URL } from '../../api/config';
 import { request } from '../../api/httpClient';
+import { Page } from '../../api/pagination';
 
 // habla con payment-service, mismos endpoints que la web. El monto a cobrar lo pone el backend con
 // el total de la reserva; aquí viajan la reserva, la cuenta, la referencia, el comprobante y el
@@ -47,6 +48,8 @@ export interface PaymentView {
   reportedAtUtc: string | null;
   account: PaymentAccount | null;
   booking: PaymentBookingInfo | null;
+  // E-10: la cola del admin no trae la imagen (receiptImage null) y dice aquí si la tiene
+  hasReceiptImage?: boolean;
 }
 
 // lo que falta por pagar de una reserva: su total menos los cupones canjeados
@@ -191,8 +194,15 @@ export const paymentService = {
 
   /* ---------- admin ---------- */
 
-  adminList(): Promise<PaymentView[]> {
-    return request<PaymentView[]>('GET', '/admin/payments', base);
+  // E-10: la cola del admin llega por páginas (los más recientes primero) y sin la imagen del
+  // comprobante, que pesaba demasiado; la imagen se pide con adminPayment al abrir el detalle
+  adminPage(page: number, size: number, status?: PaymentView['status']): Promise<Page<PaymentView>> {
+    return request<Page<PaymentView>>('GET', '/admin/payments', { ...base, query: { page, size, status } });
+  },
+
+  // un pago con la imagen de su comprobante
+  adminPayment(id: number): Promise<PaymentView> {
+    return request<PaymentView>('GET', '/admin/payments/' + id, base);
   },
 
   approve(id: number): Promise<PaymentView> {
