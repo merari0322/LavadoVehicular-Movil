@@ -121,7 +121,8 @@
     "CREATE": "Criar",
     "EDIT": "Editar",
     "SAVE": "Salvar",
-    "VIEW": "Ver"
+    "VIEW": "Ver",
+    "RESET_FILTERS": "Limpar filtros"
   },
   "SERVICE": {
     "BASIC": "Básico",

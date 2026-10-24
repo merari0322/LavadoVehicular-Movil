@@ -47,24 +47,11 @@ export function Pill({ label, tone = 'neutral', icon }: PillProps) {
 }
 
 // ---------------------------------------------------------------
-// Botón cuadrado con icono (editar, eliminar)
+// Botón cuadrado con icono (editar, eliminar): es el mismo de shared, que ya trae su nombre para el
+// lector de pantalla (MOV-15); antes había una copia aquí sin él
 // ---------------------------------------------------------------
 
-interface IconButtonProps {
-  icon: IconName;
-  onPress: () => void;
-  danger?: boolean;
-}
-
-export function IconButton({ icon, onPress, danger = false }: IconButtonProps) {
-  const { colors, styles } = useStyles();
-
-  return (
-    <Pressable style={styles.iconButton} onPress={onPress} hitSlop={4}>
-      <MaterialIcons name={icon} size={20} color={danger ? colors.error : colors.textSecondary} />
-    </Pressable>
-  );
-}
+export { IconButton } from '../../../../shared/components/ui/IconButton';
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({

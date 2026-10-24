@@ -82,7 +82,7 @@ export function OperatorAssignedScreen() {
           icon="filter-list"
           right={
             hasFilters ? (
-              <Pressable onPress={clear} hitSlop={8}>
+              <Pressable onPress={clear} hitSlop={8} accessibilityRole="button" accessibilityLabel={t('COMMON.RESET_FILTERS')}>
                 <MaterialIcons name="refresh" size={22} color={colors.primary} />
               </Pressable>
             ) : null
