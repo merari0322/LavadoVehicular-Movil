@@ -22,6 +22,26 @@ export const RESERVATION_STATUSES: ReservationStatus[] = [
   'rescheduled',
 ];
 
+// cambios de estado que el admin puede pedir: los mismos de Booking.moveTo y cancel del
+// booking-service (MOV-05). Programada → confirmada (si tiene bahía) o cancelada; confirmada → en
+// progreso, no asistida o cancelada; en progreso → completada. Completada, cancelada y no asistida ya
+// no cambian. Así el formulario no ofrece uno que el backend rechace con INVALID_STATUS_TRANSITION
+export function nextStatuses(current: ReservationStatus, hasBay: boolean): ReservationStatus[] {
+  switch (current) {
+    case 'scheduled':
+      return hasBay ? ['confirmed', 'cancelled'] : ['cancelled'];
+    case 'confirmed':
+      return ['in_progress', 'no_show', 'cancelled'];
+    case 'in_progress':
+      return ['completed'];
+    default:
+      return [];
+  }
+}
+
+// fecha, hora y notas solo se cambian mientras no ha empezado ni terminado (Booking.requireChangeable)
+export const isReschedulable = (status: ReservationStatus): boolean => status === 'scheduled' || status === 'confirmed';
+
 export interface Reservation {
   id: string;
   code: string; // Ejemplo: #RES-8910
