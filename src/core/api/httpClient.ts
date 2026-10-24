@@ -81,8 +81,11 @@ export async function request<T>(method: HttpMethod, path: string, options: Requ
     if (response.status === 401 && !options.isPublic) {
       authHooks.onUnauthorized();
     }
-    const problem = (payload ?? {}) as { code?: string; violations?: string[] };
-    throw new ApiError(problem.code ?? `HTTP_${response.status}`, response.status, problem.violations ?? [], payload ?? undefined);
+    // el mapa "errors" de un 400 (campo → mensaje) queda en ApiError.fieldErrors. payment-service
+    // (ASP.NET) manda ese mapa sin "code" cuando falla la validación del modelo: es un VALIDATION_ERROR
+    const problem = (payload ?? {}) as { code?: string; violations?: string[]; errors?: unknown };
+    const code = problem.code ?? (response.status === 400 && problem.errors ? 'VALIDATION_ERROR' : `HTTP_${response.status}`);
+    throw new ApiError(code, response.status, problem.violations ?? [], payload ?? undefined);
   }
 
   return payload as T;
