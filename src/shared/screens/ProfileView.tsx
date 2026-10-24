@@ -40,6 +40,8 @@ export function ProfileView() {
   const { user, updateUser, endSessionLocally } = useSession();
 
   const [address, setAddress] = useState('');
+  // si la dirección no se pudo leer, al guardar el perfil no se manda vacía: borraría la guardada (MOV-07)
+  const [addressLoaded, setAddressLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
@@ -64,7 +66,13 @@ export function ProfileView() {
   // la dirección vive en el security-service (ADR-010): la misma en la web y en el celular
   useEffect(() => {
     if (!user) return;
-    addressService.get().then(setAddress).catch(() => undefined);
+    addressService
+      .get()
+      .then((value) => {
+        setAddress(value);
+        setAddressLoaded(true);
+      })
+      .catch(() => undefined); // se ve vacía y no se pisa al guardar (addressLoaded)
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const buildPhone = (values: ProfileFormValues) =>
@@ -77,8 +85,11 @@ export function ProfileView() {
       phone: buildPhone(values),
     });
     updateUser(saved);
-    setAddress(await addressService.update(values.address.trim()));
-  }, [authService, updateUser]);
+    if (addressLoaded || values.address.trim()) {
+      setAddress(await addressService.update(values.address.trim()));
+      setAddressLoaded(true);
+    }
+  }, [authService, updateUser, addressLoaded]);
 
   // si cambió el correo, primero se pide la contraseña (el modal hace el cambio y el guardado)
   const handleSave = async (values: ProfileFormValues): Promise<boolean> => {

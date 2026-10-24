@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { apiErrorKey } from '../../../core/api/apiError';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 import { NOTIFICATION_TEXTS } from '../constants/notificationTexts';
 import {
   AppNotification,
@@ -43,6 +46,10 @@ function toAppNotification(n: NotificationResponse): AppNotification {
 
 // Hook con el estado y la lógica de la pantalla de notificaciones
 export function useNotifications() {
+  const { t } = useTranslation();
+  // una acción que notification-service rechaza se avisa (antes no pasaba nada y no se sabía por qué)
+  const showActionError = (error: unknown) =>
+    AppAlert.alert(t('COMMON.ERROR'), t(apiErrorKey(error)), undefined, { type: 'error' });
   // bandeja real del admin (notification-service); el id sale del token
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -147,7 +154,7 @@ export function useNotifications() {
       .then(() =>
         setNotifications((prev) => prev.map((item) => (item.id === id ? { ...item, read: !item.read } : item))),
       )
-      .catch(() => undefined);
+      .catch(showActionError);
   };
 
   // al abrir el detalle la notificación queda leída
@@ -157,6 +164,7 @@ export function useNotifications() {
     notificationService
       .markRead(Number(id))
       .then(() => setNotifications((prev) => prev.map((item) => (item.id === id ? { ...item, read: true } : item))))
+      // al abrir el detalle no se interrumpe con un aviso: queda sin leer y se puede marcar a mano
       .catch(() => undefined);
   };
 
@@ -164,13 +172,13 @@ export function useNotifications() {
     notificationService
       .markAllRead()
       .then(() => setNotifications((prev) => prev.map((item) => ({ ...item, read: true }))))
-      .catch(() => undefined);
+      .catch(showActionError);
 
   const deleteNotification = (id: string) =>
     notificationService
       .remove(Number(id))
       .then(() => setNotifications((prev) => prev.filter((item) => item.id !== id)))
-      .catch(() => undefined);
+      .catch(showActionError);
 
   return {
     tab,

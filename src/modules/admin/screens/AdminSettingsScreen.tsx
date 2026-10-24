@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ConfirmDialog } from '../../../shared/components/feedback/ConfirmDialog';
+import { EmptyState } from '../../../shared/components/screen/EmptyState';
 import { AdminLayout } from '../../../shared/layouts/AdminLayout';
 import { BusinessTab } from '../components/settings/BusinessTab';
 import { GeneralTab } from '../components/settings/GeneralTab';
@@ -119,6 +120,17 @@ export const AdminSettingsScreen = () => {
       <SafeAreaView edges={['top']} style={styles.container}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <SettingsTabs active={settings.tab} onChange={settings.setTab} />
+
+          {/* no cargaron los datos del negocio o las cuentas de pago: se dice por qué y se reintenta */}
+          {settings.loadErrorKey && settings.tab !== 'general' ? (
+            <EmptyState
+              icon="cloud-off"
+              title={t('CONFIG.LOAD_ERROR')}
+              subtitle={t(settings.loadErrorKey)}
+              actionLabel={t('MOBILE_NAV.RETRY')}
+              onAction={() => void settings.retryLoad()}
+            />
+          ) : null}
 
           {/* Pestaña: general */}
           {settings.tab === 'general' ? (
