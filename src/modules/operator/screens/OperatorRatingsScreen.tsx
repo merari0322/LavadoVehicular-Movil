@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -14,25 +14,9 @@ import { SectionCard } from '../../../shared/components/screen/SectionCard';
 import { StatGrid, StatTile } from '../../../shared/components/screen/StatTile';
 import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { OperatorLayout } from '../../../shared/layouts/OperatorLayout';
-import { displayToISO, isoToDisplay } from '../../../shared/utils/format';
+import { isoToDisplay } from '../../../shared/utils/format';
 import { RatingItem } from '../models/operator';
-// calificaciones reales que dejaron los clientes (operations-service)
-import { operationsService, RatingResponse } from '../../../core/services/operations/OperationsService';
-import { apiErrorKey } from '../../../core/api/apiError';
-
-function toItem(r: RatingResponse): RatingItem {
-  return {
-    id: r.bookingId,
-    // nombre del cliente y la placa de su vehículo (si no hay nombre, solo la placa)
-    client: r.clientName ? `${r.clientName} · ${r.plate}` : r.plate || '—',
-    service: r.services,
-    date: r.date,
-    rating: r.rating,
-    comment: r.comment ?? '',
-    duration: '',
-    serviceId: r.bookingCode,
-  };
-}
+import { useOperatorRatings } from '../viewmodels/useOperatorRatings';
 
 // estrellas llenas y vacías de una calificación
 function Stars({ value }: { value: number }) {
@@ -51,44 +35,15 @@ export function OperatorRatingsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const feedback = useFeedback();
-  const [ratings, setRatings] = useState<RatingItem[]>([]);
+  // carga, promedio y filtros en el ViewModel (MOV-04); la pantalla solo pinta
+  const vm = useOperatorRatings();
+  const { ratings, serviceTypes, date, setDate, type, setType, stars, setStars, average, satisfaction, visible, hasFilters, clear } = vm;
 
+  // si operations-service no responde se avisa, como antes
   useEffect(() => {
-    operationsService
-      .myRatings()
-      .then((list) => setRatings(list.map(toItem)))
-      .catch((error) => feedback.showError(t(apiErrorKey(error))));
-    // solo al abrir la pantalla
+    if (vm.loadError) feedback.showError(vm.loadError);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // nombres de servicio que aparecen en sus calificaciones
-  const serviceTypes = useMemo(() => [...new Set(ratings.map((r) => r.service))], [ratings]);
-
-  const [date, setDate] = useState('');
-  const [type, setType] = useState('');
-  const [stars, setStars] = useState('');
-
-  const average = ratings.length === 0 ? 0 : Math.round((ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length) * 10) / 10;
-  // satisfacción: porcentaje del promedio sobre 5 estrellas
-  const satisfaction = Math.round((average / 5) * 100);
-
-  const visible = useMemo(() => {
-    const iso = displayToISO(date);
-    return ratings.filter((r) => {
-      if (iso && r.date !== iso) return false;
-      if (type && r.service !== type) return false;
-      if (stars && r.rating !== Number(stars)) return false;
-      return true;
-    });
-  }, [ratings, date, type, stars]);
-
-  const hasFilters = date !== '' || type !== '' || stars !== '';
-  const clear = () => {
-    setDate('');
-    setType('');
-    setStars('');
-  };
+  }, [vm.loadError]);
 
   const viewDetail = (r: RatingItem) =>
     feedback.showStatus({

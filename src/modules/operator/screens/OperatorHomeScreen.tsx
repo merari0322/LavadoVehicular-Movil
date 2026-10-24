@@ -21,6 +21,7 @@ import { OperatorReservation } from '../models/operator';
 import { notificationService } from '../../../core/services/notifications/NotificationService';
 import { inboxEvents } from '../../../core/services/notifications/inboxEvents';
 import { operationsService } from '../../../core/services/operations/OperationsService';
+import { useOperatorRatings } from '../viewmodels/useOperatorRatings';
 import { useOperatorReservations } from '../viewmodels/useOperatorReservations';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OperatorHome'>;
@@ -39,17 +40,10 @@ export function OperatorHomeScreen({ navigation }: Props) {
     // si llega una push, el contador se actualiza sin salir de la pantalla
     return inboxEvents.subscribe(() => void load());
   }, []);
-  // promedio de sus calificaciones; '—' si aún no tiene o el servicio no responde
-  const [average, setAverage] = useState<number | string>('—');
-  useEffect(() => {
-    operationsService
-      .myRatings()
-      .then((list) => {
-        if (list.length === 0) return;
-        setAverage(Math.round((list.reduce((sum, r) => sum + r.rating, 0) / list.length) * 10) / 10);
-      })
-      .catch(() => undefined);
-  }, []);
+  // promedio de sus calificaciones con la misma regla de la pantalla de calificaciones (MOV-04);
+  // '—' si aún no tiene o el servicio no responde
+  const ratings = useOperatorRatings();
+  const average: number | string = ratings.ratings.length > 0 ? ratings.average : '—';
   const [detail, setDetail] = useState<OperatorReservation | null>(null);
 
   const today = todayISO();
