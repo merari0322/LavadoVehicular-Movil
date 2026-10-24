@@ -1020,7 +1020,7 @@
       "PERIOD": "Période",
       "SERVICE": "Service",
       "SERVICES_LABEL": "services",
-      "EXPORT_EXCEL": "Exporter Excel",
+      "EXPORT_EXCEL": "Exporter CSV",
       "EXPORT_PDF": "Exporter PDF"
     }
   },
