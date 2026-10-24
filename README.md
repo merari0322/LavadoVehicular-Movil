@@ -56,6 +56,25 @@ Los textos visibles están en español, inglés, francés y portugués (`localiz
 
 Los perfiles de compilación están en `eas.json` (`preview` y `production`).
 
+## Despliegue continuo
+
+Cuando un cambio entra a `main` (PR aprobado), `.github/workflows/cd.yml` repite el CI (tipos y
+pruebas) y, si pasa, hace lo mismo que `npm run publish:update`: manda una actualización por
+internet al canal `preview` de `eas.json`, con la URL https de producción y el commit en el mensaje.
+También se lanza a mano (Actions → CD → Run workflow), pero solo publica desde `main`.
+
+Antes de publicar compara la huella nativa del commit con la del APK publicado (`/app/version.json`
+→ su build en EAS). Si cambió (paquetes nativos, permisos, íconos, `eas.json`,
+`google-services.json`, `.gitignore`), no publica y sale en rojo: hace falta un APK nuevo con
+`eas build` + `npm run publish:apk`, que siguen siendo a mano. Como la huella cuenta esos archivos
+byte por byte y los APK se compilan desde Windows, el CD baja el código con CRLF, como Windows.
+
+Necesita el secreto **`EXPO_TOKEN`**: un token de acceso de expo.dev (Account settings → Access
+tokens) de la cuenta dueña del proyecto (`brayanestiven08`). El token lo genera Brayan; el secreto
+lo crea en este repo su dueño (`merari0322`) o alguien con rol **Admin** (Settings → Secrets and
+variables → Actions): con permiso de escritura no alcanza. Sin él, el workflow sale en rojo y no
+publica.
+
 ## Proyecto LavaRápido
 
 Este repositorio es parte de LavaRápido (Vehicle Washing), proyecto formativo del Tecnólogo en
