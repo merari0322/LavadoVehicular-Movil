@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
 import { withAlpha } from '../../../../shared/utils/color';
 import { PAYMENT_TEXTS } from '../../constants/paymentTexts';
-import { Payment } from '../../models/payment';
+import { Payment, cancelledBookingAction } from '../../models/payment';
 // quien revisa es el admin con sesión
 import { useSession } from '../../../../core/services/auth';
 import {
@@ -135,6 +136,7 @@ export function PaymentReviewModal({ payment: selected, onClose, onApprove, onRe
   const { user } = useSession();
   // E-10: la imagen del comprobante se pide al abrir el pago (la cola llega sin ella)
   const { payment, receiptError } = usePaymentReceipt(selected);
+  const { t } = useTranslation();
 
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState('');
@@ -217,6 +219,13 @@ export function PaymentReviewModal({ payment: selected, onClose, onApprove, onRe
           contentContainerStyle={styles.bodyContent}
           keyboardShouldPersistTaps="handled"
         >
+          {/* BIZ-07: la reserva se canceló: reembolsar el pago aprobado o rechazar el que está en revisión */}
+          {cancelledBookingAction(payment) ? (
+            <Text style={[styles.infoDetail, { color: colors.error }]}>
+              {t(cancelledBookingAction(payment) === 'refund' ? 'PAYMENTS.BOOKING_CANCELLED_REFUND' : 'PAYMENTS.BOOKING_CANCELLED_REJECT')}
+            </Text>
+          ) : null}
+
           {/* Comprobante */}
           <Text style={styles.sectionLabel}>{texts.attachment}</Text>
           <PaymentReceipt payment={payment} />

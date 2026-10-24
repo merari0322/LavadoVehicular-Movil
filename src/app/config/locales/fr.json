@@ -372,7 +372,9 @@
       "METHOD": "Méthode",
       "CANCEL": "Annuler",
       "SUBMIT": "Enregistrer le paiement"
-    }
+    },
+    "BOOKING_CANCELLED_REFUND": "La réservation a été annulée : remboursez ce paiement.",
+    "BOOKING_CANCELLED_REJECT": "La réservation a été annulée : refusez ce paiement."
   },
   "PROFILE": {
     "TITLE": "Mon Profil",

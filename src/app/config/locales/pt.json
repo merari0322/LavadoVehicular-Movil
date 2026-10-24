@@ -372,7 +372,9 @@
       "METHOD": "Método",
       "CANCEL": "Cancelar",
       "SUBMIT": "Registrar pagamento"
-    }
+    },
+    "BOOKING_CANCELLED_REFUND": "A reserva foi cancelada: reembolse este pagamento.",
+    "BOOKING_CANCELLED_REJECT": "A reserva foi cancelada: recuse este pagamento."
   },
   "PROFILE": {
     "TITLE": "Meu Perfil",

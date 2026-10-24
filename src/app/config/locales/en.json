@@ -372,7 +372,9 @@
       "METHOD": "Method",
       "CANCEL": "Cancel",
       "SUBMIT": "Register payment"
-    }
+    },
+    "BOOKING_CANCELLED_REFUND": "The booking was cancelled: refund this payment.",
+    "BOOKING_CANCELLED_REJECT": "The booking was cancelled: reject this payment."
   },
   "PROFILE": {
     "TITLE": "My Profile",
