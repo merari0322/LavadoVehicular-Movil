@@ -17,7 +17,7 @@ import { PageHeader } from '../../../shared/components/screen/PageHeader';
 import { ScreenScroll } from '../../../shared/components/screen/ScreenScroll';
 import { SectionCard } from '../../../shared/components/screen/SectionCard';
 import { vehicleIcon } from '../../../shared/constants/business';
-import { useEstablishment } from '../../../shared/services/establishmentCatalog';
+import { establishmentText, useEstablishment } from '../../../shared/services/establishmentCatalog';
 import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { ClientLayout } from '../../../shared/layouts/ClientLayout';
 import { withAlpha } from '../../../shared/utils/color';
@@ -217,7 +217,7 @@ export function ClientReserveScreen({ navigation }: Props) {
             { label: t('RESERVE.SUMMARY.SERVICE'), value: selectedService.name },
             { label: t('RESERVE.SUMMARY.DATE'), value: isoToDisplay(booking.date) },
             { label: t('RESERVE.SUMMARY.TIME'), value: booking.startTime },
-            { label: t('RESERVE.SUMMARY.CAR_WASH'), value: establishment.address },
+            { label: t('RESERVE.SUMMARY.CAR_WASH'), value: establishmentText(establishment.address, t('MOBILE_NAV.LOADING')) },
             { label: t('RESERVE.SUMMARY.TOTAL'), value: formatCOP(booking.total) },
           ],
         },
@@ -425,7 +425,7 @@ export function ClientReserveScreen({ navigation }: Props) {
             <MaterialIcons name="storefront" size={24} color={colors.primary} />
             <View style={styles.flex}>
               <Text style={[styles.optionSubtitle, { color: colors.textSecondary }]}>{t('RESERVE.LOCATION.TITLE')}</Text>
-              <Text style={[styles.optionTitle, { color: colors.text }]}>{establishment.tradeName}</Text>
+              <Text style={[styles.optionTitle, { color: colors.text }]}>{establishmentText(establishment.tradeName, t('MOBILE_NAV.LOADING'))}</Text>
               <Text style={[styles.optionSubtitle, { color: colors.textSecondary }]}>{establishment.address}</Text>
             </View>
           </View>
@@ -439,7 +439,7 @@ export function ClientReserveScreen({ navigation }: Props) {
           <InfoRow label={t('RESERVE.SUMMARY.DURATION')} value={selectedService ? `${duration} min` : '—'} />
           <InfoRow label={t('RESERVE.SUMMARY.DATE')} value={date ? isoToDisplay(date) : '—'} />
           <InfoRow label={t('RESERVE.SUMMARY.TIME')} value={time || '—'} />
-          <InfoRow label={t('RESERVE.SUMMARY.CAR_WASH')} value={establishment.tradeName} />
+          <InfoRow label={t('RESERVE.SUMMARY.CAR_WASH')} value={establishmentText(establishment.tradeName, t('MOBILE_NAV.LOADING'))} />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <InfoRow label={t('RESERVE.SUMMARY.TOTAL')} value={total ? formatCOP(total) : '$—'} strong />
           <ActionButton

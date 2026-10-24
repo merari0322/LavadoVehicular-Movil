@@ -15,7 +15,7 @@ import { PageHeader } from '../components/screen/PageHeader';
 import { ScreenScroll } from '../components/screen/ScreenScroll';
 import { SectionCard } from '../components/screen/SectionCard';
 import { AppVersionLabel } from '../components/ui/AppVersionLabel';
-import { useEstablishment } from '../services/establishmentCatalog';
+import { establishmentText, useEstablishment } from '../services/establishmentCatalog';
 import { useFeedback } from '../hooks/useFeedback';
 import { withAlpha } from '../utils/color';
 
@@ -85,7 +85,7 @@ export function SettingsView() {
         { label: t('CONFIG.HELP_MODAL.SUPPORT_LINE'), value: establishment.supportLine || establishment.phone || '—' },
         { label: t('CONFIG.HELP_MODAL.EMAIL'), value: establishment.email ?? '—' },
         { label: t('CONFIG.HELP_MODAL.HOURS'), value: establishment.serviceHoursNote || t('CONFIG.HELP_MODAL.HOURS_VALUE') },
-        { label: t('CONFIG.HELP_MODAL.ADDRESS'), value: establishment.address },
+        { label: t('CONFIG.HELP_MODAL.ADDRESS'), value: establishmentText(establishment.address, '—') },
       ],
     });
 
