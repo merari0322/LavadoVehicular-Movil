@@ -33,6 +33,9 @@ type BeforeSignOutHook = () => Promise<void>;
 const beforeSignOutHooks = new Set<BeforeSignOutHook>();
 // cerrar sesión nunca debe quedarse esperando a un servidor que no responde
 const BEFORE_SIGN_OUT_TIMEOUT_MS = 4000;
+// MOV-10: la sesión se cierra un minuto antes de que venza el token, para alcanzar a quitar el
+// celular de las push con un token que el servidor todavía acepta
+const EXPIRY_MARGIN_MS = 60_000;
 
 export function onBeforeSignOut(hook: BeforeSignOutHook): () => void {
   beforeSignOutHooks.add(hook);
@@ -78,11 +81,21 @@ export function AuthServiceProvider({ service = defaultAuthService, children }: 
     }
   }, []);
 
+  // cierre que no pidió el usuario (token vencido o rechazado). MOV-10: como al cerrar sesión, primero
+  // se quita el celular de las push; si el servidor ya no acepta el token, el token de push guardado
+  // se borra igual y el próximo inicio de sesión pasa el celular a la cuenta nueva
+  const expiringRef = useRef(false);
   const expire = useCallback(() => {
-    // sin sesión (ya se cerró) el 401 es de una petición que quedó en curso: no es "sesión vencida"
-    if (!sessionRef.current) return;
+    // sin sesión (ya se cerró) el 401 es de una petición que quedó en curso: no es "sesión vencida".
+    // Si ya se está cerrando, el 401 es el de la baja de las push
+    if (!sessionRef.current || expiringRef.current) return;
+    expiringRef.current = true;
     setExpired(true);
-    void applySession(null);
+    void runBeforeSignOut()
+      .then(() => applySession(null))
+      .finally(() => {
+        expiringRef.current = false;
+      });
   }, [applySession]);
 
   // al abrir la app: recupera la sesión guardada si el token sigue vigente
@@ -104,10 +117,10 @@ export function AuthServiceProvider({ service = defaultAuthService, children }: 
     });
   }, [expire]);
 
-  // cierra la sesión justo cuando vence el token (dura 1 hora, ADR-006)
+  // cierra la sesión un minuto antes de que venza el token (dura 1 hora, ADR-006)
   useEffect(() => {
     if (!session) return undefined;
-    const msLeft = new Date(session.expiresAt).getTime() - Date.now();
+    const msLeft = new Date(session.expiresAt).getTime() - Date.now() - EXPIRY_MARGIN_MS;
     const timer = setTimeout(expire, Math.max(msLeft, 0));
     return () => clearTimeout(timer);
   }, [session, expire]);
