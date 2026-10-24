@@ -6,6 +6,7 @@ import { SETTINGS_TEXTS } from '../constants/settingsTexts';
 import {
   AppLanguage,
   BusinessData,
+  INITIAL_NOTIFICATION_PREFERENCES,
   NotificationPreferenceKey,
   NotificationPreferences,
   PaymentMethod,
@@ -15,7 +16,6 @@ import {
   ThemeId,
 } from '../models/settings';
 import { pickQrImage } from '../services/qrPicker';
-import { INITIAL_NOTIFICATION_PREFERENCES } from '../services/settingsMock';
 import { PaymentAccount, SaveAccountRequest, paymentService } from '../../../core/services/payments/PaymentService';
 import { bookingService } from '../../../core/services/booking/BookingService';
 import { BusinessDataDto } from '../../../core/services/booking/booking.types';

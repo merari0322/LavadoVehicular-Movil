@@ -15,6 +15,14 @@ export const NOTIFICATION_PREFERENCE_KEYS: NotificationPreferenceKey[] = [
 ];
 export type NotificationPreferences = Record<NotificationPreferenceKey, boolean>;
 
+// mismos valores por defecto que security-service, mientras useSettings() trae los de la cuenta
+// (antes vivían en services/settingsMock.ts, que no era un mock)
+export const INITIAL_NOTIFICATION_PREFERENCES: NotificationPreferences = {
+  push: true,
+  emailReminders: true,
+  promotions: true,
+};
+
 export type HelpTopic = 'helpCenter' | 'terms' | 'privacy';
 export const HELP_TOPICS: HelpTopic[] = ['helpCenter', 'terms', 'privacy'];
 
