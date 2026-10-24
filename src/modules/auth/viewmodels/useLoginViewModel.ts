@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useSession } from '../../../core/services/auth';
 import { apiErrorCode, apiErrorKey } from '../../../core/api/apiError';
-import { isAllowedEmail, isRequired, stripSpaces } from '../../../shared/validators/authValidators';
+import { isRequired, isValidEmailFormat, stripSpaces } from '../../../shared/validators/authValidators';
 
 export interface LoginResult {
   success: boolean;
@@ -32,7 +32,8 @@ export function useLoginViewModel() {
   const emailError = useMemo(() => {
     if (!touched.email) return undefined;
     if (!isRequired(email)) return t('LOGIN.EMAIL_REQUIRED');
-    if (!isAllowedEmail(email)) return t('LOGIN.EMAIL_INVALID');
+    // A-01: al entrar solo se revisa el formato (hay cuentas antiguas con otros dominios)
+    if (!isValidEmailFormat(email)) return t('LOGIN.EMAIL_INVALID');
     return undefined;
   }, [email, touched.email, t]);
 
@@ -42,7 +43,7 @@ export function useLoginViewModel() {
     return undefined;
   }, [password, touched.password, t]);
 
-  const isValid = isRequired(email) && isAllowedEmail(email) && isRequired(password);
+  const isValid = isRequired(email) && isValidEmailFormat(email) && isRequired(password);
 
   const handleEmailChange = useCallback((value: string) => setEmail(stripSpaces(value)), []);
   const markTouched = useCallback((field: keyof Touched) => setTouched((prev) => ({ ...prev, [field]: true })), []);

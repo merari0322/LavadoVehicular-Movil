@@ -7,6 +7,13 @@ const EMAIL_FORMAT = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
 export const COLOMBIAN_PHONE_REGEX = /^3\d{9}$/;
 export const SPECIAL_CHAR_REGEX = /[!@#$%^&*(),.?":{}|<>]/;
 
+// solo el formato, sin el dominio: el inicio de sesión y la recuperación de contraseña no se
+// restringen por dominio en el servidor, y las cuentas que ya existen con otro dominio deben poder
+// entrar (A-01). El dominio se exige solo al registrarse, crear usuarios y cambiar el correo
+export function isValidEmailFormat(value: string): boolean {
+  return EMAIL_FORMAT.test(value.trim().toLowerCase());
+}
+
 export function isRequired(value: string): boolean {
   return value.trim().length > 0;
 }
