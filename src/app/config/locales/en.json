@@ -701,7 +701,8 @@
       "STARTED_MESSAGE": "Service {{code}} is now in progress.",
       "FINISHED_TITLE": "Service finished!",
       "FINISHED_MESSAGE": "Service {{code}} was marked as completed.",
-      "CONTACT_MESSAGE": "Reach the client through any of these channels."
+      "CONTACT_MESSAGE": "Reach the client through any of these channels.",
+      "NOTES": "Notes from the administrator"
     }
   },
   "OPERATOR_HOME": {
