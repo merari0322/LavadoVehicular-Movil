@@ -911,7 +911,8 @@
     "CASH_INFO_TITLE": "Vous payez sur place",
     "CASH_INFO_MESSAGE": "Payez en espèces lorsque vous récupérez votre véhicule. L'administrateur enregistrera le paiement et vous recevrez la notification de paiement approuvé.",
     "RECEIPT_COMPRESSING": "Préparation du justificatif...",
-    "RECEIPT_TOO_LARGE": "Impossible de réduire l'image sous 2 Mo. Essayez avec une capture d'écran du justificatif."
+    "RECEIPT_TOO_LARGE": "Impossible de réduire l'image sous 2 Mo. Essayez avec une capture d'écran du justificatif.",
+    "LOAD_ERROR": "Impossible de charger l'état de votre paiement ni le montant à payer. Vérifiez votre connexion et réessayez."
   },
   "VEHICLES": {
     "TITLE": "Mes Véhicules",

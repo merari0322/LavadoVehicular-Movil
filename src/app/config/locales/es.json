@@ -911,7 +911,8 @@
     "CASH_INFO_TITLE": "Pagas en el local",
     "CASH_INFO_MESSAGE": "Paga en efectivo cuando llegues por tu vehículo. El administrador registrará el pago y te llegará la notificación de pago aprobado.",
     "RECEIPT_COMPRESSING": "Preparando el comprobante...",
-    "RECEIPT_TOO_LARGE": "No pudimos reducir la imagen a menos de 2 MB. Prueba con una captura de pantalla del comprobante."
+    "RECEIPT_TOO_LARGE": "No pudimos reducir la imagen a menos de 2 MB. Prueba con una captura de pantalla del comprobante.",
+    "LOAD_ERROR": "No pudimos cargar el estado de tu pago ni el monto a pagar. Revisa tu conexión e inténtalo de nuevo."
   },
   "VEHICLES": {
     "TITLE": "Mis Vehículos",

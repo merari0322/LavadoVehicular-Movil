@@ -57,6 +57,20 @@ export interface AmountDue {
   amountDue: number;
 }
 
+// cupón canjeado en una reserva (E-09: como máximo uno por reserva)
+export interface AppliedRedemption {
+  promotionId: number;
+  promotionCode: string;
+  promotionName: string;
+  discountAmount: number;
+}
+
+// lo que el cliente debe hoy por su reserva y el cupón que tiene aplicado (BIZ-02). Lo calcula
+// payment-service: la app muestra amountDue tal cual y nunca saca el total por su cuenta
+export interface BookingAmountDue extends AmountDue {
+  redemption: AppliedRedemption | null;
+}
+
 export interface SaveAccountRequest {
   methodCode: string;
   accountHolder: string;
@@ -257,6 +271,12 @@ export const paymentService = {
 
   redeemCoupon(bookingId: number, code: string): Promise<RedeemPromotionResult> {
     return request<RedeemPromotionResult>('POST', '/loyalty/redeem', { ...base, body: { bookingId, code } });
+  },
+
+  // monto que se debe hoy y cupón aplicado (BIZ-02): se pide al abrir la pantalla de pago, así el
+  // cupón sigue a la vista y se puede quitar aunque se salga y se vuelva a entrar
+  bookingAmountDue(bookingId: number): Promise<BookingAmountDue> {
+    return request<BookingAmountDue>('GET', `/loyalty/redemptions/${bookingId}`, base);
   },
 
   // "Quitar cupón" (E-08): anula el canje en el servidor y devuelve lo que ahora falta por pagar

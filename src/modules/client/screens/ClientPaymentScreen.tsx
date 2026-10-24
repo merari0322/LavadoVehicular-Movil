@@ -1,23 +1,11 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as DocumentPicker from 'expo-document-picker';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { fontSize, fontWeight, radius, spacing, useTheme } from '../../../app/theme';
 import { RootStackParamList } from '../../../core/navigation/types';
-import { isActiveStatus } from '../../../core/services/booking/bookingDisplay';
-// cuentas del lavadero (con su QR), reporte del pago y canje de cupón: payment-service
-import {
-  ALLOWED_IMAGE_TYPES,
-  PaymentAccount,
-  paymentService,
-  RedeemPromotionResult,
-} from '../../../core/services/payments/PaymentService';
-import { compressReceipt } from '../../../core/services/payments/receiptImage';
-import { apiErrorKey } from '../../../core/api/apiError';
 import { ImageZoomModal } from '../../../shared/components/feedback/ImageZoomModal';
 import { LabeledInput } from '../../../shared/components/forms/LabeledInput';
 import { Pill } from '../../../shared/components/ui/Pill';
@@ -32,282 +20,73 @@ import { ClientLayout } from '../../../shared/layouts/ClientLayout';
 import { useEstablishment } from '../../../shared/services/establishmentCatalog';
 import { withAlpha } from '../../../shared/utils/color';
 import { formatCOP } from '../../../shared/utils/format';
-import { ClientBookingItem } from '../models/booking-view';
 // textos de pagos que ya existen en los 4 idiomas (los de la pantalla del admin)
 import { PAYMENT_TEXTS } from '../../admin/constants/paymentTexts';
-import { useClientBookings } from '../viewmodels/useClientBookings';
+import { MethodId, useClientPayment } from '../viewmodels/useClientPayment';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientPayment'>;
-type MethodId = 'NEQUI' | 'DAVIPLATA' | 'TRANSFER' | 'CASH';
-// PENDING: falta pagar · VERIFYING: el admin lo está revisando · APPROVED: el admin lo aprobó
-type FlowStep = 'PENDING' | 'VERIFYING' | 'APPROVED';
 type IconName = keyof typeof MaterialIcons.glyphMap;
 
-const METHODS: { id: MethodId; icon: IconName }[] = [
-  { id: 'NEQUI', icon: 'smartphone' },
-  { id: 'DAVIPLATA', icon: 'account-balance' },
-  { id: 'TRANSFER', icon: 'receipt-long' },
-  { id: 'CASH', icon: 'payments' },
-];
+const METHOD_ICONS: Record<MethodId, IconName> = {
+  NEQUI: 'smartphone',
+  DAVIPLATA: 'account-balance',
+  TRANSFER: 'receipt-long',
+  CASH: 'payments',
+};
 
-// la referencia debe tener entre 8 y 12 caracteres alfanuméricos
-const REFERENCE_REGEX = /^[A-Za-z0-9]{8,12}$/;
-// lo que se deja elegir; antes de enviarlo se comprime a máximo 2 MB (receiptImage)
-const MAX_PICKED_BYTES = 10 * 1024 * 1024;
+// monto del servidor en pesos; mientras no llega se muestra una raya (la app no lo calcula)
+const money = (value: number | null) => (value === null ? '—' : `${formatCOP(value)} COP`);
 
-// medio de la pantalla para el código de payment-service
-function methodIdOf(code: string): MethodId {
-  if (code === 'NEQUI') return 'NEQUI';
-  if (code === 'DAVIPLATA') return 'DAVIPLATA';
-  if (code === 'EFECTIVO') return 'CASH';
-  return 'TRANSFER';
-}
-
-// lo que se guarda del pago para que no se pierda al salir de la pantalla
-interface SavedPayment {
-  flowStep: FlowStep;
-  method: MethodId;
-}
-
-// el estado real (si el pago ya se reportó) lo trae el efecto de paymentService.mine() de
-// arriba y pisa esto; aquí solo queda el método elegido, que es de la sesión. El QR de la cuenta
-// es estático: no vence, por eso no hay cronómetro
-const storageKey = (code: string) => `@lavado_vehicular/payment/${code}`;
-
-// con bookingId en la ruta se paga esa reserva; sin id, la primera activa (o la más reciente)
-function pickBooking(bookings: ClientBookingItem[], bookingId?: number): ClientBookingItem | null {
-  if (bookingId) {
-    return bookings.find((booking) => booking.id === bookingId) ?? null;
-  }
-  const bySchedule = (a: ClientBookingItem, b: ClientBookingItem) => `${a.date} ${a.timeRange}`.localeCompare(`${b.date} ${b.timeRange}`);
-  const active = [...bookings].filter((booking) => isActiveStatus(booking.status)).sort(bySchedule);
-  return active[0] ?? [...bookings].sort(bySchedule).reverse()[0] ?? null;
-}
-
-// pago de la reserva real (booking-service): método, QR de la cuenta, comprobante y referencia
+// pago de la reserva real (booking-service): método, QR de la cuenta, comprobante y referencia.
+// La lógica vive en useClientPayment; aquí solo se pinta
 export function ClientPaymentScreen({ navigation, route }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const feedback = useFeedback();
-  const vm = useClientBookings();
+  const vm = useClientPayment(route.params?.bookingId);
   // línea de soporte del negocio (la misma que el admin edita en los datos del negocio)
   const establishment = useEstablishment();
-  // cuentas activas del lavadero; el efectivo aparece solo si el admin tiene activa su cuenta
-  const [accounts, setAccounts] = useState<PaymentAccount[]>([]);
-  const [sending, setSending] = useState(false);
-  const [compressing, setCompressing] = useState(false);
   const [qrZoomOpen, setQrZoomOpen] = useState(false);
 
-  const booking = useMemo(() => pickBooking(vm.bookings, route.params?.bookingId), [vm.bookings, route.params?.bookingId]);
-
-  const [method, setMethod] = useState<MethodId>('NEQUI');
-  const [flowStep, setFlowStep] = useState<FlowStep>('PENDING');
-  // comprobante ya comprimido: dataUrl es lo que se envía a payment-service
-  const [receipt, setReceipt] = useState<{ name: string; size: number; dataUrl: string } | null>(null);
-  const [reference, setReference] = useState('');
-  // monto que el cliente pagó según su comprobante (solo dígitos); null = no lo ha cambiado, se asume el total
-  const [paidAmountText, setPaidAmountText] = useState<string | null>(null);
-  // motivo del último pago rechazado de esta reserva (para que el cliente sepa qué corregir)
-  const [lastRejectionReason, setLastRejectionReason] = useState<string | null>(null);
-
-  // canje de cupón de fidelización (payment-service, ADR-015): puntos acumulados desbloquean
-  // la promoción, se aplica un % de descuento real sobre el total
-  const [couponCode, setCouponCode] = useState('');
-  const [couponResult, setCouponResult] = useState<RedeemPromotionResult | null>(null);
-  const [couponError, setCouponError] = useState<string | null>(null);
-  const [redeemingCoupon, setRedeemingCoupon] = useState(false);
-
-  // lo que falta por pagar según payment-service tras canjear o quitar un cupón (manda sobre el cálculo local)
-  const [serverAmountDue, setServerAmountDue] = useState<number | null>(null);
-  const total = serverAmountDue ?? Math.max(0, (booking?.total ?? 0) - (couponResult?.discountAmount ?? 0));
-  const isVerifying = flowStep === 'VERIFYING';
-  const isApproved = flowStep === 'APPROVED';
-  // con el pago enviado (en revisión o aprobado) ya no se puede cambiar ni volver a pagar
-  const isLocked = isVerifying || isApproved;
-  const isReferenceValid = REFERENCE_REGEX.test(reference);
-  const paidAmount = paidAmountText === null ? total : Number(paidAmountText);
-  const isPaidAmountValid = Number.isFinite(paidAmount) && paidAmount > 0;
-  const canConfirm =
-    !sending && !compressing && !isLocked && (method === 'CASH' || (receipt !== null && isReferenceValid && isPaidAmountValid));
-  // lo que le falta al cliente para poder confirmar: se muestra debajo del botón deshabilitado
-  // para que no quede bloqueado sin explicación
-  const missingRequirements: string[] =
-    isLocked || method === 'CASH'
-      ? []
-      : [
-          ...(receipt ? [] : ['PAYMENT.CONFIRM.MISSING.RECEIPT']),
-          ...(isReferenceValid ? [] : ['PAYMENT.CONFIRM.MISSING.REFERENCE']),
-          ...(isPaidAmountValid ? [] : ['PAYMENT.CONFIRM.MISSING.AMOUNT']),
-        ];
-
-  // solo los medios con una cuenta activa (payment-service ya filtra las inactivas, efectivo incluido)
-  const methods = useMemo(
-    () => METHODS.filter((item) => accounts.some((a) => methodIdOf(a.methodCode) === item.id)),
-    [accounts],
-  );
-  const account = accounts.find((a) => methodIdOf(a.methodCode) === method) ?? null;
-
-  // el método guardado (o el de antes) puede ya no estar activo, por ejemplo si el admin apagó el
-  // efectivo: se pasa al primero disponible. Con el pago enviado no se toca
-  useEffect(() => {
-    if (isLocked || methods.length === 0 || methods.some((item) => item.id === method)) return;
-    setMethod(methods[0].id);
-  }, [methods, method, isLocked]);
-
-  // cuentas reales del lavadero (las configura el admin, con su QR)
-  useEffect(() => {
-    paymentService
-      .accounts()
-      .then((list) => {
-        setAccounts(list);
-        if (!isLocked && list.length > 0) setMethod(methodIdOf(list[0].methodCode));
-      })
-      .catch(() => undefined);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // el estado del pago lo dice payment-service: aprobado, en revisión o sin pagar (o rechazado)
-  useEffect(() => {
-    if (!booking) return;
-    paymentService
-      .mine()
-      .then((payments) => {
-        // payment-service los devuelve del más reciente al más antiguo: el primero es el vigente
-        const current = payments.find((payment) => payment.booking?.id === booking.id);
-        setFlowStep(
-          current?.status === 'APPROVED'
-            ? 'APPROVED'
-            : current && ['PENDING', 'IN_REVIEW'].includes(current.status)
-              ? 'VERIFYING'
-              : 'PENDING',
-        );
-        setLastRejectionReason(current?.status === 'REJECTED' ? (current.rejectionReason ?? '—') : null);
-      })
-      .catch(() => undefined);
-  }, [booking?.id]);
-
-  // recupera el método y el paso guardados o empieza un pago nuevo
-  useEffect(() => {
-    if (!booking) return;
-    AsyncStorage.getItem(storageKey(booking.code))
-      .then((raw) => {
-        if (!raw) {
-          const fresh: SavedPayment = { flowStep: 'PENDING', method: 'NEQUI' };
-          return AsyncStorage.setItem(storageKey(booking.code), JSON.stringify(fresh));
-        }
-        const saved = JSON.parse(raw) as SavedPayment;
-        // solo el método: el paso lo decide payment-service (si se leía de aquí, podía llegar
-        // después de la respuesta y volver a mostrar "en verificación" un pago ya aprobado)
-        setMethod(saved.method);
-      })
-      .catch(() => undefined);
-    // solo al cargar la reserva a pagar
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [booking?.code]);
-
-  const save = (next: Partial<SavedPayment>) => {
-    if (!booking) return;
-    const state: SavedPayment = { flowStep, method, ...next };
-    AsyncStorage.setItem(storageKey(booking.code), JSON.stringify(state)).catch(() => undefined);
-  };
-
-  const selectMethod = (id: MethodId) => {
-    if (isLocked) return;
-    setMethod(id);
-    save({ method: id });
-  };
+  const {
+    booking,
+    methods,
+    method,
+    account,
+    isVerifying,
+    isApproved,
+    isLocked,
+    lastRejectionReason,
+    total,
+    coupon,
+    couponCode,
+    couponError,
+    redeemingCoupon,
+    canRedeemCoupon,
+    receipt,
+    compressing,
+    reference,
+    isReferenceValid,
+    paidAmountText,
+    isPaidAmountValid,
+    canConfirm,
+    missingRequirements,
+  } = vm;
 
   const pickReceipt = async () => {
-    const result = await DocumentPicker.getDocumentAsync({ type: ALLOWED_IMAGE_TYPES, copyToCacheDirectory: true });
-    if (result.canceled || result.assets.length === 0) return;
-
-    const file = result.assets[0];
-    const validType = !file.mimeType || ALLOWED_IMAGE_TYPES.includes(file.mimeType);
-    const validSize = (file.size ?? 0) <= MAX_PICKED_BYTES;
-    if (!validType || !validSize) {
-      feedback.showStatus({ type: 'error', title: t('PAYMENT.INVALID_FILE_TITLE'), message: t('PAYMENT.INVALID_FILE_MESSAGE') });
-      return;
-    }
-    // se comprime al elegirlo para mostrar ya el peso real que se va a enviar
-    setCompressing(true);
-    try {
-      const compressed = await compressReceipt(file.uri);
-      if (!compressed) {
-        feedback.showStatus({ type: 'error', title: t('PAYMENT.INVALID_FILE_TITLE'), message: t('PAYMENT.RECEIPT_TOO_LARGE') });
-        return;
-      }
-      setReceipt({ name: file.name, size: compressed.size, dataUrl: compressed.dataUrl });
-    } catch {
-      feedback.showStatus({ type: 'error', title: t('PAYMENT.INVALID_FILE_TITLE'), message: t('PAYMENT.INVALID_FILE_MESSAGE') });
-    } finally {
-      setCompressing(false);
-    }
-  };
-
-  const canRedeemCoupon = !isLocked && !couponResult && !redeemingCoupon && couponCode.trim().length >= 3;
-
-  const redeemCoupon = async () => {
-    if (!canRedeemCoupon || !booking) return;
-    setRedeemingCoupon(true);
-    setCouponError(null);
-    try {
-      const result = await paymentService.redeemCoupon(booking.id, couponCode.trim().toUpperCase());
-      setCouponResult(result);
-      setServerAmountDue(result.newTotal);
-    } catch (error) {
-      setCouponError(t(apiErrorKey(error)));
-    } finally {
-      setRedeemingCoupon(false);
-    }
-  };
-
-  // E-08: el canje se anula en payment-service (antes solo desaparecía de la pantalla y el descuento
-  // seguía aplicado); con un pago en revisión o aprobado el servidor responde 409 y el cupón sigue
-  const removeCoupon = async () => {
-    if (!booking || !couponResult) {
-      setCouponCode('');
-      setCouponError(null);
-      return;
-    }
-    if (redeemingCoupon) return;
-    setRedeemingCoupon(true);
-    setCouponError(null);
-    try {
-      const due = await paymentService.removeCoupon(booking.id, couponResult.promotionId);
-      setCouponResult(null);
-      setCouponCode('');
-      setServerAmountDue(due.amountDue);
-    } catch (error) {
-      setCouponError(t(apiErrorKey(error)));
-    } finally {
-      setRedeemingCoupon(false);
-    }
+    const errorKey = await vm.pickReceipt();
+    if (errorKey) feedback.showStatus({ type: 'error', title: t('PAYMENT.INVALID_FILE_TITLE'), message: t(errorKey) });
   };
 
   const confirmPayment = async () => {
-    if (!canConfirm || !booking) return;
-
-    // efectivo: se paga en el lavadero y lo registra el administrador ("Registrar pago en el
-    // local"), que lo deja aprobado. Aquí no se reporta nada ni queda "en verificación"
-    if (method === 'CASH') {
+    const result = await vm.confirmPayment();
+    if (!result) return;
+    if (result.kind === 'cash') {
       feedback.showStatus({ title: t('PAYMENT.CASH_INFO_TITLE'), message: t('PAYMENT.CASH_INFO_MESSAGE') });
-      return;
-    }
-    if (!account || !receipt) return;
-
-    setSending(true);
-    try {
-      // el comprobante viaja como imagen (ya comprimida); el monto a cobrar lo pone payment-service
-      // y paidAmount es lo que el cliente dice haber pagado (el admin compara ambos)
-      await paymentService.report(booking.id, account.id, reference, receipt.dataUrl, paidAmount);
-      setFlowStep('VERIFYING');
-      setLastRejectionReason(null);
-      save({ flowStep: 'VERIFYING' });
+    } else if (result.kind === 'sent') {
       feedback.showStatus({ title: t('PAYMENT.SUCCESS_TITLE'), message: t('PAYMENT.SUCCESS_MESSAGE') });
-    } catch (error) {
-      feedback.showError(t(apiErrorKey(error)));
-    } finally {
-      setSending(false);
+    } else {
+      feedback.showError(result.message);
     }
   };
 
@@ -321,12 +100,11 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
       cancelLabel: t('PAYMENT.CANCEL_CONFIRM.BACK'),
       danger: true,
       onConfirm: async () => {
-        const failure = await vm.cancel(booking.id);
+        const failure = await vm.cancelReservation();
         if (failure) {
           feedback.showError(failure);
           return;
         }
-        await AsyncStorage.removeItem(storageKey(code)).catch(() => undefined);
         feedback.showStatusAfterClose(
           { title: t('PAYMENT.CANCEL_CONFIRM.SUCCESS_TITLE'), message: t('PAYMENT.CANCEL_CONFIRM.SUCCESS_MESSAGE', { code }) },
           () => navigation.navigate('ClientHome'),
@@ -378,6 +156,18 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
           </View>
         ) : null}
 
+        {/* payment-service no respondió: sin el estado ni el monto no se deja pagar */}
+        {vm.paymentError ? (
+          <View style={[styles.hint, { backgroundColor: colors.errorSoft }]}>
+            <MaterialIcons name="cloud-off" size={20} color={colors.error} />
+            <View style={styles.flex}>
+              <Text style={[styles.strong, { color: colors.error }]}>{t('PAYMENT.LOAD_ERROR')}</Text>
+              <Text style={[styles.hintText, { color: colors.text }]}>{vm.paymentError}</Text>
+              <ActionButton label={t('MOBILE_NAV.RETRY')} variant="link" onPress={vm.reload} />
+            </View>
+          </View>
+        ) : null}
+
         {/* el último pago de esta reserva fue rechazado: se explica por qué antes de reportar otro */}
         {lastRejectionReason && !isLocked ? (
           <View style={[styles.hint, { backgroundColor: colors.errorSoft }]}>
@@ -396,12 +186,12 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
         <SectionCard title={t('PAYMENT.METHOD.TITLE')} icon="credit-card">
           <Text style={[styles.muted, { color: colors.textMuted }]}>{t('PAYMENT.METHOD.NO_FEES')}</Text>
           <View style={styles.methodGrid}>
-            {methods.map((item) => {
-              const active = item.id === method;
+            {methods.map((id) => {
+              const active = id === method;
               return (
                 <Pressable
-                  key={item.id}
-                  onPress={() => selectMethod(item.id)}
+                  key={id}
+                  onPress={() => vm.selectMethod(id)}
                   style={[
                     styles.method,
                     { borderColor: active ? colors.primary : colors.border },
@@ -412,9 +202,9 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
                   {active ? (
                     <MaterialIcons name="check-circle" size={18} color={colors.primary} style={styles.methodCheck} />
                   ) : null}
-                  <MaterialIcons name={item.icon} size={26} color={colors.primary} />
-                  <Text style={[styles.methodLabel, { color: colors.text }]}>{t(`PAYMENT.METHOD.${item.id}`)}</Text>
-                  <Text style={[styles.methodDesc, { color: colors.textSecondary }]}>{t(`PAYMENT.METHOD.${item.id}_DESC`)}</Text>
+                  <MaterialIcons name={METHOD_ICONS[id]} size={26} color={colors.primary} />
+                  <Text style={[styles.methodLabel, { color: colors.text }]}>{t(`PAYMENT.METHOD.${id}`)}</Text>
+                  <Text style={[styles.methodDesc, { color: colors.textSecondary }]}>{t(`PAYMENT.METHOD.${id}_DESC`)}</Text>
                 </Pressable>
               );
             })}
@@ -462,7 +252,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
               </View>
               <InfoRow label={t('PAYMENT.QR.KEY')} value={account?.accountNumber ?? '—'} />
               <InfoRow label={t('PAYMENT.QR.ACCOUNT_TYPE')} value={t('PAYMENT.QR.ACCOUNT_TYPE_VALUE')} />
-              <InfoRow label={t('PAYMENT.QR.AMOUNT')} value={`${formatCOP(total)} COP`} strong />
+              <InfoRow label={t('PAYMENT.QR.AMOUNT')} value={money(total)} strong />
               <View style={[styles.hint, { backgroundColor: withAlpha(colors.primary, 0.08) }]}>
                 <MaterialIcons name="smartphone" size={18} color={colors.primary} />
                 <Text style={[styles.hintText, { color: colors.textSecondary }]}>{t('PAYMENT.QR.HINT')}</Text>
@@ -493,7 +283,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
                 label={t('PAYMENT.CONFIRM.REFERENCE')}
                 required
                 value={reference}
-                onChangeText={(text) => setReference(text.replace(/[^A-Za-z0-9]/g, ''))}
+                onChangeText={vm.setReference}
                 placeholder="M18492048"
                 autoCapitalize="characters"
                 autoCorrect={false}
@@ -508,8 +298,8 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
                 label={t('PAYMENT.CONFIRM.AMOUNT')}
                 required
                 prefix="$"
-                value={paidAmountText ?? String(total)}
-                onChangeText={(text) => setPaidAmountText(text.replace(/[^0-9]/g, ''))}
+                value={paidAmountText}
+                onChangeText={vm.setPaidAmount}
                 keyboardType="number-pad"
                 editable={!isLocked}
               />
@@ -544,16 +334,16 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
 
           {/* canjear un cupón de fidelización (ADR-015): puntos acumulados desbloquean la
               promoción, se aplica un % de descuento real sobre el total */}
-          {couponResult ? (
+          {coupon ? (
             <View style={[styles.couponApplied, { backgroundColor: colors.successSoft }]}>
               <MaterialIcons name="local-offer" size={18} color={colors.success} />
               <Text style={[styles.flex, styles.muted, { color: colors.success }]}>
-                {t('PAYMENT.COUPON.APPLIED', { name: couponResult.promotionName })}
+                {t('PAYMENT.COUPON.APPLIED', { name: coupon.promotionName })}
               </Text>
-              <Text style={[styles.strong, { color: colors.success }]}>-{formatCOP(couponResult.discountAmount)} COP</Text>
+              <Text style={[styles.strong, { color: colors.success }]}>-{formatCOP(coupon.discountAmount)} COP</Text>
               {/* con el pago enviado o aprobado el cupón ya no se puede quitar */}
               {isLocked ? null : (
-                <Pressable onPress={removeCoupon} hitSlop={6}>
+                <Pressable onPress={vm.removeCoupon} hitSlop={6}>
                   <MaterialIcons name="close" size={18} color={colors.success} />
                 </Pressable>
               )}
@@ -563,13 +353,13 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
               <LabeledInput
                 containerStyle={styles.flex}
                 value={couponCode}
-                onChangeText={setCouponCode}
+                onChangeText={vm.setCouponCode}
                 placeholder={t('PAYMENT.COUPON.PLACEHOLDER')}
                 autoCapitalize="characters"
                 editable={!isLocked}
               />
               <Pressable
-                onPress={redeemCoupon}
+                onPress={vm.redeemCoupon}
                 disabled={!canRedeemCoupon}
                 style={[styles.couponApply, { backgroundColor: colors.primary, opacity: canRedeemCoupon ? 1 : 0.5 }]}
               >
@@ -584,7 +374,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
           {couponError ? <Text style={[styles.muted, { color: colors.error }]}>{couponError}</Text> : null}
 
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          <InfoRow label={t('PAYMENT.SUMMARY.TOTAL')} value={`${formatCOP(total)} COP`} strong />
+          <InfoRow label={t('PAYMENT.SUMMARY.TOTAL')} value={money(total)} strong />
           <Text style={[styles.muted, { color: colors.textMuted }]}>{t('PAYMENT.SUMMARY.TAX')}</Text>
 
           {/* aprobado: no hay nada que pagar, solo se puede cancelar la reserva */}

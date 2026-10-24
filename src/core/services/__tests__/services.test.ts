@@ -69,6 +69,32 @@ describe('servicios del móvil contra el gateway', () => {
     expect(result.newTotal).toBe(36000);
   });
 
+  it('pago: el monto que se debe y el cupón aplicado se piden al servidor (BIZ-02)', async () => {
+    fetchMock.mockReturnValue(respond(200, {
+      bookingId: 7, bookingTotal: 40000, appliedDiscounts: 4000, amountDue: 36000,
+      redemption: { promotionId: 1, promotionCode: 'VERANO10', promotionName: 'Verano', discountAmount: 4000 },
+    }));
+
+    const due = await paymentService.bookingAmountDue(7);
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toMatch(/\/loyalty\/redemptions\/7$/);
+    expect(init.method).toBe('GET');
+    expect(due.amountDue).toBe(36000);
+    expect(due.redemption?.promotionId).toBe(1);
+  });
+
+  it('pago: quitar el cupón usa el DELETE con la reserva y la promoción (E-08)', async () => {
+    fetchMock.mockReturnValue(respond(200, { bookingId: 7, bookingTotal: 40000, appliedDiscounts: 0, amountDue: 40000 }));
+
+    const due = await paymentService.removeCoupon(7, 1);
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toMatch(/\/loyalty\/redemptions\/7\/1$/);
+    expect(init.method).toBe('DELETE');
+    expect(due.amountDue).toBe(40000);
+  });
+
   it('sin conexión con el servidor el error es NETWORK_ERROR', async () => {
     fetchMock.mockReturnValue(Promise.reject(new TypeError('Network request failed')));
 
