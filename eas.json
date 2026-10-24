@@ -16,6 +16,10 @@
       "autoIncrement": true
     },
     "production": {
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://lavarapidovehicular.northcentralus.cloudapp.azure.com/api/v1"
+      },
+      "channel": "preview",
       "autoIncrement": true
     }
   },

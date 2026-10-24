@@ -41,6 +41,27 @@ export const OPERATIONS_API_URL = clean(process.env.EXPO_PUBLIC_OPERATIONS_API_U
 export const PAYMENT_API_URL = clean(process.env.EXPO_PUBLIC_PAYMENT_API_URL ?? API_BASE_URL);
 export const NOTIFICATION_API_URL = clean(process.env.EXPO_PUBLIC_NOTIFICATION_API_URL ?? API_BASE_URL);
 
+// MOV-08: un build de producción (sin __DEV__) tiene que hablar con el servidor por https. Si le falta
+// EXPO_PUBLIC_API_URL caería en el emulador (http://10.0.2.2) y solo diría "sin conexión": es mejor
+// que falle al abrir con un mensaje que diga qué revisar
+const LOCAL_HOST = /\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2)([:/]|$)/i;
+
+export function assertReleaseApiUrls(urls: string[], isDev: boolean): void {
+  if (isDev) return;
+  const wrong = urls.find((url) => !/^https:\/\//i.test(url) || LOCAL_HOST.test(url));
+  if (wrong) {
+    throw new Error(
+      `Dirección del backend no válida para un build de producción: ${wrong}. ` +
+        'Debe ser https y pública: revisa EXPO_PUBLIC_API_URL en build.<perfil>.env de eas.json.',
+    );
+  }
+}
+
+assertReleaseApiUrls(
+  [API_BASE_URL, CUSTOMER_API_URL, BOOKING_API_URL, OPERATIONS_API_URL, PAYMENT_API_URL, NOTIFICATION_API_URL],
+  __DEV__,
+);
+
 // dirección de la web, para los enlaces públicos (ej. el reporte de inspección: /report/{token}).
 // EXPO_PUBLIC_WEB_URL la fija a mano; si no, es el mismo equipo del gateway con el puerto de la web
 const WEB_PORT = 4200;
