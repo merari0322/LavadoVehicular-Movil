@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useAuthService } from '../../../core/services/auth';
-import { apiErrorKey } from '../../../core/api/apiError';
+import { apiErrorCode, apiErrorKey } from '../../../core/api/apiError';
 import { ForgotPasswordStep } from '../types/auth.types';
 import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
@@ -48,25 +48,6 @@ export function useForgotPasswordFlow() {
     [authService, showError, t]
   );
 
-  const handleCodeVerified = useCallback(
-    async (code: string) => {
-      setSubmitting(true);
-      setErrorMessage(null);
-      try {
-        await authService.verifyPasswordResetCode(email, code);
-        setVerifiedCode(code);
-        setStep(3);
-        return true;
-      } catch (error) {
-        showError(t('AUTH_FEEDBACK.CODE_ERROR_TITLE'), t(apiErrorKey(error)));
-        return false;
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    [authService, email, showError]
-  );
-
   // pide un código nuevo: el anterior deja de servir
   const handleResendCode = useCallback(async () => {
     setErrorMessage(null);
@@ -83,6 +64,54 @@ export function useForgotPasswordFlow() {
     }
   }, [authService, email, showError, t]);
 
+  // TOO_MANY_ATTEMPTS (423, SEC-12): el código quedó bloqueado por los intentos fallidos. Además del
+  // mensaje se ofrece pedir otro, que vuelve al paso del código
+  const showError423 = useCallback(
+    (title: string, error: unknown): boolean => {
+      if (apiErrorCode(error) !== 'TOO_MANY_ATTEMPTS') return false;
+      const message = t(apiErrorKey(error));
+      setErrorMessage(message);
+      AppAlert.alert(
+        title,
+        message,
+        [
+          { text: t('AUTH_FEEDBACK.OK'), style: 'cancel' },
+          {
+            text: t('AUTH_FEEDBACK.REQUEST_NEW_CODE'),
+            onPress: () => {
+              setStep(2);
+              void handleResendCode();
+            },
+          },
+        ],
+        { type: 'error' },
+      );
+      return true;
+    },
+    [handleResendCode, t],
+  );
+
+  const handleCodeVerified = useCallback(
+    async (code: string) => {
+      setSubmitting(true);
+      setErrorMessage(null);
+      try {
+        await authService.verifyPasswordResetCode(email, code);
+        setVerifiedCode(code);
+        setStep(3);
+        return true;
+      } catch (error) {
+        if (!showError423(t('AUTH_FEEDBACK.CODE_ERROR_TITLE'), error)) {
+          showError(t('AUTH_FEEDBACK.CODE_ERROR_TITLE'), t(apiErrorKey(error)));
+        }
+        return false;
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [authService, email, showError, showError423, t]
+  );
+
   const handlePasswordUpdated = useCallback(
     async (newPassword: string) => {
       setSubmitting(true);
@@ -92,13 +121,15 @@ export function useForgotPasswordFlow() {
         return true;
       } catch (error) {
         // ej. SAME_PASSWORD: la nueva contraseña no puede ser la que ya tenía
-        showError(t('AUTH_FEEDBACK.PASSWORD_ERROR_TITLE'), t(apiErrorKey(error)));
+        if (!showError423(t('AUTH_FEEDBACK.PASSWORD_ERROR_TITLE'), error)) {
+          showError(t('AUTH_FEEDBACK.PASSWORD_ERROR_TITLE'), t(apiErrorKey(error)));
+        }
         return false;
       } finally {
         setSubmitting(false);
       }
     },
-    [authService, email, verifiedCode, showError, t]
+    [authService, email, verifiedCode, showError, showError423, t]
   );
 
   return {

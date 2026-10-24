@@ -1610,7 +1610,8 @@
     "PASSWORD_UPDATED_MESSAGE": "Ya puedes iniciar sesión con tu nueva contraseña.",
     "PASSWORD_ERROR_TITLE": "No se pudo cambiar la contraseña",
     "GO_TO_LOGIN": "Ir a iniciar sesión",
-    "ERROR_TITLE": "Algo salió mal"
+    "ERROR_TITLE": "Algo salió mal",
+    "REQUEST_NEW_CODE": "Pedir otro código"
   },
   "GO_TO": {
     "HOME": "Ir al inicio",
