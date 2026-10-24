@@ -1,3 +1,4 @@
+import { fetchAllPages, MAX_PAGE_SIZE } from '../../api/pagination';
 import { request } from '../../api/httpClient';
 import { AuthUser, UserRole } from '../auth/auth.types';
 import { toAuthUser } from '../auth/HttpAuthService';
@@ -29,12 +30,20 @@ export interface AccountSummary extends AuthUser {
   createdAt: string | null;
 }
 
+// tope de páginas al listar cuentas (5.000): suficiente para el lavadero sin cargar sin fin
+const MAX_USER_PAGES = 50;
+
 // gestión de cuentas del administrador contra el security-service (/admin/users).
 // El backend exige el rol ADMIN en el token; otro rol recibe 403.
 export const userAdminService = {
-  async listAccounts(page = 0, size = 100): Promise<AccountSummary[]> {
-    const response = await request<PageResponse<BackendUser>>('GET', '/admin/users', { query: { page, size } });
-    return response.items.map((user) => ({
+  // todas las cuentas, de 100 en 100 (el máximo de security-service): antes solo llegaban las
+  // primeras 100 (MOV-13)
+  async listAccounts(): Promise<AccountSummary[]> {
+    const users = await fetchAllPages(
+      (page) => request<PageResponse<BackendUser>>('GET', '/admin/users', { query: { page, size: MAX_PAGE_SIZE } }),
+      MAX_USER_PAGES,
+    );
+    return users.map((user) => ({
       ...toAuthUser(user),
       lastLogin: user.lastLogin ?? null,
       createdAt: user.createdAt ?? null,
