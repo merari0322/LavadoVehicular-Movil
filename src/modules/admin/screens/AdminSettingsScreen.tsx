@@ -8,7 +8,7 @@ import { AdminLayout } from '../../../shared/layouts/AdminLayout';
 import { BusinessTab } from '../components/settings/BusinessTab';
 import { GeneralTab } from '../components/settings/GeneralTab';
 import { LegalDocumentModal, LegalDocumentType } from '../../../shared/components/feedback/LegalDocumentModal';
-import { useEstablishment } from '../../../shared/services/establishmentCatalog';
+import { establishmentText, useEstablishment } from '../../../shared/services/establishmentCatalog';
 import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { PaymentMethodFormModal } from '../components/settings/PaymentMethodFormModal';
 import { PaymentsTab } from '../components/settings/PaymentsTab';
@@ -61,7 +61,7 @@ export const AdminSettingsScreen = () => {
         { label: t('CONFIG.HELP_MODAL.SUPPORT_LINE'), value: establishment.phone ?? '—' },
         { label: t('CONFIG.HELP_MODAL.EMAIL'), value: establishment.email ?? '—' },
         { label: t('CONFIG.HELP_MODAL.HOURS'), value: t('CONFIG.HELP_MODAL.HOURS_VALUE') },
-        { label: t('CONFIG.HELP_MODAL.ADDRESS'), value: establishment.address },
+        { label: t('CONFIG.HELP_MODAL.ADDRESS'), value: establishmentText(establishment.address, '—') },
       ],
     });
   };

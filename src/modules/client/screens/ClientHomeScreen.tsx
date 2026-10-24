@@ -15,7 +15,7 @@ import { ProgressBar } from '../../../shared/components/screen/ProgressBar';
 import { ScreenScroll } from '../../../shared/components/screen/ScreenScroll';
 import { SectionCard } from '../../../shared/components/screen/SectionCard';
 import { StatGrid, StatTile } from '../../../shared/components/screen/StatTile';
-import { useEstablishment } from '../../../shared/services/establishmentCatalog';
+import { establishmentText, useEstablishment } from '../../../shared/services/establishmentCatalog';
 import { useFeedback } from '../../../shared/hooks/useFeedback';
 import { ClientLayout } from '../../../shared/layouts/ClientLayout';
 import { withAlpha } from '../../../shared/utils/color';
@@ -76,7 +76,7 @@ export function ClientHomeScreen({ navigation }: Props) {
         { label: t('RESERVE.SUMMARY.SERVICE'), value: service.services.join(', ') },
         { label: t('RESERVE.SUMMARY.VEHICLE'), value: `${service.vehicle} · ${service.plate}`.trim() },
         { label: t('RESERVE.SUMMARY.DATE'), value: `${service.displayDate} · ${service.timeRange}` },
-        { label: t('RESERVE.SUMMARY.CAR_WASH'), value: establishment.address },
+        { label: t('RESERVE.SUMMARY.CAR_WASH'), value: establishmentText(establishment.address, t('MOBILE_NAV.LOADING')) },
         { label: t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED'), value: service.operator ?? '—' },
         { label: t('DASHBOARD.NEXT_SERVICE.STATUS'), value: t(`STATUS.${service.status}`) },
         { label: t('DASHBOARD.NEXT_SERVICE.PROGRESS'), value: `${progress}%` },
@@ -130,7 +130,10 @@ export function ClientHomeScreen({ navigation }: Props) {
             <View style={styles.meta}>
               <MaterialIcons name="storefront" size={16} color={colors.textMuted} />
               <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-                {establishment.tradeName} · {establishment.address}
+                {establishmentText(
+                  [establishment.tradeName, establishment.address].filter((part) => part?.trim()).join(' · '),
+                  t('MOBILE_NAV.LOADING'),
+                )}
               </Text>
             </View>
             <View style={styles.meta}>
