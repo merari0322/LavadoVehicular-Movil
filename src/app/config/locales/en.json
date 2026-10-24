@@ -911,7 +911,8 @@
     "CASH_INFO_TITLE": "You pay at the car wash",
     "CASH_INFO_MESSAGE": "Pay in cash when you pick up your vehicle. The administrator will record the payment and you will get the payment-approved notification.",
     "RECEIPT_COMPRESSING": "Preparing the receipt...",
-    "RECEIPT_TOO_LARGE": "We could not reduce the image below 2 MB. Try a screenshot of the receipt."
+    "RECEIPT_TOO_LARGE": "We could not reduce the image below 2 MB. Try a screenshot of the receipt.",
+    "LOAD_ERROR": "We couldn't load your payment status or the amount due. Check your connection and try again."
   },
   "VEHICLES": {
     "TITLE": "My Vehicles",

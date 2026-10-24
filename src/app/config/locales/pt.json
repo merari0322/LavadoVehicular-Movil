@@ -911,7 +911,8 @@
     "CASH_INFO_TITLE": "Você paga no local",
     "CASH_INFO_MESSAGE": "Pague em dinheiro quando buscar seu veículo. O administrador registrará o pagamento e você receberá a notificação de pagamento aprovado.",
     "RECEIPT_COMPRESSING": "Preparando o comprovante...",
-    "RECEIPT_TOO_LARGE": "Não conseguimos reduzir a imagem para menos de 2 MB. Tente uma captura de tela do comprovante."
+    "RECEIPT_TOO_LARGE": "Não conseguimos reduzir a imagem para menos de 2 MB. Tente uma captura de tela do comprovante.",
+    "LOAD_ERROR": "Não foi possível carregar o status do seu pagamento nem o valor a pagar. Verifique sua conexão e tente novamente."
   },
   "VEHICLES": {
     "TITLE": "Meus Veículos",
