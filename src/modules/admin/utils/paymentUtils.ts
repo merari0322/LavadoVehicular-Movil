@@ -3,6 +3,11 @@ import { isoToDisplay } from './reservationUtils';
 
 const pad = (value: number): string => String(value).padStart(2, '0');
 
+// C-04: cuentas para registrar un pago en caja: las activas y la de efectivo aunque esté inactiva
+// (desactivarla solo la quita a los clientes; payment-service la sigue aceptando para el admin)
+export const manualPaymentAccounts = <T extends { active: boolean; methodCode: string }>(list: T[]): T[] =>
+  list.filter((account) => account.active || account.methodCode === 'EFECTIVO');
+
 // 85000 -> '85.000' (separador de miles colombiano)
 export const formatThousands = (value: number): string =>
   String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
