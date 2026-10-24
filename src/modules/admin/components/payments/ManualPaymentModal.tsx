@@ -10,6 +10,7 @@ import { bookingService } from '../../../../core/services/booking/BookingService
 import { paymentService } from '../../../../core/services/payments/PaymentService';
 import { toISODate } from '../../../../shared/utils/format';
 import { formatCOP } from '../../../../shared/utils/format';
+import { manualPaymentAccounts } from '../../utils/paymentUtils';
 import { ReservationField } from '../reservations/ReservationField';
 import { ModalCloseButton } from '../../../../shared/components/feedback/ModalCloseButton';
 import { ModalShell } from '../../../../shared/components/feedback/ModalShell';
@@ -60,7 +61,7 @@ export function ManualPaymentModal({ visible, onClose, onSubmit }: ManualPayment
     paymentService
       .adminAccounts()
       .then((list) => {
-        const active = list.filter((a) => a.active);
+        const active = manualPaymentAccounts(list);
         setAccounts(active.map((a) => ({ value: String(a.id), label: `${a.methodName} · ${a.accountHolder}` })));
         // efectivo primero: es lo más común en caja
         const cash = active.find((a) => a.methodCode === 'EFECTIVO') ?? active[0];
