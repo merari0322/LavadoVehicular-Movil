@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Image, ImageSourcePropType, Pressable, StyleSheet, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { radius, useTheme } from '../../../../app/theme';
@@ -17,6 +18,7 @@ interface InspectionPhotoThumbProps {
 // mientras carga y un ícono si la foto ya no existe; al tocarla se abre ampliada
 export function InspectionPhotoThumb({ source, size = 76, onPress, onRemove }: InspectionPhotoThumbProps) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [loading, setLoading] = useState(true);
   const [missing, setMissing] = useState(false);
@@ -44,7 +46,7 @@ export function InspectionPhotoThumb({ source, size = 76, onPress, onRemove }: I
         {loading && !missing ? <ActivityIndicator style={StyleSheet.absoluteFill} color={colors.primary} /> : null}
       </Pressable>
       {onRemove ? (
-        <Pressable style={styles.remove} onPress={onRemove} hitSlop={8}>
+        <Pressable style={styles.remove} onPress={onRemove} hitSlop={8} accessibilityRole="button" accessibilityLabel={t('COMMON.DELETE')}>
           <MaterialIcons name="close" size={14} color="#ffffff" />
         </Pressable>
       ) : null}

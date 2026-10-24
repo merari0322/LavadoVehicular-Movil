@@ -47,6 +47,7 @@ export function NotificationFiltersCard({
           onPress={onReset}
           disabled={!hasActiveFilters}
           accessibilityLabel={texts.reset}
+          accessibilityRole="button"
           hitSlop={4}
         >
           <MaterialIcons name="refresh" size={20} color={colors.textSecondary} />
