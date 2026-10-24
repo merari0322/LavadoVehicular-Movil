@@ -34,6 +34,8 @@ export interface Payment {
   auditedBy: string;
   // imagen real del comprobante (payment-service); null en pagos registrados en caja
   receiptImage?: string | null;
+  // E-10: si tiene imagen aunque todavía no se haya pedido (la cola llega sin ella)
+  hasReceiptImage?: boolean;
   // titular de la cuenta que recibió el pago
   payee?: string;
 }

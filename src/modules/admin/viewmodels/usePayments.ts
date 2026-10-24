@@ -10,6 +10,11 @@ import {
 import { getTodayISO } from '../utils/reservationUtils';
 import { useSharedState } from '../../../shared/hooks/useSharedState';
 import { PaymentView, paymentService } from '../../../core/services/payments/PaymentService';
+import { fetchAllPages, MAX_PAGE_SIZE } from '../../../core/api/pagination';
+
+// E-10: se leen hasta 500 pagos (5 páginas de 100), los más recientes primero: alcanzan para los
+// pendientes y las cifras de hoy sin bajar las imágenes de todos los comprobantes
+const MAX_PAYMENT_PAGES = 5;
 
 // Filtros sin ningún valor aplicado
 export const EMPTY_PAYMENT_FILTERS: PaymentFilters = { search: '', method: '', status: '' };
@@ -57,6 +62,7 @@ function toPayment(p: PaymentView): Payment {
     rejectionReason: p.rejectionReason ?? '',
     auditedBy: '',
     receiptImage: p.receiptImage,
+    hasReceiptImage: p.hasReceiptImage ?? Boolean(p.receiptImage),
     payee: p.account?.accountHolder ?? '',
   };
 }
@@ -70,7 +76,8 @@ export function usePayments() {
 
   const reload = useCallback(async () => {
     try {
-      setPayments((await paymentService.adminList()).map(toPayment));
+      const list = await fetchAllPages((page) => paymentService.adminPage(page, MAX_PAGE_SIZE), MAX_PAYMENT_PAGES);
+      setPayments(list.map(toPayment));
       setError(null);
     } catch (e) {
       setError(e);

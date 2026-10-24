@@ -16,6 +16,7 @@ import {
 } from '../../utils/paymentUtils';
 import { PaymentStatusBadge } from './PaymentBadges';
 import { PaymentReceipt } from './PaymentReceipt';
+import { usePaymentReceipt } from '../../viewmodels/usePaymentReceipt';
 import { ModalCloseButton } from '../../../../shared/components/feedback/ModalCloseButton';
 import { ModalShell } from '../../../../shared/components/feedback/ModalShell';
 
@@ -129,9 +130,11 @@ function AmountComparison({ payment }: { payment: Payment }) {
 }
 
 // Modal para revisar un pago: aprobar, rechazar o consultar el recibo
-export function PaymentReviewModal({ payment, onClose, onApprove, onReject, onRefund }: PaymentReviewModalProps) {
+export function PaymentReviewModal({ payment: selected, onClose, onApprove, onReject, onRefund }: PaymentReviewModalProps) {
   const { colors, styles } = useThemedStyles();
   const { user } = useSession();
+  // E-10: la imagen del comprobante se pide al abrir el pago (la cola llega sin ella)
+  const { payment, receiptError } = usePaymentReceipt(selected);
 
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState('');
@@ -217,6 +220,7 @@ export function PaymentReviewModal({ payment, onClose, onApprove, onReject, onRe
           {/* Comprobante */}
           <Text style={styles.sectionLabel}>{texts.attachment}</Text>
           <PaymentReceipt payment={payment} />
+          {receiptError ? <Text style={styles.infoDetail}>{receiptError}</Text> : null}
 
           {/* Cliente y cita vinculada */}
           <View style={styles.customerBlock}>
