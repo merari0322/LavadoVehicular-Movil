@@ -84,7 +84,9 @@ export function PromotionsTab({
 
             {/* Lo que obtiene el cliente: descuento al canjear y puntos para desbloquearlo */}
             <Text style={styles.reward}>
-              {texts.discountValue(promotion.discountPercent)}{' '}
+              {promotion.discountType === 'FIXED'
+                ? texts.discountAmountValue(formatCurrency(promotion.discountValue))
+                : texts.discountValue(promotion.discountValue)}{' '}
               <Text style={styles.points}>
                 · {promotion.requiredPoints > 0 ? texts.pointsValue(promotion.requiredPoints) : texts.noPoints}
               </Text>

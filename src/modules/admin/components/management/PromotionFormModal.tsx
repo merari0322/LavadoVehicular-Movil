@@ -45,7 +45,9 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
   const [startDate, setStartDate] = useState('');
   const [featured, setFeatured] = useState(false);
   const [benefits, setBenefits] = useState<string[]>([]);
-  const [discountPercent, setDiscountPercent] = useState('');
+  const [discountValue, setDiscountValue] = useState('');
+  // D-01: el tipo no se cambia aquí: una promoción nueva es por porcentaje y una FIXED sigue en pesos
+  const [discountType, setDiscountType] = useState<'PERCENT' | 'FIXED'>('PERCENT');
   const [requiredPoints, setRequiredPoints] = useState('');
   const [errors, setErrors] = useState<Errors>({});
 
@@ -59,7 +61,8 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
     setStartDate(isoToDisplay(promotion?.startDate ?? getTodayISO()));
     setFeatured(promotion?.featured ?? false);
     setBenefits(promotion?.benefits ?? []);
-    setDiscountPercent(promotion ? String(promotion.discountPercent) : '10');
+    setDiscountType(promotion?.discountType ?? 'PERCENT');
+    setDiscountValue(promotion ? String(promotion.discountValue) : '10');
     setRequiredPoints(promotion ? String(promotion.requiredPoints) : '0');
     setErrors({});
   }, [visible, promotion]);
@@ -84,8 +87,9 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
     const minStart = promotion?.startDate && promotion.startDate < getTodayISO() ? promotion.startDate : getTodayISO();
     if (!startISO) found.startDate = errorTexts.startDate;
     else if (startISO < minStart) found.startDate = DATE_ERRORS.past;
-    const discountValue = Number(discountPercent);
-    if (!isValidDiscountPercent(discountValue)) found.discountPercent = errorTexts.discountPercent;
+    const discount = Number(discountValue);
+    const discountOk = discountType === 'FIXED' ? Number.isInteger(discount) && discount > 0 : isValidDiscountPercent(discount);
+    if (!discountOk) found.discountPercent = discountType === 'FIXED' ? errorTexts.discountAmount : errorTexts.discountPercent;
 
     if (Object.keys(found).length > 0) {
       setErrors(found);
@@ -100,7 +104,8 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
       startDate: displayToISO(startDate) as string,
       featured,
       benefits: benefits.map((item) => item.trim()).filter(Boolean),
-      discountPercent: discountValue,
+      discountType,
+      discountValue: discount,
       requiredPoints: Number(requiredPoints) || 0,
     });
   };
@@ -179,16 +184,16 @@ export function PromotionFormModal({ visible, promotion, onClose, onSubmit }: Pr
       <View style={styles.row}>
         <LabeledInput
           containerStyle={styles.flex}
-          label={texts.discountPercent}
+          label={discountType === 'FIXED' ? texts.discountAmount : texts.discountPercent}
           required
-          value={discountPercent}
+          value={discountValue}
           onChangeText={(text) => {
-            setDiscountPercent(text.replace(/\D/g, ''));
+            setDiscountValue(text.replace(/\D/g, ''));
             clearError('discountPercent');
           }}
           error={errors.discountPercent}
           keyboardType="number-pad"
-          maxLength={3}
+          maxLength={discountType === 'FIXED' ? 7 : 2}
         />
         <LabeledInput
           containerStyle={styles.flex}

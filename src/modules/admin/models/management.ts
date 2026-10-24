@@ -106,7 +106,9 @@ export interface Promotion {
   // cupón real (ADR-015): % de descuento que aplica al canjear y puntos necesarios para
   // desbloquearlo; icon/featured/benefits son solo la tarjeta. No hay precio ni duración: el
   // cupón es un descuento sobre la reserva, no un paquete con precio propio
-  discountPercent: number;
+  // D-01: tipo y valor reales: PERCENT (1 a 99 %) o FIXED (pesos)
+  discountType: 'PERCENT' | 'FIXED';
+  discountValue: number;
   requiredPoints: number;
 }
 
