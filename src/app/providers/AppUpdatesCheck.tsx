@@ -12,6 +12,7 @@ import {
   downloadUrlOf,
   fetchPublishedApk,
   isNewerThanInstalled,
+  onAppActive,
   siteUrlOf,
 } from '../../core/services/appUpdates/publishedApk';
 import { AppAlert } from '../../shared/components/feedback/AppAlert';
@@ -33,16 +34,21 @@ export function AppUpdatesCheck() {
   const asked = useRef({ ota: false });
   const siteUrl = siteUrlOf(API_BASE_URL);
 
-  // 1. ¿hay un APK más nuevo publicado? (solo en el APK instalado: Expo Go y la web no tienen versionCode)
+  // 1. ¿hay un APK más nuevo publicado? (solo en el APK instalado: Expo Go y la web no tienen versionCode).
+  // Se revisa al abrir y cada vez que la app vuelve a primer plano (MOV-14): un APK obligatorio que se
+  // publica mientras la app estaba en segundo plano también bloquea
   useEffect(() => {
     if (Platform.OS !== 'android' || !Application.nativeBuildVersion) return;
     let cancelled = false;
-    void fetchPublishedApk(siteUrl).then((published) => {
-      if (cancelled || !isNewerThanInstalled(published, Application.nativeBuildVersion) || !published) return;
-      setNewerApk(published);
+    const stop = onAppActive(() => {
+      void fetchPublishedApk(siteUrl).then((published) => {
+        if (cancelled || !isNewerThanInstalled(published, Application.nativeBuildVersion) || !published) return;
+        setNewerApk(published);
+      });
     });
     return () => {
       cancelled = true;
+      stop();
     };
   }, [siteUrl]);
 
