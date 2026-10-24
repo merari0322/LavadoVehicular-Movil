@@ -18,6 +18,7 @@ import { ReservationCard } from '../components/ReservationCard';
 import { ReservationDetailModal } from '../components/ReservationDetailModal';
 import { OperatorReservation, canStartNow } from '../models/operator';
 import { useOperatorReservations } from '../viewmodels/useOperatorReservations';
+import { useRefreshOnFocus } from '../../../shared/hooks/useRefreshOnFocus';
 
 type Tab = 'day' | 'week' | 'completed';
 
@@ -37,6 +38,8 @@ export function OperatorScheduleScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const vm = useOperatorReservations();
+  // datos frescos al volver a la pantalla o al llegar una push (ej. el admin le asignó un servicio)
+  useRefreshOnFocus(vm.reload);
   const [tab, setTab] = useState<Tab>('day');
   const [selectedDate, setSelectedDate] = useState(todayISO());
   const [detail, setDetail] = useState<OperatorReservation | null>(null);

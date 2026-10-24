@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '../../../core/services/auth';
 import { bookingService } from '../../../core/services/booking/BookingService';
@@ -33,8 +33,8 @@ const STATUS_BY_OPERATOR: Record<string, OperatorStatusValue> = {
 export function useAdminDashboardViewModel() {
   const { t, i18n } = useTranslation();
   const { user } = useSession();
-  const { reservations, assignOperator, unassigned, toClose, closeAsAttended, markNoShow } = useReservations();
-  const { payments, stats: paymentStats, approvePayment, rejectPayment } = usePayments();
+  const { reservations, assignOperator, unassigned, toClose, closeAsAttended, markNoShow, refresh: refreshReservations } = useReservations();
+  const { payments, stats: paymentStats, approvePayment, rejectPayment, reload: reloadPayments } = usePayments();
   const { operators, getBayName } = useOperators();
   // bahías reales (las carga useReservations con loadReservationCatalog)
   const { bays } = useReservationCatalog();
@@ -47,6 +47,12 @@ export function useAdminDashboardViewModel() {
   useEffect(() => {
     bookingService.daySummary().then(setDaySummary).catch(() => undefined);
   }, []);
+
+  // refresco silencioso al volver al inicio o al llegar una push (reservas, pagos y resumen del día)
+  const refresh = useCallback(
+    () => Promise.all([refreshReservations(), reloadPayments(), bookingService.daySummary().then(setDaySummary)]),
+    [refreshReservations, reloadPayments],
+  );
 
   const today = useMemo(
     () =>
@@ -130,6 +136,7 @@ export function useAdminDashboardViewModel() {
   const activeBays = bays.filter((bay) => bay.status === 'ACTIVE').length;
 
   return {
+    refresh,
     adminName: user?.firstName ?? '',
     today,
     stats: {

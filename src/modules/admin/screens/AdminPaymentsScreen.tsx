@@ -17,6 +17,7 @@ import { PAYMENT_TEXTS } from '../constants/paymentTexts';
 import { ManualPaymentValues, Payment } from '../models/payment';
 import { isoToDisplay } from '../utils/reservationUtils';
 import { usePayments } from '../viewmodels/usePayments';
+import { useRefreshOnFocus } from '../../../shared/hooks/useRefreshOnFocus';
 import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 // Escapa un valor para CSV (comillas dobles)
@@ -38,7 +39,10 @@ export const AdminPaymentsScreen = () => {
     rejectPayment,
     refundPayment,
     createManualPayment,
+    reload,
   } = usePayments();
+  // datos frescos al volver a la pantalla o al llegar una push (ej. un cliente reportó un pago)
+  useRefreshOnFocus(reload);
 
   // Modal de pago manual
   const [manualVisible, setManualVisible] = useState(false);

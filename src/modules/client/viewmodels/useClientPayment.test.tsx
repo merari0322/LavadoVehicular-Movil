@@ -19,7 +19,7 @@ const mockBooking = {
   subtotal: 40000, pointsDiscount: 0, total: 40000, paymentStatus: null, canPay: true, canCancel: true, canRate: false,
 };
 const mockBookingsVm = {
-  bookings: [mockBooking], loading: false, loadError: null, reload: jest.fn(), cancel: jest.fn(), rate: jest.fn(),
+  bookings: [mockBooking], loading: false, loadError: null, reload: jest.fn(), refresh: jest.fn(), cancel: jest.fn(), rate: jest.fn(),
 };
 jest.mock('./useClientBookings', () => ({ useClientBookings: () => mockBookingsVm }));
 
@@ -124,6 +124,29 @@ describe('useClientPayment (E-08 / BIZ-02)', () => {
     expect(hook.result.total).toBeNull();
     expect(hook.result.paymentError).toBe('API_ERRORS.UNEXPECTED');
     expect(hook.result.canConfirm).toBe(false);
+    await hook.unmount();
+  });
+
+  it('el refresco al volver a la pantalla trae el pago aprobado sin indicador de carga', async () => {
+    api.bookingAmountDue.mockResolvedValue({ bookingId: 123, bookingTotal: 40000, appliedDiscounts: 0, amountDue: 40000, redemption: null });
+    const hook = await renderHook(() => useClientPayment(123));
+    await flush();
+    expect(hook.result.isApproved).toBe(false);
+
+    api.mine.mockResolvedValue([{ id: 9, status: 'APPROVED', amount: 40000, rejectionReason: null, booking: { id: 123, code: 'RES-123' } }]);
+    await act(async () => {
+      await hook.result.refresh();
+    });
+    expect(hook.result.isApproved).toBe(true);
+    expect(mockBookingsVm.refresh).toHaveBeenCalled();
+
+    // si el refresco falla se queda lo que ya se veía, sin aviso de error
+    api.mine.mockRejectedValue(new Error('sin red'));
+    await act(async () => {
+      await hook.result.refresh();
+    });
+    expect(hook.result.isApproved).toBe(true);
+    expect(hook.result.paymentError).toBeNull();
     await hook.unmount();
   });
 

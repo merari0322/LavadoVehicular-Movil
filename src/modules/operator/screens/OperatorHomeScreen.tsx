@@ -22,6 +22,7 @@ import { notificationService } from '../../../core/services/notifications/Notifi
 import { inboxEvents } from '../../../core/services/notifications/inboxEvents';
 import { operationsService } from '../../../core/services/operations/OperationsService';
 import { useOperatorReservations } from '../viewmodels/useOperatorReservations';
+import { useRefreshOnFocus } from '../../../shared/hooks/useRefreshOnFocus';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OperatorHome'>;
 
@@ -31,6 +32,8 @@ export function OperatorHomeScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const { user } = useSession();
   const vm = useOperatorReservations();
+  // datos frescos al volver a la pantalla o al llegar una push (ej. el admin le asignó un servicio)
+  useRefreshOnFocus(vm.reload);
   // no leídas reales; 0 si notification-service no responde
   const [unread, setUnread] = useState(0);
   useEffect(() => {

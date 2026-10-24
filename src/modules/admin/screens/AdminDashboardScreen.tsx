@@ -21,6 +21,7 @@ import { Payment } from '../models/payment';
 import { Reservation } from '../models/reservation';
 import { formatCOP, useAdminDashboardViewModel } from '../viewmodels/useAdminDashboardViewModel';
 import { useServicesByOperator } from '../viewmodels/useServicesByOperator';
+import { useRefreshOnFocus } from '../../../shared/hooks/useRefreshOnFocus';
 import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminDashboard'>;
@@ -31,6 +32,8 @@ export function AdminDashboardScreen({ navigation }: Props) {
   // vuelve a pintar la pantalla cuando cambia el idioma
   const { t } = useTranslation();
   const vm = useAdminDashboardViewModel();
+  // datos frescos al volver a la pantalla o al llegar una push (sin recargar)
+  useRefreshOnFocus(vm.refresh);
   const texts = DASHBOARD_TEXTS;
 
   // modales: revisar pago y asignar operario

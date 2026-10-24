@@ -16,6 +16,7 @@ import { PageHeader } from '../../../shared/components/screen/PageHeader';
 import { ScreenScroll } from '../../../shared/components/screen/ScreenScroll';
 import { SectionCard } from '../../../shared/components/screen/SectionCard';
 import { useFeedback } from '../../../shared/hooks/useFeedback';
+import { useRefreshOnFocus } from '../../../shared/hooks/useRefreshOnFocus';
 import { ClientLayout } from '../../../shared/layouts/ClientLayout';
 import { useEstablishment } from '../../../shared/services/establishmentCatalog';
 import { withAlpha } from '../../../shared/utils/color';
@@ -44,6 +45,8 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
   const { t } = useTranslation();
   const feedback = useFeedback();
   const vm = useClientPayment(route.params?.bookingId);
+  // datos frescos al volver a la pantalla o al llegar una push (ej. el admin aprobó el pago)
+  useRefreshOnFocus(vm.refresh);
   // línea de soporte del negocio (la misma que el admin edita en los datos del negocio)
   const establishment = useEstablishment();
   const [qrZoomOpen, setQrZoomOpen] = useState(false);

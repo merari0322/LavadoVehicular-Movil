@@ -25,6 +25,7 @@ import { displayToISO, formatCOP, isoToDisplay } from '../../../shared/utils/for
 import { HistoryStatus, ServiceHistoryItem, historyTone } from '../models/operator';
 // servicios ya terminados, de booking-service (los cancelados no le llegan al operario)
 import { useOperatorReservations } from '../viewmodels/useOperatorReservations';
+import { useRefreshOnFocus } from '../../../shared/hooks/useRefreshOnFocus';
 
 type Tab = 'todos' | HistoryStatus;
 
@@ -35,6 +36,8 @@ export function OperatorHistoryScreen() {
   const feedback = useFeedback();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const vm = useOperatorReservations();
+  // datos frescos al volver a la pantalla o al llegar una push (ej. el admin le asignó un servicio)
+  useRefreshOnFocus(vm.reload);
   const services: ServiceHistoryItem[] = useMemo(
     () =>
       vm.reservations

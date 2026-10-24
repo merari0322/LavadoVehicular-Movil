@@ -20,9 +20,12 @@ export function useClientBookings() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
+  // silent: refresco al volver a la pantalla o al llegar una push, sin el indicador de carga
+  const load = useCallback(async (silent: boolean) => {
+    if (!silent) {
+      setLoading(true);
+      setLoadError(null);
+    }
     try {
       // si operations o payment no responden, las reservas se muestran igual (sin calificaciones,
       // sin operario o sin estado de pago)
@@ -47,12 +50,17 @@ export function useClientBookings() {
             : item;
         }),
       );
+      setLoadError(null);
     } catch (error) {
-      setLoadError(t(apiErrorKey(error)));
+      // si falla un refresco silencioso se quedan los datos que ya se ven
+      if (!silent) setLoadError(t(apiErrorKey(error)));
     } finally {
       setLoading(false);
     }
   }, [t]);
+
+  const reload = useCallback(() => load(false), [load]);
+  const refresh = useCallback(() => load(true), [load]);
 
   useEffect(() => {
     void reload();
@@ -89,5 +97,5 @@ export function useClientBookings() {
     [t],
   );
 
-  return { bookings, loading, loadError, reload, cancel, rate };
+  return { bookings, loading, loadError, reload, refresh, cancel, rate };
 }

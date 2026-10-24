@@ -105,10 +105,11 @@ export function useClientPayment(bookingId?: number) {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [redeemingCoupon, setRedeemingCoupon] = useState(false);
 
-  // estado del pago, cuentas y monto de la reserva: todo lo decide payment-service
+  // estado del pago, cuentas y monto de la reserva: todo lo decide payment-service.
+  // silent: refresco al volver a la pantalla o al llegar una push (ej. el admin aprobó el pago)
   const loadPayment = useCallback(
-    async (id: number) => {
-      setPaymentLoading(true);
+    async (id: number, silent = false) => {
+      if (!silent) setPaymentLoading(true);
       try {
         const [list, payments, due] = await Promise.all([
           paymentService.accounts(),
@@ -122,7 +123,8 @@ export function useClientPayment(bookingId?: number) {
         setAmount(due);
         setPaymentError(null);
       } catch (error) {
-        setPaymentError(t(apiErrorKey(error)));
+        // si falla un refresco silencioso se queda lo que ya se ve
+        if (!silent) setPaymentError(t(apiErrorKey(error)));
       } finally {
         setPaymentLoading(false);
       }
@@ -151,6 +153,12 @@ export function useClientPayment(bookingId?: number) {
   const reload = useCallback(async () => {
     await bookings.reload();
     if (booking) await loadPayment(booking.id);
+  }, [bookings, booking, loadPayment]);
+
+  // lo mismo, sin indicador de carga: al volver a la pantalla o al llegar una push
+  const refresh = useCallback(async () => {
+    await bookings.refresh();
+    if (booking) await loadPayment(booking.id, true);
   }, [bookings, booking, loadPayment]);
 
   const isVerifying = flowStep === 'VERIFYING';
@@ -301,6 +309,7 @@ export function useClientPayment(bookingId?: number) {
     loadError: bookings.loadError,
     booking,
     reload,
+    refresh,
     paymentLoading,
     paymentError,
     accounts,

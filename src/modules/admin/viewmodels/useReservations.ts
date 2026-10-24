@@ -116,10 +116,13 @@ export function useReservations() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const { services, bays } = useReservationCatalog();
 
-  // Carga las reservas de la ventana junto con las cuentas (nombres de clientes)
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
+  // Carga las reservas de la ventana junto con las cuentas (nombres de clientes).
+  // silent: refresco al volver a la pantalla o al llegar una push, sin el indicador de carga
+  const load = useCallback(async (silent: boolean) => {
+    if (!silent) {
+      setLoading(true);
+      setLoadError(null);
+    }
     try {
       const [bookings, accounts, assignments, unassigned, toClose] = await Promise.all([
         bookingService.adminBookings(addDays(-DAYS_BACK), addDays(DAYS_AHEAD)),
@@ -146,12 +149,17 @@ export function useReservations() {
         ? unassigned.bookingIds.map(String)
         : list.filter(needsOperatorLocally).map((item) => item.id));
       setToCloseList(toClose);
+      setLoadError(null);
     } catch (error) {
-      setLoadError(t(apiErrorKey(error)));
+      // si falla un refresco silencioso se quedan los datos que ya se ven
+      if (!silent) setLoadError(t(apiErrorKey(error)));
     } finally {
       setLoading(false);
     }
   }, [setReservations, setUnassignedIds, setToCloseList, t]);
+
+  const reload = useCallback(() => load(false), [load]);
+  const refresh = useCallback(() => load(true), [load]);
 
   useEffect(() => {
     void reload();
@@ -338,6 +346,7 @@ export function useReservations() {
     loading,
     loadError,
     reload,
+    refresh,
     updateFilters,
     clearFilters,
     createReservation,
