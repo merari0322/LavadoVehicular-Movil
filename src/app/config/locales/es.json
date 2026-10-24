@@ -1016,7 +1016,7 @@
       "PERIOD": "Periodo",
       "SERVICE": "Servicio",
       "SERVICES_LABEL": "servicios",
-      "EXPORT_EXCEL": "Exportar Excel",
+      "EXPORT_EXCEL": "Exportar CSV",
       "EXPORT_PDF": "Exportar PDF"
     }
   },
