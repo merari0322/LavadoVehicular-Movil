@@ -1,6 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { NOTIFICATION_API_URL } from '../../api/config';
+import { fetchAllPages, MAX_PAGE_SIZE } from '../../api/pagination';
 import { request } from '../../api/httpClient';
 import { NotificationType, RoleNotification } from '../../../shared/models/notification';
 
@@ -31,14 +32,17 @@ interface PageResponse<T> {
 }
 
 const base = { baseUrl: NOTIFICATION_API_URL };
+// la bandeja llega de 100 en 100 (el máximo de notification-service); se leen hasta las 500 más
+// recientes (MOV-13: antes solo se veían las primeras 100)
+const MAX_INBOX_PAGES = 5;
 
 export const notificationService = {
-  async list(): Promise<NotificationResponse[]> {
-    const page = await request<PageResponse<NotificationResponse>>('GET', '/notifications', {
-      ...base,
-      query: { page: 0, size: 100 },
-    });
-    return page.items;
+  list(): Promise<NotificationResponse[]> {
+    return fetchAllPages(
+      (page) =>
+        request<PageResponse<NotificationResponse>>('GET', '/notifications', { ...base, query: { page, size: MAX_PAGE_SIZE } }),
+      MAX_INBOX_PAGES,
+    );
   },
 
   async unreadCount(): Promise<number> {

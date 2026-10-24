@@ -95,6 +95,8 @@ export function AbsenceModal({ visible, onClose, onSubmit }: AbsenceModalProps) 
         value={reason}
         onChangeText={setReason}
         placeholder={texts.reasonPlaceholder}
+        // MOV-13: el mismo tope que operations-service (Absence.MAX_REASON)
+        maxLength={120}
         multiline
       />
     </FormModal>

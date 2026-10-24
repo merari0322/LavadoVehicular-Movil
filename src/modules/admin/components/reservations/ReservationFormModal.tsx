@@ -369,6 +369,8 @@ export function ReservationFormModal({
               value={state.notes}
               onChangeText={(text) => setField('notes', text)}
               placeholder={TEXTS.form.notesPlaceholder}
+              // MOV-13: el mismo tope que booking-service (Booking.MAX_NOTES)
+              maxLength={300}
               placeholderTextColor={colors.textMuted}
               multiline
             />

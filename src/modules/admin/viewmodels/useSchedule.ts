@@ -122,7 +122,7 @@ const bayToLocal = (bay: BayResponse): Bay => ({
 });
 
 // Valida cada día laboral: horas correctas, apertura antes del cierre y pausa dentro del horario
-const validateWeek = (week: DaySchedule[]): WeekErrors => {
+export const validateWeek = (week: DaySchedule[]): WeekErrors => {
   const errors: WeekErrors = {};
   const messages = SCHEDULE_TEXTS.week.errors;
 
@@ -140,7 +140,9 @@ const validateWeek = (week: DaySchedule[]): WeekErrors => {
     }
 
     const pause = BREAK_OPTIONS.find((option) => option.id === item.breakId);
-    if (pause && (pause.start < item.opening || pause.end > item.closing)) {
+    // MOV-13: igual que booking-service (BusinessHour.java), la pausa no puede empezar al abrir ni
+    // terminar al cerrar: tiene que quedar adentro
+    if (pause && (pause.start <= item.opening || pause.end >= item.closing)) {
       errors[item.day] = messages.pause;
     }
   });

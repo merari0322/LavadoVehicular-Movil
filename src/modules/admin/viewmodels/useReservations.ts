@@ -123,7 +123,7 @@ export function useReservations() {
     try {
       const [bookings, accounts, assignments, unassigned, toClose] = await Promise.all([
         bookingService.adminBookings(addDays(-DAYS_BACK), addDays(DAYS_AHEAD)),
-        userAdminService.listAccounts(0, 200).catch(() => []),
+        userAdminService.listAccounts().catch(() => []),
         // si operations no responde, las reservas igual se muestran (sin operario)
         operationsService.assignments(addDays(-DAYS_BACK), addDays(DAYS_AHEAD)).catch(() => [] as AssignmentResponse[]),
         operationsService.unassigned(getTodayISO(), addDays(DAYS_AHEAD)).catch(() => null as UnassignedResponse | null),
