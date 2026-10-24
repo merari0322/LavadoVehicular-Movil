@@ -38,7 +38,7 @@ const NO_END_DATE = '9999-12-31';
 const DEFAULT_ICON: PromotionIcon = 'directions-car';
 
 // Promoción del payment-service -> promoción de la pantalla
-function toPromotion(view: PromotionView): Promotion {
+export function toPromotion(view: PromotionView): Promotion {
   return {
     id: String(view.id),
     name: view.name,
@@ -50,13 +50,15 @@ function toPromotion(view: PromotionView): Promotion {
     featured: view.featured,
     benefits: view.benefits,
     redemptions: view.redemptions,
-    discountPercent: view.discountPercent,
+    // D-01: si un backend viejo no manda el tipo, es un porcentaje
+    discountType: view.discountType ?? 'PERCENT',
+    discountValue: view.discountValue ?? view.discountPercent,
     requiredPoints: view.requiredPoints,
   };
 }
 
 // Promoción de la pantalla -> lo que espera el backend al guardar
-function toSaveRequest(values: PromotionFormValues): SavePromotionRequest {
+export function toSaveRequest(values: PromotionFormValues): SavePromotionRequest {
   return {
     code: values.coupon,
     name: values.name,
@@ -66,7 +68,11 @@ function toSaveRequest(values: PromotionFormValues): SavePromotionRequest {
     benefits: values.benefits,
     validFrom: values.startDate,
     validTo: NO_END_DATE,
-    discountPercent: values.discountPercent,
+    // D-01: tipo y valor tal cual (un FIXED ya no se convierte en porcentaje); discountPercent queda
+    // por compatibilidad y vale 0 en un FIXED, como lo devuelve payment-service
+    discountPercent: values.discountType === 'PERCENT' ? values.discountValue : 0,
+    discountType: values.discountType,
+    discountValue: values.discountValue,
     requiredPoints: values.requiredPoints,
   };
 }

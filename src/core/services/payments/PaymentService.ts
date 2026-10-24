@@ -85,6 +85,9 @@ export interface SaveAccountRequest {
   active: boolean;
 }
 
+// D-01: PERCENT = porcentaje (1 a 99) y FIXED = monto en pesos; discountValue es el valor real
+export type DiscountType = 'PERCENT' | 'FIXED';
+
 // paquete a precio fijo (admin, Gestión > Promociones). status se calcula en el backend.
 export interface PromotionView {
   id: number;
@@ -103,6 +106,9 @@ export interface PromotionView {
   // usan: payment-service los acepta vacíos y la app no los envía
   discountPercent: number;
   requiredPoints: number;
+  // D-01: el descuento real; discountPercent vale 0 en un FIXED (un backend viejo no los manda)
+  discountType?: DiscountType;
+  discountValue?: number;
 }
 
 export interface PromotionMetrics {
@@ -121,6 +127,9 @@ export interface SavePromotionRequest {
   validTo: string;
   discountPercent: number;
   requiredPoints: number;
+  // D-01: se mandan tal cual, para que un FIXED no se convierta en porcentaje al editarlo
+  discountType: DiscountType;
+  discountValue: number;
 }
 
 // fidelización y cupones del cliente (payment-service, /api/v1/loyalty, ADR-015)
@@ -139,6 +148,9 @@ export interface PromotionForCustomer {
   discountPercent: number;
   requiredPoints: number;
   unlocked: boolean;
+  // D-01: el descuento real (un cupón FIXED se muestra en pesos, no como "0 %")
+  discountType?: DiscountType;
+  discountValue?: number;
 }
 
 export interface RedeemPromotionResult {
