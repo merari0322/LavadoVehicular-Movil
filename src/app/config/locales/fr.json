@@ -1311,7 +1311,11 @@
     "TRANSACTION_REFERENCE_REUSED": "Cette référence a déjà été utilisée pour un autre paiement. Vérifiez le numéro de votre justificatif.",
     "UNKNOWN_NOTIFICATION_TYPE": "Le type de notification n'existe pas.",
     "VEHICLE_HAS_ACTIVE_BOOKINGS": "Ce véhicule a des réservations actives ou à venir. Annulez-les avant de le retirer.",
-    "VEHICLE_REQUIRED": "Choisissez le véhicule."
+    "VEHICLE_REQUIRED": "Choisissez le véhicule.",
+    "SERVICE_TOO_LATE": "Ce service ne peut plus être démarré : plus de 4 heures se sont écoulées depuis l'heure de fin. Prévenez l'administrateur.",
+    "NOTIFICATION_NOT_SENT": "La notification n'a pas pu être envoyée. Réessayez dans un instant.",
+    "SECURITY_SERVICE_UNAVAILABLE": "Le service des comptes ne répond pas. Réessayez dans un instant.",
+    "DATABASE_UNAVAILABLE": "La base de données ne répond pas. Réessayez dans quelques minutes."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Changer le mot de passe",
@@ -1592,7 +1596,8 @@
     "OPERATOR_BUSY": "Occupé à cette heure"
   },
   "OPERATOR_WORK": {
-    "START_FROM": "Vous pourrez le démarrer à partir de {{time}} (15 minutes avant la réservation)."
+    "START_FROM": "Vous pourrez le démarrer à partir de {{time}} (15 minutes avant la réservation).",
+    "START_TOO_LATE": "Il ne peut plus être démarré : plus de 4 heures depuis l'heure de fin."
   },
   "AUTH_FEEDBACK": {
     "LOGIN_SUCCESS_TITLE": "Connexion réussie !",

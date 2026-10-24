@@ -9,7 +9,7 @@ import { ActionButton } from '../../../shared/components/screen/ActionButton';
 import { SectionCard } from '../../../shared/components/screen/SectionCard';
 import { vehicleIcon } from '../../../shared/constants/business';
 import { isoToDisplay } from '../../../shared/utils/format';
-import { OperatorReservation, statusIcon, statusLabel, statusTone, canStartNow, startFromLabel } from '../models/operator';
+import { OperatorReservation, statusIcon, statusLabel, statusTone, canStartNow, startFromLabel, startWindow } from '../models/operator';
 
 interface ReservationCardProps {
   reservation: OperatorReservation;
@@ -57,10 +57,14 @@ export function ReservationCard({ reservation: r, showDate = false, onStart, onF
         ) : null}
         <ActionButton small variant="outline" icon="visibility" label={t('SCHEDULE.VIEW_DETAIL')} onPress={() => onDetail(r)} />
       </View>
-      {r.status === 'pendiente' && !canStartNow(r) ? (
+      {r.status === 'pendiente' && startWindow(r) === 'early' ? (
         <Text style={[styles.detailText, { color: colors.textMuted }]}>
           {t('OPERATOR_WORK.START_FROM', { time: startFromLabel(r) })}
         </Text>
+      ) : null}
+      {/* pasaron más de 4 h de la hora de fin: operations-service ya no deja iniciarlo */}
+      {r.status === 'pendiente' && startWindow(r) === 'late' ? (
+        <Text style={[styles.detailText, { color: colors.error }]}>{t('OPERATOR_WORK.START_TOO_LATE')}</Text>
       ) : null}
     </SectionCard>
   );
