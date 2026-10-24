@@ -22,6 +22,7 @@ import { displayToISO, formatCOP } from '../../../shared/utils/format';
 import { RatingModal, RatingResult } from '../components/RatingModal';
 import { ClientBookingItem } from '../models/booking-view';
 import { useClientBookings } from '../viewmodels/useClientBookings';
+import { useRefreshOnFocus } from '../../../shared/hooks/useRefreshOnFocus';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientHistory'>;
 type HistoryFilter = 'all' | 'active' | 'completed' | 'cancelled';
@@ -32,6 +33,8 @@ export function ClientHistoryScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const feedback = useFeedback();
   const vm = useClientBookings();
+  // datos frescos al volver a la pantalla o al llegar una push (sin recargar)
+  useRefreshOnFocus(vm.refresh);
 
   const [filter, setFilter] = useState<HistoryFilter>('all');
   const [dateFrom, setDateFrom] = useState('');

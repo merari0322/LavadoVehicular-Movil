@@ -17,12 +17,15 @@ import { ReservationCard } from '../components/ReservationCard';
 import { ReservationDetailModal } from '../components/ReservationDetailModal';
 import { OperatorReservation } from '../models/operator';
 import { useOperatorReservations } from '../viewmodels/useOperatorReservations';
+import { useRefreshOnFocus } from '../../../shared/hooks/useRefreshOnFocus';
 
 // Servicios asignados: todos los servicios del operario con filtros y su detalle
 export function OperatorAssignedScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const vm = useOperatorReservations();
+  // datos frescos al volver a la pantalla o al llegar una push (ej. el admin le asignó un servicio)
+  useRefreshOnFocus(vm.reload);
   const [date, setDate] = useState('');
   const [type, setType] = useState('');
   const [search, setSearch] = useState('');

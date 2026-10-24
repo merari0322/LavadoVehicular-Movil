@@ -23,6 +23,7 @@ import { getServiceById } from '../services/reservationCatalog';
 import { useOperators } from '../viewmodels/useOperators';
 import { useReservations } from '../viewmodels/useReservations';
 import { useServicesByOperator } from '../viewmodels/useServicesByOperator';
+import { useRefreshOnFocus } from '../../../shared/hooks/useRefreshOnFocus';
 import { AppAlert } from '../../../shared/components/feedback/AppAlert';
 
 // Escapa un valor para CSV (comillas dobles)
@@ -49,7 +50,10 @@ export const AdminReservationsScreen = ({ navigation }: Props) => {
     serviceOptions,
     bayOptions,
     isUnassigned,
+    refresh,
   } = useReservations();
+  // datos frescos al volver a la pantalla o al llegar una push (sin recargar)
+  useRefreshOnFocus(refresh);
   const { operators } = useOperators();
 
   // Modal "Asignar operario" (reserva sin operario)
