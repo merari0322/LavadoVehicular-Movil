@@ -1609,7 +1609,8 @@
     "PASSWORD_UPDATED_MESSAGE": "Agora você pode entrar com sua nova senha.",
     "PASSWORD_ERROR_TITLE": "Não foi possível alterar a senha",
     "GO_TO_LOGIN": "Ir para o login",
-    "ERROR_TITLE": "Algo deu errado"
+    "ERROR_TITLE": "Algo deu errado",
+    "REQUEST_NEW_CODE": "Pedir outro código"
   },
   "GO_TO": {
     "HOME": "Ir para o início",

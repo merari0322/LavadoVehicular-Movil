@@ -1609,7 +1609,8 @@
     "PASSWORD_UPDATED_MESSAGE": "You can now sign in with your new password.",
     "PASSWORD_ERROR_TITLE": "Could not change the password",
     "GO_TO_LOGIN": "Go to sign in",
-    "ERROR_TITLE": "Something went wrong"
+    "ERROR_TITLE": "Something went wrong",
+    "REQUEST_NEW_CODE": "Request a new code"
   },
   "GO_TO": {
     "HOME": "Go to home",
