@@ -50,6 +50,8 @@ export interface PaymentView {
   booking: PaymentBookingInfo | null;
   // E-10: la cola del admin no trae la imagen (receiptImage null) y dice aquí si la tiene
   hasReceiptImage?: boolean;
+  // BIZ-07: la reserva de este pago se canceló (el admin debe reembolsar o rechazar)
+  bookingCancelled?: boolean;
 }
 
 // lo que falta por pagar de una reserva: su total menos los cupones canjeados

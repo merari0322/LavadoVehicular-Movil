@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../../../../app/theme';
 import { ThemeColors } from '../../../../app/theme/colors';
 import { PAYMENT_TEXTS } from '../../constants/paymentTexts';
-import { Payment, PaymentStatus } from '../../models/payment';
+import { Payment, PaymentStatus, cancelledBookingAction } from '../../models/payment';
 import { formatCOP, formatDateTime } from '../../utils/paymentUtils';
 import { PaymentMethodBadge, PaymentStatusBadge } from './PaymentBadges';
 
@@ -24,6 +25,9 @@ const ACTION_LABEL: Record<PaymentStatus, string> = {
 export function PaymentCard({ payment, onOpen }: PaymentCardProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const { t } = useTranslation();
+  // BIZ-07: la reserva se canceló; se dice qué hacer con el pago
+  const cancelled = cancelledBookingAction(payment);
 
   const isPending = payment.status === 'pending';
   const isRejected = payment.status === 'rejected';
@@ -38,6 +42,11 @@ export function PaymentCard({ payment, onOpen }: PaymentCardProps) {
         </View>
         <PaymentStatusBadge status={payment.status} />
       </View>
+      {cancelled ? (
+        <Text style={[styles.secondary, { color: colors.error }]}>
+          {t(cancelled === 'refund' ? 'PAYMENTS.BOOKING_CANCELLED_REFUND' : 'PAYMENTS.BOOKING_CANCELLED_REJECT')}
+        </Text>
+      ) : null}
 
       <View style={styles.divider} />
 

@@ -63,6 +63,7 @@ function toPayment(p: PaymentView): Payment {
     auditedBy: '',
     receiptImage: p.receiptImage,
     hasReceiptImage: p.hasReceiptImage ?? Boolean(p.receiptImage),
+    bookingCancelled: p.bookingCancelled ?? false,
     payee: p.account?.accountHolder ?? '',
   };
 }

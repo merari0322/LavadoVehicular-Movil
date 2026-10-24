@@ -36,8 +36,19 @@ export interface Payment {
   receiptImage?: string | null;
   // E-10: si tiene imagen aunque todavía no se haya pedido (la cola llega sin ella)
   hasReceiptImage?: boolean;
+  // BIZ-07: la reserva se canceló después de pagar o de reportar el pago
+  bookingCancelled?: boolean;
   // titular de la cuenta que recibió el pago
   payee?: string;
+}
+
+// BIZ-07: qué le toca hacer al admin con el pago de una reserva cancelada: reembolsar el aprobado o
+// rechazar el que está en revisión (null si la reserva sigue en pie o el pago ya se cerró)
+export function cancelledBookingAction(payment: Pick<Payment, 'status' | 'bookingCancelled'>): 'refund' | 'reject' | null {
+  if (!payment.bookingCancelled) return null;
+  if (payment.status === 'approved') return 'refund';
+  if (payment.status === 'pending') return 'reject';
+  return null;
 }
 
 // Datos del formulario de pago manual
