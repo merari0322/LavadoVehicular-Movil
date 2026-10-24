@@ -1,5 +1,15 @@
 // APK publicado en el servidor (/app/version.json, lo escribe deploy/publish-apk.sh de
 // lavarapido-infra). La app lo compara con su propio versionCode para avisar que hay uno nuevo.
+import { AppState } from 'react-native';
+
+// MOV-14: corre check ahora y cada vez que la app vuelve a primer plano. Devuelve cómo dejar de escuchar
+export function onAppActive(check: () => void): () => void {
+  check();
+  const subscription = AppState.addEventListener('change', (state) => {
+    if (state === 'active') check();
+  });
+  return () => subscription.remove();
+}
 
 export interface PublishedApk {
   versionCode: number;
