@@ -150,6 +150,25 @@ describe('useClientPayment (E-08 / BIZ-02)', () => {
     await hook.unmount();
   });
 
+  it('una reserva DIGITAL no ofrece efectivo; una antigua (null) o CASH sí', async () => {
+    api.bookingAmountDue.mockResolvedValue({ bookingId: 123, bookingTotal: 40000, appliedDiscounts: 0, amountDue: 40000, redemption: null });
+    const cash = { ...nequi, id: 2, methodCode: 'EFECTIVO', methodName: 'Efectivo', requiresReceipt: false };
+    api.accounts.mockResolvedValue([nequi, cash]);
+
+    for (const [paymentMode, expected] of [
+      ['DIGITAL', ['NEQUI']],
+      [null, ['NEQUI', 'CASH']],
+      ['CASH', ['NEQUI', 'CASH']],
+    ] as const) {
+      mockBookingsVm.bookings = [{ ...mockBooking, paymentMode, payBefore: null } as typeof mockBooking];
+      const hook = await renderHook(() => useClientPayment(123));
+      await flush();
+      expect(hook.result.methods).toEqual(expected);
+      await hook.unmount();
+    }
+    mockBookingsVm.bookings = [mockBooking];
+  });
+
   it('el paso del pago sale del último pago de la reserva', () => {
     const pay = (status: 'PENDING' | 'IN_REVIEW' | 'APPROVED' | 'REJECTED' | 'REFUNDED', rejectionReason: string | null = null) =>
       ({ id: 1, status, amount: 1, rejectionReason, booking: { id: 123, code: 'RES-123' } });

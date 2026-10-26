@@ -166,10 +166,16 @@ export function useClientPayment(bookingId?: number) {
   // con el pago enviado (en revisión o aprobado) ya no se puede cambiar ni volver a pagar
   const isLocked = isVerifying || isApproved;
 
+  // contrato pago-reserva: una reserva DIGITAL solo se paga con cuentas que piden comprobante (sin
+  // efectivo). Las anteriores al cambio (null) y las CASH quedan como estaban
+  const usableAccounts = useMemo(
+    () => (booking?.paymentMode === 'DIGITAL' ? accounts.filter((a) => a.requiresReceipt && methodIdOf(a.methodCode) !== 'CASH') : accounts),
+    [accounts, booking?.paymentMode],
+  );
   // solo los medios con una cuenta activa (payment-service ya filtra las inactivas, efectivo incluido)
-  const methods = useMemo(() => METHOD_IDS.filter((id) => accounts.some((a) => methodIdOf(a.methodCode) === id)), [accounts]);
+  const methods = useMemo(() => METHOD_IDS.filter((id) => usableAccounts.some((a) => methodIdOf(a.methodCode) === id)), [usableAccounts]);
   const method: MethodId = chosenMethod && methods.includes(chosenMethod) ? chosenMethod : (methods[0] ?? 'NEQUI');
-  const account = accounts.find((a) => methodIdOf(a.methodCode) === method) ?? null;
+  const account = usableAccounts.find((a) => methodIdOf(a.methodCode) === method) ?? null;
 
   const total = amount?.amountDue ?? null;
   const coupon = amount?.redemption ?? null;
