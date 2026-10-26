@@ -1,0 +1,41 @@
+# Revisa los tipos de TypeScript y corre las pruebas (jest-expo) en cada push o pull request a develop/main.
+# El APK se sigue generando con EAS (eas build); aquí solo se valida el código.
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Revisar tipos y pruebas
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      # ninguna dependencia necesita scripts de instalación (solo fsevents, que es de macOS); tsc y
+      # expo-updates se corren desde node_modules/.bin con la versión exacta de package-lock.json
+      - run: npm ci --ignore-scripts
+
+      - name: TypeScript
+        run: ./node_modules/.bin/tsc --noEmit -p .
+
+      # F-01: validadores y servicios de reserva, pago y login
+      - name: Pruebas
+        run: npm test -- --ci

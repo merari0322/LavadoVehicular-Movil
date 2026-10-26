@@ -1,0 +1,106 @@
+import { MaterialIcons } from '@expo/vector-icons';
+
+import { NOTIFICATION_API_URL } from '../../api/config';
+import { fetchAllPages, MAX_PAGE_SIZE } from '../../api/pagination';
+import { request } from '../../api/httpClient';
+import { NotificationType, RoleNotification } from '../../../shared/models/notification';
+
+// bandeja del usuario contra notification-service (mismos endpoints que la web).
+// el id del usuario nunca viaja: el backend lo saca del token JWT.
+
+export type NotificationCategory = 'REMINDER' | 'PROMOTION' | 'CONFIRMATION' | 'CANCELLATION' | 'MESSAGE' | 'SYSTEM';
+
+export interface NotificationResponse {
+  id: number;
+  type: string;
+  category: NotificationCategory;
+  title: string; // texto ya escrito por el backend
+  message: string;
+  referenceEntity: string | null;
+  referenceId: number | null;
+  read: boolean;
+  readAt: string | null;
+  sentAt: string; // ISO en UTC
+}
+
+interface PageResponse<T> {
+  items: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+const base = { baseUrl: NOTIFICATION_API_URL };
+// la bandeja llega de 100 en 100 (el máximo de notification-service); se leen hasta las 500 más
+// recientes (MOV-13: antes solo se veían las primeras 100)
+const MAX_INBOX_PAGES = 5;
+
+export const notificationService = {
+  list(): Promise<NotificationResponse[]> {
+    return fetchAllPages(
+      (page) =>
+        request<PageResponse<NotificationResponse>>('GET', '/notifications', { ...base, query: { page, size: MAX_PAGE_SIZE } }),
+      MAX_INBOX_PAGES,
+    );
+  },
+
+  async unreadCount(): Promise<number> {
+    const response = await request<{ count: number }>('GET', '/notifications/unread-count', base);
+    return response.count;
+  },
+
+  markRead(id: number): Promise<NotificationResponse> {
+    return request<NotificationResponse>('PATCH', `/notifications/${id}/read`, base);
+  },
+
+  markUnread(id: number): Promise<NotificationResponse> {
+    return request<NotificationResponse>('PATCH', `/notifications/${id}/unread`, base);
+  },
+
+  markAllRead(): Promise<{ updated: number }> {
+    return request<{ updated: number }>('POST', '/notifications/read-all', base);
+  },
+
+  remove(id: number): Promise<void> {
+    return request<void>('DELETE', `/notifications/${id}`, base);
+  },
+};
+
+const TYPE_BY_CATEGORY: Record<NotificationCategory, NotificationType> = {
+  REMINDER: 'recordatorio',
+  PROMOTION: 'promocion',
+  CONFIRMATION: 'confirmacion',
+  CANCELLATION: 'cancelacion',
+  MESSAGE: 'mensaje',
+  SYSTEM: 'sistema',
+};
+
+// tipos nuevos que se tratan como su pariente si llegaran sin categoría (BOOKING_NO_SHOW es una
+// cancelación); cualquier otro tipo desconocido cae en "sistema" y la bandeja no se rompe
+const CATEGORY_BY_TYPE: Partial<Record<string, NotificationCategory>> = { BOOKING_NO_SHOW: 'CANCELLATION' };
+
+const ICON_BY_TYPE: Record<NotificationType, keyof typeof MaterialIcons.glyphMap> = {
+  recordatorio: 'schedule',
+  promocion: 'sell',
+  confirmacion: 'check-circle',
+  cancelacion: 'warning',
+  mensaje: 'chat',
+  sistema: 'desktop-windows',
+};
+
+// fecha y hora local (Colombia) a partir del instante UTC del backend
+function localParts(iso: string): { date: string; time: string } {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return {
+    date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+  };
+}
+
+// notificación del backend -> modelo que pintan las pantallas (el texto ya viene escrito)
+export function toRoleNotification(n: NotificationResponse): RoleNotification {
+  const type = TYPE_BY_CATEGORY[n.category] ?? TYPE_BY_CATEGORY[CATEGORY_BY_TYPE[n.type] ?? 'SYSTEM'];
+  return { id: n.id, code: n.type, icon: ICON_BY_TYPE[type], type, title: n.title, desc: n.message, read: n.read, ...localParts(n.sentAt) };
+}

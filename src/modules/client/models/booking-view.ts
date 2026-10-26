@@ -1,0 +1,84 @@
+import { BookingResponse, BookingStatusCode, PaymentMode } from '../../../core/services/booking/booking.types';
+import { isActiveStatus, isoToDisplayDate, vehicleLabel } from '../../../core/services/booking/bookingDisplay';
+import { BookingPaymentState, ClientPayment } from '../../../core/services/payments/PaymentService';
+import { toLocalTime } from '../../../shared/utils/format';
+
+export type ClientPaymentStatus = ClientPayment['status'];
+
+// fila del historial del cliente: la reserva cruda del backend ya lista para pintar.
+// el booking-service no maneja el estado de pago: el último pago y si la reserva todavía se puede
+// pagar los dice payment-service (GET /payments/me/bookings). La app no repite esa regla.
+export interface ClientBookingItem {
+  id: number;
+  code: string;
+  status: BookingStatusCode;
+  date: string; // aaaa-mm-dd: se usa para el filtro por fecha
+  displayDate: string; // dd/mm/aaaa
+  timeRange: string; // "08:00 - 08:45"
+  services: string[]; // nombres de los servicios
+  vehicle: string;
+  plate: string;
+  subtotal: number;
+  // descuento por puntos redimidos (booking.pointsDiscountAmount)
+  pointsDiscount: number;
+  total: number;
+  // estado del último pago de la reserva (null = todavía no hay pago)
+  paymentStatus: ClientPaymentStatus | null;
+  canPay: boolean;
+  canCancel: boolean;
+  canRate: boolean;
+  // contrato pago-reserva (26-10): modo de pago elegido (null = reserva anterior o del admin)
+  paymentMode: PaymentMode | null;
+  // "HH:mm" local hasta la que se puede subir el comprobante; null = no hay plazo pendiente
+  // (sin plazo, ya reportado o la reserva ya no está activa)
+  payBefore: string | null;
+  // reserva activa que se paga en efectivo en el lavadero: en vez de "Pagar" va el aviso
+  paysInCash: boolean;
+  // motivo de cancelación con su código (ej. PAYMENT_TIMEOUT); la pantalla lo traduce si lo conoce
+  cancellationReason: { code: string; name: string } | null;
+  rating?: number;
+  ratingComment?: string;
+  // primer nombre del operario que lavó el vehículo (operations-service)
+  ratingOperator?: string;
+  // primer nombre del operario asignado a la reserva (operations-service)
+  operator?: string;
+}
+
+/** insignia "Paga antes de las HH:mm": reserva activa, con plazo y sin comprobante reportado */
+export function payBeforeOf(booking: BookingResponse): string | null {
+  if (!isActiveStatus(booking.status) || booking.paymentReported) return null;
+  return toLocalTime(booking.paymentDeadline);
+}
+
+/** @param payment estado del pago de la reserva según payment-service (null si no respondió) */
+export function toClientBookingItem(
+  booking: BookingResponse,
+  payment: BookingPaymentState | null = null,
+): ClientBookingItem {
+  const active = isActiveStatus(booking.status);
+  return {
+    id: booking.id,
+    code: booking.code,
+    status: booking.status,
+    date: booking.date,
+    displayDate: isoToDisplayDate(booking.date),
+    timeRange: `${booking.startTime} - ${booking.endTime}`,
+    services: booking.services.map((service) => service.name),
+    vehicle: vehicleLabel(booking.vehicle),
+    plate: booking.vehicle?.licensePlateFormatted ?? '',
+    subtotal: booking.subtotal,
+    pointsDiscount: booking.pointsDiscountAmount,
+    total: booking.total,
+    paymentStatus: payment?.paymentStatus ?? null,
+    // sin respuesta de payment-service no se ofrece pagar: de todos modos no se podría.
+    // Una reserva en efectivo se paga en el lavadero y la registra el admin: tampoco se ofrece
+    canPay: booking.paymentMode !== 'CASH' && (payment?.payable ?? false),
+    // changeable lo decide el backend (RF-007: ni empezada ni pasada)
+    canCancel: active && booking.changeable,
+    canRate: booking.status === 'COMPLETED',
+    paymentMode: booking.paymentMode ?? null,
+    payBefore: payBeforeOf(booking),
+    paysInCash: booking.paymentMode === 'CASH' && active,
+    cancellationReason: booking.cancellationReason ?? null,
+  };
+}

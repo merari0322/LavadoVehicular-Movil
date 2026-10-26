@@ -1,0 +1,168 @@
+# CD de la app: cuando un cambio entra a main (PR aprobado), repite el CI (tipos y pruebas) y, si
+# pasa, manda una actualización por internet (EAS Update) a los APK del canal preview, igual que
+# `npm run publish:update`. Antes compara la huella nativa (runtimeVersion: fingerprint) con la del
+# APK publicado en el servidor: si cambió algo nativo, la actualización no le llegaría a ese APK y
+# el workflow falla pidiendo un APK nuevo (eas build + npm run publish:apk, que siguen siendo a mano).
+# Necesita el secreto EXPO_TOKEN (token de acceso de la cuenta de Expo dueña del proyecto).
+name: CD
+
+on:
+  push:
+    branches: [main]
+    # un cambio que solo toca documentación no manda actualización
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Qué cambió (vacío = el asunto del último commit)'
+        required: false
+        default: ''
+
+# una publicación a la vez; si llegan varias seguidas, se publica la última de main
+concurrency:
+  group: cd-ota
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # el mismo CI de ci.yml (tipos y pruebas), repetido aquí para poder esperarlo con needs
+  check:
+    name: Revisar tipos y pruebas
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      # ninguna dependencia necesita scripts de instalación (solo fsevents, que es de macOS); tsc y
+      # expo-updates se corren desde node_modules/.bin con la versión exacta de package-lock.json
+      - run: npm ci --ignore-scripts
+
+      - name: TypeScript
+        run: ./node_modules/.bin/tsc --noEmit -p .
+
+      - name: Pruebas
+        run: npm test -- --ci
+
+  publish:
+    name: Publicar actualización OTA
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Requisitos
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::Falta el secreto EXPO_TOKEN (Settings → Secrets and variables → Actions): un token de acceso de expo.dev de la cuenta dueña del proyecto. Lo crea en este repo su dueño o alguien con rol Admin. No se publicó nada."
+            exit 1
+          fi
+          # a mano se puede lanzar sobre cualquier rama: solo lo de main les llega a los celulares
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::Solo se publica desde main (se lanzó sobre $GITHUB_REF). No se publicó nada."
+            exit 1
+          fi
+
+      # la huella nativa cuenta byte por byte algunos archivos de texto (eas.json,
+      # google-services.json, .gitignore). Los APK se compilan desde Windows, donde git los baja con
+      # CRLF: aquí se bajan igual para que la huella de este commit sea comparable con la del APK.
+      - name: Finales de línea como en Windows
+        run: git config --global core.autocrlf true
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - uses: expo/expo-github-action@c7b66a9c327a43a8fa7c0158e7f30d6040d2481e # 8.2.1
+        with:
+          eas-version: 25.3.0
+          packager: npm
+
+      # canal y variables del perfil preview de eas.json, igual que scripts/publish-update.mjs
+      - name: Leer el perfil preview de eas.json
+        run: |
+          node -e '
+            const fs = require("fs");
+            const preview = JSON.parse(fs.readFileSync("eas.json", "utf8")).build.preview;
+            const apiUrl = preview.env?.EXPO_PUBLIC_API_URL ?? "";
+            if (!preview.channel) throw new Error("eas.json: build.preview no tiene channel");
+            if (!/^https:\/\//.test(apiUrl)) throw new Error("eas.json: build.preview.env.EXPO_PUBLIC_API_URL debe ser la dirección https de producción");
+            const vars = { ...preview.env, UPDATE_CHANNEL: preview.channel };
+            for (const [name, value] of Object.entries(vars)) {
+              if (/[\r\n]/.test(String(value))) throw new Error(`eas.json: ${name} tiene saltos de línea`);
+              fs.appendFileSync(process.env.GITHUB_ENV, `${name}=${value}\n`);
+            }
+          '
+
+      - name: Comparar la huella nativa con la del APK publicado
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          # huella de este commit: la misma cuenta que hace eas update para su runtimeVersion
+          LOCAL=$(./node_modules/.bin/expo-updates runtimeversion:resolve --platform android | jq -r '.runtimeVersion // empty')
+          if [ -z "$LOCAL" ]; then
+            echo "::error::No se pudo calcular la huella nativa de este commit. No se publicó nada."
+            exit 1
+          fi
+
+          # el APK publicado: /app/version.json del servidor trae su versionCode (lo escribe publish:apk)
+          SITE=$(printf '%s' "$EXPO_PUBLIC_API_URL" | sed -E 's#/api/v[0-9]+/?$##; s#/+$##')
+          CODE=$(curl -fsS --max-time 20 "$SITE/app/version.json" | jq -r '.versionCode // empty' || true)
+          LIST=(eas build:list --platform android --channel "$UPDATE_CHANNEL" --status finished --limit 1 --json --non-interactive)
+          if [[ "$CODE" =~ ^[0-9]+$ ]]; then
+            echo "APK publicado en el servidor: versionCode $CODE"
+            BUILDS=$("${LIST[@]}" --app-build-version "$CODE")
+          else
+            # VM apagada: se usa el último build terminado del canal, el que publish:apk sube por
+            # defecto. Si no fuera el publicado, a lo sumo falla de más o la actualización le llega
+            # solo a ese APK nuevo; nunca a un APK con otra huella (EAS no se la entrega).
+            echo "::warning::No se pudo leer $SITE/app/version.json (¿la VM está apagada?): se compara con el último build Android terminado del canal $UPDATE_CHANNEL."
+            CODE=""
+            BUILDS=$("${LIST[@]}")
+          fi
+          BUILD_ID=$(jq -r '.[0].id // empty' <<<"$BUILDS")
+          PUBLISHED=$(jq -r '.[0].runtime.version // .[0].fingerprint.hash // empty' <<<"$BUILDS")
+          if [ -z "$BUILD_ID" ] || [ -z "$PUBLISHED" ]; then
+            echo "::error::No se encontró en EAS el build Android del canal $UPDATE_CHANNEL${CODE:+ con versionCode $CODE}, o no trae su huella: no se puede comparar, así que no se publicó nada."
+            exit 1
+          fi
+
+          echo "Huella del APK publicado (build $BUILD_ID): $PUBLISHED"
+          echo "Huella de este commit: $LOCAL"
+          if [ "$LOCAL" != "$PUBLISHED" ]; then
+            echo "::group::Qué cambió (eas fingerprint:compare)"
+            eas fingerprint:compare --build-id "$BUILD_ID" --environment preview --non-interactive || true
+            echo "::endgroup::"
+            echo "::error::Cambió la huella nativa (paquetes, permisos, íconos, eas.json...): esta actualización no le llegaría al APK publicado. Hace falta un APK nuevo, a mano: eas build --profile preview --platform android y luego npm run publish:apk -- \"qué cambió\". No se publicó nada."
+            exit 1
+          fi
+          echo "La huella coincide: la actualización le llega al APK publicado."
+
+      - name: Publicar la actualización
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          INPUT_MESSAGE: ${{ inputs.message }}
+        run: |
+          # mensaje: lo escrito a mano o el asunto del commit, con el commit corto
+          MESSAGE="${INPUT_MESSAGE:-$(git log -1 --format=%s)} (${GITHUB_SHA::7})"
+          echo "Backend de la actualización: $EXPO_PUBLIC_API_URL"
+          eas update --channel "$UPDATE_CHANNEL" --environment preview --message "$MESSAGE" --non-interactive

@@ -1,0 +1,283 @@
+import { localized } from '../../../shared/i18n/localized';
+import { OperatorStatusValue } from '../types/dashboard.types';
+
+// Textos del inicio del administrador en los 4 idiomas de la app
+const es = {
+  hello: (name: string) => `¡Hola, ${name}!`,
+  panel: 'Panel de control general',
+  todayBookings: 'Ver reservas de hoy',
+  // formato de la fecha de hoy según el idioma
+  dateLocale: 'es-CO',
+
+  stats: {
+    bookingsToday: 'Reservas de hoy',
+    vsYesterday: (difference: number) => `${difference >= 0 ? '↗ +' : '↘ '}${Math.abs(difference)} vs ayer`,
+    inProgress: 'En progreso',
+    activeBays: (total: number) => (total === 1 ? '1 bahía activa' : `${total} bahías activas`),
+    pendingPayments: 'Pagos por verificar',
+    toReview: 'Por revisar',
+    revenueToday: 'Ingresos del día',
+  },
+
+  revenue: {
+    title: 'Ingresos de los últimos 7 días',
+    subtitle: 'Consolidado semanal de cobros realizados y verificados',
+    total: 'Total semana',
+    busiest: (day: string) => `Mayor afluencia: ${day}`,
+    viewReport: 'Ver reporte',
+  },
+
+  operators: {
+    title: 'Estado de operarios',
+    staff: (total: number) => `${total} en plantilla`,
+    available: 'Disp.',
+    busy: 'Ocup.',
+    leave: 'Aus.',
+    status: { busy: 'Ocupado', available: 'Disponible', leave: 'Incapacidad' } as Record<OperatorStatusValue, string>,
+    manageShifts: 'Gestionar turnos',
+  },
+
+  payments: {
+    title: 'Pagos pendientes de revisión',
+    subtitle: 'Comprobantes enviados para validación',
+    badge: (total: number) => `${total} pend.`,
+    reference: 'Ref',
+    review: 'Revisar',
+    empty: 'No hay pagos por revisar',
+    viewAll: (total: number) => `Ver los ${total} pagos pendientes`,
+  },
+
+  unassigned: {
+    title: 'Reservas sin operario',
+    subtitle: 'Servicios en espera de asignación',
+    badge: (total: number) => `${total} por asignar`,
+    upcoming: 'Cita próxima',
+    assign: 'Asignar',
+    empty: 'Todas las reservas tienen operario',
+    viewAll: 'Ver todas las reservas',
+    noBay: 'Sin bahía',
+  },
+
+  toClose: {
+    title: 'Por cerrar',
+    subtitle: 'Terminaron con operario y nadie las registró. El sistema no decide solo: confirma qué pasó.',
+    badge: (total: number) => `${total} por cerrar`,
+    notStarted: (operator: string) => `${operator} no le dio Iniciar`,
+    notFinished: (operator: string) => `${operator} la inició y no la finalizó`,
+    attended: 'Se atendió',
+    noShow: 'No asistió',
+    attendedConfirm: (code: string, operator: string) =>
+      `La reserva ${code} quedará completada con ${operator}: cuenta en reportes y en sus servicios. ¿Se atendió?`,
+    noShowConfirm: (code: string) => `La reserva ${code} quedará como "No asistió". ¿El cliente no llegó?`,
+    attendedDone: (code: string) => `La reserva ${code} quedó completada.`,
+    noShowDone: (code: string) => `La reserva ${code} quedó como "No asistió".`,
+    cancel: 'Cancelar',
+    accept: 'Aceptar',
+  },
+};
+
+const en: typeof es = {
+  hello: (name: string) => `Hi, ${name}!`,
+  panel: 'General control panel',
+  todayBookings: "View today's bookings",
+  dateLocale: 'en-US',
+  stats: {
+    bookingsToday: "Today's bookings",
+    vsYesterday: (difference: number) => `${difference >= 0 ? '↗ +' : '↘ '}${Math.abs(difference)} vs yesterday`,
+    inProgress: 'In progress',
+    activeBays: (total: number) => (total === 1 ? '1 active bay' : `${total} active bays`),
+    pendingPayments: 'Payments to verify',
+    toReview: 'To review',
+    revenueToday: "Today's revenue",
+  },
+  revenue: {
+    title: 'Revenue for the last 7 days',
+    subtitle: 'Weekly summary of collected and verified payments',
+    total: 'Week total',
+    busiest: (day: string) => `Busiest day: ${day}`,
+    viewReport: 'View report',
+  },
+  operators: {
+    title: 'Operator status',
+    staff: (total: number) => `${total} on staff`,
+    available: 'Avail.',
+    busy: 'Busy',
+    leave: 'Abs.',
+    status: { busy: 'Busy', available: 'Available', leave: 'On leave' },
+    manageShifts: 'Manage shifts',
+  },
+  payments: {
+    title: 'Payments pending review',
+    subtitle: 'Receipts sent for validation',
+    badge: (total: number) => `${total} pend.`,
+    reference: 'Ref',
+    review: 'Review',
+    empty: 'No payments to review',
+    viewAll: (total: number) => `View the ${total} pending payments`,
+  },
+  unassigned: {
+    title: 'Bookings without operator',
+    subtitle: 'Services waiting for assignment',
+    badge: (total: number) => `${total} to assign`,
+    upcoming: 'Upcoming',
+    assign: 'Assign',
+    empty: 'All bookings have an operator',
+    viewAll: 'View all bookings',
+    noBay: 'No bay',
+  },
+
+  toClose: {
+    title: 'To close',
+    subtitle: 'They ended with an operator and nobody registered them. The system does not decide alone: confirm what happened.',
+    badge: (total: number) => `${total} to close`,
+    notStarted: (operator: string) => `${operator} did not press Start`,
+    notFinished: (operator: string) => `${operator} started it and did not finish it`,
+    attended: 'Attended',
+    noShow: 'No-show',
+    attendedConfirm: (code: string, operator: string) =>
+      `Booking ${code} will be completed by ${operator}: it counts in reports and in their services. Was it attended?`,
+    noShowConfirm: (code: string) => `Booking ${code} will be marked as "No-show". Did the client not come?`,
+    attendedDone: (code: string) => `Booking ${code} is now completed.`,
+    noShowDone: (code: string) => `Booking ${code} is now marked as "No-show".`,
+    cancel: 'Cancel',
+    accept: 'Accept',
+  },
+};
+
+const fr: typeof es = {
+  hello: (name: string) => `Bonjour, ${name} !`,
+  panel: 'Tableau de bord général',
+  todayBookings: "Voir les réservations d'aujourd'hui",
+  dateLocale: 'fr-FR',
+  stats: {
+    bookingsToday: "Réservations d'aujourd'hui",
+    vsYesterday: (difference: number) => `${difference >= 0 ? '↗ +' : '↘ '}${Math.abs(difference)} vs hier`,
+    inProgress: 'En cours',
+    activeBays: (total: number) => (total === 1 ? '1 baie active' : `${total} baies actives`),
+    pendingPayments: 'Paiements à vérifier',
+    toReview: 'À réviser',
+    revenueToday: 'Revenus du jour',
+  },
+  revenue: {
+    title: 'Revenus des 7 derniers jours',
+    subtitle: 'Synthèse hebdomadaire des encaissements vérifiés',
+    total: 'Total semaine',
+    busiest: (day: string) => `Plus forte affluence : ${day}`,
+    viewReport: 'Voir le rapport',
+  },
+  operators: {
+    title: 'État des opérateurs',
+    staff: (total: number) => `${total} dans l'effectif`,
+    available: 'Disp.',
+    busy: 'Occ.',
+    leave: 'Abs.',
+    status: { busy: 'Occupé', available: 'Disponible', leave: 'Arrêt maladie' },
+    manageShifts: 'Gérer les horaires',
+  },
+  payments: {
+    title: 'Paiements en attente de révision',
+    subtitle: 'Justificatifs envoyés pour validation',
+    badge: (total: number) => `${total} en att.`,
+    reference: 'Réf',
+    review: 'Réviser',
+    empty: 'Aucun paiement à réviser',
+    viewAll: (total: number) => `Voir les ${total} paiements en attente`,
+  },
+  unassigned: {
+    title: 'Réservations sans opérateur',
+    subtitle: "Services en attente d'attribution",
+    badge: (total: number) => `${total} à assigner`,
+    upcoming: 'Rendez-vous proche',
+    assign: 'Assigner',
+    empty: 'Toutes les réservations ont un opérateur',
+    viewAll: 'Voir toutes les réservations',
+    noBay: 'Sans baie',
+  },
+
+  toClose: {
+    title: 'À clôturer',
+    subtitle: "Elles se sont terminées avec un opérateur et personne ne les a enregistrées. Le système ne décide pas seul : confirmez ce qui s'est passé.",
+    badge: (total: number) => `${total} à clôturer`,
+    notStarted: (operator: string) => `${operator} n'a pas appuyé sur Démarrer`,
+    notFinished: (operator: string) => `${operator} l'a démarrée sans la terminer`,
+    attended: 'Effectué',
+    noShow: 'Absent',
+    attendedConfirm: (code: string, operator: string) =>
+      `La réservation ${code} sera terminée par ${operator} : elle compte dans les rapports et dans ses services. A-t-elle été effectuée ?`,
+    noShowConfirm: (code: string) => `La réservation ${code} sera marquée « Absent ». Le client n'est-il pas venu ?`,
+    attendedDone: (code: string) => `La réservation ${code} est terminée.`,
+    noShowDone: (code: string) => `La réservation ${code} est marquée « Absent ».`,
+    cancel: 'Annuler',
+    accept: 'Accepter',
+  },
+};
+
+const pt: typeof es = {
+  hello: (name: string) => `Olá, ${name}!`,
+  panel: 'Painel de controle geral',
+  todayBookings: 'Ver reservas de hoje',
+  dateLocale: 'pt-BR',
+  stats: {
+    bookingsToday: 'Reservas de hoje',
+    vsYesterday: (difference: number) => `${difference >= 0 ? '↗ +' : '↘ '}${Math.abs(difference)} vs ontem`,
+    inProgress: 'Em andamento',
+    activeBays: (total: number) => (total === 1 ? '1 baia ativa' : `${total} baias ativas`),
+    pendingPayments: 'Pagamentos a verificar',
+    toReview: 'A revisar',
+    revenueToday: 'Receita do dia',
+  },
+  revenue: {
+    title: 'Receita dos últimos 7 dias',
+    subtitle: 'Consolidado semanal de cobranças realizadas e verificadas',
+    total: 'Total da semana',
+    busiest: (day: string) => `Maior movimento: ${day}`,
+    viewReport: 'Ver relatório',
+  },
+  operators: {
+    title: 'Status dos operadores',
+    staff: (total: number) => `${total} no quadro`,
+    available: 'Disp.',
+    busy: 'Ocup.',
+    leave: 'Aus.',
+    status: { busy: 'Ocupado', available: 'Disponível', leave: 'Licença' },
+    manageShifts: 'Gerenciar turnos',
+  },
+  payments: {
+    title: 'Pagamentos pendentes de revisão',
+    subtitle: 'Comprovantes enviados para validação',
+    badge: (total: number) => `${total} pend.`,
+    reference: 'Ref',
+    review: 'Revisar',
+    empty: 'Não há pagamentos para revisar',
+    viewAll: (total: number) => `Ver os ${total} pagamentos pendentes`,
+  },
+  unassigned: {
+    title: 'Reservas sem operador',
+    subtitle: 'Serviços aguardando atribuição',
+    badge: (total: number) => `${total} a atribuir`,
+    upcoming: 'Próximo horário',
+    assign: 'Atribuir',
+    empty: 'Todas as reservas têm operador',
+    viewAll: 'Ver todas as reservas',
+    noBay: 'Sem baia',
+  },
+
+  toClose: {
+    title: 'Para fechar',
+    subtitle: 'Terminaram com operador e ninguém as registrou. O sistema não decide sozinho: confirme o que aconteceu.',
+    badge: (total: number) => `${total} para fechar`,
+    notStarted: (operator: string) => `${operator} não tocou em Iniciar`,
+    notFinished: (operator: string) => `${operator} iniciou e não finalizou`,
+    attended: 'Atendido',
+    noShow: 'Não compareceu',
+    attendedConfirm: (code: string, operator: string) =>
+      `A reserva ${code} ficará concluída por ${operator}: conta nos relatórios e nos serviços dele. Foi atendida?`,
+    noShowConfirm: (code: string) => `A reserva ${code} ficará como "Não compareceu". O cliente não veio?`,
+    attendedDone: (code: string) => `A reserva ${code} foi concluída.`,
+    noShowDone: (code: string) => `A reserva ${code} ficou como "Não compareceu".`,
+    cancel: 'Cancelar',
+    accept: 'Aceitar',
+  },
+};
+
+export const DASHBOARD_TEXTS = localized({ es, en, fr, pt });

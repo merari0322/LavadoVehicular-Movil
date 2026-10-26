@@ -1,0 +1,138 @@
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { RootStackParamList } from '../../../core/navigation/types';
+import { AuthScreenLayout } from '../components/AuthScreenLayout';
+import { FormField } from '../../../shared/components/forms/FormField';
+import { PasswordField } from '../../../shared/components/forms/PasswordField';
+import { PrimaryButton } from '../../../shared/components/ui/PrimaryButton';
+import { useTheme } from '../../../app/theme';
+import { useLoginViewModel } from '../viewmodels/useLoginViewModel';
+import { AppAlert } from '../../../shared/components/feedback/AppAlert';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
+
+export function LoginScreen({ navigation }: Props) {
+  const { colors } = useTheme();
+  const { t } = useTranslation();
+  const vm = useLoginViewModel();
+
+  // al iniciar sesión, RootNavigator muestra solo las pantallas del rol: no hay que navegar a mano.
+  // AppAlert vive fuera de la navegación, así que el modal de éxito sigue visible en la pantalla del rol
+  const handleSubmit = async () => {
+    const result = await vm.submit();
+    if (result.success) {
+      AppAlert.alert(
+        t('AUTH_FEEDBACK.LOGIN_SUCCESS_TITLE'),
+        t('AUTH_FEEDBACK.LOGIN_SUCCESS_MESSAGE', { name: result.userName ?? '' }),
+        undefined,
+        { type: 'success', icon: 'verified-user' },
+      );
+    } else if (result.errorCode === 'ACCOUNT_LOCKED') {
+      // 5 intentos fallidos: se ofrece recuperar la contraseña, que desbloquea la cuenta al instante
+      AppAlert.alert(
+        t('AUTH_FEEDBACK.LOCKED_TITLE'),
+        result.message,
+        [
+          { text: t('AUTH_FEEDBACK.OK'), style: 'cancel' },
+          { text: t('AUTH_FEEDBACK.RECOVER_BUTTON'), onPress: () => navigation.navigate('ForgotPassword') },
+        ],
+        { type: 'warning', icon: 'lock-clock' },
+      );
+    } else if (result.message) {
+      AppAlert.alert(t('AUTH_FEEDBACK.LOGIN_ERROR_TITLE'), result.message, [{ text: t('AUTH_FEEDBACK.OK') }], {
+        type: 'error',
+        icon: 'no-accounts',
+      });
+    }
+  };
+
+  return (
+    <AuthScreenLayout>
+      <Text style={[styles.title, { color: colors.text }]}>{t('LOGIN.TITLE')}</Text>
+      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('LOGIN.SUBTITLE')}</Text>
+
+      <FormField
+        label={t('LOGIN.EMAIL')}
+        value={vm.email}
+        onChangeText={vm.handleEmailChange}
+        onBlur={() => vm.markTouched('email')}
+        placeholder={t('LOGIN.EMAIL_PLACEHOLDER')}
+        error={vm.emailError}
+        keyboardType="email-address"
+      />
+
+      <PasswordField
+        label={t('LOGIN.PASSWORD')}
+        value={vm.password}
+        onChangeText={vm.setPassword}
+        onBlur={() => vm.markTouched('password')}
+        placeholder={t('LOGIN.PASSWORD_PLACEHOLDER')}
+        error={vm.passwordError}
+      />
+
+      {vm.sessionExpired && !vm.formError && (
+        <Text style={styles.formError}>{t('LOGIN.SESSION_EXPIRED')}</Text>
+      )}
+
+      {vm.formError && <Text style={styles.formError}>{vm.formError}</Text>}
+
+      <Pressable style={styles.forgotLink} onPress={() => navigation.navigate('ForgotPassword')}>
+        <Text style={[styles.forgotLinkText, { color: colors.primary }]}>{t('LOGIN.FORGOT_PASSWORD')}</Text>
+      </Pressable>
+
+      <PrimaryButton label={t('LOGIN.BUTTON')} onPress={handleSubmit} loading={vm.submitting} />
+
+      <View style={styles.registerRow}>
+        <Text style={[styles.registerText, { color: colors.textSecondary }]}>{t('LOGIN.NO_ACCOUNT')} </Text>
+        <Pressable onPress={() => navigation.navigate('Register')}>
+          <Text style={[styles.registerLink, { color: colors.primary }]}>{t('LOGIN.REGISTER')}</Text>
+        </Pressable>
+      </View>
+    </AuthScreenLayout>
+  );
+}
+
+const styles = StyleSheet.create({
+  title: {
+    fontSize: 26,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 4,
+    lineHeight: 19,
+  },
+  formError: {
+    marginTop: 14,
+    color: '#ef5350',
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  forgotLink: {
+    alignSelf: 'flex-end',
+    marginTop: 14,
+  },
+  forgotLinkText: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  registerRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 22,
+    flexWrap: 'wrap',
+  },
+  registerText: {
+    fontSize: 14,
+  },
+  registerLink: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+});

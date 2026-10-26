@@ -1,0 +1,181 @@
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+
+import { registerAuthHooks } from '../../api/httpClient';
+import { clearSession, loadSession, saveSession } from '../../storage/sessionStorage';
+import { clearSharedState } from '../../../shared/hooks/useSharedState';
+import { AuthUser, IAuthService, LoginCredentials, Session } from './auth.types';
+import { HttpAuthService } from './HttpAuthService';
+
+const defaultAuthService: IAuthService = new HttpAuthService();
+
+const AuthServiceContext = createContext<IAuthService>(defaultAuthService);
+
+type SessionStatus = 'loading' | 'signedOut' | 'signedIn';
+
+interface SessionContextValue {
+  status: SessionStatus;
+  user: AuthUser | null;
+  // true cuando la sesión se cerró sola (token vencido o rechazado): el login lo avisa
+  expired: boolean;
+  signIn: (credentials: LoginCredentials) => Promise<AuthUser>;
+  signOut: () => Promise<void>;
+  // actualiza el usuario guardado (ej. después de editar el perfil o cambiar el correo)
+  updateUser: (user: AuthUser) => void;
+  // limpia la sesión del celular sin llamar al servidor (ej. cuenta ya desactivada)
+  endSessionLocally: () => Promise<void>;
+}
+
+const SessionContext = createContext<SessionContextValue | null>(null);
+
+// tareas que necesitan el token antes de cerrar sesión (ej. quitar el celular de las push).
+// Se registran desde fuera, así la sesión no depende de quién las pide.
+type BeforeSignOutHook = () => Promise<void>;
+const beforeSignOutHooks = new Set<BeforeSignOutHook>();
+// cerrar sesión nunca debe quedarse esperando a un servidor que no responde
+const BEFORE_SIGN_OUT_TIMEOUT_MS = 4000;
+// MOV-10: la sesión se cierra un minuto antes de que venza el token, para alcanzar a quitar el
+// celular de las push con un token que el servidor todavía acepta
+const EXPIRY_MARGIN_MS = 60_000;
+
+export function onBeforeSignOut(hook: BeforeSignOutHook): () => void {
+  beforeSignOutHooks.add(hook);
+  return () => {
+    beforeSignOutHooks.delete(hook);
+  };
+}
+
+async function runBeforeSignOut(): Promise<void> {
+  const all = Promise.all([...beforeSignOutHooks].map((hook) => hook().catch(() => undefined)));
+  const timeout = new Promise<void>((resolve) => setTimeout(resolve, BEFORE_SIGN_OUT_TIMEOUT_MS));
+  await Promise.race([all, timeout]);
+}
+
+interface AuthServiceProviderProps {
+  service?: IAuthService;
+  children: React.ReactNode;
+}
+
+// provee el servicio de autenticación y la sesión del usuario a toda la app.
+// Se puede inyectar otra implementación de IAuthService (ej. un mock en pruebas) (DIP).
+export function AuthServiceProvider({ service = defaultAuthService, children }: AuthServiceProviderProps) {
+  const [status, setStatus] = useState<SessionStatus>('loading');
+  const [session, setSession] = useState<Session | null>(null);
+  const [expired, setExpired] = useState(false);
+
+  // el cliente HTTP lee el token de aquí sin depender de React
+  const sessionRef = useRef<Session | null>(null);
+  sessionRef.current = session;
+
+  const applySession = useCallback(async (next: Session | null) => {
+    // al instante, sin esperar el siguiente render: un 401 tardío ya ve la sesión cerrada
+    sessionRef.current = next;
+    setSession(next);
+    if (next) {
+      await saveSession(next);
+      setStatus('signedIn');
+    } else {
+      await clearSession();
+      // los datos en memoria de la sesión anterior no pasan a la siguiente
+      clearSharedState();
+      setStatus('signedOut');
+    }
+  }, []);
+
+  // cierre que no pidió el usuario (token vencido o rechazado). MOV-10: como al cerrar sesión, primero
+  // se quita el celular de las push; si el servidor ya no acepta el token, el token de push guardado
+  // se borra igual y el próximo inicio de sesión pasa el celular a la cuenta nueva
+  const expiringRef = useRef(false);
+  const expire = useCallback(() => {
+    // sin sesión (ya se cerró) el 401 es de una petición que quedó en curso: no es "sesión vencida".
+    // Si ya se está cerrando, el 401 es el de la baja de las push
+    if (!sessionRef.current || expiringRef.current) return;
+    expiringRef.current = true;
+    setExpired(true);
+    void runBeforeSignOut()
+      .then(() => applySession(null))
+      .finally(() => {
+        expiringRef.current = false;
+      });
+  }, [applySession]);
+
+  // al abrir la app: recupera la sesión guardada si el token sigue vigente
+  useEffect(() => {
+    void loadSession().then((saved) => {
+      if (saved) {
+        setSession(saved as Session);
+        setStatus('signedIn');
+      } else {
+        setStatus('signedOut');
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    registerAuthHooks({
+      getToken: () => sessionRef.current?.accessToken ?? null,
+      onUnauthorized: expire,
+    });
+  }, [expire]);
+
+  // cierra la sesión un minuto antes de que venza el token (dura 1 hora, ADR-006)
+  useEffect(() => {
+    if (!session) return undefined;
+    const msLeft = new Date(session.expiresAt).getTime() - Date.now() - EXPIRY_MARGIN_MS;
+    const timer = setTimeout(expire, Math.max(msLeft, 0));
+    return () => clearTimeout(timer);
+  }, [session, expire]);
+
+  const signIn = useCallback(async (credentials: LoginCredentials) => {
+    const next = await service.login(credentials);
+    setExpired(false);
+    await applySession(next);
+    return next.user;
+  }, [service, applySession]);
+
+  const signOut = useCallback(async () => {
+    // con el token todavía vigente
+    await runBeforeSignOut();
+    await service.logout();
+    setExpired(false);
+    await applySession(null);
+  }, [service, applySession]);
+
+  const updateUser = useCallback((user: AuthUser) => {
+    const current = sessionRef.current;
+    if (current) void applySession({ ...current, user });
+  }, [applySession]);
+
+  const endSessionLocally = useCallback(async () => {
+    await runBeforeSignOut();
+    setExpired(false);
+    await applySession(null);
+  }, [applySession]);
+
+  const value = useMemo<SessionContextValue>(() => ({
+    status,
+    user: session?.user ?? null,
+    expired,
+    signIn,
+    signOut,
+    updateUser,
+    endSessionLocally,
+  }), [status, session, expired, signIn, signOut, updateUser, endSessionLocally]);
+
+  return (
+    <AuthServiceContext.Provider value={service}>
+      <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
+    </AuthServiceContext.Provider>
+  );
+}
+
+export function useAuthService(): IAuthService {
+  return useContext(AuthServiceContext);
+}
+
+export function useSession(): SessionContextValue {
+  const context = useContext(SessionContext);
+  if (!context) {
+    throw new Error('useSession debe usarse dentro de AuthServiceProvider');
+  }
+  return context;
+}

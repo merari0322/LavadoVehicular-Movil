@@ -1,0 +1,1663 @@
+{
+  "CONFIG": {
+    "TITLE": "Configuración",
+    "NOTIFICATIONS": "Notificaciones",
+    "PUSH": "Notificaciones Push",
+    "PUSH_DESC": "Recibe alertas de reservas y promociones",
+    "EMAIL": "Recordatorios por Email",
+    "EMAIL_DESC": "Recordatorios de tus reservas por correo (un día y una hora antes)",
+    "PROMO": "Promociones y Ofertas",
+    "PROMO_DESC": "Avisos de los cupones que desbloqueas con tus puntos (correo y push)",
+    "NOTIFICATIONS_SAVE_ERROR": "No se pudieron guardar tus preferencias de notificación. Inténtalo de nuevo.",
+    "APPEARANCE": "Apariencia",
+    "THEME": "Elegir tema",
+    "THEME_DESC": "Cambiar interfaz (Personaliza los colores de la aplicación)",
+    "LANGUAGE": "Idiomas",
+    "LANGUAGE_DESC": "Cambiar idioma",
+    "LOCATION": "Ubicación",
+    "LOCATION_SHARE": "Compartir Ubicación",
+    "LOCATION_DESC": "Permitir que accedan a tu ubicación actual",
+    "HELP": "Ayuda",
+    "HELP_CENTER": "Centro de ayuda",
+    "OPEN": "Abrir",
+    "HELP_MODAL": {
+      "MESSAGE": "¿Tienes dudas o algún problema? Contáctanos por cualquiera de estos canales.",
+      "SUPPORT_LINE": "Línea de atención",
+      "EMAIL": "Correo",
+      "HOURS": "Horario",
+      "HOURS_VALUE": "Lunes a sábado, 7:00 a.m. - 6:30 p.m.",
+      "ADDRESS": "Dirección"
+    },
+    "LEGAL_SECTION": "Legal y privacidad",
+    "VIEW_TERMS": "Ver Términos y Condiciones",
+    "VIEW_PRIVACY": "Ver Política de Datos",
+    "APP_VERSION": "Versión {{version}}",
+    "LOAD_ERROR": "No pudimos cargar los datos del negocio o los métodos de pago."
+  },
+  "SIDEBAR": {
+    "PAYMENT": "Pagar servicio",
+    "DASHBOARD": "Dashboard",
+    "TITLE": "LavaRápido",
+    "PROFILE": "Perfil",
+    "RESERVE": "Reservar lavado",
+    "NOTIFICATIONS": "Notificaciones",
+    "HISTORY": "Historial",
+    "CONFIG": "Configuración",
+    "LOGOUT": "Cerrar Sesión",
+    "ASSIGNED_SERVICES": "Servicios asignados",
+    "RATINGS": "Calificaciones",
+    "VEHICLES": "Mis vehículos",
+    "SCHEDULE": "Mi Agenda",
+    "RESERVATIONS": "Reservas",
+    "MANAGEMENT": "Gestión",
+    "SCHEDULE_BAYS": "Horarios y bahías",
+    "OPERATORS": "Operarios",
+    "PAYMENTS": "Pagos",
+    "REPORTS": "Reportes"
+  },
+  "BOTTOM_NAV": {
+    "HOME": "Inicio",
+    "BOOKINGS": "Reservas",
+    "PAYMENTS": "Pagos",
+    "BOOK": "Reservar",
+    "HISTORY": "Historial",
+    "ASSIGNED": "Asignados",
+    "SCHEDULE": "Agenda",
+    "MORE": "Más",
+    "NOTIFICATIONS": "Avisos"
+  },
+  "HISTORY": {
+    "DETAIL_TITLE": "Detalle de la reserva",
+    "TOTAL": "Total",
+    "FILTERS": "Filtros",
+    "ALL": "Todos",
+    "ACTIVE": "Activas",
+    "COMPLETED": "Completadas",
+    "CANCELLED": "Canceladas",
+    "DATE": "Fecha",
+    "FROM": "Desde",
+    "TO": "Hasta",
+    "SEARCH_LABEL": "Buscar por servicio, vehículo o código",
+    "SEARCH_PLACEHOLDER": "Escribe para buscar...",
+    "EMPTY": "No se encontraron servicios",
+    "LOAD_ERROR": "No se pudieron cargar tus reservas.",
+    "CANCEL_CONFIRM": {
+      "TITLE": "¿Cancelar reserva?",
+      "MESSAGE": "Se cancelará la reserva {{code}} y se liberará el horario. Esta acción no se puede deshacer.",
+      "CONFIRM": "Sí, cancelar",
+      "BACK": "Volver"
+    },
+    "CANCEL_SUCCESS": {
+      "TITLE": "Reserva cancelada",
+      "MESSAGE": "La reserva {{code}} fue cancelada correctamente."
+    }
+  },
+  "HISTORY_CARD": {
+    "TYPE": "Tipo de servicio",
+    "VEHICLE": "Vehículo",
+    "STATUS": "Estado",
+    "PAYMENT": "Pago",
+    "PAYMENT_STATUS": {
+      "PENDING": "Pendiente de verificación",
+      "IN_REVIEW": "En verificación",
+      "APPROVED": "Pagado",
+      "REJECTED": "Rechazado",
+      "REFUNDED": "Reembolsado"
+    },
+    "PAY_NOW": "Pagar ahora",
+    "CANCEL": "Cancelar reserva",
+    "RATE": "Calificar Servicio",
+    "RATED": "Calificado",
+    "EDIT_RATING": "Editar calificación",
+    "WASHED_BY": "Te atendió {{name}}",
+    "PAY_BEFORE": "Paga antes de las {{time}}",
+    "DEADLINE": "Plazo de pago",
+    "CANCEL_REASON": "Motivo de cancelación"
+  },
+  "COMMON": {
+    "CLOSE": "Cerrar",
+    "CANCEL": "Cancelar",
+    "DELETE": "Eliminar",
+    "COMING_SOON": "Esta sección estará disponible muy pronto.",
+    "ACCEPT": "Aceptar",
+    "ERROR": "Error",
+    "CREATE": "Crear",
+    "EDIT": "Editar",
+    "SAVE": "Guardar",
+    "VIEW": "Ver",
+    "RESET_FILTERS": "Limpiar filtros"
+  },
+  "SERVICE": {
+    "BASIC": "Básico",
+    "FULL": "Completo",
+    "PREMIUM": "Premium",
+    "BASIC_DESC": "Lavado exterior del vehículo",
+    "FULL_DESC": "Lavado exterior e interior",
+    "PREMIUM_DESC": "Lavado completo con encerado",
+    "BASIC_PRICE": "$20.000",
+    "FULL_PRICE": "$50.000",
+    "PREMIUM_PRICE": "$35.000",
+    "BASIC_TIME": "45 minutos",
+    "FULL_TIME": "120 minutos",
+    "PREMIUM_TIME": "75 minutos",
+    "BASIC_ITEMS": [
+      "Lavado exterior completo",
+      "Aspirado básico",
+      "Limpieza de vidrios"
+    ],
+    "FULL_ITEMS": [
+      "Todo lo del Premium",
+      "Encerado a mano",
+      "Detallado de interiores"
+    ],
+    "PREMIUM_ITEMS": [
+      "Todo lo del Básico",
+      "Lavado de motor",
+      "Cera líquida protectora"
+    ]
+  },
+  "EXTRA": {
+    "WAX": "Cera",
+    "VACUUM": "Aspirado"
+  },
+  "STATUS": {
+    "COMPLETED": "Finalizado",
+    "PENDING": "Pendiente",
+    "CONFIRMED": "Confirmado",
+    "CANCELED": "Cancelado",
+    "ON_THE_WAY": "En camino",
+    "PAID": "Pagado",
+    "REFUNDED": "Reembolsado",
+    "IN_WASH": "En lavado",
+    "READY": "Listo para recoger",
+    "CANCELLED": "Cancelado",
+    "SCHEDULED": "Programado",
+    "IN_PROGRESS": "En progreso",
+    "NO_SHOW": "No asistió"
+  },
+  "ASSIGNMENT": {
+    "MANUAL": "Manual",
+    "AUTO": "Automática",
+    "AUTO_DESC": "El sistema asignará automáticamente un operario disponible."
+  },
+  "DASHBOARD": {
+    "HELLO": "¡Hola, {{name}}!",
+    "WELCOME": "Bienvenido de vuelta a LavaRápido",
+    "NEXT_RESERVATIONS": "Próximas Reservas",
+    "RESUMEN": {
+      "ACTIVE": "Reservas activas",
+      "VEHICLES": "Vehículos",
+      "NOTIFICATIONS": "Notificaciones"
+    },
+    "SUBTITLE": "Este es tu módulo de información como cliente de Lavado Vehicular",
+    "CLIENT_VIEW": "Vista de Cliente",
+    "STATS": {
+      "ACTIVE_RESERVATIONS": "Mis reservas activas",
+      "MY_VEHICLES": "Mis vehículos",
+      "WASHES_DONE": "Lavados realizados",
+      "MY_RATING": "Mi calificación dada"
+    },
+    "NEXT_SERVICE": {
+      "TITLE": "Tu próximo servicio",
+      "VIEW_DETAIL": "Ver detalle",
+      "OPERATOR_ASSIGNED": "Operario asignado",
+      "PROGRESS": "Avance del servicio",
+      "DETAIL_MESSAGE": "Estos son los datos de tu próximo lavado.",
+      "STATUS": "Estado"
+    },
+    "QUICK_ACCESS": {
+      "TITLE": "Accesos rápidos",
+      "BOOK_WASH": "Reservar lavado",
+      "PAY_SERVICE": "Pagar servicio",
+      "MY_VEHICLES": "Mis vehículos",
+      "NOTIFICATIONS": "Notificaciones"
+    },
+    "VEHICLES": {
+      "TITLE": "Mis vehículos registrados",
+      "LAST_WASH": "Últ. lavado",
+      "PLATE": "Placa"
+    },
+    "BENEFITS": {
+      "TITLE": "Tus beneficios y promociones",
+      "LOYALTY_PROGRESS": "Progreso de fidelidad",
+      "POINTS_OF": "{{current}} de {{goal}} puntos",
+      "ALL_UNLOCKED": "Desbloqueaste todas las promociones · {{points}} puntos",
+      "UNLOCKED": "¡Ya la desbloqueaste! Cánjala al pagar.",
+      "LOCKED": "Te faltan {{points}} puntos para desbloquearla",
+      "EMPTY": "Aún no hay promociones disponibles."
+    },
+    "SERVICES_HISTORY": {
+      "TITLE": "Mi historial de servicios",
+      "PAY_SERVICE": "Pagar servicio",
+      "VIEW_ALL": "Ver todo",
+      "OPERATOR": "Operario"
+    }
+  },
+  "VEHICLE": {
+    "CAR": "Automóvil",
+    "TRUCK": "Camioneta",
+    "SEDAN": "Sedán",
+    "SUV": "SUV",
+    "PICKUP": "Pickup",
+    "MOTO": "Moto"
+  },
+  "NOTIFICATIONS": {
+    "TITLE": "Notificaciones",
+    "CLIENT_SUBTITLE": "Aquí puedes consultar las notificaciones relacionadas con tus reservas, promociones y novedades del sistema.",
+    "OPERATOR_SUBTITLE": "Aquí puedes ver las notificaciones importantes relacionadas con tus servicios asignados, cambios de estado y comunicaciones del sistema.",
+    "NEW_SERVICE": "Nuevo servicio asignado",
+    "NEW_SERVICE_DESC": "SV-2034 te ha sido asignado para las 3:00 p.m.",
+    "STATUS_UPDATE": "Actualización de estado",
+    "STATUS_UPDATE_DESC": "El cliente confirmó la dirección para el servicio SV-1783.",
+    "CANCELLATION": "Cancelación",
+    "CANCELLATION_DESC": "El cliente canceló el servicio SV-1690.",
+    "CLIENT_MESSAGE": "Mensaje del cliente",
+    "CLIENT_MESSAGE_DESC": "\"Voy a estar 5 minutos tarde, por favor espérame.\"",
+    "SYSTEM": "Sistema",
+    "SYSTEM_DESC": "Tu perfil ha sido actualizado correctamente.",
+    "RESERVATION_CONFIRMED": "Reserva confirmada",
+    "RESERVATION_DESC": "Tu lavado premium quedó programado para el 25 de febrero a las 10:00 a.m.",
+    "REMINDER": "Recordatorio",
+    "REMINDER_DESC": "Tu lavado está programado para mañana. ¡Todo listo!",
+    "PROMO": "¡Promoción especial!",
+    "PROMO_DESC": "Obtén un 20% de descuento en tu próximo lavado completo. Usa el código: AQUA20",
+    "UPDATE": "Actualización del servicio",
+    "UPDATE_DESC": "Hemos ampliado nuestra cobertura a nuevas zonas de la ciudad.",
+    "TIME_2H": "Hace 2 horas",
+    "TIME_1D": "Hace 1 día",
+    "TIME_2D": "Hace 2 días",
+    "TIME_3D": "Hace 3 días",
+    "READ": "Leído",
+    "UNREAD": "No leído",
+    "BTN_DETAIL": "Ver detalle",
+    "CENTER_TITLE": "Notificaciones",
+    "UNREAD_PLURAL": "sin leer",
+    "MARK_ALL_READ": "Marcar todo como leído",
+    "MARK_READ": "Marcar leído",
+    "MARK_UNREAD": "Marcar no leído",
+    "EMPTY": "No hay notificaciones que coincidan con los filtros.",
+    "TABS": {
+      "ALL": "Todas",
+      "REMINDERS": "Recordatorios",
+      "PROMOS": "Promociones",
+      "CONFIRMATIONS": "Confirmaciones",
+      "OTHERS": "Otras"
+    },
+    "FILTERS": {
+      "READ_STATE": "Estado de lectura"
+    },
+    "TYPE_LABEL": {
+      "RECORDATORIO": "Recordatorio",
+      "PROMOCION": "Promoción",
+      "CONFIRMACION": "Confirmación",
+      "CANCELACION": "Cancelación",
+      "MENSAJE": "Mensaje",
+      "SISTEMA": "Sistema"
+    },
+    "SERVICE_REMINDER_TITLE": "Recordatorio de servicio",
+    "SERVICE_REMINDER_DESC": "Tu lavado Premium SV-2034 es hoy a las 3:00 p.m. El operario llegará a tu dirección registrada.",
+    "PENDING_PAYMENT_TITLE": "Recordatorio de pago pendiente",
+    "PENDING_PAYMENT_DESC": "El servicio SV-1998 tiene un saldo pendiente de $18.000.",
+    "PROMO_FULL_WASH_TITLE": "20% OFF en lavado Completo",
+    "PROMO_FULL_WASH_DESC": "Promoción válida hasta el 20/03 para camionetas y camiones.",
+    "REFER_FRIEND_TITLE": "Trae un amigo",
+    "REFER_FRIEND_DESC": "Refiere a un amigo y ambos reciben un lavado Básico gratis.",
+    "BOOKING_CONFIRMED_DESC": "Tu reserva SV-2041 fue confirmada para el 25/03 a las 10:00 a.m.",
+    "PAYMENT_APPROVED_TITLE": "Pago aprobado",
+    "PAYMENT_APPROVED_DESC": "Recibimos tu pago de $45.000 para el servicio SV-1042.",
+    "CLIENT_CANCELLATION_DESC": "El servicio SV-1690 fue cancelado por el cliente.",
+    "OPERATOR_MESSAGE_TITLE": "Mensaje del operario",
+    "OPERATOR_MESSAGE_DESC": "\"Voy a estar 5 minutos tarde, por favor esperarme.\"",
+    "DELETE_TITLE": "¿Eliminar esta notificación?",
+    "DELETE_MESSAGE": "Esta acción no se puede deshacer.",
+    "DELETED_TITLE": "Notificación eliminada",
+    "DELETED_MESSAGE": "La notificación se eliminó correctamente.",
+    "ADMIN_SUBTITLE": "Aquí puedes ver las notificaciones administrativas: pagos por verificar, reservas sin operario, novedades del equipo y del sistema."
+  },
+  "APP_UPDATE": {
+    "NEW_VERSION_TITLE": "Hay una versión nueva",
+    "NEW_VERSION_MESSAGE": "Descarga la versión nueva de LavaRapidoVehicular e instálala encima de esta: no pierdes tu cuenta ni tus datos.",
+    "DOWNLOAD": "Descargar",
+    "LATER": "Más tarde",
+    "READY_TITLE": "Actualización lista",
+    "READY_MESSAGE": "Se descargaron mejoras para la app. Reiníciala para verlas ahora, o se aplicarán la próxima vez que la abras.",
+    "RESTART": "Reiniciar ahora",
+    "REQUIRED_TITLE": "Actualiza la app para continuar",
+    "REQUIRED_HINT": "Cuando termine la descarga, abre el archivo e instálalo."
+  },
+  "PUSH_CHANNELS": {
+    "REMINDER": "Recordatorios",
+    "PROMOTION": "Promociones y puntos",
+    "CONFIRMATION": "Confirmaciones",
+    "CANCELLATION": "Cancelaciones",
+    "MESSAGE": "Mensajes del servicio",
+    "SYSTEM": "Sistema"
+  },
+  "PAYMENTS": {
+    "TITLE": "Gestión de Pagos",
+    "SUBTITLE": "Administra y verifica los pagos recibidos",
+    "LIST_TITLE": "Lista de pagos",
+    "STATS": {
+      "TOTAL_COLLECTED": "Total recaudado",
+      "VERIFIED": "Pagos verificados",
+      "PENDING": "Pendientes"
+    },
+    "FILTERS": {
+      "FROM": "Desde",
+      "TO": "Hasta",
+      "APPLY": "Aplicar",
+      "MANUAL_REGISTER": "Registro manual"
+    },
+    "TABLE": {
+      "PAYMENT_ID": "ID de pago",
+      "SERVICE": "Servicio",
+      "AMOUNT": "Monto",
+      "METHOD": "Método de pago",
+      "DATE": "Fecha",
+      "CLIENT": "Cliente",
+      "ACTIONS": "Acciones"
+    },
+    "STATUS": {
+      "VERIFY": "Verificar",
+      "VERIFIED": "Verificado"
+    },
+    "METHODS": {
+      "CREDIT_CARD": "Tarjeta de Crédito",
+      "BANK_TRANSFER": "Transferencia Bancaria",
+      "PAYPAL": "PayPal",
+      "CASH": "Efectivo"
+    },
+    "MODAL": {
+      "TITLE": "Registrar pago manual",
+      "CLIENT": "Cliente",
+      "SERVICE": "Servicio",
+      "AMOUNT": "Monto",
+      "METHOD": "Método",
+      "CANCEL": "Cancelar",
+      "SUBMIT": "Registrar pago"
+    },
+    "BOOKING_CANCELLED_REFUND": "La reserva se canceló: reembolsa este pago.",
+    "BOOKING_CANCELLED_REJECT": "La reserva se canceló: rechaza este pago."
+  },
+  "PROFILE": {
+    "TITLE": "Mi Perfil",
+    "MEMBER_SINCE": "Cliente desde {{date}}",
+    "NAME": "Nombre",
+    "EMAIL": "Correo electrónico",
+    "PHONE": "Teléfono",
+    "ADDRESS": "Dirección",
+    "EDIT": "Editar perfil",
+    "SAVE": "Guardar",
+    "PASSWORD": "Contraseña",
+    "CHANGE_PASSWORD": "Cambiar contraseña",
+    "PASSWORD_DESC": "Se recomienda una contraseña segura",
+    "CHANGE": "Cambiar",
+    "ACCOUNT": "Cuenta",
+    "DELETE": "Desactivar mi cuenta",
+    "DELETE_DESC": "Ya no podrás iniciar sesión; tu historial de reservas y pagos se conserva",
+    "SAVED_MODE": "Modo visualización",
+    "EDIT_MODE": "Modo edición",
+    "VALIDATION": {
+      "NAME_REQUIRED": "El nombre es obligatorio",
+      "NAME_MIN": "El nombre debe tener al menos 3 caracteres",
+      "NAME_INVALID": "El nombre solo puede contener letras",
+      "EMAIL_REQUIRED": "El correo es obligatorio",
+      "EMAIL_INVALID": "Ingresa un correo electrónico válido",
+      "PHONE_REQUIRED": "El teléfono es obligatorio",
+      "PHONE_INVALID": "El número no es válido para el país seleccionado",
+      "ADDRESS_REQUIRED": "La dirección es obligatoria",
+      "ADDRESS_MIN": "La dirección debe tener al menos 5 caracteres"
+    },
+    "ROLE": {
+      "ADMIN": "Administrador",
+      "OPERATOR": "Operario",
+      "CLIENT": "Cliente"
+    },
+    "CHANGE_EMAIL_TITLE": "Confirma el cambio de correo",
+    "CHANGE_EMAIL_MESSAGE": "Escribe tu contraseña actual. Desde ahora iniciarás sesión con el correo nuevo.",
+    "SUCCESS_TITLE": "¡Perfil actualizado!",
+    "SUCCESS_MESSAGE": "Tus datos se guardaron correctamente.",
+    "PASSWORD_SUCCESS_TITLE": "¡Contraseña actualizada!",
+    "PASSWORD_SUCCESS_MESSAGE": "Tu contraseña se cambió correctamente.",
+    "DELETE_CONFIRM_TITLE": "¿Desactivar tu cuenta?",
+    "DELETE_CONFIRM_MESSAGE": "Tu cuenta se desactivará y ya no podrás iniciar sesión. Tu historial de reservas y pagos se conserva. Escribe tu contraseña para confirmar.",
+    "DELETE_CONFIRM_BUTTON": "Sí, desactivar",
+    "DELETE_SUCCESS_TITLE": "Cuenta desactivada",
+    "DELETE_SUCCESS_MESSAGE": "Tu cuenta fue desactivada y se cerró la sesión en todos tus dispositivos. Gracias por usar nuestro servicio.",
+    "EMAIL_CHANGED_MESSAGE": "Tu correo se actualizó. Desde ahora inicias sesión con el correo nuevo."
+  },
+  "RATINGS": {
+    "TITLE": "Calificar servicio",
+    "SUBTITLE": "Tu opinión nos ayuda a mejorar",
+    "QUESTION": "¿Cómo fue tu experiencia?",
+    "COMMENT": "Comentarios (opcional)",
+    "PLACEHOLDER": "Cuéntanos más sobre tu experiencia...",
+    "SUBMIT": "Enviar calificación",
+    "SUCCESS_TITLE": "¡Gracias por tu calificación!",
+    "SUCCESS_MESSAGE": "Tu opinión nos ayuda a mejorar nuestro servicio.",
+    "EDIT_TITLE": "Editar calificación",
+    "EDIT_SUBMIT": "Guardar cambios",
+    "UPDATED_TITLE": "¡Calificación actualizada!",
+    "UPDATED_MESSAGE": "Tu calificación se guardó correctamente."
+  },
+  "RESERVE": {
+    "TITLE": "Reservar lavado",
+    "SUBTITLE": "Programa tu próximo lavado en pocos pasos",
+    "DATE": "Fecha",
+    "TIME": "Hora",
+    "SELECT_TIME": "Selecciona una hora",
+    "ADDRESS": "Dirección",
+    "ADDRESS_PLACEHOLDER": "Calle, número, ciudad...",
+    "VEHICLE": "Tipo de vehículo",
+    "SERVICE": "Tipo de servicio",
+    "ASSIGNMENT": "Asignación de operario",
+    "SELECT": "Seleccionar",
+    "SUBMIT": "Reservar ahora",
+    "STEP1": {
+      "TITLE": "Elige tu vehículo",
+      "SUBTITLE": "Selecciona uno de tus vehículos registrados",
+      "NO_VEHICLE": "¿No está tu vehículo? Regístralo primero en",
+      "NO_VEHICLE_LINK": "Mis Vehículos"
+    },
+    "STEP2": {
+      "TITLE": "Tipo de servicio",
+      "SUBTITLE": "Escoge el nivel de limpieza que prefieres",
+      "POPULAR": "Más popular",
+      "NO_VEHICLE": "Primero elige tu vehículo en el paso 1",
+      "EMPTY": "No hay servicios disponibles para este tipo de vehículo"
+    },
+    "STEP3": {
+      "TITLE": "Fecha y ubicación",
+      "SUBTITLE": "Dinos cuándo y dónde lavar tu vehículo",
+      "CLOSED": "Cerrado: no se puede reservar este día",
+      "NO_SLOTS": "No hay horas disponibles ese día. Prueba con otra fecha."
+    },
+    "SUMMARY": {
+      "TITLE": "Resumen de tu reserva",
+      "VEHICLE": "Vehículo",
+      "PLATE": "Placa",
+      "SERVICE": "Servicio",
+      "DURATION": "Duración estimada",
+      "DATE": "Fecha",
+      "TIME": "Hora",
+      "TOTAL": "Total",
+      "SUBMIT": "Reservar Ahora",
+      "NOTE": "Te notificaremos cuando el lavador esté en camino. Puedes pagar en línea o en efectivo.",
+      "LOCATION": "Lugar",
+      "CAR_WASH": "Lavado Vehicular",
+      "PAYMENT": "Pago"
+    },
+    "LOCATION": {
+      "TITLE": "Lugar del servicio"
+    },
+    "SUCCESS_TITLE": "¡Reserva creada!",
+    "SUCCESS_MESSAGE": "Tu lavado quedó programado. Este es el resumen de tu reserva:",
+    "SUCCESS_BUTTON": "Ir a pagar",
+    "POINTS": "Suma {{count}} puntos",
+    "OPERATOR": {
+      "LABEL": "Operario (opcional)",
+      "ANY": "Sin preferencia: te asignamos uno libre",
+      "ANY_SHORT": "Sin preferencia",
+      "LOADING": "Buscando operarios libres...",
+      "HINT": "Si el operario que elegiste ya no está libre al confirmar, te asignamos otro.",
+      "NONE_FREE": "No hay operarios libres para elegir a esa hora; igual te asignamos uno."
+    },
+    "PAYMENT_STEP": {
+      "TITLE": "¿Cómo vas a pagar?",
+      "SUBTITLE": "Elige cómo pagarás tu lavado",
+      "LOADING": "Revisando los medios de pago del lavadero...",
+      "DIGITAL": "Pago digital ahora",
+      "DIGITAL_DESC": "Nequi, Daviplata o transferencia",
+      "DIGITAL_HINT": "Al reservar vas directo a pagar: sube el comprobante a tiempo o la reserva se libera.",
+      "CASH": "Efectivo en el lavadero",
+      "CASH_DESC": "Pagas al llegar y lo registra el administrador",
+      "CASH_NOTICE": "Pagas en efectivo en el lavadero"
+    },
+    "SUCCESS_BUTTON_CASH": "Ver mis reservas"
+  },
+  "APP": {
+    "TITLE": "LavaRápido"
+  },
+  "NAV": {
+    "LOGIN": "Iniciar sesión",
+    "REGISTER": "Registrarse",
+    "HOME": "Inicio",
+    "ABOUT": "Nosotros",
+    "SERVICES": "Servicios"
+  },
+  "HERO": {
+    "BADGE": "Reservas en línea para tu lavadero",
+    "TITLE_1": "Tu auto impecable,",
+    "TITLE_2": "sin hacer fila",
+    "DESCRIPTION": "Reserva tu lavado en minutos y llega a la hora acordada: tu bahía y tu operario te esperan. Sigue el servicio desde el celular y paga sin filas.",
+    "START": "Comenzar ahora",
+    "ALREADY_ACCOUNT": "Ya tengo cuenta"
+  },
+  "FEATURES": {
+    "TITLE": "¿Por qué elegirnos?",
+    "SUBTITLE": "Brindamos el mejor servicio de lavado móvil con calidad profesional.",
+    "ITEMS": {
+      "ECO": {
+        "TITLE": "Lavado ecológico",
+        "DESC": "Usamos productos biodegradables"
+      },
+      "PROTECTION": {
+        "TITLE": "Protección total",
+        "DESC": "Cuidamos cada detalle de tu auto"
+      },
+      "RATING": {
+        "TITLE": "5 estrellas",
+        "DESC": "Calidad garantizada siempre"
+      }
+    }
+  },
+  "LOGOUT": {
+    "TITLE": "Cerrar sesión",
+    "MESSAGE": "¿Estás seguro de cerrar sesión?",
+    "CONFIRM": "Sí, cerrar",
+    "CANCEL": "Cancelar"
+  },
+  "LOGIN": {
+    "TITLE": "Iniciar Sesión",
+    "SUBTITLE": "Ingresa a tu cuenta para reservar",
+    "EMAIL": "Correo Electrónico",
+    "EMAIL_PLACEHOLDER": "usuario@gmail.com",
+    "PASSWORD": "Contraseña",
+    "PASSWORD_PLACEHOLDER": "********",
+    "EMAIL_REQUIRED": "El correo es obligatorio",
+    "EMAIL_INVALID": "Debe ingresar un correo válido",
+    "PASSWORD_REQUIRED": "La contraseña es obligatoria",
+    "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
+    "BUTTON": "Iniciar Sesión",
+    "NO_ACCOUNT": "¿No tienes cuenta?",
+    "REGISTER": "Regístrate",
+    "INVALID_CREDENTIALS": "Correo o contraseña incorrectos",
+    "SESSION_EXPIRED": "Tu sesión expiró. Inicia sesión de nuevo.",
+    "LOADING": "Ingresando..."
+  },
+  "REGISTER": {
+    "TITLE": "Crear Cuenta",
+    "SUBTITLE": "Regístrate para empezar a reservar",
+    "FULL_NAME": "Nombre Completo",
+    "FULL_NAME_PLACEHOLDER": "Juan Pérez",
+    "EMAIL": "Correo Electrónico",
+    "EMAIL_PLACEHOLDER": "usuario@gmail.com",
+    "PHONE": "Teléfono",
+    "PHONE_PLACEHOLDER": "3001234567",
+    "PASSWORD": "Contraseña",
+    "PASSWORD_PLACEHOLDER": "Mínimo 8 caracteres",
+    "CONFIRM_PASSWORD": "Confirmar Contraseña",
+    "CONFIRM_PASSWORD_PLACEHOLDER": "Repite tu contraseña",
+    "NAME_REQUIRED": "El nombre es obligatorio",
+    "NAME_MIN": "Debe tener mínimo 3 caracteres",
+    "EMAIL_REQUIRED": "El correo es obligatorio",
+    "EMAIL_INVALID": "Solo se permiten correos @gmail.com",
+    "PHONE_REQUIRED": "El teléfono es obligatorio",
+    "PHONE_INVALID": "Debe comenzar con 3 (número celular colombiano)",
+    "PHONE_MIN": "El número debe tener 10 dígitos",
+    "PASSWORD_REQUIRED": "La contraseña es obligatoria",
+    "CONFIRM_REQUIRED": "Debes confirmar la contraseña",
+    "PASSWORDS_NOT_MATCH": "Las contraseñas no coinciden",
+    "REQUIREMENTS": {
+      "MIN": "Mínimo 8 caracteres",
+      "UPPERCASE": "Al menos una mayúscula",
+      "NUMBER": "Al menos un número",
+      "SPECIAL": "Al menos un carácter especial"
+    },
+    "BUTTON": "Registrarse",
+    "BUTTON_LOADING": "Registrando...",
+    "ALREADY_ACCOUNT": "¿Ya tienes cuenta?",
+    "LOGIN": "Inicia sesión",
+    "INVALID_CREDENTIALS": "Correo o contraseña incorrectos",
+    "DOCUMENT": "Número de Documento",
+    "DOCUMENT_PLACEHOLDER": "1023456789",
+    "DOCUMENT_REQUIRED": "El documento es obligatorio",
+    "DOCUMENT_INVALID": "Debe tener entre 5 y 20 dígitos",
+    "FIRST_NAMES": "Nombres",
+    "FIRST_NAMES_PLACEHOLDER": "Juan Carlos",
+    "LAST_NAMES": "Apellidos",
+    "LAST_NAMES_PLACEHOLDER": "Pérez Gómez",
+    "LAST_NAMES_REQUIRED": "Los apellidos son obligatorios",
+    "LAST_NAMES_MIN": "Debe tener mínimo 2 caracteres",
+    "SUCCESS_TITLE": "¡Registro exitoso!",
+    "SUCCESS_MESSAGE": "Tu cuenta fue creada correctamente. Ahora puedes iniciar sesión.",
+    "SUCCESS_BUTTON": "Ir a iniciar sesión",
+    "ACCEPT_TERMS": "He leído y acepto los",
+    "ACCEPT_PRIVACY": "He leído y acepto la",
+    "TERMS_LINK": "Términos y Condiciones",
+    "PRIVACY_LINK": "Política de Tratamiento de Datos Personales",
+    "TERMS_REQUIRED": "Debes aceptar los Términos y la Política de Datos para continuar"
+  },
+  "FORGOT": {
+    "BACK_LOGIN": "Volver a Iniciar Sesión",
+    "EMAIL": {
+      "TITLE": "Recuperar Contraseña",
+      "DESCRIPTION": "Ingresa tu correo para recibir un código de verificación",
+      "LABEL": "Correo Electrónico",
+      "PLACEHOLDER": "usuario@gmail.com",
+      "INVALID": "Debe ingresar un correo válido",
+      "BUTTON": "Enviar Código"
+    },
+    "VERIFICATION": {
+      "TITLE": "Verificación",
+      "DESCRIPTION": "Ingresa el código de 6 dígitos enviado a",
+      "RESEND": "¿No recibiste el código? Reenviar",
+      "BUTTON": "Verificar Código",
+      "INVALID_CODE": "El código ingresado no es válido",
+      "RESENT": "Te enviamos un código nuevo. El anterior ya no sirve."
+    },
+    "NEW_PASSWORD": {
+      "TITLE": "Nueva Contraseña",
+      "DESCRIPTION": "Crea tu nueva contraseña segura",
+      "LABEL": "Nueva Contraseña",
+      "PLACEHOLDER": "••••••••",
+      "CONFIRM": "Confirmar Contraseña",
+      "CONFIRM_PLACEHOLDER": "••••••••",
+      "BUTTON": "Actualizar Contraseña",
+      "REQUIREMENTS": {
+        "MIN": "Mínimo 8 caracteres",
+        "UPPERCASE": "Al menos una mayúscula",
+        "NUMBER": "Al menos un número",
+        "SPECIAL": "Al menos un carácter especial"
+      }
+    }
+  },
+  "AUTH_PANEL": {
+    "TITLE": "Tu vehículo merece el mejor cuidado",
+    "SUBTITLE": "Administra tus servicios de lavado, agenda citas y mantén el control total de tu vehículo desde una sola plataforma.",
+    "BENEFIT1_TITLE": "Servicio Premium",
+    "BENEFIT1_DESC": "Lavados de alta calidad para mantener tu vehículo impecable.",
+    "BENEFIT2_TITLE": "Reservas rápidas",
+    "BENEFIT2_DESC": "Agenda tus citas en segundos desde cualquier dispositivo.",
+    "BENEFIT3_TITLE": "Información segura",
+    "BENEFIT3_DESC": "Tus datos y reservas están protegidos en todo momento."
+  },
+  "ASSIGNED_SERVICES": {
+    "TITLE": "Servicios Asignados",
+    "SUBTITLE": "Aquí puedes ver todos los servicios que te han sido asignados. Mantén actualizada la información del progreso.",
+    "STATS": {
+      "TOTAL": "Servicios Totales",
+      "PENDING": "Pendientes",
+      "IN_PROGRESS": "En Progreso",
+      "COMPLETED_TODAY": "Finalizados Hoy"
+    },
+    "FILTERS": {
+      "TITLE": "Filtros de búsqueda",
+      "BY_DATE": "Filtrar por fecha",
+      "BY_TYPE": "Filtrar por tipo de servicio",
+      "BY_SERVICE": "Buscar por servicio",
+      "SEARCH_PLACEHOLDER": "Buscar...",
+      "ALL": "Todas",
+      "FILTER_BTN": "Filtrar"
+    },
+    "TABLE": {
+      "ID": "ID",
+      "SERVICE_TYPE": "TIPO DE SERVICIO",
+      "LOCATION": "UBICACIÓN",
+      "DATE_TIME": "FECHA Y HORA",
+      "VEHICLE": "VEHÍCULO",
+      "CLIENT": "CLIENTE",
+      "STATUS": "ESTADO"
+    },
+    "DETAIL": {
+      "TITLE": "Información del servicio",
+      "CLIENT": "Client:",
+      "ADDRESS": "Dirección:",
+      "SERVICE_TYPE": "Tipo de servicio:",
+      "SCHEDULED_TIME": "Hora programada:",
+      "PAYMENT_METHOD": "Método de pago:",
+      "MAP_LABEL": "Ubicación en mapa",
+      "PROGRESS_TITLE": "Estado y progreso",
+      "START": "Iniciar Servicio",
+      "FINISH": "Finalizar Servicio",
+      "EXTRA_TITLE": "Opciones adicionales",
+      "CONTACT": "Contactar al client",
+      "VEHICLE": "Vehículo:",
+      "START_TITLE": "¿Iniciar este servicio?",
+      "START_MESSAGE": "El servicio {{code}} pasará a estar en progreso.",
+      "START_CONFIRM": "Iniciar",
+      "STARTED_TITLE": "¡Servicio iniciado!",
+      "STARTED_MESSAGE": "El servicio {{code}} ya está en progreso.",
+      "FINISHED_TITLE": "¡Servicio finalizado!",
+      "FINISHED_MESSAGE": "El servicio {{code}} quedó marcado como completado.",
+      "CONTACT_MESSAGE": "Comunícate con el cliente por cualquiera de estos medios.",
+      "NOTES": "Indicaciones del administrador"
+    }
+  },
+  "OPERATOR_HOME": {
+    "TITLE": "¡Hola, {{name}}! 👋 ¡Bienvenido!",
+    "SUBTITLE": "Tienes {{count}} servicios pendientes para hoy",
+    "BTN_SERVICES": "Ver servicios asignados",
+    "PROGRESS_LABEL": "Servicios completados hoy",
+    "PENDING": "Pendientes",
+    "RESERVATIONS_TITLE": "Reservas Pendientes",
+    "BTN_START": "Iniciar",
+    "STATS": {
+      "ASSIGNED": "Reservas asignadas",
+      "VEHICLES": "Vehículos",
+      "NOTIFICATIONS": "Notificaciones",
+      "RATING": "Calificación",
+      "IN_PROGRESS": "En progreso"
+    },
+    "EMPTY": "No tienes servicios programados por ahora."
+  },
+  "SERVICE_HISTORY": {
+    "TITLE": "Historial de Servicios",
+    "SUBTITLE": "Consulta todos los servicios que has realizado, organizados por fecha, tipo de servicio y estado final.",
+    "FILTERS_TITLE": "Filtros de búsqueda",
+    "FILTER_DATE": "Filtrar por fecha",
+    "FILTER_TYPE": "Filtrar por tipo de servicio",
+    "BTN_FILTER": "Filtrar",
+    "TYPE_ALL": "Todas",
+    "TYPE_BASIC": "Básico",
+    "TYPE_PREMIUM": "Premium",
+    "TYPE_FULL": "Completo",
+    "STATUS_ALL": "Todos",
+    "STATUS_FINISHED": "Finalizado",
+    "STATUS_CANCELED": "Cancelado",
+    "STATUS_REASSIGNED": "Reasignado",
+    "COMPLETION_RATE": "Tasa de servicios completados",
+    "SEARCH_PLACEHOLDER": "Buscar por código, placa, cliente o vehículo...",
+    "ALL_SERVICES": "Todos los servicios",
+    "CLEAR": "Limpiar",
+    "TABS": {
+      "ALL": "Todos",
+      "DONE": "Finalizados",
+      "CANCELED": "Cancelados",
+      "REASSIGNED": "Reasignados"
+    },
+    "STATUS": {
+      "FINALIZADO": "Finalizado",
+      "CANCELADO": "Cancelado",
+      "REASIGNADO": "Reasignado"
+    },
+    "DETAIL": {
+      "DATE": "Fecha y hora",
+      "VEHICLE": "Vehículo",
+      "PAYMENT": "Pago",
+      "RATING": "Calificación",
+      "REASON": "Motivo"
+    },
+    "METHODS": {
+      "CARD": "Tarjeta",
+      "PSE": "PSE",
+      "NEQUI": "Nequi",
+      "CASH": "Efectivo"
+    }
+  },
+  "HISTORY_STATS": {
+    "DONE": "Servicios realizados este mes",
+    "CANCELED": "Servicios cancelados / reasignados",
+    "TOTAL": "Total generado",
+    "RATING": "Calificación promedio"
+  },
+  "HISTORY_TABLE": {
+    "ID": "ID",
+    "DATE_COMPLETED": "FECHA COMPLETADA",
+    "SERVICE": "SERVICIO",
+    "VEHICLE": "VEHÍCULO",
+    "DURATION": "DURACIÓN",
+    "STATUS": "ESTADO FINAL",
+    "EMPTY": "No se encontraron servicios",
+    "PAYMENT": "Pago",
+    "AMOUNT": "Monto",
+    "RATING": "Calificación",
+    "DETAIL": "Detalle"
+  },
+  "QUALIFICATIONS": {
+    "TITLE": "Calificaciones recibidas",
+    "SUBTITLE": "Consulta las valoraciones que han dejado los clientes sobre tu trabajo.",
+    "FILTERS_TITLE": "Filtros de búsqueda",
+    "FILTER_DATE": "Filtrar por fecha",
+    "FILTER_TYPE": "Filtrar por tipo de servicio",
+    "BTN_FILTER": "Filtrar",
+    "TYPE_ALL": "Todas",
+    "TYPE_BASIC": "Lavado Básico",
+    "TYPE_PREMIUM": "Lavado Premium",
+    "TYPE_FULL": "Lavado Completo",
+    "STARS_ALL": "Todos",
+    "STARS_5": "5 estrellas",
+    "STARS_4": "4 estrellas",
+    "STARS_3": "3 estrellas",
+    "STARS_2": "2 estrellas",
+    "STARS_1": "1 estrella",
+    "EMPTY": "No se encontraron calificaciones"
+  },
+  "QUALIFICATION_CARD": {
+    "DURATION": "Duración",
+    "LOCATION": "Ubicación",
+    "ID": "ID",
+    "DETAIL_TITLE": "Detalle de la calificación",
+    "DETAIL_MESSAGE": "Esto es lo que opinó el cliente sobre tu servicio.",
+    "COMMENT": "Comentario"
+  },
+  "QUALIFICATION_STATS": {
+    "AVG_RATING": "Calificación promedio",
+    "SATISFACTION_LEVEL": "Nivel de satisfacción",
+    "TOTAL": "Total de calificaciones recibidas",
+    "LAST_12_MONTHS": "En los últimos 12 meses"
+  },
+  "PAYMENT": {
+    "TITLE": "Pasarela de Pagos",
+    "SUBTITLE": "Paga tu servicio de forma segura y consulta tu historial.",
+    "METHOD": {
+      "TITLE": "Método de pago",
+      "TRANSFER": "Transferencia",
+      "TRANSFER_DESC": "PSE / Bancos",
+      "NO_FEES": "Sin comisiones adicionales",
+      "NEQUI": "Nequi",
+      "NEQUI_DESC": "Escanea y paga desde la app",
+      "DAVIPLATA": "Daviplata",
+      "DAVIPLATA_DESC": "Escanea y paga desde la app",
+      "CASH": "Efectivo",
+      "CASH_DESC": "Paga en el local al recibir el servicio"
+    },
+    "SUMMARY": {
+      "TITLE": "Resumen del servicio",
+      "SERVICE": "Servicio",
+      "VEHICLE": "Vehículo",
+      "TOTAL": "Total a pagar",
+      "PAY_BUTTON": "Pagar",
+      "PREMIUM_DESC": "Exterior detallado, encerado cerámico y aspirado interior profundo",
+      "SUBTOTAL": "Subtotal",
+      "DISCOUNT": "Descuento aplicado",
+      "TAX": "IVA (19%) incluido",
+      "CASH_BUTTON": "Confirmar reserva",
+      "VERIFYING_BUTTON": "Pago en verificación",
+      "APPROVED_BUTTON": "Pago aprobado",
+      "APPROVED_TITLE": "Pago aprobado",
+      "APPROVED_MESSAGE": "El administrador aprobó tu pago. Tu reserva quedó pagada; no tienes que hacer nada más.",
+      "CANCEL": "Cancelar reserva",
+      "SECURE": "Pago 100% seguro · Verificación inmediata por el equipo de bahía"
+    },
+    "COUPON": {
+      "PLACEHOLDER": "Código del cupón",
+      "APPLY": "Aplicar",
+      "APPLIED": "Cupón aplicado: {{name}}"
+    },
+    "CANCEL_CONFIRM": {
+      "TITLE": "¿Cancelar reserva?",
+      "MESSAGE": "Se cancelará la reserva {{code}} y se liberará el horario. Esta acción no se puede deshacer.",
+      "CONFIRM": "Sí, cancelar",
+      "BACK": "Volver",
+      "SUCCESS_TITLE": "Reserva cancelada",
+      "SUCCESS_MESSAGE": "La reserva {{code}} fue cancelada correctamente."
+    },
+    "SUCCESS_TITLE": "¡Pago enviado!",
+    "SUCCESS_MESSAGE": "Recibimos tu pago. Está en revisión y te avisaremos cuando sea aprobado.",
+    "INVALID_FILE_TITLE": "Archivo no válido",
+    "INVALID_FILE_MESSAGE": "Solo se permiten imágenes JPG o PNG de máximo 10MB.",
+    "STEP": "Paso 2 de 2 · Reserva confirmada",
+    "QR": {
+      "INSTANT": "PAGO DIGITAL INMEDIATO",
+      "VIA": "Vía",
+      "SCAN_HINT": "Válido para escanear en pantalla",
+      "VERIFIED": "Verificado",
+      "KEY": "Llave / Cuenta autorizada",
+      "COPY": "Copiar número",
+      "COPIED": "Copiado",
+      "ACCOUNT_TYPE": "Tipo de cuenta",
+      "ACCOUNT_TYPE_VALUE": "Llave / Cuenta de ahorros vinculada",
+      "AMOUNT": "Monto a pagar",
+      "HINT": "Abre tu app, escanea el código y confirma el pago por el monto exacto.",
+      "ZOOM": "Ampliar QR"
+    },
+    "CASH": {
+      "TITLE": "Pago en efectivo",
+      "DESC": "Pagarás directamente en el local cuando recibas tu vehículo. Tu reserva queda apartada."
+    },
+    "CONFIRM": {
+      "TITLE": "Confirma tu pago",
+      "DROP": "Arrastra aquí tu comprobante o haz clic para examinar",
+      "FORMATS": "Formatos permitidos: JPG o PNG. La imagen se reduce a menos de 2 MB antes de enviarla.",
+      "REFERENCE": "Referencia de la transacción",
+      "REFERENCE_HINT": "Número de 8 a 12 caracteres emitido por tu entidad",
+      "AMOUNT": "Monto pagado",
+      "AMOUNT_HINT": "Escribe el monto exacto de tu comprobante. Viene lleno con el total a pagar",
+      "INFO": "Un administrador verificará tu pago y recibirás una notificación. Tu plaza quedará 100% garantizada y lista en tu horario reservado.",
+      "MISSING": {
+        "TITLE": "Para confirmar el pago te falta:",
+        "RECEIPT": "Subir el comprobante (JPG o PNG)",
+        "REFERENCE": "Escribir la referencia de la transacción (8 a 12 letras o números)",
+        "AMOUNT": "Indicar el monto pagado (mayor a 0)"
+      }
+    },
+    "HELP": {
+      "TITLE": "¿Necesitas asistencia con tu pago?",
+      "DESC": "Línea directa de atención al cliente:"
+    },
+    "RECEIPT_PICK": "Adjuntar comprobante",
+    "RECEIPT_CHANGE": "Cambiar comprobante",
+    "EMPTY": "No tienes reservas pendientes de pago",
+    "CASH_INFO_TITLE": "Pagas en el local",
+    "CASH_INFO_MESSAGE": "Paga en efectivo cuando llegues por tu vehículo. El administrador registrará el pago y te llegará la notificación de pago aprobado.",
+    "RECEIPT_COMPRESSING": "Preparando el comprobante...",
+    "RECEIPT_TOO_LARGE": "No pudimos reducir la imagen a menos de 2 MB. Prueba con una captura de pantalla del comprobante.",
+    "LOAD_ERROR": "No pudimos cargar el estado de tu pago ni el monto a pagar. Revisa tu conexión e inténtalo de nuevo.",
+    "DEADLINE_NOTICE": "Sube el comprobante antes de las {{time}} o la reserva se libera",
+    "CASH_BOOKING_NOTICE": "Esta reserva se paga en el lavadero y la registra el administrador: no tienes que subir comprobante. Si prefieres pagar ahora, elige un medio digital."
+  },
+  "VEHICLES": {
+    "TITLE": "Mis Vehículos",
+    "SUBTITLE": "Consulta tus vehículos registrados y su último lavado",
+    "REGISTER_BUTTON": "Registrar vehículo",
+    "STATS": {
+      "TOTAL": "Vehículos registrados",
+      "WASHES": "Lavados acumulados",
+      "LAST_WASH": "Último lavado realizado"
+    },
+    "CARD": {
+      "PLATE": "Placa",
+      "LAST_WASH": "Último lavado",
+      "SERVICE": "Servicio",
+      "TOTAL_WASHES": "Total de lavados"
+    },
+    "MODAL": {
+      "TITLE": "Registrar nuevo vehículo",
+      "SUBTITLE": "Agrega los datos de tu vehículo para reservar lavados más rápido.",
+      "TYPE": "Tipo de vehículo",
+      "TYPE_PLACEHOLDER": "Selecciona el tipo",
+      "BRAND": "Marca",
+      "MODEL": "Modelo",
+      "PLATE": "Placa",
+      "COLOR": "Color",
+      "CANCEL": "Cancelar",
+      "SAVE": "Guardar vehículo",
+      "EDIT_TITLE": "Editar vehículo",
+      "EDIT_SUBTITLE": "Actualiza los datos de tu vehículo.",
+      "EDIT_SAVE": "Guardar cambios",
+      "PLATE_HINT_CAR": "Placa oficial colombiana: 3 letras y 3 números (ABC123).",
+      "PLATE_HINT_MOTO": "Placa oficial colombiana de moto: 3 letras, 2 números y 1 letra (ABC12D)."
+    },
+    "VALIDATION": {
+      "TYPE_REQUIRED": "Selecciona el tipo de vehículo",
+      "BRAND_REQUIRED": "La marca es obligatoria",
+      "BRAND_MIN": "La marca debe tener al menos 2 caracteres",
+      "BRAND_INVALID": "La marca solo puede tener letras, números, espacios y guiones",
+      "PLATE_REQUIRED": "La placa es obligatoria",
+      "PLATE_CAR_INVALID": "Formato inválido. Debe tener 3 letras y 3 números (ABC123). No se permiten placas de otros países ni diseños publicitarios.",
+      "PLATE_MOTO_INVALID": "Formato inválido. Debe tener 3 letras, 2 números y 1 letra (ABC12D). No se permiten placas de otros países ni diseños publicitarios.",
+      "PLATE_TAKEN": "Ya tienes un vehículo registrado con esta placa",
+      "COLOR_INVALID": "El color solo puede tener letras"
+    },
+    "SUCCESS": {
+      "CREATED_TITLE": "¡Vehículo registrado!",
+      "CREATED_MESSAGE": "Tu vehículo se agregó correctamente. Ya puedes usarlo en tus reservas.",
+      "UPDATED_TITLE": "¡Vehículo actualizado!",
+      "UPDATED_MESSAGE": "Los datos de tu vehículo se guardaron correctamente."
+    },
+    "DELETE": {
+      "TITLE": "¿Eliminar vehículo?",
+      "MESSAGE": "Se eliminará {{name}} con placa {{plate}} de tu cuenta. Esta acción no se puede deshacer."
+    },
+    "EMPTY": {
+      "TITLE": "Aún no tienes vehículos registrados",
+      "SUBTITLE": "Registra tu primer vehículo para reservar lavados más rápido."
+    },
+    "LOAD_ERROR": "No se pudieron cargar tus vehículos."
+  },
+  "REPORTS": {
+    "TITLE": "Reportes Generales de Servicios e Ingresos",
+    "SUBTITLE": "Visualiza el rendimiento del negocio",
+    "EXPORT_BUTTON": "Exportar reporte",
+    "DAYS": {
+      "MON": "Lun",
+      "TUE": "Mar",
+      "WED": "Mié",
+      "THU": "Jue",
+      "FRI": "Vie",
+      "SAT": "Sáb",
+      "SUN": "Dom"
+    },
+    "FILTERS": {
+      "TITLE": "Filtros",
+      "DATE": "Fecha",
+      "SERVICE": "Servicio",
+      "OPERATOR": "Operario",
+      "ALL": "Todos",
+      "APPLY": "Aplicar filtros"
+    },
+    "CHART": {
+      "TITLE": "Gráficas",
+      "SERVICES": "Servicios",
+      "REVENUE": "Ingresos ($)"
+    },
+    "SUMMARY": {
+      "DAY": "Reporte del Día",
+      "WEEK": "Reporte de la Semana",
+      "MONTH": "Reporte del Mes",
+      "SERVICES_DONE": "Servicios realizados",
+      "TOTAL_REVENUE": "Ingresos totales"
+    },
+    "YEAR_REVENUE": "Ingresos Totales del Año",
+    "TOP_SERVICES": {
+      "TITLE": "Servicios Más Vendidos",
+      "SALES": "ventas"
+    },
+    "MODAL": {
+      "TITLE": "Exportar reporte",
+      "SUBTITLE": "Vista previa del reporte antes de descargarlo.",
+      "PERIOD": "Periodo",
+      "SERVICE": "Servicio",
+      "SERVICES_LABEL": "servicios",
+      "EXPORT_EXCEL": "Exportar CSV",
+      "EXPORT_PDF": "Exportar PDF"
+    }
+  },
+  "FOOTER": {
+    "DESCRIPTION": "Lavadero con reservas en línea: eliges el servicio y la hora, y tu bahía te espera.",
+    "COMPANY": {
+      "TITLE": "Compañía",
+      "ABOUT": "Sobre nosotros",
+      "CONTACT": "Contacto",
+      "CAREERS": "Trabaja con nosotros"
+    },
+    "SERVICES_TITLE": "Servicios",
+    "SUPPORT": {
+      "TITLE": "Soporte",
+      "FAQ": "Preguntas frecuentes"
+    },
+    "LEGAL": {
+      "TITLE": "Legal",
+      "TERMS": "Términos de servicio",
+      "PRIVACY": "Política de privacidad"
+    },
+    "COPYRIGHT": "© {{year}} Express Car Wash S.A.S. Todos los derechos reservados."
+  },
+  "ABOUT": {
+    "EYEBROW": "Quiénes somos",
+    "TITLE": "Cuidamos tu vehículo como si fuera nuestro",
+    "DESCRIPTION": "Somos un equipo de lavadores profesionales certificados, comprometidos con la excelencia y el cuidado del medio ambiente. Reservas en línea, llegas a tu hora y tu bahía te espera, sin filas ni esperas.",
+    "STATS": {
+      "VEHICLES": "Vehículos lavados",
+      "CLIENTS": "Clientes satisfechos",
+      "DAILY": "Servicios al día",
+      "YEARS": "Años de experiencia"
+    }
+  },
+  "CONTACT": {
+    "EYEBROW": "Contacto",
+    "TITLE": "¿Hablamos?",
+    "SUBTITLE": "Escríbenos y te respondemos en menos de 24 horas",
+    "EMAIL_LABEL": "Correo",
+    "PHONE_LABEL": "Teléfono",
+    "ADDRESS_LABEL": "Sede",
+    "CTA": "Agenda tu primer lavado"
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "memberSince": "Cliente desde {{date}}",
+    "editMode": "Modo edición",
+    "savedMode": "Modo visualización",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "address": "Dirección",
+    "edit": "Editar perfil",
+    "save": "Guardar cambios",
+    "securityTitle": "Contraseña",
+    "changePassword": "Cambiar contraseña",
+    "passwordDesc": "Se recomienda una contraseña segura",
+    "change": "Cambiar",
+    "account": "Cuenta",
+    "delete": "Eliminar cuenta",
+    "deleteDesc": "Tu cuenta se desactiva y ya no podrás iniciar sesión; tu historial se conserva",
+    "validation": {
+      "nameRequired": "El nombre es obligatorio",
+      "nameMin": "El nombre debe tener mínimo 3 caracteres",
+      "nameInvalid": "El nombre solo puede contener letras",
+      "emailRequired": "El correo es obligatorio",
+      "emailInvalid": "Ingresa un correo válido @gmail.com",
+      "phoneRequired": "El teléfono es obligatorio",
+      "phoneInvalid": "El teléfono no es válido para este país",
+      "addressRequired": "La dirección es obligatoria",
+      "addressMin": "La dirección debe tener mínimo 5 caracteres"
+    },
+    "firstName": "Nombres",
+    "lastName": "Apellidos"
+  },
+  "API_ERRORS": {
+    "INVALID_CREDENTIALS": "Correo o contraseña incorrectos",
+    "ACCOUNT_DISABLED": "Tu cuenta está desactivada. Contacta al administrador.",
+    "ACCOUNT_LOCKED": "Demasiados intentos fallidos. Tu cuenta quedó bloqueada 15 minutos; espera o usa \"¿Olvidaste tu contraseña?\" para entrar ya.",
+    "EMAIL_ALREADY_REGISTERED": "Ya existe una cuenta con este correo",
+    "DOCUMENT_ALREADY_REGISTERED": "Ya existe una cuenta con este número de documento",
+    "WEAK_PASSWORD": "La contraseña no cumple los requisitos de seguridad",
+    "INVALID_RESET_CODE": "El código es incorrecto, ya se usó o expiró. Solicita uno nuevo.",
+    "INCORRECT_CURRENT_PASSWORD": "La contraseña actual es incorrecta",
+    "SAME_PASSWORD": "La nueva contraseña debe ser distinta a la actual",
+    "INVALID_EMAIL": "El correo no es válido",
+    "INVALID_DOCUMENT": "El número de documento no es válido",
+    "INVALID_PHONE": "El teléfono no es válido",
+    "INVALID_NAME": "El nombre no es válido",
+    "VALIDATION_ERROR": "Revisa los datos del formulario",
+    "UNAUTHORIZED": "Tu sesión expiró. Inicia sesión de nuevo.",
+    "FORBIDDEN": "No tienes permiso para realizar esta acción",
+    "USER_NOT_FOUND": "No encontramos la cuenta",
+    "CONFLICT": "Los datos entran en conflicto con un registro existente",
+    "PLATE_ALREADY_REGISTERED": "Ya existe un vehículo registrado con esta placa",
+    "CUSTOMER_NOT_PROVISIONED": "Tu perfil de cliente aún no está listo. Intenta de nuevo en unos minutos.",
+    "VEHICLE_NOT_FOUND": "El vehículo no existe o ya fue eliminado",
+    "INVALID_PLATE": "El formato de la placa no corresponde al tipo de vehículo",
+    "INVALID_VEHICLE_TYPE": "El tipo de vehículo no es válido",
+    "SLOT_UNAVAILABLE": "Esa hora ya no está disponible.",
+    "SLOT_CLOSED_DAY": "El lavadero no abre ese día. Elige otra fecha.",
+    "SLOT_OUTSIDE_HOURS": "A esa hora el servicio no cabe en el horario de atención. Elige otra hora.",
+    "SLOT_TIME_PASSED": "Esa hora ya pasó. Elige una hora más tarde.",
+    "VEHICLE_ALREADY_BOOKED": "Ese vehículo ya tiene una reserva a esa hora.",
+    "SERVICE_NOT_AVAILABLE_FOR_VEHICLE": "Ese servicio no está disponible para tu tipo de vehículo.",
+    "INVALID_DATE": "Esa fecha no se puede reservar.",
+    "CUSTOMER_SERVICE_UNAVAILABLE": "No pudimos validar tu vehículo. Intenta de nuevo en un momento.",
+    "BOOKING_NOT_CHANGEABLE": "Esta reserva ya no se puede modificar.",
+    "OPERATOR_NOT_ON_SHIFT": "El operario no tiene turno en ese horario. Revisa su turno semanal en Operarios.",
+    "OPERATOR_ACCOUNT_DISABLED": "La cuenta del operario está desactivada. Actívala en Gestión > Usuarios o elige otro operario.",
+    "OPERATOR_INACTIVE": "El operario está inactivo.",
+    "OPERATOR_ABSENT": "El operario tiene una ausencia registrada en ese horario.",
+    "OPERATOR_BUSY": "El operario ya tiene otro servicio en ese horario.",
+    "BOOKING_NOT_ASSIGNABLE": "Esta reserva ya no se puede asignar (está en curso, finalizada o cancelada).",
+    "BOOKING_STATE_CONFLICT": "La reserva cambió de estado. Recarga la página.",
+    "EXECUTION_ALREADY_STARTED": "Este servicio ya fue iniciado.",
+    "EXECUTION_NOT_STARTED": "Primero debes iniciar el servicio.",
+    "SERVICE_NOT_COMPLETED": "Solo puedes calificar un servicio finalizado.",
+    "ALREADY_RATED": "Este servicio ya fue calificado.",
+    "ABSENCE_OVERLAP": "Ya existe una ausencia en esas fechas.",
+    "ABSENCE_IN_PAST": "La ausencia no puede empezar antes de hoy.",
+    "OPERATOR_NOT_FOUND": "No se encontró el operario.",
+    "BOOKING_NOT_FOUND": "No se encontró la reserva.",
+    "BOOKING_SERVICE_UNAVAILABLE": "El servicio de reservas no responde. Intenta de nuevo en un momento.",
+    "PROMOTION_NOT_FOUND": "Ese cupón no existe.",
+    "PROMOTION_NOT_REDEEMABLE": "Ese cupón no está vigente o todavía no acumulas los puntos necesarios.",
+    "PROMOTION_ALREADY_REDEEMED": "Ya canjeaste este cupón en esta reserva.",
+    "PROMOTION_ONE_PER_BOOKING": "Esta reserva ya tiene un cupón. Quítalo si quieres usar otro.",
+    "PROMOTION_REDEMPTION_NOT_FOUND": "Esta reserva ya no tiene ese cupón. Recarga la pantalla.",
+    "NETWORK_ERROR": "No hay conexión con el servidor. Intenta de nuevo en un momento.",
+    "UNEXPECTED": "Ocurrió un error inesperado. Intenta de nuevo.",
+    "CANNOT_DISABLE_OWN_ACCOUNT": "No puedes desactivar tu propia cuenta",
+    "ADMIN_CANNOT_BE_DISABLED": "Una cuenta de administrador no se puede desactivar.",
+    "BAY_NEW_IN_MAINTENANCE": "Una bahía nueva no puede empezar en mantenimiento. Créala y después cambia su estado.",
+    "UNKNOWN_PERMISSION": "Uno de los permisos elegidos ya no existe. Recarga la página e inténtalo de nuevo.",
+    "SERVICE_TOO_EARLY": "Todavía no puedes iniciar este servicio: se habilita 15 minutos antes de la hora de la reserva.",
+    "BOOKING_IN_PAST": "Esta reserva ya pasó: no se le puede asignar un operario. Márcala como \"No asistió\" o cancélala.",
+    "ESTABLISHMENT_REQUIRED_FIELD": "La razón social, el NIT y la dirección son obligatorios",
+    "ESTABLISHMENT_INVALID_PHONE": "El teléfono debe tener al menos 7 dígitos",
+    "ESTABLISHMENT_INVALID_EMAIL": "El correo del negocio no es válido",
+    "ESTABLISHMENT_INVALID_FOUNDATION_DATE": "La fecha de constitución no puede ser futura",
+    "ESTABLISHMENT_NOT_FOUND": "Los datos del negocio no están configurados",
+    "FIELDS": {
+      "NOTES": "Revisa el campo «Notas».",
+      "REASON": "Revisa el campo «Motivo».",
+      "COMMENT": "Revisa el campo «Comentario».",
+      "EMAIL": "Revisa el campo «Correo electrónico».",
+      "PHONE": "Revisa el campo «Teléfono».",
+      "ADDRESS": "Revisa el campo «Dirección».",
+      "NAME": "Revisa el campo «Nombre».",
+      "DOCUMENT": "Revisa el campo «Documento».",
+      "PASSWORD": "Revisa el campo «Contraseña».",
+      "REFERENCE": "Revisa el campo «Referencia».",
+      "AMOUNT": "Revisa el campo «Monto».",
+      "DATE": "Revisa el campo «Fecha».",
+      "TIME": "Revisa el campo «Hora»."
+    },
+    "ABSENCE_NOT_FOUND": "La ausencia ya no existe. Recarga la pantalla.",
+    "AMOUNT_CHANGED": "El monto a pagar cambió desde que se reportó el pago. Revisa el monto actual antes de aprobar.",
+    "ASSIGNMENT_BUSY": "Se está guardando otra asignación. Intenta de nuevo en un momento.",
+    "BAD_REQUEST": "La solicitud no es válida. Revisa los datos e intenta de nuevo.",
+    "BAY_HAS_BOOKINGS": "La bahía tiene reservas pendientes: muévelas antes de cambiarla.",
+    "BAY_NAME_TAKEN": "Ya existe una bahía con ese nombre.",
+    "BAY_NOT_FOUND": "La bahía no existe. Recarga la pantalla.",
+    "BOOKING_NOT_EXPIRED": "Solo una reserva confirmada que ya terminó se puede cerrar como no asistida.",
+    "BOOKING_NOT_PAYABLE": "Esta reserva ya no se puede pagar (está cancelada, pasada o ya pagada).",
+    "BOOKING_NOT_TO_CLOSE": "Solo se puede cerrar una reserva terminada que tenga operario.",
+    "BOOKING_SERVICES_LOCKED": "Al reprogramar solo puedes cambiar la fecha y la hora. Para cambiar los servicios, cancela y haz una reserva nueva.",
+    "BOOKING_WITHOUT_CLIENT": "La reserva no tiene un cliente asociado.",
+    "COMMENT_TOO_LONG": "El comentario es demasiado largo.",
+    "CONSENT_REQUIRED": "Para registrarte debes aceptar el tratamiento de datos personales (Ley 1581).",
+    "DATA_CONFLICT": "Los datos cambiaron mientras guardabas. Recarga e intenta de nuevo.",
+    "DATE_REQUIRED": "Elige la fecha.",
+    "DUPLICATED_DAY": "Hay un día repetido en la disponibilidad.",
+    "DUPLICATED_SERVICE": "Hay un servicio repetido en la reserva.",
+    "DUPLICATED_VEHICLE_TYPE": "Hay un tipo de vehículo repetido en los precios.",
+    "EMAIL_DOMAIN_NOT_ALLOWED": "Solo se aceptan correos @gmail.com.",
+    "EXCEPTION_DATE_TAKEN": "Ya hay una excepción de horario para esa fecha.",
+    "EXCEPTION_NOT_FOUND": "La excepción de horario ya no existe. Recarga la pantalla.",
+    "EXECUTION_ALREADY_COMPLETED": "Este servicio ya fue finalizado.",
+    "FINDING_NOT_FOUND": "El hallazgo de la inspección ya no existe.",
+    "INSPECTION_NOT_EDITABLE": "La inspección ya fue compartida y no se puede editar.",
+    "INSPECTION_NOT_FOUND": "La inspección no existe.",
+    "INSPECTION_NOT_PUBLISHED": "La inspección todavía no se ha compartido.",
+    "INTERNAL_ERROR": "Ocurrió un error en el servidor. Intenta de nuevo más tarde.",
+    "INVALID_ACCOUNT_HOLDER": "Escribe el titular de la cuenta.",
+    "INVALID_ACCOUNT_INSTRUCTIONS": "Las instrucciones de la cuenta son demasiado largas.",
+    "INVALID_ACCOUNT_NUMBER": "El número de cuenta no es válido.",
+    "INVALID_ADDRESS": "La dirección no es válida o es demasiado larga.",
+    "INVALID_ASSIGNMENT_NOTES": "Las notas de la asignación son demasiado largas.",
+    "INVALID_BAY_NAME": "El nombre de la bahía no es válido.",
+    "INVALID_BAY_STATUS": "El estado de la bahía no es válido.",
+    "INVALID_BREAK": "La pausa debe tener inicio y fin, dentro del horario del día.",
+    "INVALID_CANCELLATION_REASON": "Ese motivo de cancelación no se puede elegir aquí.",
+    "INVALID_CATEGORY": "La categoría del servicio no es válida.",
+    "INVALID_CUSTOMER": "Los datos del cliente no son válidos.",
+    "INVALID_DATE_RANGE": "El rango de fechas no es válido.",
+    "INVALID_DAY": "El día no es válido.",
+    "INVALID_DEVICE_TOKEN": "No se pudo registrar este celular para las notificaciones.",
+    "INVALID_DISCOUNT_TYPE": "El tipo de descuento no es válido.",
+    "INVALID_DURATION": "La duración no es válida.",
+    "INVALID_FINDING": "El hallazgo no es válido: revisa la zona y la descripción.",
+    "INVALID_HOURS": "La hora de cierre debe ser después de la de apertura.",
+    "INVALID_LANGUAGE": "El idioma no es válido.",
+    "INVALID_LOYALTY_BALANCE": "El saldo de puntos no es válido.",
+    "INVALID_LOYALTY_BOOKING": "La reserva de los puntos no es válida.",
+    "INVALID_LOYALTY_CUSTOMER": "El cliente de los puntos no es válido.",
+    "INVALID_LOYALTY_DESCRIPTION": "La descripción del movimiento de puntos no es válida.",
+    "INVALID_LOYALTY_POINTS": "La cantidad de puntos no es válida.",
+    "INVALID_NOTES": "Las notas son demasiado largas (máximo 300 caracteres).",
+    "INVALID_OPERATOR_PROFILE": "Los datos del operario no son válidos.",
+    "INVALID_PAGE": "La página pedida no es válida.",
+    "INVALID_PAYMENT_ACCOUNT": "La cuenta de pago no es válida.",
+    "INVALID_PAYMENT_AMOUNT": "El monto del pago debe ser mayor que cero.",
+    "INVALID_PAYMENT_BOOKING": "La reserva del pago no es válida.",
+    "INVALID_PAYMENT_METHOD": "El medio de pago no es válido.",
+    "INVALID_PAYMENT_STATUS": "El estado del pago no es válido.",
+    "INVALID_PAYMENT_STATUS_TRANSITION": "El pago ya no está en un estado que permita esta acción. Recarga la pantalla.",
+    "INVALID_PERSON": "Los datos de la persona no son válidos.",
+    "INVALID_PHOTO": "La foto no es válida: usa una imagen JPG o PNG.",
+    "INVALID_PLATFORM": "La plataforma del celular no es válida.",
+    "INVALID_POINTS": "La cantidad de puntos no es válida.",
+    "INVALID_PRICE": "El precio debe ser mayor que cero.",
+    "INVALID_PROMOTION_BENEFITS": "Los beneficios de la promoción no son válidos.",
+    "INVALID_PROMOTION_CODE": "El código de la promoción no es válido.",
+    "INVALID_PROMOTION_DESCRIPTION": "La descripción de la promoción es demasiado larga.",
+    "INVALID_PROMOTION_DISCOUNT": "El descuento debe estar entre 1 % y 99 %.",
+    "INVALID_PROMOTION_DURATION": "La duración de la promoción no es válida.",
+    "INVALID_PROMOTION_ICON": "El ícono de la promoción no es válido.",
+    "INVALID_PROMOTION_NAME": "El nombre de la promoción no es válido.",
+    "INVALID_PROMOTION_PRICE": "El precio de la promoción no es válido.",
+    "INVALID_PROMOTION_RANGE": "La fecha final de la promoción debe ser igual o posterior a la inicial.",
+    "INVALID_PROMOTION_REQUIRED_POINTS": "Los puntos necesarios no son válidos.",
+    "INVALID_QR_IMAGE": "La imagen del QR no es válida: usa PNG o JPG.",
+    "INVALID_QUANTITY": "La cantidad debe ser mayor que cero.",
+    "INVALID_RANGE": "El rango no es válido: el final debe ser después del inicio.",
+    "INVALID_RATING": "La calificación debe estar entre 1 y 5.",
+    "INVALID_REASON": "Escribe un motivo válido (máximo 120 caracteres).",
+    "INVALID_RECEIPT_FILE": "El comprobante no es una imagen válida: usa JPG o PNG.",
+    "INVALID_RECEIPT_UPLOADER": "No se pudo identificar quién sube el comprobante.",
+    "INVALID_RECIPIENT": "El destinatario de la notificación no es válido.",
+    "INVALID_REDEMPTION_BOOKING": "La reserva del cupón no es válida.",
+    "INVALID_REFERENCE": "La referencia de la notificación no es válida.",
+    "INVALID_REJECTION_REASON": "Escribe el motivo del rechazo.",
+    "INVALID_REMINDER": "El recordatorio no es válido.",
+    "INVALID_REPORTED_AMOUNT": "El monto pagado no es válido.",
+    "INVALID_REVIEWER": "No se pudo identificar quién revisa el pago.",
+    "INVALID_REVIEW_COMMENT": "El comentario de la revisión es demasiado largo.",
+    "INVALID_ROLES": "Elige al menos un rol.",
+    "INVALID_SERVICE_CODE": "El código del servicio no es válido.",
+    "INVALID_SERVICE_NAME": "El nombre del servicio no es válido.",
+    "INVALID_SLOT": "Indica la fecha, la hora y una duración de 15 a 600 minutos.",
+    "INVALID_STATUS": "El estado no es válido.",
+    "INVALID_STATUS_TRANSITION": "La reserva no puede pasar a ese estado desde el estado actual.",
+    "INVALID_THEME": "El tema no es válido.",
+    "INVALID_TOKEN": "Tu sesión no es válida. Vuelve a iniciar sesión.",
+    "INVALID_TRANSACTION_REFERENCE": "La referencia debe tener de 8 a 12 letras o números.",
+    "INVALID_VEHICLE": "El vehículo no es válido.",
+    "INVALID_VEHICLE_TEXT": "La marca, el modelo o el color del vehículo no son válidos.",
+    "INVALID_VERSION": "La versión de la app no es válida.",
+    "INVALID_WEEK": "Envía los 7 días de la semana, una vez cada uno.",
+    "LOYALTY_INSUFFICIENT_BALANCE": "No tienes puntos suficientes.",
+    "MISSING_FILTER": "Falta indicar qué buscar.",
+    "NOT_FOUND": "Lo que buscas ya no existe. Recarga la pantalla.",
+    "NOTIFICATION_NOT_FOUND": "La notificación ya no existe.",
+    "NOTIFICATION_TYPE_NOT_ALLOWED": "Ese tipo de notificación no se puede enviar a mano.",
+    "PAYMENT_ACCOUNT_NOT_FOUND": "La cuenta de pago no existe o está inactiva.",
+    "PAYMENT_ALREADY_APPROVED": "Esta reserva ya tiene un pago aprobado.",
+    "PAYMENT_ALREADY_REPORTED": "Ya reportaste un pago para esta reserva y está en revisión.",
+    "PAYMENT_NOT_FOUND": "El pago ya no existe. Recarga la pantalla.",
+    "PAYMENT_RECEIPT_REQUIRED": "Adjunta el comprobante del pago.",
+    "PHOTO_NOT_FOUND": "La foto ya no existe.",
+    "PRICES_REQUIRED": "Indica al menos un precio por tipo de vehículo.",
+    "PROMOTION_CODE_TAKEN": "Ya existe una promoción con ese código.",
+    "PROMOTION_CUSTOMER_LIMIT_REACHED": "Ya usaste este cupón las veces permitidas.",
+    "PROMOTION_DISCOUNT_UNSUPPORTED": "Ese tipo de descuento no se puede aplicar.",
+    "PROMOTION_EXHAUSTED": "El cupón ya se agotó.",
+    "PROMOTION_MIN_PURCHASE_NOT_MET": "La reserva no alcanza la compra mínima del cupón.",
+    "PROMOTION_NOTHING_TO_DISCOUNT": "No queda nada por descontar en esta reserva.",
+    "RATE_LIMITED": "Demasiados intentos seguidos. Espera un momento e intenta de nuevo.",
+    "RECEIPT_TOO_LARGE": "El comprobante pesa demasiado. Usa una imagen más liviana.",
+    "SCHEDULE_BUSY": "Se está guardando otra reserva en ese horario. Intenta de nuevo en un momento.",
+    "SCHEDULE_CONFLICTS_BOOKINGS": "El cambio deja reservas existentes por fuera del horario. Muévelas o cancélalas primero.",
+    "SERVICE_CODE_TAKEN": "Ya existe un servicio con ese código.",
+    "SERVICE_NOT_FOUND": "El servicio no existe o ya no está disponible.",
+    "SERVICE_UNAVAILABLE": "El servicio no está disponible en este momento. Intenta de nuevo más tarde.",
+    "SERVICES_REQUIRED": "Elige al menos un servicio.",
+    "TIME_REQUIRED": "Elige la hora.",
+    "TOO_MANY_ATTEMPTS": "Demasiados intentos fallidos. Espera unos minutos antes de intentar de nuevo.",
+    "TOO_MANY_IDS": "Se pidieron demasiados registros a la vez.",
+    "TOO_MANY_PHOTOS": "Ya llegaste al máximo de fotos permitido.",
+    "TRANSACTION_REFERENCE_REUSED": "Esa referencia ya se usó en otro pago. Revisa el número de tu comprobante.",
+    "UNKNOWN_NOTIFICATION_TYPE": "El tipo de notificación no existe.",
+    "VEHICLE_HAS_ACTIVE_BOOKINGS": "Este vehículo tiene reservas activas o futuras. Cancélalas antes de retirarlo.",
+    "VEHICLE_REQUIRED": "Elige el vehículo.",
+    "SERVICE_TOO_LATE": "Ya no se puede iniciar este servicio: pasaron más de 4 horas desde la hora de fin. Avísale al administrador.",
+    "NOTIFICATION_NOT_SENT": "No se pudo enviar la notificación. Intenta de nuevo en un momento.",
+    "SECURITY_SERVICE_UNAVAILABLE": "El servicio de cuentas no responde. Intenta de nuevo en un momento.",
+    "DATABASE_UNAVAILABLE": "La base de datos no responde. Intenta de nuevo en unos minutos.",
+    "CASH_BOOKING_LIMIT": "Ya tienes una reserva activa con pago en efectivo. Págala o cancélala, o elige pago digital.",
+    "INVALID_PAYMENT_MODE": "Elige cómo vas a pagar: pago digital o efectivo en el lavadero."
+  },
+  "CHANGE_PASSWORD_MODAL": {
+    "TITLE": "Cambiar contraseña",
+    "SUBTITLE": "Ingresa tu contraseña actual y crea una nueva",
+    "CURRENT": "Contraseña actual",
+    "NEW": "Nueva contraseña",
+    "CONFIRM": "Confirmar nueva contraseña",
+    "CURRENT_REQUIRED": "Ingresa tu contraseña actual",
+    "SAME_PASSWORD": "La nueva contraseña debe ser diferente a la actual",
+    "NOT_MATCH": "Las contraseñas no coinciden",
+    "SAVE": "Guardar"
+  },
+  "PASSWORD_CONFIRM_MODAL": {
+    "LABEL": "Contraseña actual",
+    "PROCESSING": "Procesando..."
+  },
+  "MOBILE_HOME": {
+    "WELCOME": "¡Hola, {{name}}!",
+    "MY_PROFILE": "Mi perfil",
+    "CLIENT_PENDING": "Aquí irá tu panel: reservas, vehículos, historial y pagos.",
+    "OPERATOR_PENDING": "Aquí irá tu panel: servicios asignados, agenda y calificaciones."
+  },
+  "QUICK_ACCESS": {
+    "BOOK_WASH": "Agendar lavado",
+    "PAY_SERVICE": "Pagar servicio",
+    "MY_VEHICLES": "Mis vehículos",
+    "NOTIFICATIONS": "Notificaciones"
+  },
+  "STATS": {
+    "ACTIVE_RESERVATIONS": "Reservas activas",
+    "MY_VEHICLES": "Mis vehículos",
+    "WASHES_DONE": "Lavados completados"
+  },
+  "SCHEDULE": {
+    "TITLE": "Mi Agenda",
+    "SUBTITLE": "Calendario interactivo con tus reservas del día, la semana y tu historial de servicios realizados.",
+    "OF": "de",
+    "RESERVATIONS_OF": "Reservas del",
+    "EMPTY": "No hay reservas para mostrar aquí.",
+    "TABS": {
+      "DAY": "Día",
+      "WEEK": "Semana",
+      "DONE": "Realizados"
+    },
+    "STATUS": {
+      "FINALIZADO": "Finalizado",
+      "EN_PROGRESO": "En progreso",
+      "PENDIENTE": "Pendiente"
+    },
+    "CALENDAR": {
+      "SERVICES_OF_DAY": "Servicios del día seleccionado"
+    },
+    "STATS": {
+      "TOTAL": "Total",
+      "PENDING": "Pendientes",
+      "IN_PROGRESS": "En progreso",
+      "DONE": "Finalizados"
+    },
+    "NEXT": {
+      "LABEL": "Próximo servicio",
+      "IN_MINUTES": "en {{min}} min"
+    },
+    "START": "Iniciar",
+    "FINISH": "Finalizar",
+    "VIEW_DETAIL": "Ver detalle",
+    "FINISH_TITLE": "¿Finalizar este servicio?",
+    "FINISH_MESSAGE": "Se marcará como completado y pasará a tu historial de realizados.",
+    "FINISH_CONFIRM": "Finalizar",
+    "DETAIL": {
+      "DATE": "Fecha y hora",
+      "DURATION": "Duración",
+      "VEHICLE": "Vehículo"
+    }
+  },
+  "CALENDAR": {
+    "MONTHS": [
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre"
+    ],
+    "DAYS_SHORT": [
+      "Lun",
+      "Mar",
+      "Mié",
+      "Jue",
+      "Vie",
+      "Sáb",
+      "Dom"
+    ]
+  },
+  "BOOKING_DETAIL": {
+    "CODE": "Código",
+    "CREATED": "Reserva creada",
+    "CLIENT": "Cliente",
+    "PHONE": "Teléfono",
+    "EMAIL": "Correo",
+    "VEHICLE": "Vehículo",
+    "PLATE": "Placa",
+    "SERVICE": "Servicio",
+    "DATE": "Fecha",
+    "TIME": "Hora",
+    "DURATION": "Duración",
+    "MINUTES": "{{count}} minutos",
+    "BAY": "Bahía",
+    "NO_BAY": "Sin bahía",
+    "OPERATOR": "Operario",
+    "NO_OPERATOR": "Sin asignar",
+    "ASSIGN": "Asignar operario",
+    "EDIT": "Editar reserva",
+    "CANCEL_BOOKING": "Cancelar reserva",
+    "RESTRICTED_HINT": "Los cambios de estado están restringidos según el flujo de atención.",
+    "STATUS_ACTION": {
+      "in_progress": "Iniciar servicio",
+      "completed": "Completar",
+      "cancelled": "Cancelar"
+    }
+  },
+  "LEGAL": {
+    "LAST_UPDATED_LABEL": "Última actualización",
+    "CLOSE": "Cerrar",
+    "ACCEPT": "Aceptar y continuar",
+    "CANCEL": "Cancelar",
+    "SCROLL_HINT": "Desplázate para leer el documento completo",
+    "DEMO_NOTICE": "Documento de ejemplo elaborado para un proyecto formativo. Antes de un uso comercial real, debe ser revisado por un abogado y actualizado con los datos reales de la empresa.",
+    "LAST_UPDATED_DATE": "26 de octubre de 2026",
+    "COMPANY_NAME": "Express Car Wash S.A.S.",
+    "TERMS": {
+      "TITLE": "Términos y Condiciones",
+      "SECTIONS": [
+        {
+          "HEADING": "1. Aceptación de los términos",
+          "BODY": "Al crear una cuenta o usar la plataforma Express Car Wash S.A.S. ('la Plataforma'), el Usuario declara que ha leído, entendido y aceptado estos Términos y Condiciones y la Política de Tratamiento de Datos Personales. Si no está de acuerdo con ellos, no debe registrarse ni usar el servicio."
+        },
+        {
+          "HEADING": "2. Quiénes somos y qué ofrecemos",
+          "BODY": "Express Car Wash S.A.S. (NIT 901.482.930-1), con domicilio en Calle 127 # 19A-48, Bogotá, Colombia, opera una plataforma web y móvil que permite a los Clientes reservar turnos de lavado de vehículos en su establecimiento físico, hacer seguimiento del servicio y realizar el pago mediante transferencia verificada por código QR."
+        },
+        {
+          "HEADING": "3. Definiciones",
+          "BODY": "Usuario: cualquier persona registrada en la Plataforma. Cliente: Usuario que reserva y paga servicios de lavado. Operario: Usuario que presta el servicio de lavado. Administrador: Usuario que gestiona operarios, horarios, promociones y pagos. Reserva o Turno: cita programada para lavar un vehículo en una fecha, hora y bahía específicas."
+        },
+        {
+          "HEADING": "4. Registro y cuenta de usuario",
+          "BODY": "El registro está reservado a personas mayores de 18 años. El Usuario se compromete a suministrar información veraz, completa y actualizada, y es el único responsable de la confidencialidad de su contraseña y de la actividad realizada desde su cuenta. La Plataforma puede suspender cuentas con información falsa o uso indebido comprobado."
+        },
+        {
+          "HEADING": "5. Uso permitido de la plataforma",
+          "BODY": "El Usuario se compromete a usar la Plataforma únicamente para los fines para los que fue diseñada, a no intentar vulnerar su seguridad, a no suplantar la identidad de terceros y a no usarla con fines fraudulentos o contrarios a la ley colombiana."
+        },
+        {
+          "HEADING": "6. Reservas, cancelaciones y prestación del servicio",
+          "BODY": "El Cliente selecciona la fecha, hora y tipo de lavado según la disponibilidad mostrada por el sistema. Una reserva puede modificarse o cancelarse sin costo antes de que el servicio inicie; una vez el operario marca el servicio como 'en progreso', la cancelación queda bloqueada. El servicio se presta únicamente en el establecimiento físico indicado en la reserva. Si eliges pago digital, debes cargar el comprobante dentro de los 30 minutos siguientes a la reserva (o antes de la hora del servicio, si es más pronto); si no, la reserva se cancela automáticamente y el horario se libera. Con pago en efectivo puedes tener como máximo una reserva activa a la vez."
+        },
+        {
+          "HEADING": "7. Pagos y comprobantes",
+          "BODY": "El pago digital (Nequi, Daviplata o transferencia bancaria) se realiza escaneando el código QR del establecimiento para el medio elegido y cargando el comprobante correspondiente, que verifica un Administrador antes de confirmarlo. El pago en efectivo se hace en el establecimiento y lo registra el Administrador, sin comprobante. La Plataforma nunca solicita ni almacena datos de tarjetas débito o crédito. Un comprobante cuya referencia de transacción ya haya sido usada en otro pago aprobado será rechazado."
+        },
+        {
+          "HEADING": "8. Calificaciones y comentarios",
+          "BODY": "Una vez finalizado el servicio, el Cliente puede calificarlo y dejar un comentario. El contenido publicado debe ser respetuoso y veraz; la Plataforma puede eliminar comentarios que incumplan esta regla o que contengan datos personales de terceros, insultos o contenido ilegal."
+        },
+        {
+          "HEADING": "9. Promociones y puntos de fidelidad",
+          "BODY": "Las promociones, descuentos y el programa de puntos de fidelidad son definidos y pueden ser modificados por el Administrador en cualquier momento, respetando las condiciones ya adquiridas por servicios completados antes del cambio."
+        },
+        {
+          "HEADING": "10. Propiedad intelectual",
+          "BODY": "El nombre, el logotipo, el diseño de la interfaz y los contenidos propios de la Plataforma son propiedad de Express Car Wash S.A.S. o de sus licenciantes y están protegidos por la legislación colombiana de derechos de autor y propiedad industrial. Su uso no autorizado está prohibido."
+        },
+        {
+          "HEADING": "11. Limitación de responsabilidad",
+          "BODY": "La Plataforma es un canal de agendamiento y verificación de pagos; el servicio de lavado en sí es prestado físicamente por el establecimiento. Express Car Wash no será responsable por daños derivados de caso fortuito, fuerza mayor, mal uso de la Plataforma por el Usuario, o de información falsa suministrada por este."
+        },
+        {
+          "HEADING": "12. Suspensión y terminación",
+          "BODY": "El Usuario puede solicitar la eliminación de su cuenta en cualquier momento desde la sección de Configuración o escribiendo al correo de contacto. La Plataforma puede suspender o cancelar cuentas que incumplan estos Términos, previa notificación cuando sea razonablemente posible."
+        },
+        {
+          "HEADING": "13. Modificaciones a estos términos",
+          "BODY": "Estos Términos pueden actualizarse para reflejar cambios legales, técnicos u operativos. Los cambios sustanciales se notificarán dentro de la Plataforma y, cuando aplique, se solicitará una nueva aceptación."
+        },
+        {
+          "HEADING": "14. Ley aplicable y jurisdicción",
+          "BODY": "Estos Términos se rigen por las leyes de la República de Colombia. Cualquier controversia se someterá a los jueces competentes de Bogotá D.C., sin perjuicio de los mecanismos de protección al consumidor previstos en la Ley 1480 de 2011 ante la Superintendencia de Industria y Comercio."
+        },
+        {
+          "HEADING": "15. Contacto",
+          "BODY": "Para preguntas sobre estos Términos, escribe a datos@expresscarwash.co o al teléfono +57 300 123 4567."
+        }
+      ]
+    },
+    "PRIVACY": {
+      "TITLE": "Política de Tratamiento de Datos Personales",
+      "SECTIONS": [
+        {
+          "HEADING": "1. Responsable del tratamiento",
+          "BODY": "Express Car Wash S.A.S., identificado con NIT 901.482.930-1, con domicilio en Calle 127 # 19A-48, Bogotá, Colombia y correo de contacto datos@expresscarwash.co, es el Responsable del Tratamiento de los datos personales que se recolectan a través de esta Plataforma."
+        },
+        {
+          "HEADING": "2. Marco normativo",
+          "BODY": "Esta política se rige por el artículo 15 de la Constitución Política de Colombia, la Ley Estatutaria 1581 de 2012, el Decreto Reglamentario 1377 de 2013 y las demás normas que los modifiquen, adicionen o sustituyan sobre protección de datos personales (Habeas Data)."
+        },
+        {
+          "HEADING": "3. Definiciones clave",
+          "BODY": "Dato personal: cualquier información vinculada a una persona natural identificada o identificable. Titular: persona natural cuyos datos son objeto de tratamiento. Tratamiento: cualquier operación sobre datos personales (recolección, almacenamiento, uso, circulación o supresión). Autorización: consentimiento previo, expreso e informado del Titular."
+        },
+        {
+          "HEADING": "4. Datos que recolectamos",
+          "BODY": "Nombre completo, correo electrónico, teléfono, dirección, contraseña (almacenada siempre cifrada, nunca en texto plano), datos del vehículo (placa, tipo, marca), historial de reservas y servicios, calificaciones y comentarios, comprobantes de pago, y preferencias de idioma y tema. No recolectamos datos de tarjetas débito o crédito bajo ninguna circunstancia."
+        },
+        {
+          "HEADING": "5. Finalidades del tratamiento",
+          "BODY": "Los datos se usan para: crear y administrar la cuenta del Usuario; gestionar reservas, asignaciones de operario y ejecución del servicio; verificar pagos reportados por QR; enviar notificaciones sobre el estado de reservas y pagos; administrar el programa de promociones y puntos de fidelidad; generar reportes operativos agregados; y cumplir obligaciones legales o requerimientos de autoridades competentes."
+        },
+        {
+          "HEADING": "6. Datos sensibles y menores de edad",
+          "BODY": "La Plataforma no solicita ni trata datos sensibles (salud, orientación sexual, datos biométricos, creencias religiosas o políticas, entre otros) ni está dirigida a menores de 18 años. Si se detecta una cuenta creada por un menor de edad, será eliminada."
+        },
+        {
+          "HEADING": "7. Cómo se otorga la autorización",
+          "BODY": "Al marcar la casilla correspondiente durante el registro, el Titular otorga una autorización previa, expresa e informada para el tratamiento de sus datos personales conforme a esta política. Esta autorización puede ser revocada en cualquier momento, sin que ello afecte la licitud del tratamiento realizado antes de la revocatoria."
+        },
+        {
+          "HEADING": "8. Derechos del titular (Habeas Data)",
+          "BODY": "Como Titular, tienes derecho a: conocer, actualizar y rectificar tus datos; solicitar prueba de la autorización otorgada; ser informado sobre el uso dado a tus datos; presentar quejas ante la Superintendencia de Industria y Comercio por infracciones a la Ley 1581 de 2012; revocar la autorización y/o solicitar la supresión de tus datos cuando no exista un deber legal o contractual que impida eliminarlos; y acceder de forma gratuita a tus datos personales."
+        },
+        {
+          "HEADING": "9. Cómo ejercer tus derechos",
+          "BODY": "Puedes ejercer tus derechos escribiendo a datos@expresscarwash.co indicando tu nombre, el derecho que deseas ejercer y una descripción clara de tu solicitud. Las consultas se resolverán en un plazo máximo de diez (10) días hábiles y los reclamos en un plazo máximo de quince (15) días hábiles, prorrogable conforme al Decreto 1377 de 2013."
+        },
+        {
+          "HEADING": "10. Transferencia y transmisión de datos",
+          "BODY": "Los datos personales tratados en esta Plataforma no se venden, alquilan ni comparten con terceros para fines comerciales o publicitarios. No existen transferencias internacionales de datos en el marco de este proyecto; cualquier prestador tecnológico que en el futuro trate datos por cuenta nuestra actuará como Encargado del Tratamiento bajo contrato."
+        },
+        {
+          "HEADING": "11. Seguridad de la información",
+          "BODY": "Aplicamos medidas técnicas, humanas y administrativas razonables para proteger los datos personales contra pérdida, acceso no autorizado, uso indebido o alteración, incluyendo cifrado de contraseñas, control de acceso basado en roles y limitación del tratamiento de datos de pago a lo estrictamente necesario para verificar cada transacción."
+        },
+        {
+          "HEADING": "12. Conservación de los datos",
+          "BODY": "Los datos personales se conservarán mientras la cuenta esté activa y, tras su eliminación, durante el tiempo necesario para atender obligaciones legales, contables o de defensa ante autoridades, después del cual serán eliminados o anonimizados de forma segura."
+        },
+        {
+          "HEADING": "13. Autoridad de control",
+          "BODY": "La Superintendencia de Industria y Comercio (SIC) es la autoridad encargada de vigilar el cumplimiento de la normativa de protección de datos personales en Colombia. Puedes presentar quejas o consultas ante ella en www.sic.gov.co."
+        },
+        {
+          "HEADING": "14. Cambios en esta política",
+          "BODY": "Esta política puede actualizarse para reflejar cambios normativos, tecnológicos u operativos. Los cambios sustanciales se comunicarán dentro de la Plataforma antes de su entrada en vigencia."
+        },
+        {
+          "HEADING": "15. Contacto",
+          "BODY": "Para cualquier duda sobre el tratamiento de tus datos, escríbenos a datos@expresscarwash.co o al teléfono +57 300 123 4567."
+        }
+      ]
+    }
+  },
+  "MOBILE_NAV": {
+    "MORE": "Más",
+    "HOME": "Inicio",
+    "LOADING": "Cargando...",
+    "RETRY": "Reintentar"
+  },
+  "ASSIGN_REASONS": {
+    "OPERATOR_INACTIVE": "Inactivo",
+    "OPERATOR_NOT_ON_SHIFT": "Sin turno a esa hora",
+    "OPERATOR_ACCOUNT_DISABLED": "Cuenta desactivada",
+    "OPERATOR_ABSENT": "Ausente",
+    "OPERATOR_BUSY": "Ocupado a esa hora"
+  },
+  "OPERATOR_WORK": {
+    "START_FROM": "Podrás iniciarlo desde las {{time}} (15 minutos antes de la reserva).",
+    "START_TOO_LATE": "Ya no se puede iniciar: pasaron más de 4 horas desde la hora de fin."
+  },
+  "AUTH_FEEDBACK": {
+    "LOGIN_SUCCESS_TITLE": "¡Inicio de sesión correcto!",
+    "LOGIN_SUCCESS_MESSAGE": "Bienvenido(a), {{name}}.",
+    "LOGIN_ERROR_TITLE": "No se pudo iniciar sesión",
+    "LOCKED_TITLE": "Cuenta bloqueada temporalmente",
+    "RECOVER_BUTTON": "Recuperar contraseña",
+    "OK": "Entendido",
+    "CODE_SENT_TITLE": "Revisa tu correo",
+    "CODE_SENT_MESSAGE": "Si {{email}} está registrado, te enviamos un código de 6 dígitos. Vence en 15 minutos.",
+    "CODE_RESENT_TITLE": "Código reenviado",
+    "CODE_ERROR_TITLE": "Código no válido",
+    "PASSWORD_UPDATED_TITLE": "Contraseña actualizada",
+    "PASSWORD_UPDATED_MESSAGE": "Ya puedes iniciar sesión con tu nueva contraseña.",
+    "PASSWORD_ERROR_TITLE": "No se pudo cambiar la contraseña",
+    "GO_TO_LOGIN": "Ir a iniciar sesión",
+    "ERROR_TITLE": "Algo salió mal",
+    "REQUEST_NEW_CODE": "Pedir otro código"
+  },
+  "GO_TO": {
+    "HOME": "Ir al inicio",
+    "HISTORY": "Ir al historial",
+    "ASSIGNED": "Ir a servicios asignados",
+    "RESERVATIONS": "Ir a reservas",
+    "PAYMENT": "Ir al pago",
+    "RATINGS": "Ir a calificaciones"
+  },
+  "IMAGE_ZOOM": {
+    "ZOOM_IN": "Acercar",
+    "ZOOM_OUT": "Alejar",
+    "HINT": "Usa la lupa o toca dos veces la imagen para ampliarla. Con zoom, arrástrala para moverla.",
+    "DOUBLE_TAP": "Toca dos veces para ampliar o reducir"
+  },
+  "CANCELLATION_REASONS": {
+    "PAYMENT_TIMEOUT": "No se cargó el comprobante a tiempo y el horario se liberó"
+  }
+}

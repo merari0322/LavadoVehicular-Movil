@@ -1,0 +1,230 @@
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+
+import { fontSize, fontWeight, radius, spacing, useTheme } from '../../../app/theme';
+import { RootStackParamList } from '../../../core/navigation/types';
+import { useSession } from '../../../core/services/auth';
+import { isActiveStatus, isFinishedStatus } from '../../../core/services/booking/bookingDisplay';
+import { Pill } from '../../../shared/components/ui/Pill';
+import { ActionButton } from '../../../shared/components/screen/ActionButton';
+import { PageHeader } from '../../../shared/components/screen/PageHeader';
+import { ProgressBar } from '../../../shared/components/screen/ProgressBar';
+import { ScreenScroll } from '../../../shared/components/screen/ScreenScroll';
+import { SectionCard } from '../../../shared/components/screen/SectionCard';
+import { StatGrid, StatTile } from '../../../shared/components/screen/StatTile';
+import { establishmentText, useEstablishment } from '../../../shared/services/establishmentCatalog';
+import { useFeedback } from '../../../shared/hooks/useFeedback';
+import { ClientLayout } from '../../../shared/layouts/ClientLayout';
+import { withAlpha } from '../../../shared/utils/color';
+import { PROGRESS_BY_STATUS } from '../models/client';
+import { useClientBookings } from '../viewmodels/useClientBookings';
+import { useClientLoyalty } from '../viewmodels/useClientLoyalty';
+import { useClientVehicles } from '../viewmodels/useClientVehicles';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'ClientHome'>;
+type IconName = keyof typeof MaterialIcons.glyphMap;
+
+// accesos rápidos del dashboard (mismos de la web)
+const QUICK_ACCESS: { icon: IconName; label: string; route: keyof RootStackParamList }[] = [
+  { icon: 'calendar-today', label: 'DASHBOARD.QUICK_ACCESS.BOOK_WASH', route: 'ClientReserve' },
+  { icon: 'credit-card', label: 'DASHBOARD.QUICK_ACCESS.PAY_SERVICE', route: 'ClientPayment' },
+  { icon: 'directions-car', label: 'DASHBOARD.QUICK_ACCESS.MY_VEHICLES', route: 'ClientVehicles' },
+  { icon: 'notifications', label: 'DASHBOARD.QUICK_ACCESS.NOTIFICATIONS', route: 'ClientNotifications' },
+];
+
+// isoDate() de hoy, para comparar contra booking.date (aaaa-mm-dd)
+function todayISO(): string {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+// dashboard del cliente: resumen, próximo servicio, accesos rápidos y beneficios
+export function ClientHomeScreen({ navigation }: Props) {
+  const { colors } = useTheme();
+  const { t } = useTranslation();
+  const { user } = useSession();
+  const { vehicles, loading } = useClientVehicles();
+  const { bookings } = useClientBookings();
+  const loyalty = useClientLoyalty();
+  const feedback = useFeedback();
+  const establishment = useEstablishment();
+
+  const activeReservations = bookings.filter((booking) => isActiveStatus(booking.status));
+  const washesDone = bookings.filter((booking) => isFinishedStatus(booking.status)).length;
+
+  // la próxima: la reserva activa con fecha y hora más cercanas desde hoy
+  const today = todayISO();
+  const upcoming = activeReservations
+    .filter((booking) => booking.date >= today)
+    .sort((a, b) => `${a.date} ${a.timeRange}`.localeCompare(`${b.date} ${b.timeRange}`));
+  const service = upcoming[0] ?? null;
+  const progress = service ? PROGRESS_BY_STATUS[service.status] ?? 0 : 0;
+
+  const viewNextServiceDetail = () => {
+    if (!service) return;
+    feedback.showStatus({
+      type: 'info',
+      icon: 'event',
+      title: t('DASHBOARD.NEXT_SERVICE.TITLE'),
+      message: t('DASHBOARD.NEXT_SERVICE.DETAIL_MESSAGE'),
+      buttonText: t('COMMON.CLOSE'),
+      details: [
+        { label: t('RESERVE.SUMMARY.SERVICE'), value: service.services.join(', ') },
+        { label: t('RESERVE.SUMMARY.VEHICLE'), value: `${service.vehicle} · ${service.plate}`.trim() },
+        { label: t('RESERVE.SUMMARY.DATE'), value: `${service.displayDate} · ${service.timeRange}` },
+        { label: t('RESERVE.SUMMARY.CAR_WASH'), value: establishmentText(establishment.address, t('MOBILE_NAV.LOADING')) },
+        { label: t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED'), value: service.operator ?? '—' },
+        { label: t('DASHBOARD.NEXT_SERVICE.STATUS'), value: t(`STATUS.${service.status}`) },
+        { label: t('DASHBOARD.NEXT_SERVICE.PROGRESS'), value: `${progress}%` },
+      ],
+    });
+  };
+
+  return (
+    <ClientLayout activeKey="dashboard">
+      <ScreenScroll>
+        <PageHeader
+          title={t('DASHBOARD.HELLO', { name: user?.firstName ?? '' })}
+          subtitle={t('DASHBOARD.SUBTITLE')}
+        />
+
+        <StatGrid>
+          <StatTile
+            icon="calendar-today"
+            value={activeReservations.length}
+            label={t('DASHBOARD.STATS.ACTIVE_RESERVATIONS')}
+            onPress={() => navigation.navigate('ClientHistory')}
+          />
+          <StatTile
+            icon="directions-car"
+            value={loading ? '…' : vehicles.length}
+            label={t('DASHBOARD.STATS.MY_VEHICLES')}
+            onPress={() => navigation.navigate('ClientVehicles')}
+          />
+          <StatTile icon="water-drop" value={washesDone} label={t('DASHBOARD.STATS.WASHES_DONE')} />
+          <StatTile
+            icon="notifications"
+            value={t('COMMON.VIEW')}
+            label={t('SIDEBAR.NOTIFICATIONS')}
+            onPress={() => navigation.navigate('ClientNotifications')}
+          />
+        </StatGrid>
+
+        {/* Próximo servicio: la reserva activa más próxima (booking-service) */}
+        {service ? (
+          <SectionCard
+            title={t('DASHBOARD.NEXT_SERVICE.TITLE')}
+            icon="schedule"
+            right={<Pill label={t(`STATUS.${service.status}`)} tone="primary" />}
+          >
+            <Text style={[styles.strong, { color: colors.text }]}>
+              {service.services.join(', ')} — {service.vehicle} · {service.plate}
+            </Text>
+            <Text style={[styles.muted, { color: colors.textSecondary }]}>
+              {service.displayDate} · {service.timeRange}
+            </Text>
+            {/* contrato pago-reserva: falta subir el comprobante antes del plazo (hora local) */}
+            {service.payBefore ? (
+              <View style={styles.badges}>
+                <Pill label={t('HISTORY_CARD.PAY_BEFORE', { time: service.payBefore })} tone="warning" icon="timer" />
+              </View>
+            ) : null}
+            {service.paysInCash ? (
+              <View style={styles.badges}>
+                <Pill label={t('RESERVE.PAYMENT_STEP.CASH_NOTICE')} tone="primary" icon="payments" />
+              </View>
+            ) : null}
+            <View style={styles.meta}>
+              <MaterialIcons name="storefront" size={16} color={colors.textMuted} />
+              <Text style={[styles.metaText, { color: colors.textSecondary }]}>
+                {establishmentText(
+                  [establishment.tradeName, establishment.address].filter((part) => part?.trim()).join(' · '),
+                  t('MOBILE_NAV.LOADING'),
+                )}
+              </Text>
+            </View>
+            <View style={styles.meta}>
+              <MaterialIcons name="person" size={16} color={colors.textMuted} />
+              <Text style={[styles.metaText, { color: colors.textSecondary }]}>
+                {t('DASHBOARD.NEXT_SERVICE.OPERATOR_ASSIGNED')}: {service.operator ?? '—'}
+              </Text>
+            </View>
+            <ProgressBar percentage={progress} label={t('DASHBOARD.NEXT_SERVICE.PROGRESS')} />
+            <ActionButton label={t('DASHBOARD.NEXT_SERVICE.VIEW_DETAIL')} variant="outline" onPress={viewNextServiceDetail} />
+          </SectionCard>
+        ) : null}
+
+        {/* Accesos rápidos */}
+        <SectionCard title={t('DASHBOARD.QUICK_ACCESS.TITLE')}>
+          <View style={styles.quickGrid}>
+            {QUICK_ACCESS.map((item) => (
+              <Pressable
+                key={item.route}
+                onPress={() => (navigation.navigate as (name: keyof RootStackParamList) => void)(item.route)}
+                style={({ pressed }) => [
+                  styles.quickItem,
+                  { backgroundColor: withAlpha(colors.primary, 0.08), borderColor: withAlpha(colors.primary, 0.2) },
+                  pressed && { opacity: 0.8 },
+                ]}
+              >
+                <MaterialIcons name={item.icon} size={24} color={colors.primary} />
+                <Text style={[styles.quickLabel, { color: colors.text }]}>{t(item.label)}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </SectionCard>
+
+        {/* Beneficios y promociones: puntos de fidelización reales (payment-service, ADR-015) */}
+        <SectionCard title={t('DASHBOARD.BENEFITS.TITLE')} icon="card-giftcard">
+          {loyalty.benefits.length === 0 ? (
+            <Text style={[styles.muted, { color: colors.textSecondary }]}>{t('DASHBOARD.BENEFITS.EMPTY')}</Text>
+          ) : (
+            loyalty.benefits.map((benefit) => (
+              <View key={benefit.title} style={[styles.benefit, { backgroundColor: withAlpha(colors.primary, 0.08) }]}>
+                <Text style={[styles.strong, { color: colors.text }]}>{benefit.title}</Text>
+                <Text style={[styles.muted, { color: colors.textSecondary }]}>
+                  {benefit.unlocked
+                    ? t('DASHBOARD.BENEFITS.UNLOCKED')
+                    : t('DASHBOARD.BENEFITS.LOCKED', { points: benefit.description })}
+                </Text>
+              </View>
+            ))
+          )}
+          <ProgressBar
+            percentage={loyalty.percentage}
+            label={
+              loyalty.allUnlocked
+                ? t('DASHBOARD.BENEFITS.ALL_UNLOCKED', { points: loyalty.points })
+                : `${t('DASHBOARD.BENEFITS.LOYALTY_PROGRESS')} (${t('DASHBOARD.BENEFITS.POINTS_OF', { current: loyalty.points, goal: loyalty.goal })})`
+            }
+          />
+        </SectionCard>
+      </ScreenScroll>
+      {feedback.modals}
+    </ClientLayout>
+  );
+}
+
+const styles = StyleSheet.create({
+  strong: { fontSize: fontSize.body + 1, fontWeight: fontWeight.semibold },
+  muted: { fontSize: fontSize.small },
+  meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  badges: { flexDirection: 'row' },
+  metaText: { flex: 1, fontSize: fontSize.small },
+  quickGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: spacing.md },
+  quickItem: {
+    flexBasis: '48%',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
+    borderRadius: radius.md,
+    borderWidth: 1,
+  },
+  quickLabel: { fontSize: fontSize.small, fontWeight: fontWeight.semibold, textAlign: 'center' },
+  benefit: { gap: 2, padding: spacing.md, borderRadius: radius.md },
+});

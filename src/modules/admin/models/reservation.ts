@@ -1,0 +1,96 @@
+// Modelos y tipos del módulo de reservas
+
+// Estados reales del booking-service (SCHEDULED, NO_SHOW...) más el "rescheduled" que
+// usaban las pantallas de ejemplo; las reservas reales solo traen los primeros seis.
+export type ReservationStatus =
+  | 'scheduled'
+  | 'confirmed'
+  | 'in_progress'
+  | 'completed'
+  | 'cancelled'
+  | 'no_show'
+  | 'rescheduled';
+
+// Orden en el que aparecen los estados en los selectores
+export const RESERVATION_STATUSES: ReservationStatus[] = [
+  'scheduled',
+  'confirmed',
+  'in_progress',
+  'completed',
+  'cancelled',
+  'no_show',
+  'rescheduled',
+];
+
+// cambios de estado que el admin puede pedir: los mismos de Booking.moveTo y cancel del
+// booking-service (MOV-05). Programada → confirmada (si tiene bahía) o cancelada; confirmada → en
+// progreso, no asistida o cancelada; en progreso → completada. Completada, cancelada y no asistida ya
+// no cambian. Así el formulario no ofrece uno que el backend rechace con INVALID_STATUS_TRANSITION
+export function nextStatuses(current: ReservationStatus, hasBay: boolean): ReservationStatus[] {
+  switch (current) {
+    case 'scheduled':
+      return hasBay ? ['confirmed', 'cancelled'] : ['cancelled'];
+    case 'confirmed':
+      return ['in_progress', 'no_show', 'cancelled'];
+    case 'in_progress':
+      return ['completed'];
+    default:
+      return [];
+  }
+}
+
+// fecha, hora y notas solo se cambian mientras no ha empezado ni terminado (Booking.requireChangeable)
+export const isReschedulable = (status: ReservationStatus): boolean => status === 'scheduled' || status === 'confirmed';
+
+export interface Reservation {
+  id: string;
+  code: string; // Ejemplo: #RES-8910
+  customerName: string;
+  phone: string;
+  email: string;
+  vehicle: string;
+  plate: string;
+  serviceId: string;
+  date: string; // Formato ISO: YYYY-MM-DD
+  time: string; // Formato HH:mm
+  duration: number; // En minutos
+  bayId: string; // '' = sin bahía
+  operatorId: string; // '' = sin operario
+  status: ReservationStatus;
+  notes: string;
+}
+
+// Valores que llenan el formulario (el id y el código los genera el sistema)
+export type ReservationFormValues = Omit<Reservation, 'id' | 'code'>;
+
+export interface ServiceOption {
+  id: string;
+  name: string;
+  duration: number; // Duración por defecto en minutos
+}
+
+export interface BayOption {
+  id: string;
+  name: string;
+}
+
+export interface Operator {
+  id: string;
+  name: string;
+}
+
+// Filtros de la lista de reservas
+export interface ReservationFilters {
+  search: string;
+  date: string; // Texto dd/mm/aaaa (vacío = todas las fechas)
+  status: '' | ReservationStatus; // '' = todos
+  operatorId: string; // '' = todos, 'unassigned' = sin asignar
+}
+
+// Números de las tarjetas de estadísticas
+export interface ReservationStatsData {
+  total: number;
+  active: number;
+  unassigned: number;
+  cancelled: number;
+}

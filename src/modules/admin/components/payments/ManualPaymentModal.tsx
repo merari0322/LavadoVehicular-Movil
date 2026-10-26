@@ -1,0 +1,215 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useTheme } from '../../../../app/theme';
+import { ThemeColors } from '../../../../app/theme/colors';
+import { SelectField, SelectOption } from '../../../../shared/components/forms/SelectField';
+import { withAlpha } from '../../../../shared/utils/color';
+import { PAYMENT_TEXTS } from '../../constants/paymentTexts';
+import { ManualPaymentValues } from '../../models/payment';
+import { bookingService } from '../../../../core/services/booking/BookingService';
+import { paymentService } from '../../../../core/services/payments/PaymentService';
+import { toISODate } from '../../../../shared/utils/format';
+import { formatCOP } from '../../../../shared/utils/format';
+import { manualPaymentAccounts } from '../../utils/paymentUtils';
+import { ReservationField } from '../reservations/ReservationField';
+import { ModalCloseButton } from '../../../../shared/components/feedback/ModalCloseButton';
+import { ModalShell } from '../../../../shared/components/feedback/ModalShell';
+
+interface ManualPaymentModalProps {
+  visible: boolean;
+  onClose: () => void;
+  onSubmit: (values: ManualPaymentValues) => void;
+}
+
+
+// Modal para registrar un pago hecho en caja
+export function ManualPaymentModal({ visible, onClose, onSubmit }: ManualPaymentModalProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const texts = PAYMENT_TEXTS.form;
+
+  // reservas que se pueden pagar (últimos 30 días y la próxima semana) y cuentas activas
+  const [bookings, setBookings] = useState<{ id: number; label: string }[]>([]);
+  const [accounts, setAccounts] = useState<SelectOption[]>([]);
+  const [bookingId, setBookingId] = useState('');
+  const [accountId, setAccountId] = useState('');
+  // opcional: payment-service la usa para no aceptar la misma transferencia en dos reservas
+  const [reference, setReference] = useState('');
+
+  // Cada vez que se abre el modal se recargan las opciones
+  useEffect(() => {
+    if (!visible) return;
+    setBookingId('');
+    setReference('');
+    const from = new Date();
+    from.setDate(from.getDate() - 30);
+    const to = new Date();
+    to.setDate(to.getDate() + 7);
+    bookingService
+      .adminBookings(toISODate(from), toISODate(to))
+      .then((list) =>
+        setBookings(
+          list
+            .filter((b) => b.status === 'CONFIRMED' || b.status === 'IN_PROGRESS' || b.status === 'COMPLETED')
+            .map((b) => ({
+              id: b.id,
+              label: `${b.code} · ${b.services.map((x) => x.name).join(', ')} · ${b.vehicle?.licensePlateFormatted ?? ''}`,
+            })),
+        ),
+      )
+      .catch(() => setBookings([]));
+    paymentService
+      .adminAccounts()
+      .then((list) => {
+        const active = manualPaymentAccounts(list);
+        setAccounts(active.map((a) => ({ value: String(a.id), label: `${a.methodName} · ${a.accountHolder}` })));
+        // efectivo primero: es lo más común en caja
+        const cash = active.find((a) => a.methodCode === 'EFECTIVO') ?? active[0];
+        setAccountId(cash ? String(cash.id) : '');
+      })
+      .catch(() => setAccounts([]));
+  }, [visible]);
+
+  const selected = bookings.find((b) => String(b.id) === bookingId);
+  const isValid = !!selected && accountId !== '';
+
+  // lo que se va a cobrar según payment-service: el total de la reserva menos los cupones canjeados.
+  // undefined = cargando, null = no se pudo consultar (no se adivina con el total)
+  const [amountDue, setAmountDue] = useState<number | null | undefined>(undefined);
+  useEffect(() => {
+    if (!bookingId) return;
+    let current = true;
+    setAmountDue(undefined);
+    paymentService
+      .amountDue(Number(bookingId))
+      .then((due) => current && setAmountDue(due.amountDue))
+      .catch(() => current && setAmountDue(null));
+    return () => {
+      current = false;
+    };
+  }, [bookingId]);
+  const amountLabel = !selected || amountDue === null ? '—' : amountDue === undefined ? '…' : formatCOP(amountDue);
+
+  const handleSubmit = () => {
+    if (!isValid) return;
+    onSubmit({
+      bookingId: Number(bookingId),
+      paymentAccountId: Number(accountId),
+      transactionReference: reference.trim() || null,
+    });
+  };
+
+  return (
+    <ModalShell visible={visible} onRequestClose={onClose} keyboardAvoiding>
+      <View style={styles.sheet}>
+        {/* Encabezado */}
+        <View style={styles.header}>
+          <View style={styles.flex}>
+            <Text style={styles.title}>{texts.title}</Text>
+            <Text style={styles.subtitle}>{texts.subtitle}</Text>
+          </View>
+          <ModalCloseButton onPress={onClose} />
+        </View>
+
+        {/* Campos */}
+        <ScrollView
+          style={styles.body}
+          contentContainerStyle={styles.bodyContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <ReservationField label={texts.service}>
+            <SelectField
+              value={bookingId}
+              options={bookings.map((b) => ({ value: String(b.id), label: b.label }))}
+              onChange={setBookingId}
+            />
+          </ReservationField>
+
+          <View style={styles.row}>
+            <ReservationField label={texts.amount} style={styles.flex}>
+              <TextInput style={styles.input} value={amountLabel} editable={false} />
+            </ReservationField>
+            <ReservationField label={texts.method} style={styles.methodField}>
+              <SelectField value={accountId} options={accounts} onChange={setAccountId} />
+            </ReservationField>
+          </View>
+
+          <ReservationField label={texts.reference}>
+            <TextInput
+              style={styles.input}
+              value={reference}
+              onChangeText={setReference}
+              placeholder={texts.referencePlaceholder}
+              placeholderTextColor={colors.textMuted}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              maxLength={100}
+            />
+          </ReservationField>
+        </ScrollView>
+
+        {/* Botones */}
+        <View style={styles.footer}>
+          <Pressable style={[styles.button, styles.cancelButton]} onPress={onClose}>
+            <Text style={styles.cancelText}>{texts.cancel}</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.button, styles.submitButton, !isValid && styles.disabled]}
+            onPress={handleSubmit}
+            disabled={!isValid}
+          >
+            <Text style={styles.submitText}>{texts.submit}</Text>
+          </Pressable>
+        </View>
+      </View>
+    </ModalShell>
+  );
+}
+
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    flex: { flex: 1 },
+    sheet: {
+      maxHeight: '92%',
+      borderRadius: 24,
+      overflow: 'hidden',
+      backgroundColor: colors.card,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 10,
+      padding: 20,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    title: { fontSize: 18, fontWeight: '800', color: colors.text },
+    subtitle: { marginTop: 2, fontSize: 13, color: colors.textSecondary },
+    body: { flexShrink: 1 },
+    bodyContent: { gap: 14, padding: 20 },
+    row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+    methodField: { flex: 1.3 },
+    input: {
+      height: 46,
+      paddingHorizontal: 14,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: withAlpha(colors.textMuted, 0.1),
+      fontSize: 14,
+      color: colors.text,
+    },
+    footer: {
+      flexDirection: 'row',
+      gap: 12,
+      padding: 16,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    button: { flex: 1, height: 46, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
+    cancelButton: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+    cancelText: { fontSize: 14, fontWeight: '700', color: colors.text },
+    submitButton: { backgroundColor: colors.primary },
+    submitText: { fontSize: 14, fontWeight: '700', color: colors.onPrimary },
+    disabled: { opacity: 0.45 },
+  });
