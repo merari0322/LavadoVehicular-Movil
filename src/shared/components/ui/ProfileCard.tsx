@@ -62,7 +62,7 @@ const DEFAULT_TEXTS: Record<string, string> = {
   'profile.address': 'Dirección',
   'profile.edit': 'Editar perfil',
   'profile.save': 'Guardar cambios',
-  'profile.password': 'Contraseña',
+  'profile.securityTitle': 'Contraseña',
   'profile.changePassword': 'Cambiar contraseña',
   'profile.passwordDesc': 'Se recomienda una contraseña segura',
   'profile.change': 'Cambiar',
@@ -446,7 +446,7 @@ export const ProfileCard = ({
       {/* Acciones de cuenta */}
       <ActionCard
         headerIcon="password"
-        headerTitle={tr('profile.password')}
+        headerTitle={tr('profile.securityTitle')}
         rowIcon="vpn-key"
         rowTitle={tr('profile.changePassword')}
         rowDescription={tr('profile.passwordDesc')}
