@@ -40,17 +40,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
           cache: npm
 
-      - run: npm ci
+      # ninguna dependencia necesita scripts de instalación (solo fsevents, que es de macOS); tsc y
+      # expo-updates se corren desde node_modules/.bin con la versión exacta de package-lock.json
+      - run: npm ci --ignore-scripts
 
       - name: TypeScript
-        run: npx tsc --noEmit -p .
+        run: ./node_modules/.bin/tsc --noEmit -p .
 
       - name: Pruebas
         run: npm test -- --ci
@@ -81,18 +83,18 @@ jobs:
       - name: Finales de línea como en Windows
         run: git config --global core.autocrlf true
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
           cache: npm
 
-      - run: npm ci
+      - run: npm ci --ignore-scripts
 
-      - uses: expo/expo-github-action@v8
+      - uses: expo/expo-github-action@c7b66a9c327a43a8fa7c0158e7f30d6040d2481e # 8.2.1
         with:
-          eas-version: latest
+          eas-version: 25.3.0
           packager: npm
 
       # canal y variables del perfil preview de eas.json, igual que scripts/publish-update.mjs
@@ -116,7 +118,7 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
           # huella de este commit: la misma cuenta que hace eas update para su runtimeVersion
-          LOCAL=$(npx expo-updates runtimeversion:resolve --platform android | jq -r '.runtimeVersion // empty')
+          LOCAL=$(./node_modules/.bin/expo-updates runtimeversion:resolve --platform android | jq -r '.runtimeVersion // empty')
           if [ -z "$LOCAL" ]; then
             echo "::error::No se pudo calcular la huella nativa de este commit. No se publicó nada."
             exit 1
