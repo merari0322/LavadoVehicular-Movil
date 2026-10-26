@@ -23,17 +23,6 @@ const createStyles = (colors: ThemeColors) =>
       backgroundColor: colors.card,
     },
     cardHighlighted: { borderWidth: 2, borderColor: colors.primary },
-    // Etiqueta
-    pill: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-      alignSelf: 'flex-start',
-      paddingVertical: 4,
-      paddingHorizontal: 12,
-      borderRadius: 999,
-    },
-    pillText: { fontSize: 12, fontWeight: '700' },
     // Botón de icono
     iconButton: {
       width: 40,
@@ -87,37 +76,11 @@ export function ManagementCard({ highlighted = false, style, children }: Managem
 }
 
 // ---------------------------------------------------------------
-// Etiqueta de color (estado, rol, permiso, etc.)
+// Etiqueta de color (estado, rol, permiso, etc.): la misma de shared
 // ---------------------------------------------------------------
 
-export type PillTone = 'primary' | 'success' | 'warning' | 'error' | 'neutral';
-
-interface PillProps {
-  label: string;
-  tone?: PillTone;
-  icon?: IconName;
-}
-
-export function Pill({ label, tone = 'neutral', icon }: PillProps) {
-  const { colors, styles } = useStyles();
-
-  const palette: Record<PillTone, { background: string; text: string }> = {
-    primary: { background: withAlpha(colors.primary, 0.15), text: colors.primaryHover },
-    success: { background: colors.successSoft, text: colors.success },
-    warning: { background: colors.warningSoft, text: colors.warning },
-    error: { background: colors.errorSoft, text: colors.error },
-    neutral: { background: withAlpha(colors.textMuted, 0.18), text: colors.textSecondary },
-  };
-
-  const { background, text } = palette[tone];
-
-  return (
-    <View style={[styles.pill, { backgroundColor: background }]}>
-      {icon ? <MaterialIcons name={icon} size={14} color={text} /> : null}
-      <Text style={[styles.pillText, { color: text }]}>{label}</Text>
-    </View>
-  );
-}
+export { Pill } from '../../../../shared/components/ui/Pill';
+export type { PillTone } from '../../../../shared/components/ui/Pill';
 
 // ---------------------------------------------------------------
 // Botón cuadrado con icono (editar, eliminar, pausar...)
