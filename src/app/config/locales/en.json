@@ -109,7 +109,10 @@
     "RATE": "Rate Service",
     "RATED": "Rated",
     "EDIT_RATING": "Edit rating",
-    "WASHED_BY": "Served by {{name}}"
+    "WASHED_BY": "Served by {{name}}",
+    "PAY_BEFORE": "Pay before {{time}}",
+    "DEADLINE": "Payment deadline",
+    "CANCEL_REASON": "Cancellation reason"
   },
   "COMMON": {
     "CLOSE": "Close",
@@ -481,7 +484,8 @@
       "SUBMIT": "Book Now",
       "NOTE": "We'll notify you when the washer is on the way. You can pay online or in cash.",
       "LOCATION": "Location",
-      "CAR_WASH": "Car Wash"
+      "CAR_WASH": "Car Wash",
+      "PAYMENT": "Payment"
     },
     "LOCATION": {
       "TITLE": "Service location"
@@ -497,7 +501,19 @@
       "LOADING": "Looking for free operators...",
       "HINT": "If the operator you chose is no longer free when we confirm, we assign another one.",
       "NONE_FREE": "No operators free to choose at that time; we will still assign one."
-    }
+    },
+    "PAYMENT_STEP": {
+      "TITLE": "How will you pay?",
+      "SUBTITLE": "Choose how you will pay for your wash",
+      "LOADING": "Checking the car wash payment methods...",
+      "DIGITAL": "Digital payment now",
+      "DIGITAL_DESC": "Nequi, Daviplata or bank transfer",
+      "DIGITAL_HINT": "After booking you go straight to payment: upload the receipt in time or the booking is released.",
+      "CASH": "Cash at the car wash",
+      "CASH_DESC": "You pay when you arrive and the administrator records it",
+      "CASH_NOTICE": "You pay in cash at the car wash"
+    },
+    "SUCCESS_BUTTON_CASH": "See my bookings"
   },
   "APP": {
     "TITLE": "LavaRápido"
@@ -917,7 +933,9 @@
     "CASH_INFO_MESSAGE": "Pay in cash when you pick up your vehicle. The administrator will record the payment and you will get the payment-approved notification.",
     "RECEIPT_COMPRESSING": "Preparing the receipt...",
     "RECEIPT_TOO_LARGE": "We could not reduce the image below 2 MB. Try a screenshot of the receipt.",
-    "LOAD_ERROR": "We couldn't load your payment status or the amount due. Check your connection and try again."
+    "LOAD_ERROR": "We couldn't load your payment status or the amount due. Check your connection and try again.",
+    "DEADLINE_NOTICE": "Upload the receipt before {{time}} or the booking is released",
+    "CASH_BOOKING_NOTICE": "This booking is paid at the car wash and the administrator records it: you do not need to upload a receipt. If you prefer to pay now, choose a digital method."
   },
   "VEHICLES": {
     "TITLE": "My Vehicles",
@@ -1321,7 +1339,9 @@
     "SERVICE_TOO_LATE": "This service can no longer be started: more than 4 hours have passed since its end time. Let the administrator know.",
     "NOTIFICATION_NOT_SENT": "The notification could not be sent. Try again in a moment.",
     "SECURITY_SERVICE_UNAVAILABLE": "The accounts service is not responding. Try again in a moment.",
-    "DATABASE_UNAVAILABLE": "The database is not responding. Try again in a few minutes."
+    "DATABASE_UNAVAILABLE": "The database is not responding. Try again in a few minutes.",
+    "CASH_BOOKING_LIMIT": "You already have an active booking paid in cash. Pay it or cancel it, or choose digital payment.",
+    "INVALID_PAYMENT_MODE": "Choose how you will pay: digital payment or cash at the car wash."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Change password",
@@ -1455,7 +1475,7 @@
     "CANCEL": "Cancel",
     "SCROLL_HINT": "Scroll to read the full document",
     "DEMO_NOTICE": "Sample document prepared for a training project. Before real commercial use, it must be reviewed by a lawyer and updated with the company's real information.",
-    "LAST_UPDATED_DATE": "September 17, 2026",
+    "LAST_UPDATED_DATE": "October 26, 2026",
     "COMPANY_NAME": "Express Car Wash S.A.S.",
     "TERMS": {
       "TITLE": "Terms and Conditions",
@@ -1482,11 +1502,11 @@
         },
         {
           "HEADING": "6. Bookings, cancellations and service delivery",
-          "BODY": "The Customer selects the date, time and wash type based on the availability shown by the system. A booking can be changed or cancelled at no cost before the service starts; once the operator marks it as 'in progress', cancellation is no longer possible. The service is only provided at the physical location indicated in the booking."
+          "BODY": "The Customer selects the date, time and wash type based on the availability shown by the system. A booking can be changed or cancelled at no cost before the service starts; once the operator marks it as 'in progress', cancellation is no longer possible. The service is only provided at the physical location indicated in the booking. If you choose digital payment, you must upload the receipt within 30 minutes of booking (or before the service time, if that is sooner); otherwise the booking is cancelled automatically and the slot is released. With cash payment you can have at most one active booking at a time."
         },
         {
           "HEADING": "7. Payments and receipts",
-          "BODY": "Payment is made by scanning the shop's QR code for the chosen method (cash, Nequi, Daviplata or bank transfer) and uploading the corresponding receipt, which an Administrator verifies before confirming it. The Platform never asks for or stores debit or credit card data. A receipt whose transaction reference has already been used on another approved payment will be rejected."
+          "BODY": "Digital payment (Nequi, Daviplata or bank transfer) is made by scanning the shop's QR code for the chosen method and uploading the corresponding receipt, which an Administrator verifies before confirming it. Cash payment is made at the shop and recorded by the Administrator, without a receipt. The Platform never asks for or stores debit or credit card data. A receipt whose transaction reference has already been used on another approved payment will be rejected."
         },
         {
           "HEADING": "8. Ratings and comments",
@@ -1636,5 +1656,8 @@
     "ZOOM_OUT": "Zoom out",
     "HINT": "Use the magnifier or double-tap the image to enlarge it. When zoomed, drag it to move around.",
     "DOUBLE_TAP": "Double-tap to zoom in or out"
+  },
+  "CANCELLATION_REASONS": {
+    "PAYMENT_TIMEOUT": "The receipt was not uploaded in time and the slot was released"
   }
 }

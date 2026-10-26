@@ -3,6 +3,9 @@
 
 export type BookingStatusCode = 'SCHEDULED' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
 export type BayStatusCode = 'ACTIVE' | 'MAINTENANCE' | 'INACTIVE';
+// cómo paga el cliente la reserva: DIGITAL (QR + comprobante) o CASH (en el lavadero, lo registra
+// el admin). null = reserva anterior al cambio o creada por el admin sin indicarlo
+export type PaymentMode = 'DIGITAL' | 'CASH';
 
 export interface ServiceCategoryResponse {
   id: number;
@@ -171,6 +174,11 @@ export interface BookingResponse {
   notes: string | null;
   changeable: boolean;
   createdAt: string | null;
+  // contrato pago-reserva (26-10): modo de pago, plazo del pago digital (instante ISO-8601) y si el
+  // cliente ya reportó el comprobante. Opcionales: un backend anterior no los manda
+  paymentMode?: PaymentMode | null;
+  paymentDeadline?: string | null;
+  paymentReported?: boolean;
 }
 
 export interface CreateBookingRequest {
@@ -181,6 +189,8 @@ export interface CreateBookingRequest {
   notes?: string | null;
   // RF-010: operario que eligió el cliente (opcional); si no está libre, se asigna otro
   preferredOperatorId?: number | null;
+  // obligatorio para el cliente (400 INVALID_PAYMENT_MODE si falta); opcional para el admin
+  paymentMode?: PaymentMode | null;
 }
 
 export interface RescheduleBookingRequest {

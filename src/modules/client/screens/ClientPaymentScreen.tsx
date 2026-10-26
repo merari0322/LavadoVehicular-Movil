@@ -159,6 +159,29 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
           </View>
         ) : null}
 
+        {/* contrato pago-reserva: reserva digital con plazo y sin comprobante reportado */}
+        {booking.payBefore && !isLocked ? (
+          <View style={[styles.hint, { backgroundColor: colors.warningSoft }]} accessibilityRole="alert">
+            <MaterialIcons name="timer" size={20} color={colors.warning} />
+            <View style={styles.flex}>
+              <Text style={[styles.strong, { color: colors.warning }]}>
+                {t('PAYMENT.DEADLINE_NOTICE', { time: booking.payBefore })}
+              </Text>
+            </View>
+          </View>
+        ) : null}
+
+        {/* reserva en efectivo: se paga en el lavadero y la registra el administrador */}
+        {vm.isCashBooking && !isApproved ? (
+          <View style={[styles.hint, { backgroundColor: withAlpha(colors.primary, 0.1) }]}>
+            <MaterialIcons name="payments" size={20} color={colors.primary} />
+            <View style={styles.flex}>
+              <Text style={[styles.strong, { color: colors.text }]}>{t('RESERVE.PAYMENT_STEP.CASH_NOTICE')}</Text>
+              <Text style={[styles.hintText, { color: colors.textSecondary }]}>{t('PAYMENT.CASH_BOOKING_NOTICE')}</Text>
+            </View>
+          </View>
+        ) : null}
+
         {/* payment-service no respondió: sin el estado ni el monto no se deja pagar */}
         {vm.paymentError ? (
           <View style={[styles.hint, { backgroundColor: colors.errorSoft }]}>
@@ -214,7 +237,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
           </View>
         </SectionCard>
 
-        {method === 'CASH' ? (
+        {method === null ? null : method === 'CASH' ? (
           <SectionCard title={t('PAYMENT.CASH.TITLE')} icon="storefront">
             <Text style={[styles.body, { color: colors.textSecondary }]}>{t('PAYMENT.CASH.DESC')}</Text>
           </SectionCard>
@@ -431,7 +454,7 @@ export function ClientPaymentScreen({ navigation, route }: Props) {
       <ImageZoomModal
         visible={qrZoomOpen}
         uri={account?.qrImageUrl ?? null}
-        title={`${t('PAYMENT.QR.VIA')} ${t(`PAYMENT.METHOD.${method}`)}`}
+        title={method ? `${t('PAYMENT.QR.VIA')} ${t(`PAYMENT.METHOD.${method}`)}` : ''}
         onClose={() => setQrZoomOpen(false)}
       />
     </ClientLayout>

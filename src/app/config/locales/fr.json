@@ -109,7 +109,10 @@
     "RATE": "Évaluer le service",
     "RATED": "Évalué",
     "EDIT_RATING": "Modifier l’évaluation",
-    "WASHED_BY": "Servi par {{name}}"
+    "WASHED_BY": "Servi par {{name}}",
+    "PAY_BEFORE": "Payez avant {{time}}",
+    "DEADLINE": "Délai de paiement",
+    "CANCEL_REASON": "Motif d'annulation"
   },
   "COMMON": {
     "CLOSE": "Fermer",
@@ -481,7 +484,8 @@
       "SUBMIT": "Réserver maintenant",
       "NOTE": "Nous vous préviendrons quand le laveur sera en route. Vous pouvez payer en ligne ou en espèces.",
       "LOCATION": "Lieu",
-      "CAR_WASH": "Station de lavage"
+      "CAR_WASH": "Station de lavage",
+      "PAYMENT": "Paiement"
     },
     "LOCATION": {
       "TITLE": "Lieu du service"
@@ -497,7 +501,19 @@
       "LOADING": "Recherche d'opérateurs libres...",
       "HINT": "Si l'opérateur choisi n'est plus libre à la confirmation, nous en attribuons un autre.",
       "NONE_FREE": "Aucun opérateur libre à choisir à cette heure ; nous en attribuerons quand même un."
-    }
+    },
+    "PAYMENT_STEP": {
+      "TITLE": "Comment allez-vous payer ?",
+      "SUBTITLE": "Choisissez comment payer votre lavage",
+      "LOADING": "Vérification des moyens de paiement de la station...",
+      "DIGITAL": "Paiement numérique maintenant",
+      "DIGITAL_DESC": "Nequi, Daviplata ou virement",
+      "DIGITAL_HINT": "Après la réservation, vous passez directement au paiement : envoyez le justificatif à temps ou la réservation est libérée.",
+      "CASH": "Espèces à la station de lavage",
+      "CASH_DESC": "Vous payez à l'arrivée et l'administrateur l'enregistre",
+      "CASH_NOTICE": "Vous payez en espèces à la station de lavage"
+    },
+    "SUCCESS_BUTTON_CASH": "Voir mes réservations"
   },
   "APP": {
     "TITLE": "LavaRápido"
@@ -917,7 +933,9 @@
     "CASH_INFO_MESSAGE": "Payez en espèces lorsque vous récupérez votre véhicule. L'administrateur enregistrera le paiement et vous recevrez la notification de paiement approuvé.",
     "RECEIPT_COMPRESSING": "Préparation du justificatif...",
     "RECEIPT_TOO_LARGE": "Impossible de réduire l'image sous 2 Mo. Essayez avec une capture d'écran du justificatif.",
-    "LOAD_ERROR": "Impossible de charger l'état de votre paiement ni le montant à payer. Vérifiez votre connexion et réessayez."
+    "LOAD_ERROR": "Impossible de charger l'état de votre paiement ni le montant à payer. Vérifiez votre connexion et réessayez.",
+    "DEADLINE_NOTICE": "Envoyez le justificatif avant {{time}} ou la réservation est libérée",
+    "CASH_BOOKING_NOTICE": "Cette réservation se paie à la station de lavage et l'administrateur l'enregistre : aucun justificatif à envoyer. Si vous préférez payer maintenant, choisissez un moyen numérique."
   },
   "VEHICLES": {
     "TITLE": "Mes Véhicules",
@@ -1321,7 +1339,9 @@
     "SERVICE_TOO_LATE": "Ce service ne peut plus être démarré : plus de 4 heures se sont écoulées depuis l'heure de fin. Prévenez l'administrateur.",
     "NOTIFICATION_NOT_SENT": "La notification n'a pas pu être envoyée. Réessayez dans un instant.",
     "SECURITY_SERVICE_UNAVAILABLE": "Le service des comptes ne répond pas. Réessayez dans un instant.",
-    "DATABASE_UNAVAILABLE": "La base de données ne répond pas. Réessayez dans quelques minutes."
+    "DATABASE_UNAVAILABLE": "La base de données ne répond pas. Réessayez dans quelques minutes.",
+    "CASH_BOOKING_LIMIT": "Vous avez déjà une réservation active avec paiement en espèces. Payez-la ou annulez-la, ou choisissez le paiement numérique.",
+    "INVALID_PAYMENT_MODE": "Choisissez comment vous allez payer : paiement numérique ou espèces à la station de lavage."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Changer le mot de passe",
@@ -1455,7 +1475,7 @@
     "CANCEL": "Annuler",
     "SCROLL_HINT": "Faites défiler pour lire le document complet",
     "DEMO_NOTICE": "Document d'exemple préparé pour un projet de formation. Avant toute utilisation commerciale réelle, il doit être révisé par un avocat et mis à jour avec les informations réelles de l'entreprise.",
-    "LAST_UPDATED_DATE": "17 septembre 2026",
+    "LAST_UPDATED_DATE": "26 octobre 2026",
     "COMPANY_NAME": "Express Car Wash S.A.S.",
     "TERMS": {
       "TITLE": "Conditions Générales",
@@ -1482,11 +1502,11 @@
         },
         {
           "HEADING": "6. Réservations, annulations et prestation du service",
-          "BODY": "Le Client sélectionne la date, l'heure et le type de lavage selon la disponibilité affichée par le système. Une réservation peut être modifiée ou annulée gratuitement avant le début du service ; une fois que l'opérateur la marque « en cours », l'annulation n'est plus possible. Le service n'est fourni que dans l'établissement physique indiqué lors de la réservation."
+          "BODY": "Le Client sélectionne la date, l'heure et le type de lavage selon la disponibilité affichée par le système. Une réservation peut être modifiée ou annulée gratuitement avant le début du service ; une fois que l'opérateur la marque « en cours », l'annulation n'est plus possible. Le service n'est fourni que dans l'établissement physique indiqué lors de la réservation. Si vous choisissez le paiement numérique, vous devez envoyer le justificatif dans les 30 minutes suivant la réservation (ou avant l'heure du service, si elle est plus proche) ; sinon, la réservation est annulée automatiquement et le créneau est libéré. Avec le paiement en espèces, vous pouvez avoir au maximum une réservation active à la fois."
         },
         {
           "HEADING": "7. Paiements et justificatifs",
-          "BODY": "Le paiement s'effectue en scannant le code QR de l'établissement pour le moyen choisi (espèces, Nequi, Daviplata ou virement bancaire) et en téléchargeant le justificatif correspondant, vérifié par un Administrateur avant confirmation. La Plateforme ne demande ni ne conserve jamais de données de carte bancaire. Un justificatif dont la référence de transaction a déjà été utilisée pour un autre paiement approuvé sera rejeté."
+          "BODY": "Le paiement numérique (Nequi, Daviplata ou virement bancaire) s'effectue en scannant le code QR de l'établissement pour le moyen choisi et en téléchargeant le justificatif correspondant, vérifié par un Administrateur avant confirmation. Le paiement en espèces se fait dans l'établissement et est enregistré par l'Administrateur, sans justificatif. La Plateforme ne demande ni ne conserve jamais de données de carte bancaire. Un justificatif dont la référence de transaction a déjà été utilisée pour un autre paiement approuvé sera rejeté."
         },
         {
           "HEADING": "8. Évaluations et commentaires",
@@ -1636,5 +1656,8 @@
     "ZOOM_OUT": "Zoom arrière",
     "HINT": "Utilisez la loupe ou touchez deux fois l'image pour l'agrandir. Une fois agrandie, faites-la glisser pour la déplacer.",
     "DOUBLE_TAP": "Touchez deux fois pour agrandir ou réduire"
+  },
+  "CANCELLATION_REASONS": {
+    "PAYMENT_TIMEOUT": "Le justificatif n'a pas été envoyé à temps et le créneau a été libéré"
   }
 }

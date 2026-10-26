@@ -13,6 +13,15 @@ export function toISODate(date: Date): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
+// instante ISO-8601 -> "HH:mm" en la hora local del celular (ej. el plazo del pago digital);
+// null si no es una fecha válida
+export function toLocalTime(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
 export function todayISO(): string {
   return toISODate(new Date());
 }

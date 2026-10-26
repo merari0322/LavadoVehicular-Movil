@@ -5,11 +5,11 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { fontSize, fontWeight, radius, spacing, useTheme } from '../../../app/theme';
-import { apiErrorKey, slotAlternatives } from '../../../core/api/apiError';
+import { apiErrorKey } from '../../../core/api/apiError';
 import { RootStackParamList } from '../../../core/navigation/types';
 import { bookingService } from '../../../core/services/booking/BookingService';
 import { AvailableOperatorResponse, operationsService } from '../../../core/services/operations/OperationsService';
-import { AvailabilityResponse, CatalogServiceResponse } from '../../../core/services/booking/booking.types';
+import { AvailabilityResponse, CatalogServiceResponse, PaymentMode } from '../../../core/services/booking/booking.types';
 import { ActionButton } from '../../../shared/components/screen/ActionButton';
 import { EmptyState } from '../../../shared/components/screen/EmptyState';
 import { InfoRow } from '../../../shared/components/screen/InfoRow';
@@ -24,6 +24,12 @@ import { withAlpha } from '../../../shared/utils/color';
 import { formatCOP, isoToDisplay, toISODate } from '../../../shared/utils/format';
 import { VehicleCard } from '../models/client';
 import { useClientVehicles } from '../viewmodels/useClientVehicles';
+import { useReservePaymentStep } from '../viewmodels/useReservePaymentStep';
+
+type IconName = keyof typeof MaterialIcons.glyphMap;
+
+// ícono de cada opción del paso "¿Cómo vas a pagar?"
+const PAYMENT_MODE_ICONS: Record<PaymentMode, IconName> = { DIGITAL: 'smartphone', CASH: 'payments' };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ClientReserve'>;
 
@@ -59,14 +65,17 @@ function StepTitle({ number, title, subtitle }: { number: number; title: string;
   );
 }
 
-// reservar lavado en 3 pasos: vehículo (reales del cliente), servicio (catálogo real) y
-// fecha/hora (disponibilidad real del booking-service, RF-006). La reserva se crea de verdad.
+// reservar lavado en 4 pasos: vehículo (reales del cliente), servicio (catálogo real),
+// fecha/hora (disponibilidad real del booking-service, RF-006) y cómo va a pagar (contrato
+// pago-reserva). La reserva se crea de verdad; con pago digital se va directo a pagarla.
 export function ClientReserveScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const { t, i18n } = useTranslation();
   const { vehicles, loading } = useClientVehicles();
   const feedback = useFeedback();
   const establishment = useEstablishment();
+  // paso 4: modo de pago (el efectivo solo si el lavadero tiene activa esa cuenta)
+  const payment = useReservePaymentStep(navigation);
 
   const [vehicleId, setVehicleId] = useState<number | null>(null);
   const [serviceId, setServiceId] = useState<number | null>(null);
@@ -82,7 +91,6 @@ export function ClientReserveScreen({ navigation }: Props) {
   const [availability, setAvailability] = useState<AvailabilityResponse | null>(null);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [slotsError, setSlotsError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
   // RF-010: operarios libres a esa hora; null = sin preferencia (el lavadero asigna uno, RF-008)
   const [operators, setOperators] = useState<AvailableOperatorResponse[]>([]);
   const [operatorsLoading, setOperatorsLoading] = useState(false);
@@ -92,7 +100,7 @@ export function ClientReserveScreen({ navigation }: Props) {
   const selectedService = services.find((s) => s.id === serviceId) ?? null;
   const total = vehicle && selectedService ? priceFor(selectedService, vehicle.typeId) : 0;
   const duration = vehicle && selectedService ? minutesFor(selectedService, vehicle.typeId) : 0;
-  const isValid = Boolean(vehicle && selectedService && date && time);
+  const isValid = Boolean(vehicle && selectedService && date && time && payment.paymentMode);
 
   // próximos días con el nombre corto del día en el idioma actual
   const days = useMemo(() => {
@@ -195,46 +203,48 @@ export function ClientReserveScreen({ navigation }: Props) {
 
   const submit = async () => {
     if (!vehicle || !selectedService || !date || !time) return;
-    setSubmitting(true);
-    try {
-      // la reserva se crea de verdad en el booking-service: el cliente sale del token
-      const booking = await bookingService.createBooking({
-        vehicleId: vehicle.id,
-        serviceIds: [selectedService.id],
-        date,
-        time,
-        notes: null,
-        preferredOperatorId,
-      });
-      feedback.showStatus(
-        {
-          title: t('RESERVE.SUCCESS_TITLE'),
-          message: t('RESERVE.SUCCESS_MESSAGE'),
-          buttonText: t('RESERVE.SUCCESS_BUTTON'),
-          details: [
-            { label: t('RESERVE.SUMMARY.VEHICLE'), value: `${vehicle.brand} ${vehicle.model}` },
-            { label: t('RESERVE.SUMMARY.PLATE'), value: vehicle.plate },
-            { label: t('RESERVE.SUMMARY.SERVICE'), value: selectedService.name },
-            { label: t('RESERVE.SUMMARY.DATE'), value: isoToDisplay(booking.date) },
-            { label: t('RESERVE.SUMMARY.TIME'), value: booking.startTime },
-            { label: t('RESERVE.SUMMARY.CAR_WASH'), value: establishmentText(establishment.address, t('MOBILE_NAV.LOADING')) },
-            { label: t('RESERVE.SUMMARY.TOTAL'), value: formatCOP(booking.total) },
-          ],
-        },
-        // el siguiente paso del flujo es pagar la reserva
-        () => navigation.navigate('ClientPayment'),
-      );
-    } catch (error) {
+    // la reserva se crea de verdad en el booking-service (el cliente sale del token) con el modo
+    // de pago elegido; con DIGITAL el view-model ya navegó a la pantalla de pago de esa reserva
+    const outcome = await payment.book({
+      vehicleId: vehicle.id,
+      serviceIds: [selectedService.id],
+      date,
+      time,
+      notes: null,
+      preferredOperatorId,
+    });
+    if (!outcome || outcome.kind === 'digital') return;
+    if (outcome.kind === 'error') {
       // 409 SLOT_UNAVAILABLE: el backend propone hasta 5 horas libres del mismo día (RF-006)
-      const alternatives = slotAlternatives(error);
-      if (alternatives && vehicle && selectedService) {
+      if (outcome.slotTaken) {
         setTime('');
         void fetchSlots(vehicle, selectedService, date);
       }
-      feedback.showError(t(apiErrorKey(error)));
-    } finally {
-      setSubmitting(false);
+      // 409 CASH_BOOKING_LIMIT: se deja elegido el pago digital como salida
+      if (outcome.cashLimit) payment.selectMode('DIGITAL');
+      feedback.showError(outcome.message);
+      return;
     }
+    // efectivo: se paga al llegar y lo registra el administrador; no hay comprobante que subir
+    const { booking } = outcome;
+    feedback.showStatus(
+      {
+        title: t('RESERVE.SUCCESS_TITLE'),
+        message: t('RESERVE.SUCCESS_MESSAGE'),
+        buttonText: t('RESERVE.SUCCESS_BUTTON_CASH'),
+        details: [
+          { label: t('RESERVE.SUMMARY.VEHICLE'), value: `${vehicle.brand} ${vehicle.model}` },
+          { label: t('RESERVE.SUMMARY.PLATE'), value: vehicle.plate },
+          { label: t('RESERVE.SUMMARY.SERVICE'), value: selectedService.name },
+          { label: t('RESERVE.SUMMARY.DATE'), value: isoToDisplay(booking.date) },
+          { label: t('RESERVE.SUMMARY.TIME'), value: booking.startTime },
+          { label: t('RESERVE.SUMMARY.CAR_WASH'), value: establishmentText(establishment.address, t('MOBILE_NAV.LOADING')) },
+          { label: t('RESERVE.SUMMARY.PAYMENT'), value: t('RESERVE.PAYMENT_STEP.CASH_NOTICE') },
+          { label: t('RESERVE.SUMMARY.TOTAL'), value: formatCOP(booking.total) },
+        ],
+      },
+      () => navigation.navigate('ClientHistory'),
+    );
   };
 
   const chip = (active: boolean) => [
@@ -431,6 +441,47 @@ export function ClientReserveScreen({ navigation }: Props) {
           </View>
         </SectionCard>
 
+        {/* Paso 4: cómo va a pagar (el efectivo solo aparece si el lavadero lo tiene activo) */}
+        <SectionCard>
+          <StepTitle number={4} title={t('RESERVE.PAYMENT_STEP.TITLE')} subtitle={t('RESERVE.PAYMENT_STEP.SUBTITLE')} />
+          {payment.accountsLoading ? (
+            <EmptyState loading title={t('RESERVE.PAYMENT_STEP.LOADING')} />
+          ) : (
+            payment.modes.map((mode) => {
+              const active = mode === payment.paymentMode;
+              return (
+                <Pressable
+                  key={mode}
+                  onPress={() => payment.selectMode(mode)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: active }}
+                  style={[
+                    styles.option,
+                    { borderColor: active ? colors.primary : colors.border },
+                    active && { backgroundColor: withAlpha(colors.primary, 0.08) },
+                  ]}
+                >
+                  <View style={[styles.optionIcon, { backgroundColor: withAlpha(colors.primary, 0.15) }]}>
+                    <MaterialIcons name={PAYMENT_MODE_ICONS[mode]} size={22} color={colors.primary} />
+                  </View>
+                  <View style={styles.flex}>
+                    <Text style={[styles.optionTitle, { color: colors.text }]}>{t(`RESERVE.PAYMENT_STEP.${mode}`)}</Text>
+                    <Text style={[styles.optionSubtitle, { color: colors.textSecondary }]}>
+                      {t(`RESERVE.PAYMENT_STEP.${mode}_DESC`)}
+                    </Text>
+                  </View>
+                  {active ? <MaterialIcons name="check-circle" size={22} color={colors.primary} /> : null}
+                </Pressable>
+              );
+            })
+          )}
+          {payment.paymentMode ? (
+            <Text style={[styles.note, { color: colors.textSecondary }]}>
+              {payment.paymentMode === 'DIGITAL' ? t('RESERVE.PAYMENT_STEP.DIGITAL_HINT') : `${t('RESERVE.PAYMENT_STEP.CASH_NOTICE')}.`}
+            </Text>
+          ) : null}
+        </SectionCard>
+
         {/* Resumen */}
         <SectionCard title={t('RESERVE.SUMMARY.TITLE')} icon="receipt-long">
           <InfoRow label={t('RESERVE.SUMMARY.VEHICLE')} value={vehicle ? `${vehicle.brand} ${vehicle.model}` : '—'} />
@@ -440,13 +491,17 @@ export function ClientReserveScreen({ navigation }: Props) {
           <InfoRow label={t('RESERVE.SUMMARY.DATE')} value={date ? isoToDisplay(date) : '—'} />
           <InfoRow label={t('RESERVE.SUMMARY.TIME')} value={time || '—'} />
           <InfoRow label={t('RESERVE.SUMMARY.CAR_WASH')} value={establishmentText(establishment.tradeName, t('MOBILE_NAV.LOADING'))} />
+          <InfoRow
+            label={t('RESERVE.SUMMARY.PAYMENT')}
+            value={payment.paymentMode ? t(`RESERVE.PAYMENT_STEP.${payment.paymentMode}`) : '—'}
+          />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <InfoRow label={t('RESERVE.SUMMARY.TOTAL')} value={total ? formatCOP(total) : '$—'} strong />
           <ActionButton
             label={t('RESERVE.SUMMARY.SUBMIT')}
             icon="arrow-forward"
             iconRight
-            disabled={!isValid || submitting}
+            disabled={!isValid || payment.submitting}
             onPress={submit}
           />
           <Text style={[styles.note, { color: colors.textMuted }]}>{t('RESERVE.SUMMARY.NOTE')}</Text>

@@ -109,7 +109,10 @@
     "RATE": "Avaliar serviço",
     "RATED": "Avaliado",
     "EDIT_RATING": "Editar avaliação",
-    "WASHED_BY": "Atendido por {{name}}"
+    "WASHED_BY": "Atendido por {{name}}",
+    "PAY_BEFORE": "Pague antes das {{time}}",
+    "DEADLINE": "Prazo de pagamento",
+    "CANCEL_REASON": "Motivo do cancelamento"
   },
   "COMMON": {
     "CLOSE": "Fechar",
@@ -481,7 +484,8 @@
       "SUBMIT": "Reservar Agora",
       "NOTE": "Avisaremos quando o lavador estiver a caminho. Você pode pagar online ou em dinheiro.",
       "LOCATION": "Local",
-      "CAR_WASH": "Lava-jato"
+      "CAR_WASH": "Lava-jato",
+      "PAYMENT": "Pagamento"
     },
     "LOCATION": {
       "TITLE": "Local do serviço"
@@ -497,7 +501,19 @@
       "LOADING": "Procurando operadores livres...",
       "HINT": "Se o operador escolhido não estiver mais livre ao confirmar, atribuímos outro.",
       "NONE_FREE": "Não há operadores livres para escolher nesse horário; mesmo assim atribuiremos um."
-    }
+    },
+    "PAYMENT_STEP": {
+      "TITLE": "Como você vai pagar?",
+      "SUBTITLE": "Escolha como vai pagar sua lavagem",
+      "LOADING": "Verificando os meios de pagamento do lava-rápido...",
+      "DIGITAL": "Pagamento digital agora",
+      "DIGITAL_DESC": "Nequi, Daviplata ou transferência",
+      "DIGITAL_HINT": "Ao reservar você vai direto ao pagamento: envie o comprovante a tempo ou a reserva é liberada.",
+      "CASH": "Dinheiro no lava-rápido",
+      "CASH_DESC": "Você paga ao chegar e o administrador registra",
+      "CASH_NOTICE": "Você paga em dinheiro no lava-rápido"
+    },
+    "SUCCESS_BUTTON_CASH": "Ver minhas reservas"
   },
   "APP": {
     "TITLE": "LavaRápido"
@@ -917,7 +933,9 @@
     "CASH_INFO_MESSAGE": "Pague em dinheiro quando buscar seu veículo. O administrador registrará o pagamento e você receberá a notificação de pagamento aprovado.",
     "RECEIPT_COMPRESSING": "Preparando o comprovante...",
     "RECEIPT_TOO_LARGE": "Não conseguimos reduzir a imagem para menos de 2 MB. Tente uma captura de tela do comprovante.",
-    "LOAD_ERROR": "Não foi possível carregar o status do seu pagamento nem o valor a pagar. Verifique sua conexão e tente novamente."
+    "LOAD_ERROR": "Não foi possível carregar o status do seu pagamento nem o valor a pagar. Verifique sua conexão e tente novamente.",
+    "DEADLINE_NOTICE": "Envie o comprovante antes das {{time}} ou a reserva é liberada",
+    "CASH_BOOKING_NOTICE": "Esta reserva é paga no lava-rápido e o administrador a registra: você não precisa enviar comprovante. Se preferir pagar agora, escolha um meio digital."
   },
   "VEHICLES": {
     "TITLE": "Meus Veículos",
@@ -1321,7 +1339,9 @@
     "SERVICE_TOO_LATE": "Este serviço não pode mais ser iniciado: passaram mais de 4 horas do horário de término. Avise o administrador.",
     "NOTIFICATION_NOT_SENT": "Não foi possível enviar a notificação. Tente novamente em instantes.",
     "SECURITY_SERVICE_UNAVAILABLE": "O serviço de contas não está respondendo. Tente novamente em instantes.",
-    "DATABASE_UNAVAILABLE": "O banco de dados não está respondendo. Tente novamente em alguns minutos."
+    "DATABASE_UNAVAILABLE": "O banco de dados não está respondendo. Tente novamente em alguns minutos.",
+    "CASH_BOOKING_LIMIT": "Você já tem uma reserva ativa com pagamento em dinheiro. Pague-a ou cancele-a, ou escolha o pagamento digital.",
+    "INVALID_PAYMENT_MODE": "Escolha como vai pagar: pagamento digital ou dinheiro no lava-rápido."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Alterar senha",
@@ -1455,7 +1475,7 @@
     "CANCEL": "Cancelar",
     "SCROLL_HINT": "Role para ler o documento completo",
     "DEMO_NOTICE": "Documento de exemplo elaborado para um projeto formativo. Antes de um uso comercial real, deve ser revisado por um advogado e atualizado com os dados reais da empresa.",
-    "LAST_UPDATED_DATE": "17 de setembro de 2026",
+    "LAST_UPDATED_DATE": "26 de outubro de 2026",
     "COMPANY_NAME": "Express Car Wash S.A.S.",
     "TERMS": {
       "TITLE": "Termos e Condições",
@@ -1482,11 +1502,11 @@
         },
         {
           "HEADING": "6. Reservas, cancelamentos e prestação do serviço",
-          "BODY": "O Cliente seleciona data, horário e tipo de lavagem conforme a disponibilidade exibida pelo sistema. Uma reserva pode ser alterada ou cancelada sem custo antes do início do serviço; uma vez marcada como 'em andamento' pelo operador, o cancelamento não é mais possível. O serviço é prestado apenas no estabelecimento físico indicado na reserva."
+          "BODY": "O Cliente seleciona data, horário e tipo de lavagem conforme a disponibilidade exibida pelo sistema. Uma reserva pode ser alterada ou cancelada sem custo antes do início do serviço; uma vez marcada como 'em andamento' pelo operador, o cancelamento não é mais possível. O serviço é prestado apenas no estabelecimento físico indicado na reserva. Se você escolher o pagamento digital, deve enviar o comprovante nos 30 minutos seguintes à reserva (ou antes do horário do serviço, se for mais cedo); caso contrário, a reserva é cancelada automaticamente e o horário é liberado. Com pagamento em dinheiro, você pode ter no máximo uma reserva ativa por vez."
         },
         {
           "HEADING": "7. Pagamentos e comprovantes",
-          "BODY": "O pagamento é feito escaneando o código QR do estabelecimento para o método escolhido (dinheiro, Nequi, Daviplata ou transferência bancária) e enviando o comprovante correspondente, verificado por um Administrador antes da confirmação. A Plataforma nunca solicita nem armazena dados de cartão de débito ou crédito. Um comprovante cuja referência de transação já tenha sido usada em outro pagamento aprovado será rejeitado."
+          "BODY": "O pagamento digital (Nequi, Daviplata ou transferência bancária) é feito escaneando o código QR do estabelecimento para o método escolhido e enviando o comprovante correspondente, verificado por um Administrador antes da confirmação. O pagamento em dinheiro é feito no estabelecimento e registrado pelo Administrador, sem comprovante. A Plataforma nunca solicita nem armazena dados de cartão de débito ou crédito. Um comprovante cuja referência de transação já tenha sido usada em outro pagamento aprovado será rejeitado."
         },
         {
           "HEADING": "8. Avaliações e comentários",
@@ -1636,5 +1656,8 @@
     "ZOOM_OUT": "Afastar",
     "HINT": "Use a lupa ou toque duas vezes na imagem para ampliá-la. Com zoom, arraste-a para movê-la.",
     "DOUBLE_TAP": "Toque duas vezes para ampliar ou reduzir"
+  },
+  "CANCELLATION_REASONS": {
+    "PAYMENT_TIMEOUT": "O comprovante não foi enviado a tempo e o horário foi liberado"
   }
 }

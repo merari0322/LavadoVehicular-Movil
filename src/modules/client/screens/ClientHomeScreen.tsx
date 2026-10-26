@@ -127,6 +127,17 @@ export function ClientHomeScreen({ navigation }: Props) {
             <Text style={[styles.muted, { color: colors.textSecondary }]}>
               {service.displayDate} · {service.timeRange}
             </Text>
+            {/* contrato pago-reserva: falta subir el comprobante antes del plazo (hora local) */}
+            {service.payBefore ? (
+              <View style={styles.badges}>
+                <Pill label={t('HISTORY_CARD.PAY_BEFORE', { time: service.payBefore })} tone="warning" icon="timer" />
+              </View>
+            ) : null}
+            {service.paysInCash ? (
+              <View style={styles.badges}>
+                <Pill label={t('RESERVE.PAYMENT_STEP.CASH_NOTICE')} tone="primary" icon="payments" />
+              </View>
+            ) : null}
             <View style={styles.meta}>
               <MaterialIcons name="storefront" size={16} color={colors.textMuted} />
               <Text style={[styles.metaText, { color: colors.textSecondary }]}>
@@ -202,6 +213,7 @@ const styles = StyleSheet.create({
   strong: { fontSize: fontSize.body + 1, fontWeight: fontWeight.semibold },
   muted: { fontSize: fontSize.small },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  badges: { flexDirection: 'row' },
   metaText: { flex: 1, fontSize: fontSize.small },
   quickGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: spacing.md },
   quickItem: {
