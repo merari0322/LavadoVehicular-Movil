@@ -934,7 +934,8 @@
     "RECEIPT_COMPRESSING": "Préparation du justificatif...",
     "RECEIPT_TOO_LARGE": "Impossible de réduire l'image sous 2 Mo. Essayez avec une capture d'écran du justificatif.",
     "LOAD_ERROR": "Impossible de charger l'état de votre paiement ni le montant à payer. Vérifiez votre connexion et réessayez.",
-    "DEADLINE_NOTICE": "Envoyez le justificatif avant {{time}} ou la réservation est libérée"
+    "DEADLINE_NOTICE": "Envoyez le justificatif avant {{time}} ou la réservation est libérée",
+    "CASH_BOOKING_NOTICE": "Cette réservation se paie à la station de lavage et l'administrateur l'enregistre : aucun justificatif à envoyer. Si vous préférez payer maintenant, choisissez un moyen numérique."
   },
   "VEHICLES": {
     "TITLE": "Mes Véhicules",

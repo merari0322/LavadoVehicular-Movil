@@ -133,6 +133,11 @@ export function ClientHomeScreen({ navigation }: Props) {
                 <Pill label={t('HISTORY_CARD.PAY_BEFORE', { time: service.payBefore })} tone="warning" icon="timer" />
               </View>
             ) : null}
+            {service.paysInCash ? (
+              <View style={styles.badges}>
+                <Pill label={t('RESERVE.PAYMENT_STEP.CASH_NOTICE')} tone="primary" icon="payments" />
+              </View>
+            ) : null}
             <View style={styles.meta}>
               <MaterialIcons name="storefront" size={16} color={colors.textMuted} />
               <Text style={[styles.metaText, { color: colors.textSecondary }]}>

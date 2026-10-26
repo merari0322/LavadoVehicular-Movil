@@ -934,7 +934,8 @@
     "RECEIPT_COMPRESSING": "Preparando el comprobante...",
     "RECEIPT_TOO_LARGE": "No pudimos reducir la imagen a menos de 2 MB. Prueba con una captura de pantalla del comprobante.",
     "LOAD_ERROR": "No pudimos cargar el estado de tu pago ni el monto a pagar. Revisa tu conexión e inténtalo de nuevo.",
-    "DEADLINE_NOTICE": "Sube el comprobante antes de las {{time}} o la reserva se libera"
+    "DEADLINE_NOTICE": "Sube el comprobante antes de las {{time}} o la reserva se libera",
+    "CASH_BOOKING_NOTICE": "Esta reserva se paga en el lavadero y la registra el administrador: no tienes que subir comprobante. Si prefieres pagar ahora, elige un medio digital."
   },
   "VEHICLES": {
     "TITLE": "Mis Vehículos",

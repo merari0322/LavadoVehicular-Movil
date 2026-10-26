@@ -32,6 +32,8 @@ export interface ClientBookingItem {
   // "HH:mm" local hasta la que se puede subir el comprobante; null = no hay plazo pendiente
   // (sin plazo, ya reportado o la reserva ya no está activa)
   payBefore: string | null;
+  // reserva activa que se paga en efectivo en el lavadero: en vez de "Pagar" va el aviso
+  paysInCash: boolean;
   // motivo de cancelación con su código (ej. PAYMENT_TIMEOUT); la pantalla lo traduce si lo conoce
   cancellationReason: { code: string; name: string } | null;
   rating?: number;
@@ -68,13 +70,15 @@ export function toClientBookingItem(
     pointsDiscount: booking.pointsDiscountAmount,
     total: booking.total,
     paymentStatus: payment?.paymentStatus ?? null,
-    // sin respuesta de payment-service no se ofrece pagar: de todos modos no se podría
-    canPay: payment?.payable ?? false,
+    // sin respuesta de payment-service no se ofrece pagar: de todos modos no se podría.
+    // Una reserva en efectivo se paga en el lavadero y la registra el admin: tampoco se ofrece
+    canPay: booking.paymentMode !== 'CASH' && (payment?.payable ?? false),
     // changeable lo decide el backend (RF-007: ni empezada ni pasada)
     canCancel: active && booking.changeable,
     canRate: booking.status === 'COMPLETED',
     paymentMode: booking.paymentMode ?? null,
     payBefore: payBeforeOf(booking),
+    paysInCash: booking.paymentMode === 'CASH' && active,
     cancellationReason: booking.cancellationReason ?? null,
   };
 }

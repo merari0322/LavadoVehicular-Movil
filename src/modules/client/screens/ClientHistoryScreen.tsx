@@ -105,8 +105,8 @@ export function ClientHistoryScreen({ navigation }: Props) {
           ? [{ label: t('HISTORY_CARD.RATED'), value: `★ ${booking.rating}${booking.ratingComment ? ` · "${booking.ratingComment}"` : ''}` }]
           : []),
       ],
-      // una reserva cancelada ya no tiene pago que ver
-      action: finished
+      // una reserva cancelada ya no tiene pago que ver; una en efectivo se paga en el lavadero
+      action: finished || booking.paysInCash
         ? undefined
         : {
             label: t('GO_TO.PAYMENT'),
@@ -205,6 +205,12 @@ export function ClientHistoryScreen({ navigation }: Props) {
               {booking.payBefore ? (
                 <View style={styles.badges}>
                   <Pill label={t('HISTORY_CARD.PAY_BEFORE', { time: booking.payBefore })} tone="warning" icon="timer" />
+                </View>
+              ) : null}
+              {/* reserva en efectivo: en vez del botón de pagar, el aviso */}
+              {booking.paysInCash ? (
+                <View style={styles.badges}>
+                  <Pill label={t('RESERVE.PAYMENT_STEP.CASH_NOTICE')} tone="primary" icon="payments" />
                 </View>
               ) : null}
 

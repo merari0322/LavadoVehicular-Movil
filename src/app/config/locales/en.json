@@ -934,7 +934,8 @@
     "RECEIPT_COMPRESSING": "Preparing the receipt...",
     "RECEIPT_TOO_LARGE": "We could not reduce the image below 2 MB. Try a screenshot of the receipt.",
     "LOAD_ERROR": "We couldn't load your payment status or the amount due. Check your connection and try again.",
-    "DEADLINE_NOTICE": "Upload the receipt before {{time}} or the booking is released"
+    "DEADLINE_NOTICE": "Upload the receipt before {{time}} or the booking is released",
+    "CASH_BOOKING_NOTICE": "This booking is paid at the car wash and the administrator records it: you do not need to upload a receipt. If you prefer to pay now, choose a digital method."
   },
   "VEHICLES": {
     "TITLE": "My Vehicles",

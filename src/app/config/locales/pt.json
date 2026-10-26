@@ -934,7 +934,8 @@
     "RECEIPT_COMPRESSING": "Preparando o comprovante...",
     "RECEIPT_TOO_LARGE": "Não conseguimos reduzir a imagem para menos de 2 MB. Tente uma captura de tela do comprovante.",
     "LOAD_ERROR": "Não foi possível carregar o status do seu pagamento nem o valor a pagar. Verifique sua conexão e tente novamente.",
-    "DEADLINE_NOTICE": "Envie o comprovante antes das {{time}} ou a reserva é liberada"
+    "DEADLINE_NOTICE": "Envie o comprovante antes das {{time}} ou a reserva é liberada",
+    "CASH_BOOKING_NOTICE": "Esta reserva é paga no lava-rápido e o administrador a registra: você não precisa enviar comprovante. Se preferir pagar agora, escolha um meio digital."
   },
   "VEHICLES": {
     "TITLE": "Meus Veículos",

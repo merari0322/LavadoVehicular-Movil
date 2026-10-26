@@ -64,7 +64,7 @@ export function flowStepOf(payments: ClientPayment[], bookingId: number): { step
 // pago ya se reportó) lo trae payment-service; aquí solo queda el método elegido, que es de la sesión
 interface SavedPayment {
   flowStep: FlowStep;
-  method: MethodId;
+  method: MethodId | null;
 }
 
 const storageKey = (code: string) => `@lavado_vehicular/payment/${code}`;
@@ -174,7 +174,15 @@ export function useClientPayment(bookingId?: number) {
   );
   // solo los medios con una cuenta activa (payment-service ya filtra las inactivas, efectivo incluido)
   const methods = useMemo(() => METHOD_IDS.filter((id) => usableAccounts.some((a) => methodIdOf(a.methodCode) === id)), [usableAccounts]);
-  const method: MethodId = chosenMethod && methods.includes(chosenMethod) ? chosenMethod : (methods[0] ?? 'NEQUI');
+  // reserva CASH (contrato pago-reserva): se preselecciona Efectivo si el lavadero tiene esa cuenta;
+  // si no, no se preselecciona nada y la pantalla solo muestra el aviso de pago en efectivo
+  const isCashBooking = booking?.paymentMode === 'CASH';
+  const defaultMethod: MethodId | null = isCashBooking
+    ? methods.includes('CASH')
+      ? 'CASH'
+      : null
+    : (methods[0] ?? 'NEQUI');
+  const method: MethodId | null = chosenMethod && methods.includes(chosenMethod) ? chosenMethod : defaultMethod;
   const account = usableAccounts.find((a) => methodIdOf(a.methodCode) === method) ?? null;
 
   const total = amount?.amountDue ?? null;
@@ -188,10 +196,11 @@ export function useClientPayment(bookingId?: number) {
     !compressing &&
     !isLocked &&
     total !== null &&
+    method !== null &&
     (method === 'CASH' || (receipt !== null && isReferenceValid && isPaidAmountValid));
   // lo que le falta al cliente para poder confirmar: se muestra debajo del botón deshabilitado
   const missingRequirements: string[] =
-    isLocked || method === 'CASH'
+    isLocked || method === 'CASH' || method === null
       ? []
       : [
           ...(receipt ? [] : ['PAYMENT.CONFIRM.MISSING.RECEIPT']),
@@ -321,6 +330,7 @@ export function useClientPayment(bookingId?: number) {
     accounts,
     methods,
     method,
+    isCashBooking,
     account,
     selectMethod,
     flowStep,

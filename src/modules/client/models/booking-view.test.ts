@@ -55,7 +55,24 @@ describe('insignia "Paga antes de las HH:mm" (contrato pago-reserva)', () => {
     expect(toClientBookingItem(booking({ paymentMode: null })).paymentMode).toBeNull();
   });
 
+  it('una reserva CASH no ofrece pagar: lleva el aviso de pago en efectivo', () => {
+    const payable = { bookingId: 55, paymentStatus: null, payable: true } as never;
+    const cashItem = toClientBookingItem(booking({ paymentMode: 'CASH', paymentDeadline: null }), payable);
+    expect(cashItem.canPay).toBe(false);
+    expect(cashItem.paysInCash).toBe(true);
+    expect(toClientBookingItem(booking({ paymentMode: 'CASH', status: 'CANCELLED' }), payable).paysInCash).toBe(false);
+
+    const digitalItem = toClientBookingItem(booking(), payable);
+    expect(digitalItem.canPay).toBe(true);
+    expect(digitalItem.paysInCash).toBe(false);
+    // reserva anterior al cambio: como antes
+    expect(toClientBookingItem(booking({ paymentMode: null }), payable).canPay).toBe(true);
+  });
+
   it('la insignia y el plazo tienen texto en los 4 idiomas', () => {
+    for (const locale of [es, en, fr, pt]) {
+      expect(locale.PAYMENT.CASH_BOOKING_NOTICE).toBeTruthy();
+    }
     for (const locale of [es, en, fr, pt]) {
       expect(locale.HISTORY_CARD.PAY_BEFORE).toContain('{{time}}');
       expect(locale.PAYMENT.DEADLINE_NOTICE).toContain('{{time}}');
