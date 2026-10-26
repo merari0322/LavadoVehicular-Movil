@@ -1321,7 +1321,9 @@
     "SERVICE_TOO_LATE": "Ce service ne peut plus être démarré : plus de 4 heures se sont écoulées depuis l'heure de fin. Prévenez l'administrateur.",
     "NOTIFICATION_NOT_SENT": "La notification n'a pas pu être envoyée. Réessayez dans un instant.",
     "SECURITY_SERVICE_UNAVAILABLE": "Le service des comptes ne répond pas. Réessayez dans un instant.",
-    "DATABASE_UNAVAILABLE": "La base de données ne répond pas. Réessayez dans quelques minutes."
+    "DATABASE_UNAVAILABLE": "La base de données ne répond pas. Réessayez dans quelques minutes.",
+    "CASH_BOOKING_LIMIT": "Vous avez déjà une réservation active avec paiement en espèces. Payez-la ou annulez-la, ou choisissez le paiement numérique.",
+    "INVALID_PAYMENT_MODE": "Choisissez comment vous allez payer : paiement numérique ou espèces à la station de lavage."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Changer le mot de passe",
@@ -1636,5 +1638,8 @@
     "ZOOM_OUT": "Zoom arrière",
     "HINT": "Utilisez la loupe ou touchez deux fois l'image pour l'agrandir. Une fois agrandie, faites-la glisser pour la déplacer.",
     "DOUBLE_TAP": "Touchez deux fois pour agrandir ou réduire"
+  },
+  "CANCELLATION_REASONS": {
+    "PAYMENT_TIMEOUT": "Le justificatif n'a pas été envoyé à temps et le créneau a été libéré"
   }
 }

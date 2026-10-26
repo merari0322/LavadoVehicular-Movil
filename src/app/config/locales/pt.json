@@ -1321,7 +1321,9 @@
     "SERVICE_TOO_LATE": "Este serviço não pode mais ser iniciado: passaram mais de 4 horas do horário de término. Avise o administrador.",
     "NOTIFICATION_NOT_SENT": "Não foi possível enviar a notificação. Tente novamente em instantes.",
     "SECURITY_SERVICE_UNAVAILABLE": "O serviço de contas não está respondendo. Tente novamente em instantes.",
-    "DATABASE_UNAVAILABLE": "O banco de dados não está respondendo. Tente novamente em alguns minutos."
+    "DATABASE_UNAVAILABLE": "O banco de dados não está respondendo. Tente novamente em alguns minutos.",
+    "CASH_BOOKING_LIMIT": "Você já tem uma reserva ativa com pagamento em dinheiro. Pague-a ou cancele-a, ou escolha o pagamento digital.",
+    "INVALID_PAYMENT_MODE": "Escolha como vai pagar: pagamento digital ou dinheiro no lava-rápido."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Alterar senha",
@@ -1636,5 +1638,8 @@
     "ZOOM_OUT": "Afastar",
     "HINT": "Use a lupa ou toque duas vezes na imagem para ampliá-la. Com zoom, arraste-a para movê-la.",
     "DOUBLE_TAP": "Toque duas vezes para ampliar ou reduzir"
+  },
+  "CANCELLATION_REASONS": {
+    "PAYMENT_TIMEOUT": "O comprovante não foi enviado a tempo e o horário foi liberado"
   }
 }

@@ -1321,7 +1321,9 @@
     "SERVICE_TOO_LATE": "This service can no longer be started: more than 4 hours have passed since its end time. Let the administrator know.",
     "NOTIFICATION_NOT_SENT": "The notification could not be sent. Try again in a moment.",
     "SECURITY_SERVICE_UNAVAILABLE": "The accounts service is not responding. Try again in a moment.",
-    "DATABASE_UNAVAILABLE": "The database is not responding. Try again in a few minutes."
+    "DATABASE_UNAVAILABLE": "The database is not responding. Try again in a few minutes.",
+    "CASH_BOOKING_LIMIT": "You already have an active booking paid in cash. Pay it or cancel it, or choose digital payment.",
+    "INVALID_PAYMENT_MODE": "Choose how you will pay: digital payment or cash at the car wash."
   },
   "CHANGE_PASSWORD_MODAL": {
     "TITLE": "Change password",
@@ -1636,5 +1638,8 @@
     "ZOOM_OUT": "Zoom out",
     "HINT": "Use the magnifier or double-tap the image to enlarge it. When zoomed, drag it to move around.",
     "DOUBLE_TAP": "Double-tap to zoom in or out"
+  },
+  "CANCELLATION_REASONS": {
+    "PAYMENT_TIMEOUT": "The receipt was not uploaded in time and the slot was released"
   }
 }
