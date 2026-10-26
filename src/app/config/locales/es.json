@@ -481,7 +481,8 @@
       "SUBMIT": "Reservar Ahora",
       "NOTE": "Te notificaremos cuando el lavador esté en camino. Puedes pagar en línea o en efectivo.",
       "LOCATION": "Lugar",
-      "CAR_WASH": "Lavado Vehicular"
+      "CAR_WASH": "Lavado Vehicular",
+      "PAYMENT": "Pago"
     },
     "LOCATION": {
       "TITLE": "Lugar del servicio"
@@ -497,7 +498,19 @@
       "LOADING": "Buscando operarios libres...",
       "HINT": "Si el operario que elegiste ya no está libre al confirmar, te asignamos otro.",
       "NONE_FREE": "No hay operarios libres para elegir a esa hora; igual te asignamos uno."
-    }
+    },
+    "PAYMENT_STEP": {
+      "TITLE": "¿Cómo vas a pagar?",
+      "SUBTITLE": "Elige cómo pagarás tu lavado",
+      "LOADING": "Revisando los medios de pago del lavadero...",
+      "DIGITAL": "Pago digital ahora",
+      "DIGITAL_DESC": "Nequi, Daviplata o transferencia",
+      "DIGITAL_HINT": "Al reservar vas directo a pagar: sube el comprobante a tiempo o la reserva se libera.",
+      "CASH": "Efectivo en el lavadero",
+      "CASH_DESC": "Pagas al llegar y lo registra el administrador",
+      "CASH_NOTICE": "Pagas en efectivo en el lavadero"
+    },
+    "SUCCESS_BUTTON_CASH": "Ver mis reservas"
   },
   "APP": {
     "TITLE": "LavaRápido"
@@ -917,7 +930,8 @@
     "CASH_INFO_MESSAGE": "Paga en efectivo cuando llegues por tu vehículo. El administrador registrará el pago y te llegará la notificación de pago aprobado.",
     "RECEIPT_COMPRESSING": "Preparando el comprobante...",
     "RECEIPT_TOO_LARGE": "No pudimos reducir la imagen a menos de 2 MB. Prueba con una captura de pantalla del comprobante.",
-    "LOAD_ERROR": "No pudimos cargar el estado de tu pago ni el monto a pagar. Revisa tu conexión e inténtalo de nuevo."
+    "LOAD_ERROR": "No pudimos cargar el estado de tu pago ni el monto a pagar. Revisa tu conexión e inténtalo de nuevo.",
+    "DEADLINE_NOTICE": "Sube el comprobante antes de las {{time}} o la reserva se libera"
   },
   "VEHICLES": {
     "TITLE": "Mis Vehículos",

@@ -481,7 +481,8 @@
       "SUBMIT": "Reservar Agora",
       "NOTE": "Avisaremos quando o lavador estiver a caminho. Você pode pagar online ou em dinheiro.",
       "LOCATION": "Local",
-      "CAR_WASH": "Lava-jato"
+      "CAR_WASH": "Lava-jato",
+      "PAYMENT": "Pagamento"
     },
     "LOCATION": {
       "TITLE": "Local do serviço"
@@ -497,7 +498,19 @@
       "LOADING": "Procurando operadores livres...",
       "HINT": "Se o operador escolhido não estiver mais livre ao confirmar, atribuímos outro.",
       "NONE_FREE": "Não há operadores livres para escolher nesse horário; mesmo assim atribuiremos um."
-    }
+    },
+    "PAYMENT_STEP": {
+      "TITLE": "Como você vai pagar?",
+      "SUBTITLE": "Escolha como vai pagar sua lavagem",
+      "LOADING": "Verificando os meios de pagamento do lava-rápido...",
+      "DIGITAL": "Pagamento digital agora",
+      "DIGITAL_DESC": "Nequi, Daviplata ou transferência",
+      "DIGITAL_HINT": "Ao reservar você vai direto ao pagamento: envie o comprovante a tempo ou a reserva é liberada.",
+      "CASH": "Dinheiro no lava-rápido",
+      "CASH_DESC": "Você paga ao chegar e o administrador registra",
+      "CASH_NOTICE": "Você paga em dinheiro no lava-rápido"
+    },
+    "SUCCESS_BUTTON_CASH": "Ver minhas reservas"
   },
   "APP": {
     "TITLE": "LavaRápido"
@@ -917,7 +930,8 @@
     "CASH_INFO_MESSAGE": "Pague em dinheiro quando buscar seu veículo. O administrador registrará o pagamento e você receberá a notificação de pagamento aprovado.",
     "RECEIPT_COMPRESSING": "Preparando o comprovante...",
     "RECEIPT_TOO_LARGE": "Não conseguimos reduzir a imagem para menos de 2 MB. Tente uma captura de tela do comprovante.",
-    "LOAD_ERROR": "Não foi possível carregar o status do seu pagamento nem o valor a pagar. Verifique sua conexão e tente novamente."
+    "LOAD_ERROR": "Não foi possível carregar o status do seu pagamento nem o valor a pagar. Verifique sua conexão e tente novamente.",
+    "DEADLINE_NOTICE": "Envie o comprovante antes das {{time}} ou a reserva é liberada"
   },
   "VEHICLES": {
     "TITLE": "Meus Veículos",

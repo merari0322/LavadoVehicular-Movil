@@ -481,7 +481,8 @@
       "SUBMIT": "Book Now",
       "NOTE": "We'll notify you when the washer is on the way. You can pay online or in cash.",
       "LOCATION": "Location",
-      "CAR_WASH": "Car Wash"
+      "CAR_WASH": "Car Wash",
+      "PAYMENT": "Payment"
     },
     "LOCATION": {
       "TITLE": "Service location"
@@ -497,7 +498,19 @@
       "LOADING": "Looking for free operators...",
       "HINT": "If the operator you chose is no longer free when we confirm, we assign another one.",
       "NONE_FREE": "No operators free to choose at that time; we will still assign one."
-    }
+    },
+    "PAYMENT_STEP": {
+      "TITLE": "How will you pay?",
+      "SUBTITLE": "Choose how you will pay for your wash",
+      "LOADING": "Checking the car wash payment methods...",
+      "DIGITAL": "Digital payment now",
+      "DIGITAL_DESC": "Nequi, Daviplata or bank transfer",
+      "DIGITAL_HINT": "After booking you go straight to payment: upload the receipt in time or the booking is released.",
+      "CASH": "Cash at the car wash",
+      "CASH_DESC": "You pay when you arrive and the administrator records it",
+      "CASH_NOTICE": "You pay in cash at the car wash"
+    },
+    "SUCCESS_BUTTON_CASH": "See my bookings"
   },
   "APP": {
     "TITLE": "LavaRápido"
@@ -917,7 +930,8 @@
     "CASH_INFO_MESSAGE": "Pay in cash when you pick up your vehicle. The administrator will record the payment and you will get the payment-approved notification.",
     "RECEIPT_COMPRESSING": "Preparing the receipt...",
     "RECEIPT_TOO_LARGE": "We could not reduce the image below 2 MB. Try a screenshot of the receipt.",
-    "LOAD_ERROR": "We couldn't load your payment status or the amount due. Check your connection and try again."
+    "LOAD_ERROR": "We couldn't load your payment status or the amount due. Check your connection and try again.",
+    "DEADLINE_NOTICE": "Upload the receipt before {{time}} or the booking is released"
   },
   "VEHICLES": {
     "TITLE": "My Vehicles",

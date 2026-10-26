@@ -1,6 +1,7 @@
-import { BookingResponse, BookingStatusCode } from '../../../core/services/booking/booking.types';
+import { BookingResponse, BookingStatusCode, PaymentMode } from '../../../core/services/booking/booking.types';
 import { isActiveStatus, isoToDisplayDate, vehicleLabel } from '../../../core/services/booking/bookingDisplay';
 import { BookingPaymentState, ClientPayment } from '../../../core/services/payments/PaymentService';
+import { toLocalTime } from '../../../shared/utils/format';
 
 export type ClientPaymentStatus = ClientPayment['status'];
 
@@ -26,12 +27,23 @@ export interface ClientBookingItem {
   canPay: boolean;
   canCancel: boolean;
   canRate: boolean;
+  // contrato pago-reserva (26-10): modo de pago elegido (null = reserva anterior o del admin)
+  paymentMode: PaymentMode | null;
+  // "HH:mm" local hasta la que se puede subir el comprobante; null = no hay plazo pendiente
+  // (sin plazo, ya reportado o la reserva ya no está activa)
+  payBefore: string | null;
   rating?: number;
   ratingComment?: string;
   // primer nombre del operario que lavó el vehículo (operations-service)
   ratingOperator?: string;
   // primer nombre del operario asignado a la reserva (operations-service)
   operator?: string;
+}
+
+/** insignia "Paga antes de las HH:mm": reserva activa, con plazo y sin comprobante reportado */
+export function payBeforeOf(booking: BookingResponse): string | null {
+  if (!isActiveStatus(booking.status) || booking.paymentReported) return null;
+  return toLocalTime(booking.paymentDeadline);
 }
 
 /** @param payment estado del pago de la reserva según payment-service (null si no respondió) */
@@ -59,5 +71,7 @@ export function toClientBookingItem(
     // changeable lo decide el backend (RF-007: ni empezada ni pasada)
     canCancel: active && booking.changeable,
     canRate: booking.status === 'COMPLETED',
+    paymentMode: booking.paymentMode ?? null,
+    payBefore: payBeforeOf(booking),
   };
 }

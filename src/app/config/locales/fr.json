@@ -481,7 +481,8 @@
       "SUBMIT": "Réserver maintenant",
       "NOTE": "Nous vous préviendrons quand le laveur sera en route. Vous pouvez payer en ligne ou en espèces.",
       "LOCATION": "Lieu",
-      "CAR_WASH": "Station de lavage"
+      "CAR_WASH": "Station de lavage",
+      "PAYMENT": "Paiement"
     },
     "LOCATION": {
       "TITLE": "Lieu du service"
@@ -497,7 +498,19 @@
       "LOADING": "Recherche d'opérateurs libres...",
       "HINT": "Si l'opérateur choisi n'est plus libre à la confirmation, nous en attribuons un autre.",
       "NONE_FREE": "Aucun opérateur libre à choisir à cette heure ; nous en attribuerons quand même un."
-    }
+    },
+    "PAYMENT_STEP": {
+      "TITLE": "Comment allez-vous payer ?",
+      "SUBTITLE": "Choisissez comment payer votre lavage",
+      "LOADING": "Vérification des moyens de paiement de la station...",
+      "DIGITAL": "Paiement numérique maintenant",
+      "DIGITAL_DESC": "Nequi, Daviplata ou virement",
+      "DIGITAL_HINT": "Après la réservation, vous passez directement au paiement : envoyez le justificatif à temps ou la réservation est libérée.",
+      "CASH": "Espèces à la station de lavage",
+      "CASH_DESC": "Vous payez à l'arrivée et l'administrateur l'enregistre",
+      "CASH_NOTICE": "Vous payez en espèces à la station de lavage"
+    },
+    "SUCCESS_BUTTON_CASH": "Voir mes réservations"
   },
   "APP": {
     "TITLE": "LavaRápido"
@@ -917,7 +930,8 @@
     "CASH_INFO_MESSAGE": "Payez en espèces lorsque vous récupérez votre véhicule. L'administrateur enregistrera le paiement et vous recevrez la notification de paiement approuvé.",
     "RECEIPT_COMPRESSING": "Préparation du justificatif...",
     "RECEIPT_TOO_LARGE": "Impossible de réduire l'image sous 2 Mo. Essayez avec une capture d'écran du justificatif.",
-    "LOAD_ERROR": "Impossible de charger l'état de votre paiement ni le montant à payer. Vérifiez votre connexion et réessayez."
+    "LOAD_ERROR": "Impossible de charger l'état de votre paiement ni le montant à payer. Vérifiez votre connexion et réessayez.",
+    "DEADLINE_NOTICE": "Envoyez le justificatif avant {{time}} ou la réservation est libérée"
   },
   "VEHICLES": {
     "TITLE": "Mes Véhicules",
