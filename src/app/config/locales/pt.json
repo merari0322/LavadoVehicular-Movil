@@ -1095,7 +1095,7 @@
     "address": "Endereço",
     "edit": "Editar perfil",
     "save": "Salvar alterações",
-    "password": "Senha",
+    "securityTitle": "Senha",
     "changePassword": "Alterar senha",
     "passwordDesc": "Recomenda-se uma senha segura",
     "change": "Alterar",

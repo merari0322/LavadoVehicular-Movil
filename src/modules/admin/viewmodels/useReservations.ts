@@ -172,7 +172,7 @@ export function useReservations() {
 
   // las que necesitan operario, de la más próxima a la más lejana
   const unassigned = useMemo(
-    () => reservations.filter(isUnassigned).sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`)),
+    () => reservations.filter((item) => isUnassigned(item)).sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`)),
     [reservations, isUnassigned],
   );
 
@@ -227,7 +227,7 @@ export function useReservations() {
     return {
       total: todays.length,
       active: todays.filter((i) => i.status === 'confirmed' || i.status === 'in_progress').length,
-      unassigned: todays.filter(isUnassigned).length,
+      unassigned: todays.filter((item) => isUnassigned(item)).length,
       cancelled: todays.filter((i) => i.status === 'cancelled' || i.status === 'rescheduled' || i.status === 'no_show')
         .length,
     };

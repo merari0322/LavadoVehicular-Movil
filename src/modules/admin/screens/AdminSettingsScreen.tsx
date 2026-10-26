@@ -91,8 +91,8 @@ export const AdminSettingsScreen = () => {
   // ---------------------------------------------------------------
 
   const handlePaymentSubmit = (values: PaymentMethodFormValues) => {
-    if (paymentForm.item) settings.updatePaymentMethod(paymentForm.item.id, values);
-    else settings.createPaymentMethod(values);
+    if (paymentForm.item) void settings.updatePaymentMethod(paymentForm.item.id, values);
+    else void settings.createPaymentMethod(values);
     setPaymentForm(CLOSED);
   };
 
@@ -102,7 +102,7 @@ export const AdminSettingsScreen = () => {
       title: SETTINGS_TEXTS.payments.deleteTitle,
       message: SETTINGS_TEXTS.payments.deleteMessage(method.name),
       onConfirm: () => {
-        settings.deletePaymentMethod(method.id);
+        void settings.deletePaymentMethod(method.id);
         setConfirm(null);
       },
     });

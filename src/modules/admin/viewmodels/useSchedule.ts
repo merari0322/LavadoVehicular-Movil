@@ -182,7 +182,7 @@ export function useSchedule() {
 
   const reloadHistory = useCallback(async () => {
     try {
-      setHistory((await bookingService.scheduleHistory()).map(historyToLocal));
+      setHistory((await bookingService.scheduleHistory()).map((entry) => historyToLocal(entry)));
     } catch {
       // si falla, la pantalla se queda con el historial que ya tenía
     }

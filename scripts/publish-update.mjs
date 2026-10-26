@@ -5,7 +5,6 @@
 //
 // La actualización se arma en este computador: aquí se fija la misma dirección del backend que usa
 // el APK (eas.json → build.preview.env), para que no quede apuntando a localhost.
-import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
 const message = process.argv[2];
@@ -16,7 +15,6 @@ const env = { ...process.env, ...preview.env };
 console.log(`Backend de la actualización: ${env.EXPO_PUBLIC_API_URL}`);
 
 // sin preguntas, eas-cli exige el entorno; "preview" no tiene variables guardadas en EAS, así que
-// la dirección del backend sale de eas.json (la de arriba)
-execFileSync('eas', ['update', '--channel', preview.channel, '--environment', 'preview', '--message',
-  JSON.stringify(message), '--non-interactive'],
-  { stdio: 'inherit', env, shell: true });
+// la dirección del backend sale de eas.json (la de arriba). Sin shell, el mensaje viaja tal cual.
+runEas(['update', '--channel', preview.channel, '--environment', 'preview', '--message', message, '--non-interactive'],
+  { stdio: 'inherit', env });

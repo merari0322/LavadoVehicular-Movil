@@ -85,12 +85,12 @@ export const AdminOperatorsScreen = () => {
     ]);
 
   const handleAvailabilitySubmit = (availability: AvailabilityDay[]) => {
-    if (selected) operators.saveAvailability(selected.id, availability);
+    if (selected) void operators.saveAvailability(selected.id, availability);
     setAvailabilityVisible(false);
   };
 
   const handleAbsenceSubmit = (values: AbsenceFormValues) => {
-    if (selected) operators.registerAbsence(selected.id, values);
+    if (selected) void operators.registerAbsence(selected.id, values);
     setAbsenceVisible(false);
   };
 
@@ -108,7 +108,7 @@ export const AdminOperatorsScreen = () => {
   };
 
   const handleReturnConfirm = () => {
-    if (returnTarget) operators.registerReturn(returnTarget.id);
+    if (returnTarget) void operators.registerReturn(returnTarget.id);
     setReturnTarget(null);
   };
 

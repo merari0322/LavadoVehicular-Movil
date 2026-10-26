@@ -49,7 +49,7 @@ export const AdminNotificationsScreen = () => {
       title: NOTIFICATION_TEXTS.deleteTitle,
       message: NOTIFICATION_TEXTS.deleteMessage(notification.title),
       onConfirm: () => {
-        inbox.deleteNotification(notification.id);
+        void inbox.deleteNotification(notification.id);
         setConfirm(null);
       },
     });

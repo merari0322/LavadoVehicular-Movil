@@ -1095,7 +1095,7 @@
     "address": "Adresse",
     "edit": "Modifier le profil",
     "save": "Enregistrer",
-    "password": "Mot de passe",
+    "securityTitle": "Mot de passe",
     "changePassword": "Changer le mot de passe",
     "passwordDesc": "Un mot de passe sécurisé est recommandé",
     "change": "Changer",
