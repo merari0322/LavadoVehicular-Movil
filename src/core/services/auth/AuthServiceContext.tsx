@@ -100,7 +100,7 @@ export function AuthServiceProvider({ service = defaultAuthService, children }: 
 
   // al abrir la app: recupera la sesión guardada si el token sigue vigente
   useEffect(() => {
-    loadSession().then((saved) => {
+    void loadSession().then((saved) => {
       if (saved) {
         setSession(saved as Session);
         setStatus('signedIn');

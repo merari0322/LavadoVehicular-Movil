@@ -39,7 +39,7 @@ export function OperatorHomeScreen({ navigation }: Props) {
   const [unread, setUnread] = useState(0);
   useEffect(() => {
     const load = () => notificationService.unreadCount().then(setUnread).catch(() => setUnread(0));
-    load();
+    void load();
     // si llega una push, el contador se actualiza sin salir de la pantalla
     return inboxEvents.subscribe(() => void load());
   }, []);

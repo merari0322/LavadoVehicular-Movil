@@ -118,7 +118,7 @@ export function NotificationsView({ role }: NotificationsViewProps) {
   // al ver el detalle (tocar la notificación o "Ver detalle") queda leída; el detalle trae
   // el botón "Ir a..." hacia el apartado de donde viene el aviso
   const viewDetail = (n: RoleNotification) => {
-    if (!n.read) setRead(n.id, true);
+    if (!n.read) void setRead(n.id, true);
     const goTo = goToForNotification(role, n.code);
     feedback.showStatus({
       type: 'info',

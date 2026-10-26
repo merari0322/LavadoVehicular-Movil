@@ -17,7 +17,7 @@ export function AppProviders({ children }: AppProvidersProps) {
   const [languageReady, setLanguageReady] = useState(false);
 
   useEffect(() => {
-    restoreSavedLanguage().finally(() => setLanguageReady(true));
+    void restoreSavedLanguage().finally(() => setLanguageReady(true));
   }, []);
 
   if (!languageReady) {
