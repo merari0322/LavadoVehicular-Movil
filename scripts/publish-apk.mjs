@@ -6,15 +6,15 @@
 //   npm run publish:apk -- "qué cambió" <buildId>  (un build en particular)
 //
 // Servidor: DEPLOY_HOST (por defecto el de Azure) y la llave DEPLOY_SSH_KEY (~/.ssh/lavarapido_azure).
-import { execFileSync } from 'node:child_process';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { runEas, runSsh } from './lib/commands.mjs';
 
 const [notes = '', buildId] = process.argv.slice(2);
 const host = process.env.DEPLOY_HOST ?? 'azureuser@64.236.160.129';
 const key = process.env.DEPLOY_SSH_KEY ?? join(homedir(), '.ssh', 'lavarapido_azure');
 
-const eas = (args) => JSON.parse(execFileSync('eas', [...args, '--json'], { encoding: 'utf8', shell: true }));
+const eas = (args) => JSON.parse(runEas([...args, '--json'], { encoding: 'utf8' }));
 
 // build:view no acepta --non-interactive (build:list sí)
 const build = buildId
@@ -29,5 +29,5 @@ if (!url || !Number.isInteger(versionCode)) throw new Error(`El build ${build.id
 console.log(`Publicando build ${build.id} (versionCode ${versionCode})...`);
 // las notas viajan como un solo argumento con comillas simples escapadas para el shell remoto
 const quoted = (s) => `'${String(s).replace(/'/g, `'\\''`)}'`;
-execFileSync('ssh', ['-i', key, '-o', 'BatchMode=yes', host,
+runSsh(['-i', key, '-o', 'BatchMode=yes', host,
   `bash ~/lavarapido/lavarapido-infra/deploy/publish-apk.sh ${quoted(url)} ${versionCode} ${quoted(notes)}`], { stdio: 'inherit' });
