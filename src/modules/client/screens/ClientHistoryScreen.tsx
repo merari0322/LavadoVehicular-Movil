@@ -85,6 +85,22 @@ export function ClientHistoryScreen({ navigation }: Props) {
         ...(booking.paymentStatus
           ? [{ label: t('HISTORY_CARD.PAYMENT'), value: t(`HISTORY_CARD.PAYMENT_STATUS.${booking.paymentStatus}`) }]
           : []),
+        // contrato pago-reserva: plazo del pago digital, o el aviso de pago en efectivo
+        ...(booking.payBefore
+          ? [{ label: t('HISTORY_CARD.DEADLINE'), value: t('HISTORY_CARD.PAY_BEFORE', { time: booking.payBefore }) }]
+          : []),
+        ...(booking.paymentMode === 'CASH' && !finished
+          ? [{ label: t('RESERVE.SUMMARY.PAYMENT'), value: t('RESERVE.PAYMENT_STEP.CASH_NOTICE') }]
+          : []),
+        // motivo de cancelación: traducido por su código (ej. PAYMENT_TIMEOUT) o el texto del backend
+        ...(finished && booking.cancellationReason
+          ? [
+              {
+                label: t('HISTORY_CARD.CANCEL_REASON'),
+                value: t(`CANCELLATION_REASONS.${booking.cancellationReason.code}`, { defaultValue: booking.cancellationReason.name }),
+              },
+            ]
+          : []),
         ...(booking.rating
           ? [{ label: t('HISTORY_CARD.RATED'), value: `★ ${booking.rating}${booking.ratingComment ? ` · "${booking.ratingComment}"` : ''}` }]
           : []),
@@ -185,6 +201,12 @@ export function ClientHistoryScreen({ navigation }: Props) {
                 </View>
                 <Text style={[styles.price, { color: colors.text }]}>{formatCOP(booking.total)}</Text>
               </View>
+              {/* contrato pago-reserva: falta subir el comprobante antes del plazo (hora local) */}
+              {booking.payBefore ? (
+                <View style={styles.badges}>
+                  <Pill label={t('HISTORY_CARD.PAY_BEFORE', { time: booking.payBefore })} tone="warning" icon="timer" />
+                </View>
+              ) : null}
 
               <InfoRow label={t('HISTORY_CARD.TYPE')} value={booking.services.join(' / ')} />
               <InfoRow label={t('HISTORY_CARD.VEHICLE')} value={`${booking.vehicle || '—'}${booking.plate ? ` · ${booking.plate}` : ''}`} />
@@ -239,6 +261,7 @@ export function ClientHistoryScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
+  badges: { flexDirection: 'row' },
   label: { fontSize: fontSize.small, fontWeight: fontWeight.medium },
   dates: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },

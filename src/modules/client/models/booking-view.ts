@@ -32,6 +32,8 @@ export interface ClientBookingItem {
   // "HH:mm" local hasta la que se puede subir el comprobante; null = no hay plazo pendiente
   // (sin plazo, ya reportado o la reserva ya no está activa)
   payBefore: string | null;
+  // motivo de cancelación con su código (ej. PAYMENT_TIMEOUT); la pantalla lo traduce si lo conoce
+  cancellationReason: { code: string; name: string } | null;
   rating?: number;
   ratingComment?: string;
   // primer nombre del operario que lavó el vehículo (operations-service)
@@ -73,5 +75,6 @@ export function toClientBookingItem(
     canRate: booking.status === 'COMPLETED',
     paymentMode: booking.paymentMode ?? null,
     payBefore: payBeforeOf(booking),
+    cancellationReason: booking.cancellationReason ?? null,
   };
 }

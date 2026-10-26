@@ -109,7 +109,10 @@
     "RATE": "Rate Service",
     "RATED": "Rated",
     "EDIT_RATING": "Edit rating",
-    "WASHED_BY": "Served by {{name}}"
+    "WASHED_BY": "Served by {{name}}",
+    "PAY_BEFORE": "Pay before {{time}}",
+    "DEADLINE": "Payment deadline",
+    "CANCEL_REASON": "Cancellation reason"
   },
   "COMMON": {
     "CLOSE": "Close",

@@ -109,7 +109,10 @@
     "RATE": "Évaluer le service",
     "RATED": "Évalué",
     "EDIT_RATING": "Modifier l’évaluation",
-    "WASHED_BY": "Servi par {{name}}"
+    "WASHED_BY": "Servi par {{name}}",
+    "PAY_BEFORE": "Payez avant {{time}}",
+    "DEADLINE": "Délai de paiement",
+    "CANCEL_REASON": "Motif d'annulation"
   },
   "COMMON": {
     "CLOSE": "Fermer",
