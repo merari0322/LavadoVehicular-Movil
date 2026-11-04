@@ -56,6 +56,12 @@ Los textos visibles están en español, inglés, francés y portugués (`localiz
 
 Los perfiles de compilación están en `eas.json` (`preview` y `production`).
 
+`google-services.json` (Firebase, para las notificaciones push) no está en el repo porque lleva una
+llave. EAS lo recibe como variable de tipo archivo `GOOGLE_SERVICES_JSON` del proyecto
+(`eas env:create --name GOOGLE_SERVICES_JSON --type file --value ./google-services.json
+--visibility secret --environment preview --environment production`); `app.config.js` la usa y, en
+un build local, toma la copia de la raíz, que Git ignora.
+
 ## Despliegue continuo
 
 Cuando un cambio entra a `main` (PR aprobado), `.github/workflows/cd.yml` repite el CI (tipos y
