@@ -17,8 +17,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.vehiclecarwash.app",
-      "googleServicesFile": "./google-services.json"
+      "package": "com.vehiclecarwash.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
